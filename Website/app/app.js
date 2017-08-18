@@ -1,11 +1,16 @@
 ﻿"use strict";
 
 
-//var odataServerUrl = "https://www.iopspro.com/DataServices/ODataV4";
-var odataServerUrl = "http://localhost/DataServices/ODataV4";
+var odataServerUrl = document.URL.indexOf("localhost/iops/") > 0 ? "http://localhost/DataServices/ODataV4" : "https://www.iopspro.com/DataServices/ODataV4";
+
 //var odataServerUrl = "https:/7.207.78.73/DataServices/ODataV4";
 //var odataServerUrl = "http://localhost:48773";
-var webRoot = document.URL.indexOf("localhost") > 0 ? "/iops/" : "/";
+var webRoot = document.URL.indexOf("localhost/iops/") > 0 ? "/iops/"
+				: document.URL.indexOf("localhost/iOPSPro-Development") > 0 ? "/iOPSPro-Development/Website/" :
+				"/";
+
+
+alert(document.URL);
 
 
 
