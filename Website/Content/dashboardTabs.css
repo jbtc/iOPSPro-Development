@@ -1,0 +1,63 @@
+﻿/* Styles go here */
+
+ul.tabs {
+	display: table;
+	list-style-type: none;
+	margin: 0;
+	margin-left: 5px;
+	padding: 0;
+}
+
+ul.tabs > li {
+	float: left;
+	height: 35px;
+	cursor: pointer;
+	padding: .5em 1em .5em 1em;
+	margin-right: 4px;
+	background-color: #DDD;
+	-ms-border-top-left-radius: 10px;
+	border-top-left-radius: 10px;
+	-ms-border-top-right-radius: 10px;
+	border-top-right-radius: 10px;
+	-webkit-user-select: none; -moz-user-select: none; -ms-user-select: none;
+}
+
+ul.tabs > li:hover {
+	background-color: #e1e5cd;
+}
+
+ul.tabs > li.selected {
+	background-color: #a5b069;
+	border: 1px solid rgb(157, 157, 157);
+	/*-moz-box-shadow: -1px -1px 8px 4px #ddd;
+    -webkit-box-shadow: -1px -1px 8px 4px #ddd;
+    box-shadow: -1px -1px 8px 4px #ddd;*/
+	z-index: 30;
+
+}
+
+.tab-pane {
+	border-top: 2px solid silver;
+    background-color: #fff;
+    padding: 0;
+
+}
+
+.tab-content > .tab-pane {
+	border-top: 0;
+    background-color: #fff;
+    padding: 0;
+
+}
+
+
+.nav-tabs {
+	border-bottom: 0;
+}
+
+
+.nav>li>a {
+    position: relative;
+    display: block;
+    padding: 8px 15px;
+}

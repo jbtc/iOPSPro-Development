@@ -1,0 +1,70 @@
+﻿
+body {
+    background-color: white;
+    font-family: "Open Sans", Arial, sans-serif;
+    overflow-y: hidden;
+}
+
+.container-fluid {
+    padding: 0;
+    overflow-x: hidden;
+}
+
+.sign-in-form {
+    padding: 80px;
+}
+
+.panel-body {
+    overflow-x: hidden;
+}
+
+.no-select {
+  -webkit-touch-callout: none;
+  -webkit-user-select: none;
+  -khtml-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+}
+
+.lone-chart-template {
+    width: 100%; height: 100%; overflow: hidden;
+}
+
+.tiny-button {
+    height: 20px;
+    font-size: .7em;
+}
+
+.mid-size-button {
+    height: 25px;
+    font-size: .8em;
+    
+}
+
+
+.highslide-heading {
+	display: none;
+	font-weight: bold;
+	margin: 0.8em;
+    height: 50px;
+
+}
+
+.draggable-header .highslide-header {
+    height: 35px;
+    border-bottom: none;
+    //background-color: #eee;
+}
+
+thead > .shaded-gray {
+      color: #333;
+  background-color: #dedede;
+    background: linear-gradient(to bottom,#9e9e9e, #eeeeee);
+  border-color: #ccc;
+	min-height: 20px;
+	padding: 0;
+	padding: 8px;
+    font-weight: bold;
+
+}

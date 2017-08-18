@@ -1,0 +1,11 @@
+﻿
+<div>
+    <ul class="ps-menu" ng-transclude></ul>
+    <a class="btn ps-menu-layout-button"
+       ng-show="vm.displaySetupService.menuParameters.allowHorizontalToggle"
+       ng-class="{'ps-layout-button-horizontal': !vm.displaySetupService.menuParameters.isVertical}"
+       ng-click="vm.toggleMenuOrientation()">
+        <i class="fa"
+           ng-class="{'fa-chevron-up': vm.displaySetupService.menuParameters.isVertical, 'fa-chevron-left': !vm.displaySetupService.menuParameters.isVertical}"></i>
+    </a>
+</div>

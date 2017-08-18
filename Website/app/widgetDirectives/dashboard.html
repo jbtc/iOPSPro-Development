@@ -1,0 +1,143 @@
+﻿<div class="panel panel-primary static-panel" ng-class="vm.screenSwitchClass">
+    <div ng-if="!vm.widget" class="panel-heading">
+        <div class='btn-toolbar pull-right' style="display: -webkit-inline-box">
+
+            <div class="btn-group" style="margin-right: 25px;">
+
+                <a ng-click="vm.SetTimeScope(365)" class="btn btn-default responsive-button mid-size-button" ng-class="{'radio-active': vm.dashboard.DashboardTimeScope.Days == 365}" title="Set time window to the last year back from now">
+                    Year
+                </a>
+                <a ng-click="vm.SetTimeScope(180)" class="btn btn-default responsive-button mid-size-button" ng-class="{'radio-active': vm.dashboard.DashboardTimeScope.Days == 180}" title="Set time window to the last 6 months back from now">
+                    180d
+                </a>
+                <a ng-click="vm.SetTimeScope(90)" class="btn btn-default responsive-button mid-size-button" ng-class="{'radio-active': vm.dashboard.DashboardTimeScope.Days == 90}" title="Set time window to the last 90 days back from now">
+                    90d
+                </a>
+                <a ng-click="vm.SetTimeScope(30)" class="btn btn-default responsive-button mid-size-button" ng-class="{'radio-active': vm.dashboard.DashboardTimeScope.Days == 30}" title="Set time window to the last 30 days back from now">
+                    30d
+                </a>
+                <a ng-click="vm.SetTimeScope(7)" class="btn btn-default responsive-button mid-size-button" ng-class="{'radio-active': vm.dashboard.DashboardTimeScope.Days == 7}" title="Set time window to the last week back from now">
+                    7d
+                </a>
+                <a ng-click="vm.SetTimeScope(1)" class="btn btn-default responsive-button mid-size-button" ng-class="{'radio-active': vm.dashboard.DashboardTimeScope.Days == 1}" title="Set time window to the last 24 hours back from now">
+                    24h
+                </a>
+                <a ng-click="vm.SetTimeScope(0)" class="btn btn-default responsive-button mid-size-button" ng-class="{'radio-active': vm.dashboard.DashboardTimeScope.Days == 0}" title="Set time window to today since midnight">
+                    Today
+                </a>
+                <a ng-click="vm.SetTimeScope(-1)" class="btn btn-default responsive-button mid-size-button" ng-class="{'radio-active': vm.dashboard.DashboardTimeScope.Days == -1}" title="Set time window to yesterday from midnight to midnight">
+                    Yesterday
+                </a>
+            </div>
+
+            <button ui-sref=".editDashboard({ DashboardId: vm.dashboard.Id})" class="btn btn-default responsive-button mid-size-button" title="Edit {{dashboard.Name}} settings (Name, Description, Date Range, etc)">
+                Settings
+            </button>
+
+            <button ui-sref=".addWidget({ DashboardId: vm.dashboard.Id })" class="btn btn-default responsive-button mid-size-button">
+                Add Widget
+            </button>
+
+            <button ng-if="!vm.fullscreen" ng-click="vm.ToggleFullScreen()" class="btn btn-default responsive-button mid-size-button" title="Expand To FULL Screen">
+                <i ng-class="" class="glyphicon glyphicon-fullscreen"></i>
+            </button>
+            <button ng-if="vm.fullscreen" ng-click="vm.ToggleFullScreen()" class="btn btn-default responsive-button mid-size-button" title="Shrink To NORMAL Screen">
+                <i class="glyphicon glyphicon-resize-small"></i>
+            </button>
+
+
+
+
+
+        </div>
+        <div class="panel-heading-title">
+            {{vm.dashboard.Name}}
+        </div>
+        <div class="panel-heading-subtitle">
+            {{vm.dashboard.Description}} {{vm.subTitle}}
+        </div>
+
+    </div>
+    <div ng-if="vm.dashboard" class="panel-body" style="overflow-x: auto; width: 100%; padding: 0; overflow-y: auto;">
+
+        <div gridster="vm.gridsterOpts">
+            <ul ng-if="vm.widgets">
+                <li gridster-item="widget" ng-repeat="widget in vm.widgets" style="border: none;">
+                    <div class="panel panel-default" style="height: 100%; overflow-y: hidden;" id="widget-panel-heading{{widget.Id}}">
+                        <div class="panel-heading" id="{{vm.dashboard.Id}}" style="cursor: move;">
+                            <div ng-if="widget.WidgetResource.EmbeddedDashboardId" class='btn-toolbar pull-right' style="display: -webkit-inline-box">
+                                <div class="btn-group">
+
+                                    <a ng-click="vm.SetTimeScope(365)" class="btn btn-default responsive-button tiny-button" ng-class="{'radio-active': vm.dashboard.DashboardTimeScope.Days == 365}" title="Set time window to the last year back from now">
+                                        Year
+                                    </a>
+                                    <a ng-click="vm.SetTimeScope(180)" class="btn btn-default responsive-button tiny-button" ng-class="{'radio-active': vm.dashboard.DashboardTimeScope.Days == 180}" title="Set time window to the last 6 months back from now">
+                                        180d
+                                    </a>
+                                    <a ng-click="vm.SetTimeScope(90)" class="btn btn-default responsive-button tiny-button" ng-class="{'radio-active': vm.dashboard.DashboardTimeScope.Days == 90}" title="Set time window to the last 90 days back from now">
+                                        90d
+                                    </a>
+                                    <a ng-click="vm.SetTimeScope(30)" class="btn btn-default responsive-button tiny-button" ng-class="{'radio-active': vm.dashboard.DashboardTimeScope.Days == 30}" title="Set time window to the last 30 days back from now">
+                                        30d
+                                    </a>
+                                    <a ng-click="vm.SetTimeScope(7)" class="btn btn-default responsive-button tiny-button" ng-class="{'radio-active': vm.dashboard.DashboardTimeScope.Days == 7}" title="Set time window to the last week back from now">
+                                        7d
+                                    </a>
+                                    <a ng-click="vm.SetTimeScope(1)" class="btn btn-default responsive-button tiny-button" ng-class="{'radio-active': vm.dashboard.DashboardTimeScope.Days == 1}" title="Set time window to the last 24 hours back from now">
+                                        24h
+                                    </a>
+                                    <a ng-click="vm.SetTimeScope(0)" class="btn btn-default responsive-button tiny-button" ng-class="{'radio-active': vm.dashboard.DashboardTimeScope.Days == 0}" title="Set time window to today since midnight">
+                                        Today
+                                    </a>
+                                    <a ng-click="vm.SetTimeScope(-1)" class="btn btn-default responsive-button tiny-button" ng-class="{'radio-active': vm.dashboard.DashboardTimeScope.Days == -1}" title="Set time window to yesterday from midnight to midnight">
+                                        Yesterday
+                                    </a>
+                                    <a ui-sref=".addWidget({ DashboardId: widget.WidgetResource.EmbeddedDashboardId })" class="btn btn-default responsive-button tiny-button">
+                                        Add Widget
+                                    </a>
+                                </div>
+
+
+                                <i ui-sref=".editWidget({ WidgetId: widget.Id})" class="fa fa-pencil-square-o" aria-hidden="true" title="aEdit widget {{widget.Name}}" style="cursor: default; padding: 4px; margin-left: 15px;"></i>
+                                <i ng-click="vm.deleteWidget(widget)" class="fa fa-times" aria-hidden="true" title='Delete "{{widget.Name}}" widget' style="color: red; margin-left: 0; cursor: default; padding: 4px;"></i>
+
+
+
+
+
+                            </div>
+
+                            <div ng-if="!widget.WidgetResource.EmbeddedDashboardId" class='btn-toolbar pull-right' style="display: inline-block;">
+                                <i ui-sref=".editWidget({ WidgetId: widget.Id})" class="fa fa-pencil-square-o" aria-hidden="true" title="bEdit widget {{widget.Name}}" style="cursor: default; padding: 4px;"></i>
+                                <i ng-click="vm.deleteWidget(widget)" class="fa fa-times" aria-hidden="true" title='Delete "{{widget.Name}}" widget' style="color: red; margin-left: 0; cursor: default; padding: 4px;"></i>
+                            </div>
+                            {{widget.Name}}
+                        </div>
+                        <div class="panel-body" id="{{widget.Id}}" style="overflow-y: hidden; padding: 0; height: 100%;">
+                            <bhs-current-alarms-table ng-if="widget.WidgetResource.WidgetType.AngularDirectiveName == 'bhsCurrentAlarmsTable'" widget="widget" dashboard="vm.dashboard"></bhs-current-alarms-table>
+                            <ticket-counter-throughput ng-if="widget.WidgetResource.WidgetType.AngularDirectiveName == 'ticketCounterThroughput'" widget="widget" dashboard="vm.dashboard"></ticket-counter-throughput>
+                            <bhs-alarm-history-table ng-if="widget.WidgetResource.WidgetType.AngularDirectiveName == 'bhsAlarmHistoryTable'" widget="widget" dashboard="vm.dashboard"></bhs-alarm-history-table>
+                            <bhs-active-alarms ng-if="widget.WidgetResource.WidgetType.AngularDirectiveName == 'bhsActiveAlarms'" widget="widget" dashboard="vm.dashboard"></bhs-active-alarms>
+                            <bhs-read-rates-summary ng-if="widget.WidgetResource.WidgetType.AngularDirectiveName == 'bhsReadRatesSummary'" widget="widget" dashboard="vm.dashboard"></bhs-read-rates-summary>
+                            <bhs-read-rates-history-chart ng-if="widget.WidgetResource.WidgetType.AngularDirectiveName == 'bhsReadRatesHistoryChart'" widget="widget" dashboard="vm.dashboard"></bhs-read-rates-history-chart>
+                            <bhs-bag-jams-with-history-chart ng-if="widget.WidgetResource.WidgetType.AngularDirectiveName == 'bhsBagJamsWithHistoryChart'" widget="widget" dashboard="vm.dashboard"></bhs-bag-jams-with-history-chart>
+                            <bhs-bag-dimensioner-read-accuracy-summary ng-if="widget.WidgetResource.WidgetType.AngularDirectiveName == 'bhsBagDimensionerReadAccuracySummary'" widget="widget" dashboard="vm.dashboard"></bhs-bag-dimensioner-read-accuracy-summary>
+                            <bhs-system-bags-processed ng-if="widget.WidgetResource.WidgetType.AngularDirectiveName == 'bhsSystemBagsProcessed'" widget="widget" dashboard="vm.dashboard"></bhs-system-bags-processed>
+                            <bhs-top-five-alarm-durations ng-if="widget.WidgetResource.WidgetType.AngularDirectiveName == 'bhsTopFiveAlarmDurations'" widget="widget" dashboard="vm.dashboard"></bhs-top-five-alarm-durations>
+                            <bhs-top-five-alarm-types ng-if="widget.WidgetResource.WidgetType.AngularDirectiveName == 'bhsTopFiveAlarmTypes'" widget="widget" dashboard="vm.dashboard"></bhs-top-five-alarm-types>
+                            <bhs-top-five-alarm-areas ng-if="widget.WidgetResource.WidgetType.AngularDirectiveName == 'bhsTopFiveAlarmAreas'" widget="widget" dashboard="vm.dashboard"></bhs-top-five-alarm-areas>
+                            <bhs-top-five-jam-devices-with-count ng-if="widget.WidgetResource.WidgetType.AngularDirectiveName == 'bhsTopFiveJamDevicesWithCount'" widget="widget" dashboard="vm.dashboard"></bhs-top-five-jam-devices-with-count>
+                            <bhs-top-five-jam-devices-with-longest-duration ng-if="widget.WidgetResource.WidgetType.AngularDirectiveName == 'bhsTopFiveJamDevicesWithLongestDuration'" widget="widget" dashboard="vm.dashboard"></bhs-top-five-jam-devices-with-longest-duration>
+                            <!--<dashboard ng-if="widget.WidgetResource.WidgetType.AngularDirectiveName == 'dashboard'" widget="widget" dashboard="widget.WidgetResource.EmbeddedDashboard" dashboard-id="widget.WidgetResource.EmbeddedDashboard.Id"></dashboard>-->
+                        </div>
+                    </div>
+                </li>
+
+            </ul>
+        </div>
+
+    </div>
+    <div ui-view="contentPane"></div>
+
+</div>
+

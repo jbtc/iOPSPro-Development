@@ -1,0 +1,632 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<edmx:Edmx Version="3.0" xmlns:edmx="http://schemas.microsoft.com/ado/2009/11/edmx">
+  <!-- EF Runtime content -->
+  <edmx:Runtime>
+    <!-- SSDL content -->
+    <edmx:StorageModels>
+    <Schema Namespace="WebSecurityModel.Store" Provider="System.Data.SqlClient" ProviderManifestToken="2012" Alias="Self" xmlns:store="http://schemas.microsoft.com/ado/2007/12/edm/EntityStoreSchemaGenerator" xmlns:customannotation="http://schemas.microsoft.com/ado/2013/11/edm/customannotation" xmlns="http://schemas.microsoft.com/ado/2009/11/edm/ssdl">
+        <EntityType Name="Activity">
+          <Key>
+            <PropertyRef Name="Id" />
+          </Key>
+          <Property Name="Id" Type="bigint" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="Description" Type="varchar(max)" Nullable="false" />
+        </EntityType>
+        <EntityType Name="ActivityLog">
+          <Key>
+            <PropertyRef Name="Id" />
+          </Key>
+          <Property Name="Id" Type="bigint" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="Date" Type="datetime" Nullable="false" />
+          <Property Name="UserMasterId" Type="bigint" Nullable="false" />
+          <Property Name="ApplicationId" Type="int" />
+          <Property Name="ActivityId" Type="bigint" Nullable="false" />
+        </EntityType>
+        <EntityType Name="Application">
+          <Key>
+            <PropertyRef Name="Id" />
+          </Key>
+          <Property Name="Id" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="Code" Type="varchar" MaxLength="50" />
+          <Property Name="Name" Type="varchar(max)" />
+          <Property Name="Description" Type="varchar(max)" />
+          <Property Name="IsActiveInProduction" Type="bit" Nullable="false" />
+          <Property Name="IsActiveInTest" Type="bit" Nullable="false" />
+          <Property Name="IsAvailableToAllDomainUsers" Type="bit" Nullable="false" />
+          <Property Name="IsAvailableToAllUsers" Type="bit" Nullable="false" />
+          <Property Name="NoMenu" Type="bit" />
+        </EntityType>
+        <EntityType Name="ApplicationFileAttachment">
+          <Key>
+            <PropertyRef Name="Id" />
+          </Key>
+          <Property Name="Id" Type="bigint" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="ApplicationId" Type="int" Nullable="false" />
+          <Property Name="ImageKey" Type="varchar" MaxLength="70" Nullable="false" />
+        </EntityType>
+        <EntityType Name="ExternalUser">
+          <Key>
+            <PropertyRef Name="UserMasterId" />
+          </Key>
+          <Property Name="UserMasterId" Type="bigint" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="UserId" Type="bigint" />
+          <Property Name="PasswordHash" Type="varchar" MaxLength="200" />
+          <Property Name="Organization" Type="varchar" MaxLength="100" />
+          <Property Name="Address1" Type="varchar" MaxLength="100" />
+          <Property Name="Address2" Type="varchar" MaxLength="100" />
+          <Property Name="City" Type="varchar" MaxLength="100" />
+          <Property Name="State" Type="varchar" MaxLength="100" />
+          <Property Name="Zip" Type="varchar" MaxLength="100" />
+          <Property Name="LastName" Type="varchar" MaxLength="50" />
+          <Property Name="FirstName" Type="varchar" MaxLength="50" />
+          <Property Name="MiddleName" Type="varchar" MaxLength="50" />
+          <Property Name="Email" Type="varchar" MaxLength="100" />
+          <Property Name="DateCreated" Type="date" />
+        </EntityType>
+        <EntityType Name="Role">
+          <Key>
+            <PropertyRef Name="Id" />
+          </Key>
+          <Property Name="Id" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="ApplicationId" Type="int" Nullable="false" />
+          <Property Name="Name" Type="varchar" MaxLength="50" />
+          <Property Name="Description" Type="varchar(max)" />
+        </EntityType>
+        <EntityType Name="SiteSourceCodeAttachment">
+          <Key>
+            <PropertyRef Name="Id" />
+          </Key>
+          <Property Name="Id" Type="bigint" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="ImageKey" Type="varchar" MaxLength="70" />
+        </EntityType>
+        <EntityType Name="User">
+          <Key>
+            <PropertyRef Name="UserMasterId" />
+          </Key>
+          <Property Name="UserMasterId" Type="bigint" Nullable="false" />
+          <Property Name="MyUtmbUserId" Type="decimal" Precision="12" Scale="0" />
+          <Property Name="Username" Type="varchar" MaxLength="20" />
+          <Property Name="AccessToken" Type="varchar" MaxLength="200" />
+          <Property Name="AccessTokenDate" Type="datetime" />
+          <Property Name="IsSystemAdministrator" Type="bit" />
+          <Property Name="IsExternal" Type="bit" />
+        </EntityType>
+        <EntityType Name="UserRole">
+          <Key>
+            <PropertyRef Name="Id" />
+          </Key>
+          <Property Name="Id" Type="bigint" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="UserMasterId" Type="bigint" Nullable="false" />
+          <Property Name="RoleId" Type="int" Nullable="false" />
+          <Property Name="CreatorMasterId" Type="bigint" />
+          <Property Name="CreationDate" Type="datetime" />
+        </EntityType>
+        <Association Name="FK_ActivityLog_Activity">
+          <End Role="Activity" Type="Self.Activity" Multiplicity="1" />
+          <End Role="ActivityLog" Type="Self.ActivityLog" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Activity">
+              <PropertyRef Name="Id" />
+            </Principal>
+            <Dependent Role="ActivityLog">
+              <PropertyRef Name="ActivityId" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_ActivityLog_Application">
+          <End Role="Application" Type="Self.Application" Multiplicity="0..1" />
+          <End Role="ActivityLog" Type="Self.ActivityLog" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Application">
+              <PropertyRef Name="Id" />
+            </Principal>
+            <Dependent Role="ActivityLog">
+              <PropertyRef Name="ApplicationId" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_ActivityLog_User">
+          <End Role="User" Type="Self.User" Multiplicity="1" />
+          <End Role="ActivityLog" Type="Self.ActivityLog" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="User">
+              <PropertyRef Name="UserMasterId" />
+            </Principal>
+            <Dependent Role="ActivityLog">
+              <PropertyRef Name="UserMasterId" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_ApplicationFileAttachment_Application">
+          <End Role="Application" Type="Self.Application" Multiplicity="1" />
+          <End Role="ApplicationFileAttachment" Type="Self.ApplicationFileAttachment" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Application">
+              <PropertyRef Name="Id" />
+            </Principal>
+            <Dependent Role="ApplicationFileAttachment">
+              <PropertyRef Name="ApplicationId" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_ExternalUser_User">
+          <End Role="User" Type="Self.User" Multiplicity="1" />
+          <End Role="ExternalUser" Type="Self.ExternalUser" Multiplicity="0..1" />
+          <ReferentialConstraint>
+            <Principal Role="User">
+              <PropertyRef Name="UserMasterId" />
+            </Principal>
+            <Dependent Role="ExternalUser">
+              <PropertyRef Name="UserMasterId" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_Role_Application">
+          <End Role="Application" Type="Self.Application" Multiplicity="1" />
+          <End Role="Role" Type="Self.Role" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Application">
+              <PropertyRef Name="Id" />
+            </Principal>
+            <Dependent Role="Role">
+              <PropertyRef Name="ApplicationId" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_UserRole_Role">
+          <End Role="Role" Type="Self.Role" Multiplicity="1" />
+          <End Role="UserRole" Type="Self.UserRole" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Role">
+              <PropertyRef Name="Id" />
+            </Principal>
+            <Dependent Role="UserRole">
+              <PropertyRef Name="RoleId" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_UserRole_User">
+          <End Role="User" Type="Self.User" Multiplicity="1" />
+          <End Role="UserRole" Type="Self.UserRole" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="User">
+              <PropertyRef Name="UserMasterId" />
+            </Principal>
+            <Dependent Role="UserRole">
+              <PropertyRef Name="UserMasterId" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <EntityContainer Name="WebSecurityModelStoreContainer">
+          <EntitySet Name="Activity" EntityType="Self.Activity" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="ActivityLog" EntityType="Self.ActivityLog" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="Application" EntityType="Self.Application" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="ApplicationFileAttachment" EntityType="Self.ApplicationFileAttachment" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="ExternalUser" EntityType="Self.ExternalUser" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="Role" EntityType="Self.Role" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="SiteSourceCodeAttachment" EntityType="Self.SiteSourceCodeAttachment" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="User" EntityType="Self.User" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="UserRole" EntityType="Self.UserRole" Schema="dbo" store:Type="Tables" />
+          <AssociationSet Name="FK_ActivityLog_Activity" Association="Self.FK_ActivityLog_Activity">
+            <End Role="Activity" EntitySet="Activity" />
+            <End Role="ActivityLog" EntitySet="ActivityLog" />
+          </AssociationSet>
+          <AssociationSet Name="FK_ActivityLog_Application" Association="Self.FK_ActivityLog_Application">
+            <End Role="Application" EntitySet="Application" />
+            <End Role="ActivityLog" EntitySet="ActivityLog" />
+          </AssociationSet>
+          <AssociationSet Name="FK_ActivityLog_User" Association="Self.FK_ActivityLog_User">
+            <End Role="User" EntitySet="User" />
+            <End Role="ActivityLog" EntitySet="ActivityLog" />
+          </AssociationSet>
+          <AssociationSet Name="FK_ApplicationFileAttachment_Application" Association="Self.FK_ApplicationFileAttachment_Application">
+            <End Role="Application" EntitySet="Application" />
+            <End Role="ApplicationFileAttachment" EntitySet="ApplicationFileAttachment" />
+          </AssociationSet>
+          <AssociationSet Name="FK_ExternalUser_User" Association="Self.FK_ExternalUser_User">
+            <End Role="User" EntitySet="User" />
+            <End Role="ExternalUser" EntitySet="ExternalUser" />
+          </AssociationSet>
+          <AssociationSet Name="FK_Role_Application" Association="Self.FK_Role_Application">
+            <End Role="Application" EntitySet="Application" />
+            <End Role="Role" EntitySet="Role" />
+          </AssociationSet>
+          <AssociationSet Name="FK_UserRole_Role" Association="Self.FK_UserRole_Role">
+            <End Role="Role" EntitySet="Role" />
+            <End Role="UserRole" EntitySet="UserRole" />
+          </AssociationSet>
+          <AssociationSet Name="FK_UserRole_User" Association="Self.FK_UserRole_User">
+            <End Role="User" EntitySet="User" />
+            <End Role="UserRole" EntitySet="UserRole" />
+          </AssociationSet>
+        </EntityContainer>
+      </Schema></edmx:StorageModels>
+    <!-- CSDL content -->
+    <edmx:ConceptualModels>
+      <Schema Namespace="WebSecurityModel" Alias="Self" annotation:UseStrongSpatialTypes="false" xmlns:annotation="http://schemas.microsoft.com/ado/2009/02/edm/annotation" xmlns:customannotation="http://schemas.microsoft.com/ado/2013/11/edm/customannotation" xmlns="http://schemas.microsoft.com/ado/2009/11/edm">
+        <EntityType Name="Activity">
+          <Key>
+            <PropertyRef Name="Id" />
+          </Key>
+          <Property Name="Id" Type="Int64" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="Description" Type="String" MaxLength="Max" FixedLength="false" Unicode="false" Nullable="false" />
+          <NavigationProperty Name="ActivityLogs" Relationship="Self.FK_ActivityLog_Activity" FromRole="Activity" ToRole="ActivityLog" />
+        </EntityType>
+        <EntityType Name="ActivityLog">
+          <Key>
+            <PropertyRef Name="Id" />
+          </Key>
+          <Property Name="Id" Type="Int64" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="Date" Type="DateTime" Nullable="false" Precision="3" />
+          <Property Name="UserMasterId" Type="Int64" Nullable="false" />
+          <Property Name="ApplicationId" Type="Int32" />
+          <Property Name="ActivityId" Type="Int64" Nullable="false" />
+          <NavigationProperty Name="Activity" Relationship="Self.FK_ActivityLog_Activity" FromRole="ActivityLog" ToRole="Activity" />
+          <NavigationProperty Name="User" Relationship="WebSecurityModel.FK_ActivityLog_User" FromRole="ActivityLog" ToRole="User" />
+          <NavigationProperty Name="Application" Relationship="WebSecurityModel.FK_ActivityLog_Application" FromRole="ActivityLog" ToRole="Application" />
+        </EntityType>
+        <Association Name="FK_ActivityLog_Activity">
+          <End Role="Activity" Type="Self.Activity" Multiplicity="1" />
+          <End Role="ActivityLog" Type="Self.ActivityLog" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Activity">
+              <PropertyRef Name="Id" />
+            </Principal>
+            <Dependent Role="ActivityLog">
+              <PropertyRef Name="ActivityId" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <EntityContainer Name="WebSecurityEntities" annotation:LazyLoadingEnabled="true">
+          <EntitySet Name="Activities" EntityType="Self.Activity" />
+          <EntitySet Name="ActivityLogs" EntityType="Self.ActivityLog" />
+          <AssociationSet Name="FK_ActivityLog_Activity" Association="Self.FK_ActivityLog_Activity">
+            <End Role="Activity" EntitySet="Activities" />
+            <End Role="ActivityLog" EntitySet="ActivityLogs" />
+          </AssociationSet>
+          <EntitySet Name="ExternalUsers" EntityType="WebSecurityModel.ExternalUser" />
+          <EntitySet Name="Roles" EntityType="WebSecurityModel.Role" />
+          <EntitySet Name="UserRoles" EntityType="WebSecurityModel.UserRole" />
+          <AssociationSet Name="FK_UserRole_Role" Association="WebSecurityModel.FK_UserRole_Role">
+            <End Role="Role" EntitySet="Roles" />
+            <End Role="UserRole" EntitySet="UserRoles" />
+          </AssociationSet>
+          <EntitySet Name="Users" EntityType="WebSecurityModel.User" />
+          <AssociationSet Name="FK_ActivityLog_User" Association="WebSecurityModel.FK_ActivityLog_User">
+            <End Role="User" EntitySet="Users" />
+            <End Role="ActivityLog" EntitySet="ActivityLogs" />
+          </AssociationSet>
+          <AssociationSet Name="FK_ExternalUser_User" Association="WebSecurityModel.FK_ExternalUser_User">
+            <End Role="User" EntitySet="Users" />
+            <End Role="ExternalUser" EntitySet="ExternalUsers" />
+          </AssociationSet>
+          <AssociationSet Name="FK_UserRole_User" Association="WebSecurityModel.FK_UserRole_User">
+            <End Role="User" EntitySet="Users" />
+            <End Role="UserRole" EntitySet="UserRoles" />
+          </AssociationSet>
+          <EntitySet Name="ApplicationFileAttachments" EntityType="WebSecurityModel.ApplicationFileAttachment" />
+          <EntitySet Name="SiteSourceCodeAttachments" EntityType="WebSecurityModel.SiteSourceCodeAttachment" />
+          <EntitySet Name="Applications" EntityType="WebSecurityModel.Application" />
+          <AssociationSet Name="FK_ActivityLog_Application" Association="WebSecurityModel.FK_ActivityLog_Application">
+            <End Role="Application" EntitySet="Applications" />
+            <End Role="ActivityLog" EntitySet="ActivityLogs" />
+          </AssociationSet>
+          <AssociationSet Name="FK_ApplicationFileAttachment_Application" Association="WebSecurityModel.FK_ApplicationFileAttachment_Application">
+            <End Role="Application" EntitySet="Applications" />
+            <End Role="ApplicationFileAttachment" EntitySet="ApplicationFileAttachments" />
+          </AssociationSet>
+          <AssociationSet Name="FK_Role_Application" Association="WebSecurityModel.FK_Role_Application">
+            <End Role="Application" EntitySet="Applications" />
+            <End Role="Role" EntitySet="Roles" />
+          </AssociationSet>
+          </EntityContainer>
+        <EntityType Name="ExternalUser">
+          <Key>
+            <PropertyRef Name="UserMasterId" />
+          </Key>
+          <Property Name="UserMasterId" Type="Int64" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="UserId" Type="Int64" />
+          <Property Name="PasswordHash" Type="String" MaxLength="200" FixedLength="false" Unicode="false" />
+          <Property Name="Organization" Type="String" MaxLength="100" FixedLength="false" Unicode="false" />
+          <Property Name="Address1" Type="String" MaxLength="100" FixedLength="false" Unicode="false" />
+          <Property Name="Address2" Type="String" MaxLength="100" FixedLength="false" Unicode="false" />
+          <Property Name="City" Type="String" MaxLength="100" FixedLength="false" Unicode="false" />
+          <Property Name="State" Type="String" MaxLength="100" FixedLength="false" Unicode="false" />
+          <Property Name="Zip" Type="String" MaxLength="100" FixedLength="false" Unicode="false" />
+          <Property Name="LastName" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
+          <Property Name="FirstName" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
+          <Property Name="MiddleName" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
+          <Property Name="Email" Type="String" MaxLength="100" FixedLength="false" Unicode="false" />
+          <Property Name="DateCreated" Type="DateTime" Precision="0" />
+          <NavigationProperty Name="User" Relationship="WebSecurityModel.FK_ExternalUser_User" FromRole="ExternalUser" ToRole="User" />
+        </EntityType>
+        <EntityType Name="Role">
+          <Key>
+            <PropertyRef Name="Id" />
+          </Key>
+          <Property Name="Id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="ApplicationId" Type="Int32" Nullable="false" />
+          <Property Name="Name" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
+          <Property Name="Description" Type="String" MaxLength="Max" FixedLength="false" Unicode="false" />
+          <NavigationProperty Name="UserRoles" Relationship="WebSecurityModel.FK_UserRole_Role" FromRole="Role" ToRole="UserRole" />
+          <NavigationProperty Name="Application" Relationship="WebSecurityModel.FK_Role_Application" FromRole="Role" ToRole="Application" />
+        </EntityType>
+        <EntityType Name="UserRole">
+          <Key>
+            <PropertyRef Name="Id" />
+          </Key>
+          <Property Name="Id" Type="Int64" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="UserMasterId" Type="Int64" Nullable="false" />
+          <Property Name="RoleId" Type="Int32" Nullable="false" />
+          <Property Name="CreatorMasterId" Type="Int64" />
+          <Property Name="CreationDate" Type="DateTime" Precision="3" />
+          <NavigationProperty Name="Role" Relationship="WebSecurityModel.FK_UserRole_Role" FromRole="UserRole" ToRole="Role" />
+          <NavigationProperty Name="User" Relationship="WebSecurityModel.FK_UserRole_User" FromRole="UserRole" ToRole="User" />
+        </EntityType>
+        <Association Name="FK_UserRole_Role">
+          <End Type="WebSecurityModel.Role" Role="Role" Multiplicity="1" />
+          <End Type="WebSecurityModel.UserRole" Role="UserRole" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Role">
+              <PropertyRef Name="Id" />
+            </Principal>
+            <Dependent Role="UserRole">
+              <PropertyRef Name="RoleId" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <EntityType Name="User">
+          <Key>
+            <PropertyRef Name="UserMasterId" />
+          </Key>
+          <Property Name="UserMasterId" Type="Int64" Nullable="false" />
+          <Property Name="MyUtmbUserId" Type="Decimal" Precision="12" Scale="0" />
+          <Property Name="Username" Type="String" MaxLength="20" FixedLength="false" Unicode="false" />
+          <Property Name="AccessToken" Type="String" MaxLength="200" FixedLength="false" Unicode="false" />
+          <Property Name="AccessTokenDate" Type="DateTime" Precision="3" />
+          <Property Name="IsSystemAdministrator" Type="Boolean" />
+          <NavigationProperty Name="ActivityLogs" Relationship="WebSecurityModel.FK_ActivityLog_User" FromRole="User" ToRole="ActivityLog" />
+          <NavigationProperty Name="ExternalUser" Relationship="WebSecurityModel.FK_ExternalUser_User" FromRole="User" ToRole="ExternalUser" />
+          <NavigationProperty Name="UserRoles" Relationship="WebSecurityModel.FK_UserRole_User" FromRole="User" ToRole="UserRole" />
+          <Property Name="IsExternal" Type="Boolean" />
+        </EntityType>
+        <Association Name="FK_ActivityLog_User">
+          <End Type="WebSecurityModel.User" Role="User" Multiplicity="1" />
+          <End Type="WebSecurityModel.ActivityLog" Role="ActivityLog" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="User">
+              <PropertyRef Name="UserMasterId" />
+            </Principal>
+            <Dependent Role="ActivityLog">
+              <PropertyRef Name="UserMasterId" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_ExternalUser_User">
+          <End Type="WebSecurityModel.User" Role="User" Multiplicity="1" />
+          <End Type="WebSecurityModel.ExternalUser" Role="ExternalUser" Multiplicity="0..1" />
+          <ReferentialConstraint>
+            <Principal Role="User">
+              <PropertyRef Name="UserMasterId" />
+            </Principal>
+            <Dependent Role="ExternalUser">
+              <PropertyRef Name="UserMasterId" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_UserRole_User">
+          <End Type="WebSecurityModel.User" Role="User" Multiplicity="1" />
+          <End Type="WebSecurityModel.UserRole" Role="UserRole" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="User">
+              <PropertyRef Name="UserMasterId" />
+            </Principal>
+            <Dependent Role="UserRole">
+              <PropertyRef Name="UserMasterId" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <EntityType Name="ApplicationFileAttachment">
+          <Key>
+            <PropertyRef Name="Id" />
+          </Key>
+          <Property Name="Id" Type="Int64" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="ApplicationId" Type="Int32" Nullable="false" />
+          <Property Name="ImageKey" Type="String" Nullable="false" MaxLength="70" FixedLength="false" Unicode="false" />
+          <NavigationProperty Name="Application" Relationship="WebSecurityModel.FK_ApplicationFileAttachment_Application" FromRole="ApplicationFileAttachment" ToRole="Application" />
+        </EntityType>
+        <EntityType Name="SiteSourceCodeAttachment">
+          <Key>
+            <PropertyRef Name="Id" />
+          </Key>
+          <Property Name="Id" Type="Int64" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="ImageKey" Type="String" MaxLength="70" FixedLength="false" Unicode="false" />
+        </EntityType>
+        <EntityType Name="Application">
+          <Key>
+            <PropertyRef Name="Id" />
+          </Key>
+          <Property Name="Id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="Code" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
+          <Property Name="Name" Type="String" MaxLength="Max" FixedLength="false" Unicode="false" />
+          <Property Name="Description" Type="String" MaxLength="Max" FixedLength="false" Unicode="false" />
+          <Property Name="IsActiveInProduction" Type="Boolean" Nullable="false" />
+          <Property Name="IsActiveInTest" Type="Boolean" Nullable="false" />
+          <Property Name="IsAvailableToAllDomainUsers" Type="Boolean" Nullable="false" />
+          <Property Name="IsAvailableToAllUsers" Type="Boolean" Nullable="false" />
+          <NavigationProperty Name="ActivityLogs" Relationship="WebSecurityModel.FK_ActivityLog_Application" FromRole="Application" ToRole="ActivityLog" />
+          <NavigationProperty Name="ApplicationFileAttachments" Relationship="WebSecurityModel.FK_ApplicationFileAttachment_Application" FromRole="Application" ToRole="ApplicationFileAttachment" />
+          <NavigationProperty Name="Roles" Relationship="WebSecurityModel.FK_Role_Application" FromRole="Application" ToRole="Role" />
+          <Property Name="NoMenu" Type="Boolean" />
+        </EntityType>
+        <Association Name="FK_ActivityLog_Application">
+          <End Type="WebSecurityModel.Application" Role="Application" Multiplicity="0..1" />
+          <End Type="WebSecurityModel.ActivityLog" Role="ActivityLog" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Application">
+              <PropertyRef Name="Id" />
+            </Principal>
+            <Dependent Role="ActivityLog">
+              <PropertyRef Name="ApplicationId" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_ApplicationFileAttachment_Application">
+          <End Type="WebSecurityModel.Application" Role="Application" Multiplicity="1" />
+          <End Type="WebSecurityModel.ApplicationFileAttachment" Role="ApplicationFileAttachment" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Application">
+              <PropertyRef Name="Id" />
+            </Principal>
+            <Dependent Role="ApplicationFileAttachment">
+              <PropertyRef Name="ApplicationId" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_Role_Application">
+          <End Type="WebSecurityModel.Application" Role="Application" Multiplicity="1" />
+          <End Type="WebSecurityModel.Role" Role="Role" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Application">
+              <PropertyRef Name="Id" />
+            </Principal>
+            <Dependent Role="Role">
+              <PropertyRef Name="ApplicationId" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        </Schema>
+    </edmx:ConceptualModels>
+    <!-- C-S mapping content -->
+    <edmx:Mappings>
+      <Mapping Space="C-S" xmlns="http://schemas.microsoft.com/ado/2009/11/mapping/cs">
+        <EntityContainerMapping StorageEntityContainer="WebSecurityModelStoreContainer" CdmEntityContainer="WebSecurityEntities">
+          <EntitySetMapping Name="Activities">
+            <EntityTypeMapping TypeName="WebSecurityModel.Activity">
+              <MappingFragment StoreEntitySet="Activity">
+                <ScalarProperty Name="Id" ColumnName="Id" />
+                <ScalarProperty Name="Description" ColumnName="Description" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="ActivityLogs">
+            <EntityTypeMapping TypeName="WebSecurityModel.ActivityLog">
+              <MappingFragment StoreEntitySet="ActivityLog">
+                <ScalarProperty Name="Id" ColumnName="Id" />
+                <ScalarProperty Name="Date" ColumnName="Date" />
+                <ScalarProperty Name="UserMasterId" ColumnName="UserMasterId" />
+                <ScalarProperty Name="ApplicationId" ColumnName="ApplicationId" />
+                <ScalarProperty Name="ActivityId" ColumnName="ActivityId" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="ExternalUsers">
+            <EntityTypeMapping TypeName="WebSecurityModel.ExternalUser">
+              <MappingFragment StoreEntitySet="ExternalUser">
+                <ScalarProperty Name="DateCreated" ColumnName="DateCreated" />
+                <ScalarProperty Name="Email" ColumnName="Email" />
+                <ScalarProperty Name="MiddleName" ColumnName="MiddleName" />
+                <ScalarProperty Name="FirstName" ColumnName="FirstName" />
+                <ScalarProperty Name="LastName" ColumnName="LastName" />
+                <ScalarProperty Name="Zip" ColumnName="Zip" />
+                <ScalarProperty Name="State" ColumnName="State" />
+                <ScalarProperty Name="City" ColumnName="City" />
+                <ScalarProperty Name="Address2" ColumnName="Address2" />
+                <ScalarProperty Name="Address1" ColumnName="Address1" />
+                <ScalarProperty Name="Organization" ColumnName="Organization" />
+                <ScalarProperty Name="PasswordHash" ColumnName="PasswordHash" />
+                <ScalarProperty Name="UserId" ColumnName="UserId" />
+                <ScalarProperty Name="UserMasterId" ColumnName="UserMasterId" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="Roles">
+            <EntityTypeMapping TypeName="WebSecurityModel.Role">
+              <MappingFragment StoreEntitySet="Role">
+                <ScalarProperty Name="Description" ColumnName="Description" />
+                <ScalarProperty Name="Name" ColumnName="Name" />
+                <ScalarProperty Name="ApplicationId" ColumnName="ApplicationId" />
+                <ScalarProperty Name="Id" ColumnName="Id" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="UserRoles">
+            <EntityTypeMapping TypeName="WebSecurityModel.UserRole">
+              <MappingFragment StoreEntitySet="UserRole">
+                <ScalarProperty Name="CreationDate" ColumnName="CreationDate" />
+                <ScalarProperty Name="CreatorMasterId" ColumnName="CreatorMasterId" />
+                <ScalarProperty Name="RoleId" ColumnName="RoleId" />
+                <ScalarProperty Name="UserMasterId" ColumnName="UserMasterId" />
+                <ScalarProperty Name="Id" ColumnName="Id" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="Users">
+            <EntityTypeMapping TypeName="WebSecurityModel.User">
+              <MappingFragment StoreEntitySet="User">
+                <ScalarProperty Name="IsExternal" ColumnName="IsExternal" />
+                <ScalarProperty Name="IsSystemAdministrator" ColumnName="IsSystemAdministrator" />
+                <ScalarProperty Name="AccessTokenDate" ColumnName="AccessTokenDate" />
+                <ScalarProperty Name="AccessToken" ColumnName="AccessToken" />
+                <ScalarProperty Name="Username" ColumnName="Username" />
+                <ScalarProperty Name="MyUtmbUserId" ColumnName="MyUtmbUserId" />
+                <ScalarProperty Name="UserMasterId" ColumnName="UserMasterId" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="ApplicationFileAttachments">
+            <EntityTypeMapping TypeName="WebSecurityModel.ApplicationFileAttachment">
+              <MappingFragment StoreEntitySet="ApplicationFileAttachment">
+                <ScalarProperty Name="ImageKey" ColumnName="ImageKey" />
+                <ScalarProperty Name="ApplicationId" ColumnName="ApplicationId" />
+                <ScalarProperty Name="Id" ColumnName="Id" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="SiteSourceCodeAttachments">
+            <EntityTypeMapping TypeName="WebSecurityModel.SiteSourceCodeAttachment">
+              <MappingFragment StoreEntitySet="SiteSourceCodeAttachment">
+                <ScalarProperty Name="ImageKey" ColumnName="ImageKey" />
+                <ScalarProperty Name="Id" ColumnName="Id" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="Applications">
+            <EntityTypeMapping TypeName="WebSecurityModel.Application">
+              <MappingFragment StoreEntitySet="Application">
+                <ScalarProperty Name="NoMenu" ColumnName="NoMenu" />
+                <ScalarProperty Name="IsAvailableToAllUsers" ColumnName="IsAvailableToAllUsers" />
+                <ScalarProperty Name="IsAvailableToAllDomainUsers" ColumnName="IsAvailableToAllDomainUsers" />
+                <ScalarProperty Name="IsActiveInTest" ColumnName="IsActiveInTest" />
+                <ScalarProperty Name="IsActiveInProduction" ColumnName="IsActiveInProduction" />
+                <ScalarProperty Name="Description" ColumnName="Description" />
+                <ScalarProperty Name="Name" ColumnName="Name" />
+                <ScalarProperty Name="Code" ColumnName="Code" />
+                <ScalarProperty Name="Id" ColumnName="Id" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+        </EntityContainerMapping>
+      </Mapping>
+    </edmx:Mappings>
+  </edmx:Runtime>
+  <!-- EF Designer content (DO NOT EDIT MANUALLY BELOW HERE) -->
+  <Designer xmlns="http://schemas.microsoft.com/ado/2009/11/edmx">
+    <Connection>
+      <DesignerInfoPropertySet>
+        <DesignerProperty Name="MetadataArtifactProcessing" Value="EmbedInOutputAssembly" />
+      </DesignerInfoPropertySet>
+    </Connection>
+    <Options>
+      <DesignerInfoPropertySet>
+        <DesignerProperty Name="ValidateOnBuild" Value="true" />
+        <DesignerProperty Name="EnablePluralization" Value="true" />
+        <DesignerProperty Name="IncludeForeignKeysInModel" Value="true" />
+        <DesignerProperty Name="UseLegacyProvider" Value="false" />
+        <DesignerProperty Name="CodeGenerationStrategy" Value="None" />
+      </DesignerInfoPropertySet>
+    </Options>
+    <!-- Diagram content (shape and connector positions) -->
+    <Diagrams></Diagrams>
+  </Designer>
+</edmx:Edmx>

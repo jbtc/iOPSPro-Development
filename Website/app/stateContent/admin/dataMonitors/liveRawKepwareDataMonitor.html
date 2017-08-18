@@ -1,0 +1,61 @@
+﻿<div>
+    <div class="panel panel-primary static-panel">
+        <div class="panel-heading">
+            <div class='btn-toolbar pull-right' style="display: inline-block;">
+                <input type="text"
+                       focus
+                       id="searchInput"
+                       name="searchInput"
+                       ng-model="vm.searchTerm"
+                       ng-model-options="{ debounce: 100 }"
+                       placeholder="Type characters here to search."
+                       class="form-control search-term responsive-button"
+                       style="margin-left: 15px; width: 500px; display: inline-block; font-size: 1em;">
+            </div>
+            <div class="panel-heading-title">
+                Live Raw Kepware Data Monitor - All Tags - Total Number of Changes = {{vm.totalChangeCount}}
+            </div>
+            <div class="panel-heading-subtitle">
+                {{vm.subTitle}}
+            </div>
+
+        </div>
+        <div class="panel-body repeater-container" style="overflow: hidden; width: 100%">
+
+
+            <table class="table table-hover table-responsive">
+                <thead>
+                    <tr>
+                        <th style="width: {{vm.columnWidths.tagName}}%">
+                            TagName
+                        </th>
+                        <th style="width: {{vm.columnWidths.date}}%">
+                            Last Observed Date
+                        </th>
+                        <th style="width: {{vm.columnWidths.value}}%">
+                            Value
+                        </th>
+                    </tr>
+                </thead>
+
+                <tbody vs-repeat vs-scroll-parent=".repeater-container" vs-scrolled-to-end="vm.scrolledToEnd()">
+                    <tr ng-repeat="tag in vm.tags" style="background-color: rgba(100, 255, 100, .{{tag.Metadata.UpdateCountDowns.OneSecond}});">
+
+                        <td nowrap>
+                            {{tag.Name}}
+                        </td>
+                        <td nowrap>
+                            {{tag.ObservationDate |  date:'MM/dd HH:mm:ss.ss'}}
+                        </td>
+                        <td>
+                            {{tag.Observation.ValueAsString}}
+                        </td>
+                    </tr>
+
+                </tbody>
+            </table>
+
+        </div>
+    </div>
+</div>
+

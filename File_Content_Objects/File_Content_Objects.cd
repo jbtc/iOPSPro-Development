@@ -1,0 +1,59 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<ClassDiagram MajorVersion="1" MinorVersion="1">
+  <Class Name="Library.Utilities.File_Content_Objects.File_Content">
+    <Position X="0.5" Y="0.5" Width="2.5" />
+    <Compartments>
+      <Compartment Name="Nested Types" Collapsed="false" />
+    </Compartments>
+    <TypeIdentifier>
+      <HashCode>EgAAAABAEAEAQAQYAAAATAAEAAAIgAQAAQAAAABEBmA=</HashCode>
+      <FileName>File_Content.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Library.Utilities.File_Content_Objects.PDF_File_Content">
+    <Position X="3.5" Y="0.5" Width="3" />
+    <NestedTypes>
+      <Class Name="Library.Utilities.File_Content_Objects.PDF_File_Content.PDF_File_Content_Page_Class" Collapsed="true">
+        <TypeIdentifier>
+          <NewMemberFileName>PDF_File_Content.cs</NewMemberFileName>
+        </TypeIdentifier>
+      </Class>
+    </NestedTypes>
+    <TypeIdentifier>
+      <HashCode>AAgABBAABAIAAAAAAgAAAAAAQAQAAAAAAAAIAAAAAAA=</HashCode>
+      <FileName>PDF_File_Content.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Library.Utilities.File_Content_Objects.ZIP_File_Content">
+    <Position X="11" Y="3.25" Width="2.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAgAgAAAAAAAAAAAAAAAAAAAAAAgAAAAAAAA=</HashCode>
+      <FileName>ZIP_File_Content.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Library.Utilities.File_Content_Objects.FTP_Source_Folder">
+    <Position X="11" Y="7.5" Width="4" />
+    <TypeIdentifier>
+      <HashCode>AAAAgAAAAAAAAEAAAAIAAEIAAAAAAIAAgAAAEAIAAIA=</HashCode>
+      <FileName>FTP_Source_Folder_Content.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Library.Utilities.File_Content_Objects.File_Image_Library_File_Content">
+    <Position X="4" Y="7" Width="3.75" />
+    <Compartments>
+      <Compartment Name="Nested Types" Collapsed="false" />
+    </Compartments>
+    <TypeIdentifier>
+      <HashCode>AAgAQAAAEAAAAAagCAogAQAAAABACIQAAIAGBACCBEg=</HashCode>
+      <FileName>File_Image_Library_File_Content.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Library.Utilities.File_Content_Objects.FTP_File_Content">
+    <Position X="7" Y="0.75" Width="3" />
+    <TypeIdentifier>
+      <HashCode>AAAAIAAAEAAAAEAAAAIAAEAEAACAEIAAAAAAEAMIDAI=</HashCode>
+      <FileName>FTP_File_Content.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Font Name="Segoe UI" Size="9" />
+</ClassDiagram>

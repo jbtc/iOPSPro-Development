@@ -1,0 +1,114 @@
+﻿<div>
+    <div class="modal-backdrop"></div>
+    <div class="modal-holder" autoscroll="false">
+        <div>
+            <div class="panel panel-primary panel-centered-modal-floating" style="width: 70%;">
+
+
+                <div class="panel-heading">
+                    <div class='btn-toolbar pull-right' style="display: inline-block;">
+                        <button ng-click="vm.Save()" class="btn btn-default responsive-button">Save and Close</button>
+                        <button ui-sref="^" class="btn btn-default responsive-button">Cancel</button>
+                    </div>
+                    <div class="panel-heading-title">
+                        {{vm.panelTitle}}
+                    </div>
+                    <div class="panel-heading-subtitle">
+                        {{vm.panelHeadingSubtitle}}
+                    </div>
+
+                </div>
+
+
+                <div ng-show="vm.showScreen" class="panel-body" style="height: 800px;">
+
+                    <form class="form-horizontal" role="form" name="wtForm" id="wtForm" novalidate>
+                        <div class="row">
+
+
+
+                            <!-- Name -->
+                            <text-input-field model="vm.widgetType.Name"
+                                              label-text="Type Name"
+                                              id-text="name"
+                                              bootstrap-label-columns="{{vm.bootstrapLabelColumns}}"
+                                              bootstrap-input-columns="{{vm.bootstrapInputColumns}}">
+                            </text-input-field>
+
+
+                            <!-- Initial Height -->
+                            <div class="form-group">
+                                <label class="col-sm-{{vm.bootstrapLabelColumns}} control-label innovation-right-aligned">
+                                    Initial Height
+                                </label>
+                                <div class="col-sm-{{vm.bootstrapInputColumns}}">
+                                    <label ng-repeat="height in vm.initialHeights" class="btn btn-default" style="width: 40px; margin: 1px;" ng-model="vm.widgetType.InitialHeight" uib-btn-radio={{height}}>{{height}}</label>
+                                </div>
+                            </div>
+
+                            <!-- Initial Width -->
+                            <div class="form-group">
+                                <label class="col-sm-{{vm.bootstrapLabelColumns}} control-label innovation-right-aligned">
+                                    Initial Width
+                                </label>
+                                <div class="col-sm-{{vm.bootstrapInputColumns}}">
+                                    <label ng-repeat="width in vm.initialWidths" class="btn btn-default" style="width: 40px; margin: 1px;" ng-model="vm.widgetType.InitialWidth" uib-btn-radio={{width}}>{{width}}</label>
+                                </div>
+                            </div>
+
+
+                          
+                            
+                             <!-- Is Available to Admin? -->
+                            <div class="form-group">
+                                <label class="col-sm-{{vm.bootstrapLabelColumns}} control-label innovation-right-aligned">
+                                    Is Available to Admin?
+                                </label>
+                                <div class="col-sm-{{vm.bootstrapInputColumns}}">
+                                    <label class="btn btn-default" style="width: 55px; margin: 1px;" ng-model="vm.isAvailableToAdmin" uib-btn-radio=1>Yes</label>
+                                    <label class="btn btn-default" style="width: 55px; margin: 1px;" ng-model="vm.isAvailableToAdmin" uib-btn-radio=0>No</label>
+                                </div>
+                            </div>
+
+                             <!-- Is Available to All? -->
+                            <div class="form-group">
+                                <label class="col-sm-{{vm.bootstrapLabelColumns}} control-label innovation-right-aligned">
+                                    Is Available to All Users?
+                                </label>
+                                <div class="col-sm-{{vm.bootstrapInputColumns}}">
+                                    <label class="btn btn-default" style="width: 55px; margin: 1px;" ng-model="vm.isAvailableToAll" uib-btn-radio=1>Yes</label>
+                                    <label class="btn btn-default" style="width: 55px; margin: 1px;" ng-model="vm.isAvailableToAll" uib-btn-radio=0>No</label>
+                                </div>
+                            </div>
+
+                            <!-- Description -->
+                            <textarea-input-field label-text="Type Description"
+                                                  cols="60"
+                                                  rows="4"
+                                                  bootstrap-label-columns="{{vm.bootstrapLabelColumns}}"
+                                                  bootstrap-input-columns="{{vm.bootstrapInputColumns}}"
+                                                  placeholder-text=""
+                                                  model="vm.widgetType.Description"
+                                                  input-name="inputDescription">
+                            </textarea-input-field>
+
+
+                             <!-- Angular Directive Name -->
+                            <text-input-field model="vm.widgetType.AngularDirectiveName"
+                                              label-text="Angular Directive Name"
+                                              id-text="angularDirectiveName"
+                                              bootstrap-label-columns="{{vm.bootstrapLabelColumns}}"
+                                              bootstrap-input-columns="{{vm.bootstrapInputColumns}}">
+                            </text-input-field>
+
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+        </div>
+        <div ui-view="contentPane"></div>
+    </div>
+</div>
+
+

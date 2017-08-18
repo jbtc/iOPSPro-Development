@@ -1,0 +1,41 @@
+﻿<div ui-view="headerPane"></div>
+<div ui-view="loginPane"></div>
+<div ng-show="vm.showMenu"
+     class="app-background"
+     style="display: -moz-box;
+    display: -ms-flexbox;
+    display: -webkit-box;
+    display: flex;
+    -ms-flex-wrap: nowrap;
+    overflow-scrolling: unset;
+    -webkit-flex-wrap: nowrap;
+    flex-wrap: nowrap;"
+     background-color white;
+     margin-left 0;
+     padding 0;
+     overflow-x hidden;
+     ui-view>
+
+        <div class="col-md-2" style="padding-left: 0; padding-top: 0px; padding-right: 0; margin-left: 0; height: 100%; overflow-x: hidden;">
+            <nav class="navbar navbar-default" role="navigation" style="border: 0;">
+
+                <div class="navbar-header" style="background: #fff;">
+                    <button type="button"
+                            class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse" title="Collapse or expand the menu" style="z-index: 20; width: 15px; background-color: #555; position: fixed; left: 0px; margin-right: -5px; margin-left: 0;">
+                        <span class="icon-bar"></span>
+                        <span class="icon-bar"></span>
+                        <span class="icon-bar"></span>
+                    </button>
+                </div>
+
+                <div class="collapse navbar-collapse" style="padding-left: 0; padding-right: 0; overflow: auto;">
+                    <div ui-view="menuPane" style="height: 100%; overflow-x: hidden;">
+                    </div>
+                </div><!-- /.navbar-collapse -->
+            </nav>
+        </div><!--/end left column-->
+
+        <div ui-view="contentPane" class="col-md-11 clearfix" style="overflow: hidden; margin-left: 10px; margin-top: 5px; margin-right: 10px; padding-left: 0; padding-right: 0; width:100%"></div>
+        
+</div>
+

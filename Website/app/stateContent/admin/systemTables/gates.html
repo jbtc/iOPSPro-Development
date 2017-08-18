@@ -1,0 +1,61 @@
+﻿<div>
+	<div class="panel panel-primary static-panel">
+		<div class="panel-heading">
+			<div class='btn-toolbar pull-right' style="display: inline-block;">
+				<button ui-sref=".airportEdit({ Id: null })" class="btn btn-default responsive-button">Add New Gate</button>
+			</div>
+			<div class="panel-heading-title">
+				Gates
+			</div>
+			<div class="panel-heading-subtitle">
+				Gate Gates or Zones
+			</div>
+
+		</div>
+		<div class="panel-body repeater-container" style="overflow: hidden; width: 100%">
+
+
+			<table class="table table-hover table-responsive table-striped">
+				<thead>
+					<tr>
+						<th style="width: {{vm.columnWidths.name}}%">
+							Name
+						</th>
+						<th style="width: 150px;">
+							Actions
+						</th>
+					</tr>
+				</thead>
+
+				<tbody vs-repeat vs-excess="10" vs-scroll-parent=".repeater-container" vs-scrolled-to-end="vm.scrolledToEnd()">
+					<tr ng-repeat="gate in vm.gates">
+
+					    <td>
+							{{gate.Name}}
+						</td>
+						<td width="{{vm.buttonPanelWidth}}px">
+							<div class="btn-group" style="width: {{vm.buttonPanelWidth}}]px; -moz-min-width: {{vm.buttonPanelWidth}}px; -ms-min-width: {{vm.buttonPanelWidth}}px; -o-min-width: {{vm.buttonPanelWidth}}px; -webkit-min-width: {{vm.buttonPanelWidth}}px; min-width: {{vm.buttonPanelWidth}}px">
+								<a title="Edit Gate"
+								   class="btn btn-default responsive-button"
+								   style="height: 37px; padding-top: 7px; width: 115px; min-width: 115px;"
+								   ui-sref=".gateEdit({ Id: gate.Id })">
+									Edit
+								</a>
+								<a title="Delete Gate"
+								   class="btn btn-default responsive-button"
+								   style="height: 37px; padding-top: 7px; width: 115px; min-width: 115px;"
+								   ng-click="vm.deleteGate(gate)">
+									Delete
+								</a>
+							</div>
+						</td>
+					</tr>
+
+				</tbody>
+			</table>
+
+		</div>
+		<div ui-view="editGatePane"></div>
+	</div>
+</div>
+

@@ -1,0 +1,16 @@
+﻿<div class="form-group" style="margin-bottom: 15px;">
+	<label for="{{idText}}"
+		   class="col-sm-{{bootstrapLabelColumns}} control-label innovation-right-aligned">
+		{{labelText}}
+	</label>
+	<div class="col-sm-{{bootstrapInputColumns}} form-group">
+		<select id="{{idText}}"
+				class="form-control selectpicker"
+				multiple data-live-search="{{liveSearch}}"
+				data-header="{{instructions}}"
+				data-size="15"
+				title="{{instructions}}">
+			<option ng-repeat="item in dropdownData" value="{{item.Id}}">{{item.Name}}</option>
+		</select>
+	</div>
+</div>

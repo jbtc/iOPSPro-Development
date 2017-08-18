@@ -1,0 +1,176 @@
+﻿<div>
+    <div class="modal-backdrop"></div>
+    <div class="modal-holder" autoscroll="false">
+        <div>
+            <div ng-show="vm.showScreen" class="panel panel-primary panel-centered-modal-floating" style="width: 70%;">
+
+
+                <div class="panel-heading">
+                    <div class='btn-toolbar pull-right' style="display: inline-block;">
+                        <button ng-click="vm.Save()" class="btn btn-default responsive-button">Save and Close</button>
+                        <button ui-sref="^" class="btn btn-default responsive-button">Cancel</button>
+                    </div>
+                    <div class="panel-heading-title">
+                        {{vm.panelTitle}}
+                    </div>
+                    <div class="panel-heading-subtitle">
+                        {{vm.panelSubtitle}}
+                    </div>
+
+                </div>
+
+
+                <div class="panel-body">
+                    <!--<div ng-show="vm.userIsReadOnly" class="entity-lock-backdrop noselect">
+                        Editing disabled<br/>
+                        You are in View Only mode.
+                    </div>-->
+
+                    <form class="form-horizontal" role="form" name="userForm" id="userForm" novalidate>
+                        <div class="row">
+                            <!--  Username -->
+                            <text-input-field model="vm.user.Username"
+                                              label-text="Login Username"
+                                              id-text="username"
+                                              bootstrap-label-columns="{{vm.bootstrapLabelColumns}}"
+                                              bootstrap-input-columns="{{vm.bootstrapInputColumns}}">
+                            </text-input-field>
+
+                            <!-- Email Address -->
+                            <text-input-field model="vm.user.Person.Email"
+                                              label-text="Email Address (Auto Lookup)"
+                                              id-text="email"
+                                              bootstrap-label-columns="{{vm.bootstrapLabelColumns}}"
+                                              bootstrap-input-columns="{{vm.bootstrapInputColumns}}">
+                            </text-input-field>
+
+
+                            <!--  First Name -->
+                            <text-input-field model="vm.user.Person.GivenName"
+                                              label-text="First Name"
+                                              id-text="givenName"
+                                              bootstrap-label-columns="{{vm.bootstrapLabelColumns}}"
+                                              bootstrap-input-columns="{{vm.bootstrapInputColumns}}">
+                            </text-input-field>
+
+
+                            <!-- Middle Name -->
+                            <text-input-field model="vm.user.Person.MiddleName"
+                                              label-text="Middle Name or Initial"
+                                              id-text="middleName"
+                                              bootstrap-label-columns="{{vm.bootstrapLabelColumns}}"
+                                              bootstrap-input-columns="{{vm.bootstrapInputColumns}}">
+                            </text-input-field>
+
+                            <!-- Last Name -->
+                            <text-input-field model="vm.user.Person.FamilyName"
+                                              label-text="Last Name"
+                                              id-text="familyName"
+                                              bootstrap-label-columns="{{vm.bootstrapLabelColumns}}"
+                                              bootstrap-input-columns="{{vm.bootstrapInputColumns}}">
+                            </text-input-field>
+
+                            <!-- Title -->
+                            <text-input-field model="vm.user.Person.Title"
+                                              label-text="Title"
+                                              id-text="title"
+                                              bootstrap-label-columns="{{vm.bootstrapLabelColumns}}"
+                                              bootstrap-input-columns="{{vm.bootstrapInputColumns}}">
+                            </text-input-field>
+
+                            <!-- Phone -->
+                            <text-input-field model="vm.user.Person.Phone"
+                                              label-text="Phone Number"
+                                              id-text="phone"
+                                              bootstrap-label-columns="{{vm.bootstrapLabelColumns}}"
+                                              bootstrap-input-columns="{{vm.bootstrapInputColumns}}">
+                            </text-input-field>
+
+
+                            <!-- Street Address 1 -->
+                            <text-input-field model="vm.user.Person.StreetAddress1"
+                                              label-text="Street Address Line 1"
+                                              id-text="sa1"
+                                              bootstrap-label-columns="{{vm.bootstrapLabelColumns}}"
+                                              bootstrap-input-columns="{{vm.bootstrapInputColumns}}">
+                            </text-input-field>
+
+                            <!-- Street Address 2 -->
+                            <text-input-field model="vm.user.Person.StreetAddress2"
+                                              label-text="Street Address Line 2"
+                                              id-text="sa2"
+                                              bootstrap-label-columns="{{vm.bootstrapLabelColumns}}"
+                                              bootstrap-input-columns="{{vm.bootstrapInputColumns}}">
+                            </text-input-field>
+
+                            <!-- City -->
+                            <text-input-field model="vm.user.Person.City"
+                                              label-text="City"
+                                              id-text="city"
+                                              bootstrap-label-columns="{{vm.bootstrapLabelColumns}}"
+                                              bootstrap-input-columns="{{vm.bootstrapInputColumns}}">
+                            </text-input-field>
+
+                            <!-- State -->
+                            <dropdown-input-field label-text="State"
+                                                  bootstrap-label-columns="{{vm.bootstrapLabelColumns}}"
+                                                  bootstrap-input-columns="{{vm.bootstrapInputColumns}}"
+                                                  id-text="StateId"
+                                                  data-live-search="true"
+                                                  dropdown-data="vm.unitedStates">
+                            </dropdown-input-field>
+
+                            <!--Zip Code -->
+                            <text-input-field model="vm.user.Person.ZipCode"
+                                              label-text="Zip Code"
+                                              id-text="zipCode"
+                                              bootstrap-label-columns="{{vm.bootstrapLabelColumns}}"
+                                              bootstrap-input-columns="{{vm.bootstrapInputColumns}}">
+                            </text-input-field>
+
+                            <!-- Authorizable Activities -->
+                            <div class="form-group">
+                                <label class="col-sm-{{vm.bootstrapLabelColumns}} control-label innovation-right-aligned">
+                                    Authorized To
+                                </label>
+                                <div class="col-sm-{{vm.bootstrapInputColumns}}">
+                                    <label ng-repeat="activity in vm.authorizableActivities" style="margin: 1px;" class="btn btn-default" ng-model="vm.user.authorizedActivityIds[activity.Id]" uib-btn-checkbox="{{activity.Id}}">{{activity.Description}}</label>
+                                </div>
+                            </div>
+
+                            <!-- Site Data Access -->
+                            <div class="form-group">
+                                <label class="col-sm-{{vm.bootstrapLabelColumns}} control-label innovation-right-aligned">
+                                    Site Data Access
+                                </label>
+                                <div class="col-sm-{{vm.bootstrapInputColumns}}">
+                                    <label ng-repeat="site in vm.sites" style="width: 105px; margin: 1px;" class="btn btn-default" ng-model="vm.user.enabledSiteIds[site.Id]" uib-btn-checkbox="{{site.Id}}">{{site.Name}}</label>
+                                </div>
+                            </div>
+
+
+
+
+                            <!--<textarea-input-field label-text="Description"
+            cols="60"
+            rows="4"
+            bootstrap-label-columns="{{vm.bootstrapLabelColumns}}"
+            bootstrap-input-columns="{{vm.bootstrapInputColumns}}"
+            placeholder-text=""
+            model="vm.model.Description"
+            input-name="inputDescription"></textarea-input-field>-->
+
+
+
+                        </div>
+                    </form>
+
+                </div>
+            </div>
+
+        </div>
+        <div ui-view="contentPane"></div>
+    </div>
+</div>
+
+

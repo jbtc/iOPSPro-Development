@@ -1,0 +1,67 @@
+﻿
+
+
+.btn-group {
+  display: flex;
+}
+
+
+.logout-button {
+     margin-top: 1px;
+     margin-right: 2px;
+     position:absolute;
+     top:0;
+     right:0;
+}
+
+.responsive-button {
+	font-size: 1em;
+	padding-top: 3px;
+	padding-bottom: 3px;
+    height: 35px;
+}
+
+.discussion-button {
+	width: 65px;
+}
+.navbar-toggle .icon-bar {
+  display: block;
+  width: 5px;
+  height: 2px;
+  background-color: #cccccc;
+  border-radius: 1px;
+}
+
+@media (max-width: 816px) {
+	.responsive-button {
+		font-size: 1em;
+		margin-top: 0;
+		padding: 3px;
+	}
+
+	
+	.btn-group {
+		font-size: .9em;
+	}
+
+	.discussion-button {
+		width: 65px;
+	}
+
+
+
+}
+
+
+@media (max-width: 619px) {
+	.responsive-button {
+		font-size: .9em;
+		margin-top: -3px;
+	}
+
+	
+	.btn-group {
+		font-size: .9em;
+	}
+	
+}

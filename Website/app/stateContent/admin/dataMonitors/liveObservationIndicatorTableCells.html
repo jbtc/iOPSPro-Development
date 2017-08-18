@@ -1,0 +1,36 @@
+﻿<div>
+    <div class="panel panel-primary static-panel">
+        <div class="panel-heading">
+            <div class='btn-toolbar pull-right' style="display: inline-block;">
+            </div>
+            <div class="panel-heading-title">
+                Data Flow Monitor - Overall System Activity
+            </div>
+            <div class=""></div>
+            <div class="panel-heading-subtitle">
+                {{vm.dataService.Statistics.SignalR.MessageCount}} - Total Observations - Observations Per Second = {{vm.dataService.Statistics.SignalR.MessagesPerSecond}}
+            </div>
+
+        </div>
+        <div class="panel-body" style="overflow: hidden; width: 100%">
+
+            <div id="container1" style="min-width: 300px; height: 600px; margin: 0 auto;"></div>
+            <!--<canvas id="chart" style="width:100%; height:200px"></canvas>-->
+
+            <div class="panel panel-default" ng-repeat="company in vm.companies" ng-if="company.Tags.length > 0" style="margin-top: 0; margin-right: 3px; width:390px; float: left;">
+                <div class="panel-heading">
+                    <div class="panel-heading-title-dark">
+                        <span style="font-weight: bold; font-size: 1.3em;">{{company.Name}}</span> - {{company.Metadata.Statistics.MessageCount}} Observations - {{company.Metadata.Statistics.MessagesPerSecond}}/Second
+                    </div>
+
+                </div>
+                <div ng-repeat="tag in company.Tags"
+                     style="display:inline; margin-top:3px; border: .2px solid gray; border-collapse: collapse; background-color: {{tag.Metadata.Status.LastValueWasHistorical ? 'rgba(173, 173, 173,' : 'rgba(0, 255, 0,'}} .{{tag.Metadata.UpdateCountDowns.OneSecond}}); margin: 0;">
+                    &nbsp;
+                </div>
+            </div>
+        </div>
+        <div ui-view="contentPane"></div>
+    </div>
+</div>
+

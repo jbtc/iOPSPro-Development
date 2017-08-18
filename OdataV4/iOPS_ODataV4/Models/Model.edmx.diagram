@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="utf-8"?>
+<edmx:Edmx Version="3.0" xmlns:edmx="http://schemas.microsoft.com/ado/2009/11/edmx">
+ <!-- EF Designer content (DO NOT EDIT MANUALLY BELOW HERE) -->
+  <edmx:Designer xmlns="http://schemas.microsoft.com/ado/2009/11/edmx">
+    <!-- Diagram content (shape and connector positions) -->
+    <edmx:Diagrams>
+      <Diagram DiagramId="3762e8513e684cdf9d35751661d5ba65" Name="Diagram1" ZoomLevel="74">
+        <EntityTypeShape EntityType="iOPS_NormalizedModel.iOPSUser" Width="3.125" PointX="24.75" PointY="18" IsExpanded="true" />
+        <EntityTypeShape EntityType="iOPS_NormalizedModel.AuthorizableActivity" Width="2.375" PointX="35.375" PointY="18.5" />
+        <EntityTypeShape EntityType="iOPS_NormalizedModel.UserAuthorizedActivity" Width="2.125" PointX="32.125" PointY="18.5" />
+        <EntityTypeShape EntityType="iOPS_NormalizedModel.UserEventLog" Width="1.5" PointX="29.375" PointY="20.75" />
+        <EntityTypeShape EntityType="iOPS_NormalizedModel.UserEventType" Width="1.5" PointX="31.375" PointY="20.75" />
+        <AssociationConnector Association="iOPS_NormalizedModel.FK_UserAuthorizedActivity_AuthorizableActivity" />
+        <AssociationConnector Association="iOPS_NormalizedModel.FK_UserAuthorizedActivity_iOPSUser" />
+        <AssociationConnector Association="iOPS_NormalizedModel.FK_UserEventLog_iOPSUser" />
+        <AssociationConnector Association="iOPS_NormalizedModel.FK_UserEventLog_UserEventType" />
+        <EntityTypeShape EntityType="iOPS_NormalizedModel.Country" Width="1.5" PointX="32.375" PointY="15.375" />
+        <EntityTypeShape EntityType="iOPS_NormalizedModel.Person" Width="2" PointX="29.5" PointY="14.375" />
+        <AssociationConnector Association="iOPS_NormalizedModel.FK_Person_Country" />
+        <AssociationConnector Association="iOPS_NormalizedModel.FK_iOPSUser_Person" />
+        <AssociationConnector Association="iOPS_NormalizedModel.FK_Person_Person" />
+        <EntityTypeShape EntityType="iOPS_NormalizedModel.Asset" Width="18" PointX="12.375" PointY="0.875" />
+        <EntityTypeShape EntityType="iOPS_NormalizedModel.Company" Width="3.5" PointX="19.75" PointY="13.25" />
+        <EntityTypeShape EntityType="iOPS_NormalizedModel.CompanyContact" Width="2.125" PointX="24.75" PointY="15" />
+        <EntityTypeShape EntityType="iOPS_NormalizedModel.CompanyDataReader" Width="2.125" PointX="21" PointY="18.625" />
+        <AssociationConnector Association="iOPS_NormalizedModel.FK_Asset_Airport" />
+        <AssociationConnector Association="iOPS_NormalizedModel.FK_CompanyContact_Company1" />
+        <AssociationConnector Association="iOPS_NormalizedModel.FK_CompanyDataReader_Company" />
+        <AssociationConnector Association="iOPS_NormalizedModel.FK_CompanyContact_Person" />
+        <AssociationConnector Association="iOPS_NormalizedModel.FK_CompanyDataReader_iOPSUser" />
+        <EntityTypeShape EntityType="iOPS_NormalizedModel.Site" Width="12.25" PointX="2.375" PointY="15.375" />
+        <EntityTypeShape EntityType="iOPS_NormalizedModel.SiteCompany" Width="1.5" PointX="16" PointY="14.5" />
+        <EntityTypeShape EntityType="iOPS_NormalizedModel.SiteDataReader" Width="1.5" PointX="15.875" PointY="19.25" />
+        <AssociationConnector Association="iOPS_NormalizedModel.FK_Asset_Site" />
+        <AssociationConnector Association="iOPS_NormalizedModel.FK_SiteCompany_Company" />
+        <AssociationConnector Association="iOPS_NormalizedModel.FK_SiteCompany_Site" />
+        <AssociationConnector Association="iOPS_NormalizedModel.FK_SiteDataReader_Site" />
+        <AssociationConnector Association="iOPS_NormalizedModel.FK_SiteDataReader_iOPSUser" />
+        <EntityTypeShape EntityType="iOPS_NormalizedModel.AssetCondition" Width="1.5" PointX="10.125" PointY="4.25" />
+        <EntityTypeShape EntityType="iOPS_NormalizedModel.AssetType" Width="1.5" PointX="10.125" PointY="1.75" />
+        <EntityTypeShape EntityType="iOPS_NormalizedModel.CompanyType" Width="1.5" PointX="16" PointY="16.625" />
+        <AssociationConnector Association="iOPS_NormalizedModel.FK_Asset_AssetType" />
+        <AssociationConnector Association="iOPS_NormalizedModel.FK_Asset_Condition" />
+        <AssociationConnector Association="iOPS_NormalizedModel.FK_Client_ClientType" />
+        <EntityTypeShape EntityType="iOPS_NormalizedModel.SystemType" Width="1.5" PointX="18.375" PointY="10" />
+        <EntityTypeShape EntityType="iOPS_NormalizedModel.Observation" Width="1.5" PointX="34.5" PointY="3.25" />
+        <EntityTypeShape EntityType="iOPS_NormalizedModel.Tag" Width="2.5" PointX="31.125" PointY="0.875" />
+        <AssociationConnector Association="iOPS_NormalizedModel.FK_Tag_Asset" />
+        <AssociationConnector Association="iOPS_NormalizedModel.FK_Observation_Tag" />
+        <EntityTypeShape EntityType="iOPS_NormalizedModel.SystemGroup" Width="1.5" PointX="13.75" PointY="10" />
+        <AssociationConnector Association="iOPS_NormalizedModel.FK_Asset_System" />
+        <AssociationConnector Association="iOPS_NormalizedModel.FK_System_Company" />
+        <AssociationConnector Association="iOPS_NormalizedModel.FK_System_Site" />
+        <AssociationConnector Association="iOPS_NormalizedModel.FK_System_System" />
+        <AssociationConnector Association="iOPS_NormalizedModel.FK_System_SystemType" />
+        <EntityTypeShape EntityType="iOPS_NormalizedModel.CustomJBTStandardObservation" Width="2.625" PointX="22.375" PointY="9.875" />
+        <EntityTypeShape EntityType="iOPS_NormalizedModel.JBTStandardObservation" Width="2.375" PointX="31" PointY="10.5" />
+        <EntityTypeShape EntityType="iOPS_NormalizedModel.Unit" Width="1.5" PointX="34.125" PointY="10.875" />
+        <AssociationConnector Association="iOPS_NormalizedModel.FK_CustomJBTStandardObservation_Company" />
+        <AssociationConnector Association="iOPS_NormalizedModel.FK_CustomJBTStandardObservation_JBTStandardObservation" />
+        <AssociationConnector Association="iOPS_NormalizedModel.FK_JBTStandardObservation_Unit" />
+        <AssociationConnector Association="iOPS_NormalizedModel.FK_Tag_JBTStandardObservation" />
+        <EntityTypeShape EntityType="iOPS_NormalizedModel.Widget" Width="1.875" PointX="29.75" PointY="23.375" />
+        <EntityTypeShape EntityType="iOPS_NormalizedModel.WidgetType" Width="2.875" PointX="32.375" PointY="23.375" />
+        <AssociationConnector Association="iOPS_NormalizedModel.FK_Widget_WidgetType" />
+        <EntityTypeShape EntityType="iOPS_NormalizedModel.StateAbbreviation" Width="2.25" PointX="38.5" PointY="5.125" />
+        <EntityTypeShape EntityType="iOPS_NormalizedModel.BHSBagTagScan" Width="1.5" PointX="1.75" PointY="21.125" />
+        <AssociationConnector Association="iOPS_NormalizedModel.FK_BagTagScan_Site" />
+        <EntityTypeShape EntityType="iOPS_NormalizedModel.DatabaseMailQueue" Width="2.75" PointX="37.75" PointY="9.875" />
+        <EntityTypeShape EntityType="iOPS_NormalizedModel.BHSJamAlarm" Width="2.375" PointX="3.5" PointY="21.125" />
+        <AssociationConnector Association="iOPS_NormalizedModel.FK_JamAlarms_Site" />
+        <EntityTypeShape EntityType="iOPS_NormalizedModel.BHSDeviceLocation" Width="2.5" PointX="2.625" PointY="10.375" />
+        <AssociationConnector Association="iOPS_NormalizedModel.FK_DeviceLocations_Site" />
+        <EntityTypeShape EntityType="iOPS_NormalizedModel.BHSCurrentAlarm" Width="2.125" PointX="8.875" PointY="9.875" />
+        <AssociationConnector Association="iOPS_NormalizedModel.FK_CurrentAlarm_Site" />
+        <EntityTypeShape EntityType="iOPS_NormalizedModel.Dashboard" Width="2.125" PointX="26" PointY="25.375" />
+        <AssociationConnector Association="iOPS_NormalizedModel.FK_Dashboard_iOPSUser" />
+        <AssociationConnector Association="iOPS_NormalizedModel.FK_Widget_Dashboard" />
+        <EntityTypeShape EntityType="iOPS_NormalizedModel.DashboardTimeScope" Width="1.5" PointX="29.875" PointY="28.5" />
+        <AssociationConnector Association="iOPS_NormalizedModel.FK_Dashboard_DashboardTimeScope" />
+        <EntityTypeShape EntityType="iOPS_NormalizedModel.BHSCBRAEntryStatu" Width="2.375" PointX="11.625" PointY="21.125" />
+        <EntityTypeShape EntityType="iOPS_NormalizedModel.BHSDeviceLocationThroughput" Width="2.5" PointX="6.25" PointY="11.75" />
+        <EntityTypeShape EntityType="iOPS_NormalizedModel.BHSTokenTracker" Width="1.875" PointX="11.125" PointY="11" />
+        <AssociationConnector Association="iOPS_NormalizedModel.FK_CBRAEntryStatus_Site" />
+        <AssociationConnector Association="iOPS_NormalizedModel.FK_DeviceLocationThroughput_Site" />
+        <AssociationConnector Association="iOPS_NormalizedModel.FK_TokenTracker_Site" />
+        <EntityTypeShape EntityType="iOPS_NormalizedModel.BHSToken" Width="1.5" PointX="0.5" PointY="13.875" />
+        <AssociationConnector Association="iOPS_NormalizedModel.FK_Token_Site" />
+        <EntityTypeShape EntityType="iOPS_NormalizedModel.BHSAlarmHistory" Width="2.5" PointX="6.125" PointY="21.125" />
+        <AssociationConnector Association="iOPS_NormalizedModel.FK_AlarmHistory_Site" />
+        <AssociationConnector Association="iOPS_NormalizedModel.FK_Widget_Dashboard1" />
+        <EntityTypeShape EntityType="iOPS_NormalizedModel.BHSCarrier" Width="3" PointX="2.375" PointY="4.25" />
+        <EntityTypeShape EntityType="iOPS_NormalizedModel.BHSDeviceLocationCarrierMap" Width="2.5" PointX="2.5" PointY="7.375" />
+        <AssociationConnector Association="iOPS_NormalizedModel.FK_BHSDeviceLocationCarrierMap_BHSCarrier" />
+        <AssociationConnector Association="iOPS_NormalizedModel.FK_BHSDeviceLocationCarrierMap_DeviceLocations" />
+        </Diagram>
+    </edmx:Diagrams>
+  </edmx:Designer>
+</edmx:Edmx>

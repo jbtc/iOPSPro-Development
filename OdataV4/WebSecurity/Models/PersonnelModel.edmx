@@ -1,0 +1,745 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<edmx:Edmx Version="3.0" xmlns:edmx="http://schemas.microsoft.com/ado/2009/11/edmx">
+  <!-- EF Runtime content -->
+  <edmx:Runtime>
+    <!-- SSDL content -->
+    <edmx:StorageModels>
+    <Schema Namespace="PersonnelModel.Store" Provider="System.Data.SqlClient" ProviderManifestToken="2012" Alias="Self" xmlns:store="http://schemas.microsoft.com/ado/2007/12/edm/EntityStoreSchemaGenerator" xmlns:customannotation="http://schemas.microsoft.com/ado/2013/11/edm/customannotation" xmlns="http://schemas.microsoft.com/ado/2009/11/edm/ssdl">
+        <EntityType Name="ADGroup">
+          <Key>
+            <PropertyRef Name="Id" />
+          </Key>
+          <Property Name="Id" Type="bigint" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="Name" Type="varchar" MaxLength="200" Nullable="false" />
+        </EntityType>
+        <EntityType Name="Appointment">
+          <Key>
+            <PropertyRef Name="Id" />
+          </Key>
+          <Property Name="Id" Type="bigint" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="MasterId" Type="bigint" Nullable="false" />
+          <Property Name="AppointmentSequence" Type="tinyint" />
+          <Property Name="BusinessUnit" Type="varchar" MaxLength="50" />
+          <Property Name="DepartmentId" Type="bigint" Nullable="false" />
+          <Property Name="Title" Type="varchar" MaxLength="100" />
+          <Property Name="JobCode" Type="varchar" MaxLength="50" />
+          <Property Name="AppointmentId" Type="varchar" MaxLength="25" />
+          <Property Name="PositionNumber" Type="varchar" MaxLength="25" />
+          <Property Name="BeginDate" Type="date" />
+          <Property Name="TerminationDate" Type="date" />
+          <Property Name="PercentTime" Type="float" />
+          <Property Name="IsPrimaryJob" Type="bit" Nullable="false" />
+        </EntityType>
+        <EntityType Name="BuildingLocation">
+          <Key>
+            <PropertyRef Name="MasterId" />
+          </Key>
+          <Property Name="MasterId" Type="bigint" Nullable="false" />
+          <Property Name="Code" Type="varchar" MaxLength="50" />
+          <Property Name="Name" Type="varchar" MaxLength="100" />
+          <Property Name="RoomNumber" Type="varchar" MaxLength="50" />
+        </EntityType>
+        <EntityType Name="Department">
+          <Key>
+            <PropertyRef Name="Id" />
+          </Key>
+          <Property Name="Id" Type="bigint" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="HRDepartmentId" Type="varchar" MaxLength="30" Nullable="false" />
+          <Property Name="Name" Type="varchar" MaxLength="250" Nullable="false" />
+        </EntityType>
+        <EntityType Name="PeopleADGroups">
+          <Key>
+            <PropertyRef Name="MasterId" />
+            <PropertyRef Name="GroupId" />
+          </Key>
+          <Property Name="MasterId" Type="bigint" Nullable="false" />
+          <Property Name="GroupId" Type="bigint" Nullable="false" />
+        </EntityType>
+        <EntityType Name="Person">
+          <Key>
+            <PropertyRef Name="MasterId" />
+          </Key>
+          <Property Name="Id" Type="bigint" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="MasterId" Type="bigint" Nullable="false" />
+          <Property Name="Username" Type="varchar" MaxLength="50" Nullable="false" />
+          <Property Name="EmployeeID" Type="varchar" MaxLength="15" />
+          <Property Name="GivenName" Type="varchar" MaxLength="100" />
+          <Property Name="Initials" Type="varchar" MaxLength="50" />
+          <Property Name="FamilyName" Type="varchar" MaxLength="100" />
+          <Property Name="DateOfBirth" Type="date" />
+          <Property Name="Title" Type="varchar" MaxLength="100" />
+          <Property Name="DisplayNameLFM" Type="varchar" MaxLength="250" />
+          <Property Name="FullName" Type="varchar" MaxLength="250" />
+          <Property Name="StudentPID" Type="varchar" MaxLength="20" />
+          <Property Name="StudentStanding" Type="varchar" MaxLength="50" />
+          <Property Name="DoctorNumber" Type="varchar" MaxLength="25" />
+          <Property Name="Email" Type="varchar" MaxLength="150" />
+          <Property Name="ActiveDirectoryPath" Type="varchar" MaxLength="300" />
+          <Property Name="EducationAffiliation" Type="varchar" MaxLength="50" />
+          <Property Name="MailDeliveryRoute" Type="varchar" MaxLength="150" />
+          <Property Name="LastModifiedDate" Type="datetime" />
+          <Property Name="ExternalEmployeeID" Type="varchar" MaxLength="20" />
+          <Property Name="Hash" Type="varchar" MaxLength="75" />
+          <Property Name="IsActive" Type="bit" Nullable="false" />
+          <Property Name="IsPrincipalInvestigator" Type="bit" Nullable="false" />
+          <Property Name="IsInstructor" Type="bit" Nullable="false" />
+          <Property Name="SupervisorMasterId" Type="bigint" />
+        </EntityType>
+        <EntityType Name="PhoneNumber">
+          <Key>
+            <PropertyRef Name="Id" />
+          </Key>
+          <Property Name="Id" Type="bigint" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="MasterId" Type="bigint" Nullable="false" />
+          <Property Name="Type" Type="varchar" MaxLength="20" />
+          <Property Name="Number" Type="varchar" MaxLength="50" />
+          <Property Name="IsViewable" Type="bit" Nullable="false" />
+        </EntityType>
+        <EntityType Name="Status">
+          <Key>
+            <PropertyRef Name="MasterId" />
+          </Key>
+          <Property Name="MasterId" Type="bigint" Nullable="false" />
+          <Property Name="IsUTMBEmployee" Type="bit" Nullable="false" />
+          <Property Name="IsUTMBStudent" Type="bit" Nullable="false" />
+          <Property Name="IsNonUTMB" Type="bit" Nullable="false" />
+          <Property Name="IsNonUTMBStudent" Type="bit" Nullable="false" />
+          <Property Name="IsContractor" Type="bit" Nullable="false" />
+          <Property Name="IsVolunteer" Type="bit" Nullable="false" />
+          <Property Name="IsActive" Type="bit" Nullable="false" />
+          <Property Name="HasExternalEmployeeNumber" Type="bit" Nullable="false" />
+        </EntityType>
+        <EntityType Name="Student">
+          <Key>
+            <PropertyRef Name="MasterId" />
+          </Key>
+          <Property Name="MasterId" Type="bigint" Nullable="false" />
+          <Property Name="Status" Type="varchar" MaxLength="25" />
+          <Property Name="HasSignedFRPA" Type="bit" />
+          <Property Name="IsMDPHD" Type="bit" />
+        </EntityType>
+        <EntityType Name="UsernameHistory">
+          <Key>
+            <PropertyRef Name="Id" />
+          </Key>
+          <Property Name="Id" Type="bigint" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="MasterId" Type="bigint" Nullable="false" />
+          <Property Name="Username" Type="varchar" MaxLength="50" Nullable="false" />
+          <Property Name="InactiveDate" Type="datetime" />
+        </EntityType>
+        <Association Name="FK_Appointment_Department">
+          <End Role="Department" Type="Self.Department" Multiplicity="1" />
+          <End Role="Appointment" Type="Self.Appointment" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Department">
+              <PropertyRef Name="Id" />
+            </Principal>
+            <Dependent Role="Appointment">
+              <PropertyRef Name="DepartmentId" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_Appointment_Person">
+          <End Role="Person" Type="Self.Person" Multiplicity="1" />
+          <End Role="Appointment" Type="Self.Appointment" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Person">
+              <PropertyRef Name="MasterId" />
+            </Principal>
+            <Dependent Role="Appointment">
+              <PropertyRef Name="MasterId" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_BuildingLocation_Person">
+          <End Role="Person" Type="Self.Person" Multiplicity="1" />
+          <End Role="BuildingLocation" Type="Self.BuildingLocation" Multiplicity="0..1" />
+          <ReferentialConstraint>
+            <Principal Role="Person">
+              <PropertyRef Name="MasterId" />
+            </Principal>
+            <Dependent Role="BuildingLocation">
+              <PropertyRef Name="MasterId" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_PeopleADGroups_ADGroup">
+          <End Role="ADGroup" Type="Self.ADGroup" Multiplicity="1" />
+          <End Role="PeopleADGroups" Type="Self.PeopleADGroups" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="ADGroup">
+              <PropertyRef Name="Id" />
+            </Principal>
+            <Dependent Role="PeopleADGroups">
+              <PropertyRef Name="GroupId" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_PeopleADGroups_Person">
+          <End Role="Person" Type="Self.Person" Multiplicity="1" />
+          <End Role="PeopleADGroups" Type="Self.PeopleADGroups" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Person">
+              <PropertyRef Name="MasterId" />
+            </Principal>
+            <Dependent Role="PeopleADGroups">
+              <PropertyRef Name="MasterId" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_Person_Person">
+          <End Role="Person" Type="Self.Person" Multiplicity="0..1" />
+          <End Role="Person1" Type="Self.Person" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Person">
+              <PropertyRef Name="MasterId" />
+            </Principal>
+            <Dependent Role="Person1">
+              <PropertyRef Name="SupervisorMasterId" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_PhoneNumber_Person">
+          <End Role="Person" Type="Self.Person" Multiplicity="1" />
+          <End Role="PhoneNumber" Type="Self.PhoneNumber" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Person">
+              <PropertyRef Name="MasterId" />
+            </Principal>
+            <Dependent Role="PhoneNumber">
+              <PropertyRef Name="MasterId" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_Status_Person">
+          <End Role="Person" Type="Self.Person" Multiplicity="1" />
+          <End Role="Status" Type="Self.Status" Multiplicity="0..1" />
+          <ReferentialConstraint>
+            <Principal Role="Person">
+              <PropertyRef Name="MasterId" />
+            </Principal>
+            <Dependent Role="Status">
+              <PropertyRef Name="MasterId" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_Student_Person">
+          <End Role="Person" Type="Self.Person" Multiplicity="1" />
+          <End Role="Student" Type="Self.Student" Multiplicity="0..1" />
+          <ReferentialConstraint>
+            <Principal Role="Person">
+              <PropertyRef Name="MasterId" />
+            </Principal>
+            <Dependent Role="Student">
+              <PropertyRef Name="MasterId" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_UsernameHistory_Person">
+          <End Role="Person" Type="Self.Person" Multiplicity="1" />
+          <End Role="UsernameHistory" Type="Self.UsernameHistory" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Person">
+              <PropertyRef Name="MasterId" />
+            </Principal>
+            <Dependent Role="UsernameHistory">
+              <PropertyRef Name="MasterId" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <EntityContainer Name="PersonnelModelStoreContainer">
+          <EntitySet Name="ADGroup" EntityType="Self.ADGroup" Schema="OData" store:Type="Tables" />
+          <EntitySet Name="Appointment" EntityType="Self.Appointment" Schema="OData" store:Type="Tables" />
+          <EntitySet Name="BuildingLocation" EntityType="Self.BuildingLocation" Schema="OData" store:Type="Tables" />
+          <EntitySet Name="Department" EntityType="Self.Department" Schema="OData" store:Type="Tables" />
+          <EntitySet Name="PeopleADGroups" EntityType="Self.PeopleADGroups" Schema="OData" store:Type="Tables" />
+          <EntitySet Name="Person" EntityType="Self.Person" Schema="OData" store:Type="Tables" />
+          <EntitySet Name="PhoneNumber" EntityType="Self.PhoneNumber" Schema="OData" store:Type="Tables" />
+          <EntitySet Name="Status" EntityType="Self.Status" Schema="OData" store:Type="Tables" />
+          <EntitySet Name="Student" EntityType="Self.Student" Schema="OData" store:Type="Tables" />
+          <EntitySet Name="UsernameHistory" EntityType="Self.UsernameHistory" Schema="OData" store:Type="Tables" />
+          <AssociationSet Name="FK_Appointment_Department" Association="Self.FK_Appointment_Department">
+            <End Role="Department" EntitySet="Department" />
+            <End Role="Appointment" EntitySet="Appointment" />
+          </AssociationSet>
+          <AssociationSet Name="FK_Appointment_Person" Association="Self.FK_Appointment_Person">
+            <End Role="Person" EntitySet="Person" />
+            <End Role="Appointment" EntitySet="Appointment" />
+          </AssociationSet>
+          <AssociationSet Name="FK_BuildingLocation_Person" Association="Self.FK_BuildingLocation_Person">
+            <End Role="Person" EntitySet="Person" />
+            <End Role="BuildingLocation" EntitySet="BuildingLocation" />
+          </AssociationSet>
+          <AssociationSet Name="FK_PeopleADGroups_ADGroup" Association="Self.FK_PeopleADGroups_ADGroup">
+            <End Role="ADGroup" EntitySet="ADGroup" />
+            <End Role="PeopleADGroups" EntitySet="PeopleADGroups" />
+          </AssociationSet>
+          <AssociationSet Name="FK_PeopleADGroups_Person" Association="Self.FK_PeopleADGroups_Person">
+            <End Role="Person" EntitySet="Person" />
+            <End Role="PeopleADGroups" EntitySet="PeopleADGroups" />
+          </AssociationSet>
+          <AssociationSet Name="FK_Person_Person" Association="Self.FK_Person_Person">
+            <End Role="Person" EntitySet="Person" />
+            <End Role="Person1" EntitySet="Person" />
+          </AssociationSet>
+          <AssociationSet Name="FK_PhoneNumber_Person" Association="Self.FK_PhoneNumber_Person">
+            <End Role="Person" EntitySet="Person" />
+            <End Role="PhoneNumber" EntitySet="PhoneNumber" />
+          </AssociationSet>
+          <AssociationSet Name="FK_Status_Person" Association="Self.FK_Status_Person">
+            <End Role="Person" EntitySet="Person" />
+            <End Role="Status" EntitySet="Status" />
+          </AssociationSet>
+          <AssociationSet Name="FK_Student_Person" Association="Self.FK_Student_Person">
+            <End Role="Person" EntitySet="Person" />
+            <End Role="Student" EntitySet="Student" />
+          </AssociationSet>
+          <AssociationSet Name="FK_UsernameHistory_Person" Association="Self.FK_UsernameHistory_Person">
+            <End Role="Person" EntitySet="Person" />
+            <End Role="UsernameHistory" EntitySet="UsernameHistory" />
+          </AssociationSet>
+        </EntityContainer>
+      </Schema></edmx:StorageModels>
+    <!-- CSDL content -->
+    <edmx:ConceptualModels>
+      <Schema Namespace="PersonnelModel" Alias="Self" annotation:UseStrongSpatialTypes="false" xmlns:annotation="http://schemas.microsoft.com/ado/2009/02/edm/annotation" xmlns:customannotation="http://schemas.microsoft.com/ado/2013/11/edm/customannotation" xmlns="http://schemas.microsoft.com/ado/2009/11/edm">
+        <EntityType Name="ADGroup">
+          <Key>
+            <PropertyRef Name="Id" />
+          </Key>
+          <Property Name="Id" Type="Int64" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="Name" Type="String" MaxLength="200" FixedLength="false" Unicode="false" Nullable="false" />
+          <NavigationProperty Name="People" Relationship="PersonnelModel.PeopleADGroups" FromRole="ADGroup" ToRole="Person" />
+        </EntityType>
+        <EntityType Name="Appointment">
+          <Key>
+            <PropertyRef Name="Id" />
+          </Key>
+          <Property Name="Id" Type="Int64" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="MasterId" Type="Int64" Nullable="false" />
+          <Property Name="AppointmentSequence" Type="Byte" />
+          <Property Name="BusinessUnit" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
+          <Property Name="DepartmentId" Type="Int64" Nullable="false" />
+          <Property Name="Title" Type="String" MaxLength="100" FixedLength="false" Unicode="false" />
+          <Property Name="JobCode" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
+          <Property Name="AppointmentId" Type="String" MaxLength="25" FixedLength="false" Unicode="false" />
+          <Property Name="PositionNumber" Type="String" MaxLength="25" FixedLength="false" Unicode="false" />
+          <Property Name="BeginDate" Type="DateTime" Precision="0" />
+          <Property Name="TerminationDate" Type="DateTime" Precision="0" />
+          <Property Name="PercentTime" Type="Double" />
+          <Property Name="IsPrimaryJob" Type="Boolean" Nullable="false" />
+          <NavigationProperty Name="Department" Relationship="Self.FK_Appointment_Department" FromRole="Appointment" ToRole="Department" />
+          <NavigationProperty Name="Person" Relationship="PersonnelModel.FK_Appointment_Person" FromRole="Appointment" ToRole="Person" />
+        </EntityType>
+        <EntityType Name="BuildingLocation">
+          <Key>
+            <PropertyRef Name="MasterId" />
+          </Key>
+          <Property Name="MasterId" Type="Int64" Nullable="false" />
+          <Property Name="Code" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
+          <Property Name="Name" Type="String" MaxLength="100" FixedLength="false" Unicode="false" />
+          <Property Name="RoomNumber" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
+          <NavigationProperty Name="Person" Relationship="PersonnelModel.FK_BuildingLocation_Person" FromRole="BuildingLocation" ToRole="Person" />
+        </EntityType>
+        <EntityType Name="Department">
+          <Key>
+            <PropertyRef Name="Id" />
+          </Key>
+          <Property Name="Id" Type="Int64" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="HRDepartmentId" Type="String" MaxLength="30" FixedLength="false" Unicode="false" Nullable="false" />
+          <Property Name="Name" Type="String" MaxLength="250" FixedLength="false" Unicode="false" Nullable="false" />
+          <NavigationProperty Name="Appointments" Relationship="Self.FK_Appointment_Department" FromRole="Department" ToRole="Appointment" />
+        </EntityType>
+        <EntityType Name="PhoneNumber">
+          <Key>
+            <PropertyRef Name="Id" />
+          </Key>
+          <Property Name="Id" Type="Int64" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="MasterId" Type="Int64" Nullable="false" />
+          <Property Name="Type" Type="String" MaxLength="20" FixedLength="false" Unicode="false" />
+          <Property Name="Number" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
+          <Property Name="IsViewable" Type="Boolean" Nullable="false" />
+          <NavigationProperty Name="Person" Relationship="PersonnelModel.FK_PhoneNumber_Person" FromRole="PhoneNumber" ToRole="Person" />
+        </EntityType>
+        <EntityType Name="Status">
+          <Key>
+            <PropertyRef Name="MasterId" />
+          </Key>
+          <Property Name="MasterId" Type="Int64" Nullable="false" />
+          <Property Name="IsUTMBEmployee" Type="Boolean" Nullable="false" />
+          <Property Name="IsUTMBStudent" Type="Boolean" Nullable="false" />
+          <Property Name="IsNonUTMB" Type="Boolean" Nullable="false" />
+          <Property Name="IsNonUTMBStudent" Type="Boolean" Nullable="false" />
+          <Property Name="IsContractor" Type="Boolean" Nullable="false" />
+          <Property Name="IsVolunteer" Type="Boolean" Nullable="false" />
+          <Property Name="IsActive" Type="Boolean" Nullable="false" />
+          <Property Name="HasExternalEmployeeNumber" Type="Boolean" Nullable="false" />
+          <NavigationProperty Name="Person" Relationship="PersonnelModel.FK_Status_Person" FromRole="Status" ToRole="Person" />
+        </EntityType>
+        <EntityType Name="Student">
+          <Key>
+            <PropertyRef Name="MasterId" />
+          </Key>
+          <Property Name="MasterId" Type="Int64" Nullable="false" />
+          <Property Name="Status" Type="String" MaxLength="25" FixedLength="false" Unicode="false" />
+          <Property Name="HasSignedFRPA" Type="Boolean" />
+          <Property Name="IsMDPHD" Type="Boolean" />
+          <NavigationProperty Name="Person" Relationship="PersonnelModel.FK_Student_Person" FromRole="Student" ToRole="Person" />
+        </EntityType>
+        <EntityType Name="UsernameHistory">
+          <Key>
+            <PropertyRef Name="Id" />
+          </Key>
+          <Property Name="Id" Type="Int64" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="MasterId" Type="Int64" Nullable="false" />
+          <Property Name="Username" Type="String" MaxLength="50" FixedLength="false" Unicode="false" Nullable="false" />
+          <Property Name="InactiveDate" Type="DateTime" Precision="3" />
+          <NavigationProperty Name="Person" Relationship="PersonnelModel.FK_UsernameHistory_Person" FromRole="UsernameHistory" ToRole="Person" />
+        </EntityType>
+        <Association Name="FK_Appointment_Department">
+          <End Role="Department" Type="Self.Department" Multiplicity="1" />
+          <End Role="Appointment" Type="Self.Appointment" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Department">
+              <PropertyRef Name="Id" />
+            </Principal>
+            <Dependent Role="Appointment">
+              <PropertyRef Name="DepartmentId" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <EntityContainer Name="PersonnelEntities" annotation:LazyLoadingEnabled="true">
+          <EntitySet Name="ADGroups" EntityType="Self.ADGroup" />
+          <EntitySet Name="Appointments" EntityType="Self.Appointment" />
+          <EntitySet Name="BuildingLocations" EntityType="Self.BuildingLocation" />
+          <EntitySet Name="Departments" EntityType="Self.Department" />
+          <EntitySet Name="PhoneNumbers" EntityType="Self.PhoneNumber" />
+          <EntitySet Name="Status" EntityType="Self.Status" />
+          <EntitySet Name="Students" EntityType="Self.Student" />
+          <EntitySet Name="UsernameHistories" EntityType="Self.UsernameHistory" />
+          <AssociationSet Name="FK_Appointment_Department" Association="Self.FK_Appointment_Department">
+            <End Role="Department" EntitySet="Departments" />
+            <End Role="Appointment" EntitySet="Appointments" />
+          </AssociationSet>
+          <EntitySet Name="People" EntityType="PersonnelModel.Person" />
+          <AssociationSet Name="FK_Appointment_Person" Association="PersonnelModel.FK_Appointment_Person">
+            <End Role="Person" EntitySet="People" />
+            <End Role="Appointment" EntitySet="Appointments" />
+          </AssociationSet>
+          <AssociationSet Name="FK_BuildingLocation_Person" Association="PersonnelModel.FK_BuildingLocation_Person">
+            <End Role="Person" EntitySet="People" />
+            <End Role="BuildingLocation" EntitySet="BuildingLocations" />
+          </AssociationSet>
+          <AssociationSet Name="FK_Person_Person" Association="PersonnelModel.FK_Person_Person">
+            <End Role="Person" EntitySet="People" />
+            <End Role="Person1" EntitySet="People" />
+          </AssociationSet>
+          <AssociationSet Name="FK_PhoneNumber_Person" Association="PersonnelModel.FK_PhoneNumber_Person">
+            <End Role="Person" EntitySet="People" />
+            <End Role="PhoneNumber" EntitySet="PhoneNumbers" />
+          </AssociationSet>
+          <AssociationSet Name="FK_Status_Person" Association="PersonnelModel.FK_Status_Person">
+            <End Role="Person" EntitySet="People" />
+            <End Role="Status" EntitySet="Status" />
+          </AssociationSet>
+          <AssociationSet Name="FK_Student_Person" Association="PersonnelModel.FK_Student_Person">
+            <End Role="Person" EntitySet="People" />
+            <End Role="Student" EntitySet="Students" />
+          </AssociationSet>
+          <AssociationSet Name="FK_UsernameHistory_Person" Association="PersonnelModel.FK_UsernameHistory_Person">
+            <End Role="Person" EntitySet="People" />
+            <End Role="UsernameHistory" EntitySet="UsernameHistories" />
+          </AssociationSet>
+          <AssociationSet Name="PeopleADGroups" Association="PersonnelModel.PeopleADGroups">
+            <End Role="ADGroup" EntitySet="ADGroups" />
+            <End Role="Person" EntitySet="People" />
+          </AssociationSet>
+          </EntityContainer>
+        <EntityType Name="Person">
+          <Key>
+            <PropertyRef Name="MasterId" />
+          </Key>
+          <Property Name="Id" Type="Int64" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="MasterId" Type="Int64" Nullable="false" />
+          <Property Name="Username" Type="String" Nullable="false" MaxLength="50" FixedLength="false" Unicode="false" />
+          <Property Name="EmployeeID" Type="String" MaxLength="15" FixedLength="false" Unicode="false" />
+          <Property Name="GivenName" Type="String" MaxLength="100" FixedLength="false" Unicode="false" />
+          <Property Name="Initials" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
+          <Property Name="FamilyName" Type="String" MaxLength="100" FixedLength="false" Unicode="false" />
+          <Property Name="DateOfBirth" Type="DateTime" Precision="0" />
+          <Property Name="Title" Type="String" MaxLength="100" FixedLength="false" Unicode="false" />
+          <Property Name="DisplayNameLFM" Type="String" MaxLength="250" FixedLength="false" Unicode="false" />
+          <Property Name="FullName" Type="String" MaxLength="250" FixedLength="false" Unicode="false" />
+          <Property Name="StudentPID" Type="String" MaxLength="20" FixedLength="false" Unicode="false" />
+          <Property Name="StudentStanding" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
+          <Property Name="DoctorNumber" Type="String" MaxLength="25" FixedLength="false" Unicode="false" />
+          <Property Name="Email" Type="String" MaxLength="150" FixedLength="false" Unicode="false" />
+          <Property Name="ActiveDirectoryPath" Type="String" MaxLength="300" FixedLength="false" Unicode="false" />
+          <Property Name="EducationAffiliation" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
+          <Property Name="MailDeliveryRoute" Type="String" MaxLength="150" FixedLength="false" Unicode="false" />
+          <Property Name="LastModifiedDate" Type="DateTime" Precision="3" />
+          <Property Name="ExternalEmployeeID" Type="String" MaxLength="20" FixedLength="false" Unicode="false" />
+          <Property Name="Hash" Type="String" MaxLength="75" FixedLength="false" Unicode="false" />
+          <Property Name="IsActive" Type="Boolean" Nullable="false" />
+          <Property Name="IsPrincipalInvestigator" Type="Boolean" Nullable="false" />
+          <Property Name="IsInstructor" Type="Boolean" Nullable="false" />
+          <Property Name="SupervisorMasterId" Type="Int64" />
+          <NavigationProperty Name="Appointments" Relationship="PersonnelModel.FK_Appointment_Person" FromRole="Person" ToRole="Appointment" />
+          <NavigationProperty Name="BuildingLocation" Relationship="PersonnelModel.FK_BuildingLocation_Person" FromRole="Person" ToRole="BuildingLocation" />
+          <NavigationProperty Name="Subordinates" Relationship="PersonnelModel.FK_Person_Person" FromRole="Person" ToRole="Person1" />
+          <NavigationProperty Name="Supervisor" Relationship="PersonnelModel.FK_Person_Person" FromRole="Person1" ToRole="Person" />
+          <NavigationProperty Name="PhoneNumbers" Relationship="PersonnelModel.FK_PhoneNumber_Person" FromRole="Person" ToRole="PhoneNumber" />
+          <NavigationProperty Name="Status" Relationship="PersonnelModel.FK_Status_Person" FromRole="Person" ToRole="Status" />
+          <NavigationProperty Name="Student" Relationship="PersonnelModel.FK_Student_Person" FromRole="Person" ToRole="Student" />
+          <NavigationProperty Name="UsernameHistories" Relationship="PersonnelModel.FK_UsernameHistory_Person" FromRole="Person" ToRole="UsernameHistory" />
+          <NavigationProperty Name="ADGroups" Relationship="PersonnelModel.PeopleADGroups" FromRole="Person" ToRole="ADGroup" />
+        </EntityType>
+        <Association Name="FK_Appointment_Person">
+          <End Type="PersonnelModel.Person" Role="Person" Multiplicity="1" />
+          <End Type="PersonnelModel.Appointment" Role="Appointment" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Person">
+              <PropertyRef Name="MasterId" />
+            </Principal>
+            <Dependent Role="Appointment">
+              <PropertyRef Name="MasterId" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_BuildingLocation_Person">
+          <End Type="PersonnelModel.Person" Role="Person" Multiplicity="1" />
+          <End Type="PersonnelModel.BuildingLocation" Role="BuildingLocation" Multiplicity="0..1" />
+          <ReferentialConstraint>
+            <Principal Role="Person">
+              <PropertyRef Name="MasterId" />
+            </Principal>
+            <Dependent Role="BuildingLocation">
+              <PropertyRef Name="MasterId" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_Person_Person">
+          <End Type="PersonnelModel.Person" Role="Person" Multiplicity="0..1" />
+          <End Type="PersonnelModel.Person" Role="Person1" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Person">
+              <PropertyRef Name="MasterId" />
+            </Principal>
+            <Dependent Role="Person1">
+              <PropertyRef Name="SupervisorMasterId" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_PhoneNumber_Person">
+          <End Type="PersonnelModel.Person" Role="Person" Multiplicity="1" />
+          <End Type="PersonnelModel.PhoneNumber" Role="PhoneNumber" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Person">
+              <PropertyRef Name="MasterId" />
+            </Principal>
+            <Dependent Role="PhoneNumber">
+              <PropertyRef Name="MasterId" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_Status_Person">
+          <End Type="PersonnelModel.Person" Role="Person" Multiplicity="1" />
+          <End Type="PersonnelModel.Status" Role="Status" Multiplicity="0..1" />
+          <ReferentialConstraint>
+            <Principal Role="Person">
+              <PropertyRef Name="MasterId" />
+            </Principal>
+            <Dependent Role="Status">
+              <PropertyRef Name="MasterId" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_Student_Person">
+          <End Type="PersonnelModel.Person" Role="Person" Multiplicity="1" />
+          <End Type="PersonnelModel.Student" Role="Student" Multiplicity="0..1" />
+          <ReferentialConstraint>
+            <Principal Role="Person">
+              <PropertyRef Name="MasterId" />
+            </Principal>
+            <Dependent Role="Student">
+              <PropertyRef Name="MasterId" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_UsernameHistory_Person">
+          <End Type="PersonnelModel.Person" Role="Person" Multiplicity="1" />
+          <End Type="PersonnelModel.UsernameHistory" Role="UsernameHistory" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Person">
+              <PropertyRef Name="MasterId" />
+            </Principal>
+            <Dependent Role="UsernameHistory">
+              <PropertyRef Name="MasterId" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="PeopleADGroups">
+          <End Type="PersonnelModel.ADGroup" Role="ADGroup" Multiplicity="*" />
+          <End Type="PersonnelModel.Person" Role="Person" Multiplicity="*" />
+        </Association>
+      </Schema>
+    </edmx:ConceptualModels>
+    <!-- C-S mapping content -->
+    <edmx:Mappings>
+      <Mapping Space="C-S" xmlns="http://schemas.microsoft.com/ado/2009/11/mapping/cs">
+        <EntityContainerMapping StorageEntityContainer="PersonnelModelStoreContainer" CdmEntityContainer="PersonnelEntities">
+          <EntitySetMapping Name="ADGroups">
+            <EntityTypeMapping TypeName="PersonnelModel.ADGroup">
+              <MappingFragment StoreEntitySet="ADGroup">
+                <ScalarProperty Name="Id" ColumnName="Id" />
+                <ScalarProperty Name="Name" ColumnName="Name" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="Appointments">
+            <EntityTypeMapping TypeName="PersonnelModel.Appointment">
+              <MappingFragment StoreEntitySet="Appointment">
+                <ScalarProperty Name="Id" ColumnName="Id" />
+                <ScalarProperty Name="MasterId" ColumnName="MasterId" />
+                <ScalarProperty Name="AppointmentSequence" ColumnName="AppointmentSequence" />
+                <ScalarProperty Name="BusinessUnit" ColumnName="BusinessUnit" />
+                <ScalarProperty Name="DepartmentId" ColumnName="DepartmentId" />
+                <ScalarProperty Name="Title" ColumnName="Title" />
+                <ScalarProperty Name="JobCode" ColumnName="JobCode" />
+                <ScalarProperty Name="AppointmentId" ColumnName="AppointmentId" />
+                <ScalarProperty Name="PositionNumber" ColumnName="PositionNumber" />
+                <ScalarProperty Name="BeginDate" ColumnName="BeginDate" />
+                <ScalarProperty Name="TerminationDate" ColumnName="TerminationDate" />
+                <ScalarProperty Name="PercentTime" ColumnName="PercentTime" />
+                <ScalarProperty Name="IsPrimaryJob" ColumnName="IsPrimaryJob" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="BuildingLocations">
+            <EntityTypeMapping TypeName="PersonnelModel.BuildingLocation">
+              <MappingFragment StoreEntitySet="BuildingLocation">
+                <ScalarProperty Name="MasterId" ColumnName="MasterId" />
+                <ScalarProperty Name="Code" ColumnName="Code" />
+                <ScalarProperty Name="Name" ColumnName="Name" />
+                <ScalarProperty Name="RoomNumber" ColumnName="RoomNumber" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="Departments">
+            <EntityTypeMapping TypeName="PersonnelModel.Department">
+              <MappingFragment StoreEntitySet="Department">
+                <ScalarProperty Name="Id" ColumnName="Id" />
+                <ScalarProperty Name="HRDepartmentId" ColumnName="HRDepartmentId" />
+                <ScalarProperty Name="Name" ColumnName="Name" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="PhoneNumbers">
+            <EntityTypeMapping TypeName="PersonnelModel.PhoneNumber">
+              <MappingFragment StoreEntitySet="PhoneNumber">
+                <ScalarProperty Name="Id" ColumnName="Id" />
+                <ScalarProperty Name="MasterId" ColumnName="MasterId" />
+                <ScalarProperty Name="Type" ColumnName="Type" />
+                <ScalarProperty Name="Number" ColumnName="Number" />
+                <ScalarProperty Name="IsViewable" ColumnName="IsViewable" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="Status">
+            <EntityTypeMapping TypeName="PersonnelModel.Status">
+              <MappingFragment StoreEntitySet="Status">
+                <ScalarProperty Name="MasterId" ColumnName="MasterId" />
+                <ScalarProperty Name="IsUTMBEmployee" ColumnName="IsUTMBEmployee" />
+                <ScalarProperty Name="IsUTMBStudent" ColumnName="IsUTMBStudent" />
+                <ScalarProperty Name="IsNonUTMB" ColumnName="IsNonUTMB" />
+                <ScalarProperty Name="IsNonUTMBStudent" ColumnName="IsNonUTMBStudent" />
+                <ScalarProperty Name="IsContractor" ColumnName="IsContractor" />
+                <ScalarProperty Name="IsVolunteer" ColumnName="IsVolunteer" />
+                <ScalarProperty Name="IsActive" ColumnName="IsActive" />
+                <ScalarProperty Name="HasExternalEmployeeNumber" ColumnName="HasExternalEmployeeNumber" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="Students">
+            <EntityTypeMapping TypeName="PersonnelModel.Student">
+              <MappingFragment StoreEntitySet="Student">
+                <ScalarProperty Name="MasterId" ColumnName="MasterId" />
+                <ScalarProperty Name="Status" ColumnName="Status" />
+                <ScalarProperty Name="HasSignedFRPA" ColumnName="HasSignedFRPA" />
+                <ScalarProperty Name="IsMDPHD" ColumnName="IsMDPHD" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="UsernameHistories">
+            <EntityTypeMapping TypeName="PersonnelModel.UsernameHistory">
+              <MappingFragment StoreEntitySet="UsernameHistory">
+                <ScalarProperty Name="Id" ColumnName="Id" />
+                <ScalarProperty Name="MasterId" ColumnName="MasterId" />
+                <ScalarProperty Name="Username" ColumnName="Username" />
+                <ScalarProperty Name="InactiveDate" ColumnName="InactiveDate" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="People">
+            <EntityTypeMapping TypeName="PersonnelModel.Person">
+              <MappingFragment StoreEntitySet="Person">
+                <ScalarProperty Name="SupervisorMasterId" ColumnName="SupervisorMasterId" />
+                <ScalarProperty Name="IsInstructor" ColumnName="IsInstructor" />
+                <ScalarProperty Name="IsPrincipalInvestigator" ColumnName="IsPrincipalInvestigator" />
+                <ScalarProperty Name="IsActive" ColumnName="IsActive" />
+                <ScalarProperty Name="Hash" ColumnName="Hash" />
+                <ScalarProperty Name="ExternalEmployeeID" ColumnName="ExternalEmployeeID" />
+                <ScalarProperty Name="LastModifiedDate" ColumnName="LastModifiedDate" />
+                <ScalarProperty Name="MailDeliveryRoute" ColumnName="MailDeliveryRoute" />
+                <ScalarProperty Name="EducationAffiliation" ColumnName="EducationAffiliation" />
+                <ScalarProperty Name="ActiveDirectoryPath" ColumnName="ActiveDirectoryPath" />
+                <ScalarProperty Name="Email" ColumnName="Email" />
+                <ScalarProperty Name="DoctorNumber" ColumnName="DoctorNumber" />
+                <ScalarProperty Name="StudentStanding" ColumnName="StudentStanding" />
+                <ScalarProperty Name="StudentPID" ColumnName="StudentPID" />
+                <ScalarProperty Name="FullName" ColumnName="FullName" />
+                <ScalarProperty Name="DisplayNameLFM" ColumnName="DisplayNameLFM" />
+                <ScalarProperty Name="Title" ColumnName="Title" />
+                <ScalarProperty Name="DateOfBirth" ColumnName="DateOfBirth" />
+                <ScalarProperty Name="FamilyName" ColumnName="FamilyName" />
+                <ScalarProperty Name="Initials" ColumnName="Initials" />
+                <ScalarProperty Name="GivenName" ColumnName="GivenName" />
+                <ScalarProperty Name="EmployeeID" ColumnName="EmployeeID" />
+                <ScalarProperty Name="Username" ColumnName="Username" />
+                <ScalarProperty Name="MasterId" ColumnName="MasterId" />
+                <ScalarProperty Name="Id" ColumnName="Id" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <AssociationSetMapping Name="PeopleADGroups" TypeName="PersonnelModel.PeopleADGroups" StoreEntitySet="PeopleADGroups">
+            <EndProperty Name="Person">
+              <ScalarProperty Name="MasterId" ColumnName="MasterId" />
+            </EndProperty>
+            <EndProperty Name="ADGroup">
+              <ScalarProperty Name="Id" ColumnName="GroupId" />
+            </EndProperty>
+          </AssociationSetMapping>
+        </EntityContainerMapping>
+      </Mapping>
+    </edmx:Mappings>
+  </edmx:Runtime>
+  <!-- EF Designer content (DO NOT EDIT MANUALLY BELOW HERE) -->
+  <Designer xmlns="http://schemas.microsoft.com/ado/2009/11/edmx">
+    <Connection>
+      <DesignerInfoPropertySet>
+        <DesignerProperty Name="MetadataArtifactProcessing" Value="EmbedInOutputAssembly" />
+      </DesignerInfoPropertySet>
+    </Connection>
+    <Options>
+      <DesignerInfoPropertySet>
+        <DesignerProperty Name="ValidateOnBuild" Value="true" />
+        <DesignerProperty Name="EnablePluralization" Value="true" />
+        <DesignerProperty Name="IncludeForeignKeysInModel" Value="true" />
+        <DesignerProperty Name="UseLegacyProvider" Value="false" />
+        <DesignerProperty Name="CodeGenerationStrategy" Value="None" />
+      </DesignerInfoPropertySet>
+    </Options>
+    <!-- Diagram content (shape and connector positions) -->
+    <Diagrams></Diagrams>
+  </Designer>
+</edmx:Edmx>

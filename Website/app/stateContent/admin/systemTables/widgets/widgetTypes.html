@@ -1,0 +1,108 @@
+﻿<div ng-show="vm.showPanel" class="panel panel-primary static-panel">
+    <div class="panel panel-primary static-panel">
+        <div class="panel-heading">
+            <div class='btn-toolbar pull-right' style="display: inline-block;">
+                <button ui-sref=".edit({ WidgetTypeId: '0', Path: vm.Path })" class="btn btn-default responsive-button">Add New Widget Type</button>
+            </div>
+            <div class="panel-heading-title">
+                {{vm.panelTitle}}
+            </div>
+            <div class="panel-heading-subtitle">
+                {{vm.panelSubtitle}}
+            </div>
+
+        </div>
+        <div class="panel-body repeater-container" style="overflow: hidden; width: 100%">
+
+
+            <table class="table table-hover table-responsive table-striped" id="widgetTypesTable">
+                <thead>
+                    <tr>
+                        <th style="width: {{vm.columnWidths.name}}%">
+                            Name
+                        </th>
+                        <th style="width: {{vm.columnWidths.description}}%">
+                            Description
+                        </th>
+                        <th style="width: {{vm.columnWidths.initialHeight}}%">
+                            Initial Height
+                        </th>
+                        <th style="width: {{vm.columnWidths.initialWidth}}%">
+                            Initial Width
+                        </th>
+                        <th style="width: {{vm.columnWidths.creationDate}}%">
+                            Creation Date
+                        </th>
+                        <th style="width: {{vm.columnWidths.angularDirectiveName}}%">
+                            AngularDirectiveName
+                        </th>
+                        <th style="width: {{vm.columnWidths.adminStatus}}%">
+                            Admin Viewable?
+                        </th>
+                        <th style="width: {{vm.columnWidths.allStatus}}%">
+                            All Viewable?
+                        </th>
+                        <th style="width: 150px;">
+                            Actions
+                        </th>
+                    </tr>
+                </thead>
+
+                <tbody vs-repeat vs-excess="10" vs-scroll-parent=".repeater-container" vs-scrolled-to-end="vm.scrolledToEnd()">
+                    <tr ng-repeat="wt in vm.widgetTypes track by wt.Id" itemid="{{wt.Id}}">
+                        <td>
+                            {{wt.Name}}
+                        </td>
+                        <td>
+                            <div class="scrollable" style="height: 95px;">
+                                <div style="white-space: pre-wrap;">{{wt.Description}}</div>
+                            </div>
+                        </td>
+                        <td>
+                            {{wt.InitialHeight}}
+                        </td>
+                        <td>
+                            {{wt.InitialWidth}}
+                        </td>
+                        <td>
+                            {{wt.CreationDate | date:'MM/dd HH:mm' }}
+                        </td>
+                        <td>
+                            {{wt.AngularDirectiveName}}
+                        </td>
+                        <td>
+                            <div ng-if="wt.IsAvailableToAdmin" class="true-td-value">
+                                Yes                            
+                            </div>
+                            <div ng-if="!wt.IsAvailableToAdmin" class="false-td-value">
+                                No
+                            </div>
+                        </td>
+                        <td>
+                            <div ng-if="wt.IsAvailableToAll" class="true-td-value">
+                                Yes                            
+                            </div>
+                            <div ng-if="!wt.IsAvailableToAll" class="false-td-value">
+                                No
+                            </div>
+                        </td>
+                        <td width="{{vm.buttonPanelWidth}}px">
+                            <div class="btn-group" style="width: {{vm.buttonPanelWidth}}]px; -moz-min-width: {{vm.buttonPanelWidth}}px; -ms-min-width: {{vm.buttonPanelWidth}}px; -o-min-width: {{vm.buttonPanelWidth}}px; -webkit-min-width: {{vm.buttonPanelWidth}}px; min-width: {{vm.buttonPanelWidth}}px">
+                                <a title="Edit Widget Type"
+                                   class="btn btn-default responsive-button"
+                                   style="height: 37px; padding-top: 7px; width: 115px; min-width: 115px;"
+                                   ui-sref=".edit({ WidgetTypeId: wt.Id, Path: vm.Path })">
+                                    Edit
+                                </a>
+                            </div>
+                        </td>
+                    </tr>
+
+                </tbody>
+            </table>
+        </div>
+        <div ui-view="contentPane"></div>
+    </div>
+</div>
+
+

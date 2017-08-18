@@ -1,0 +1,10 @@
+﻿<div ng-show="person" title="Click to send Email to {{person.FullName}}">
+	<a ng-if="person.Email"
+	   href="mailTo:{{person.Email}}?subject={{mailToSubject}}">
+		{{person.FullName}}
+	</a>
+	<a ng-if="!person.Email" href="mailTo:">
+		{{person.FullName}}
+	</a>
+
+</div>
