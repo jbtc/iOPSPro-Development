@@ -24,6 +24,8 @@ namespace SignalRService
 			await Clients.Client(clientId).SignalRNotification(code, clientObject, Context.ConnectionId);
 		}
 
+
+
 		//++Hub will receive group messages from any client here
 		//+.....and will Relay all signalr messages from one client to all other clients in the same group.
 		//+The group name will be attached as the last parameter

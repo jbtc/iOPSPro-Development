@@ -787,7 +787,9 @@
 				dbCollection = dbData ? dbData[collectionName] : [];
 				//console.log("localdb " + collectionName + " = " + dbCollection.length + " - " + (performance.now() - t0) + "ms");
 
+				//---G
 				//+Get All of the entities that have changed since the localDB was collected.
+				//---G
 				if (dbCollection.length > 0) {
 					maxDate = dbCollection.max(function (e) { return e.LastModifiedDate });
 				} else {
