@@ -13,7 +13,7 @@ namespace iOPS_ODataV4.Controllers.WebAPI
         private iOPS_NormalizedEntities db = new iOPS_NormalizedEntities();
         public IEnumerable<BHSTotalSystemThroughput_Result1> Get(DateTime beginDate, DateTime endDate, int siteId)
         {
-            var result = db.BHSTotalSystemThroughput(beginDate, endDate, siteId);
+            var result = db.BHSTotalSystemThroughput(beginDate, endDate, siteId, "");
 
             return result;
 

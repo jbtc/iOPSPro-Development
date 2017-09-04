@@ -37,6 +37,7 @@ namespace iOPS_ODataV4.Models
         public Nullable<long> SystemId { get; set; }
         public Nullable<int> IsDimentioner { get; set; }
         public Nullable<int> IsSelectedForCount { get; set; }
+        public Nullable<int> IsDefaultDestination { get; set; }
     
         public virtual Site Site { get; set; }
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]

@@ -59,14 +59,17 @@
 								vm.totalInGaugeReadsMessage = (vm.summaryReadRates.PercentInGaugeReads || 0) + "% In";
 								vm.totalOutOfGaugeReadsMessage = (vm.summaryReadRates.PercentOutOfGaugeReads || 0) + "% Out";
 								vm.widgetDimensions = displaySetupService.GetWidgetPanelBodyDimensions(vm.widget.Id);
-								vm.largeTextSize = vm.widgetDimensions.width * fontFactor;
-								if (vm.largeTextSize > fontMax) {
-									vm.largeTextSize = fontMax;
-								}
+								if (vm.widgetDimensions) {
 
-								$timeout(function () {
-									displaySetupService.SetPanelBodyWithIdHeight(vm.widget.Id);
-								}, 100);
+									vm.largeTextSize = vm.widgetDimensions.width * fontFactor;
+									if (vm.largeTextSize > fontMax) {
+										vm.largeTextSize = fontMax;
+									}
+
+									$timeout(function () {
+										displaySetupService.SetPanelBodyWithIdHeight(vm.widget.Id);
+									}, 100);
+								}
 
 							});
 						displaySetupService.SetPanelBodyWithIdHeight(vm.widget.Id);

@@ -10,9 +10,6 @@ var webRoot = document.URL.indexOf("localhost/iops/") > 0 ? "/iops/"
 				"/";
 
 
-alert(document.URL);
-
-
 
 var signalRServerUrl = "https://www.iopspro.com/DataServices/SignalR/signalr";
 var Global = {
@@ -63,7 +60,14 @@ angular.module('app').config(['$httpProvider','$compileProvider','$provide', fun
 					"hideEasing": "linear",
 					"showMethod": "fadeIn",
 					"hideMethod": "fadeOut"
-				};
+    };
+
+	Highcharts.setOptions({
+		global: {
+			useUTC: false
+		}
+	});
+
 
 }]);
 

@@ -16,7 +16,7 @@
 				service.ODataAccessToken = currentUser ? currentUser.ODataAccessToken : "not-authorized";
 			}
 
-            //console.log("APIInterceptor adding authorization header = " + accessToken);
+			//console.log("APIInterceptor adding authorization header = " + accessToken);
 			if (service.ODataAccessToken) {
 				config.headers.authorization = service.ODataAccessToken;
 			}
@@ -100,7 +100,7 @@
 
 
 		//Create a central 15 seconds time tick. Send the tick out as a broadcast event to sync all of the widget refreshes
-		$interval(function() {
+		$interval(function () {
 			$rootScope.$broadcast("System.ClockTick15");
 		}, 15000);
 
@@ -325,7 +325,7 @@
 
 
 			]).then(function (db) {
-				//console.log("LocalDB retrieved...");
+				console.log("LocalDB retrieved...");
 				localDB = db;
 
 				//+Asyncronously and simultaneously load data collections
@@ -334,14 +334,14 @@
 						cache.sites = data.select(function (d) {
 							return AttachBlankMetadataObject(d);
 						});
-						//console.log("Sites Loaded =" + data.length);
+						console.log("Sites Loaded =" + data.length);
 					}),
 
 					GetODataSiteCompany().then(function (data) {
 						cache.siteCompany = data.select(function (d) {
 							return AttachBlankMetadataObject(d);
 						});
-						//console.log("SiteCompany Loaded = " + data.length);
+						console.log("SiteCompany Loaded = " + data.length);
 					}),
 
 					GetODataCompanies().then(function (data) {
@@ -349,7 +349,7 @@
 						cache.companies = data.select(function (d) {
 							return AttachBlankMetadataObject(d);
 						});
-						//console.log("Companies Loaded = " + data.length);
+						console.log("Companies Loaded = " + data.length);
 					}),
 
 					odataService.GetCollection("iOPS", "WidgetTypes").then(function (data) {
@@ -361,7 +361,7 @@
 							cache.units = data.select(function (d) {
 								return AttachBlankMetadataObject(d);
 							});
-							//console.log("Units Loaded = " + data.length);
+							console.log("Units Loaded = " + data.length);
 
 						}, 10);
 					}),
@@ -369,9 +369,13 @@
 					GetODataSystems().then(function (data) {
 						cache.systems = data.select(function (d) {
 							d.Type = d.SystemType.Name;
+							//cache.ready = true;
+							//service.ready = true;
+
+							//$rootScope.$broadcast("dataService.ready");
 							return AttachBlankMetadataObject(d);
 						});
-						//console.log("Systems Loaded = %O", data);
+						console.log("Systems Loaded = %O", data);
 
 					}),
 
@@ -379,7 +383,7 @@
 						cache.assets = data.select(function (d) {
 							return AttachBlankMetadataObject(d);
 						});
-						//console.log("Assets Loaded = " + data.length);
+						console.log("Assets Loaded = " + data.length);
 					}),
 
 					service.GetIOPSCollection("SystemTypes").then(function (data) {
@@ -402,19 +406,19 @@
 						cache.tags = data.select(function (d) {
 							return AttachBlankMetadataObject(d);
 						});
-						//console.log("Tags Loaded = " + data.length);
+						console.log("Tags Loaded = " + data.length);
 					}),
 
 					GetODataJBTStandardObservations().then(function (data) {
 						cache.jbtStandardObservations = data.select(function (d) {
 							return AttachBlankMetadataObject(d);
 						});
-						//console.log("JBTStandardObservations Loaded = " + data.length);
+						console.log("JBTStandardObservations Loaded = " + data.length);
 					})
 				]).then(function () {
-					//console.log("Basic Collections Loaded");
+					console.log("Basic Collections Loaded");
 
-					//console.log("Stitch the Comprehensive Object Graph together ");
+					console.log("Stitch the Comprehensive Object Graph together ");
 
 
 
@@ -531,9 +535,9 @@
 						})
 					}
 
-					//console.log("Complete Object Graph = %O - " + (performance.now() - time0), JBTData);
+					console.log("Complete Object Graph = %O - " + (performance.now() - time0), JBTData);
 
-					//console.log("Cache Fully Loaded");
+					console.log("Cache Fully Loaded. Broadcasting service ready.");
 					cache.ready = true;
 					service.ready = true;
 
@@ -703,7 +707,7 @@
 			//console.log("Getting localdb systems...");
 			return localDB.getById("Systems", 1).then(function (dbData) {
 				dbSystems = dbData ? dbData.Systems : [];
-				//console.log("localdb Systems = " + dbSystems.length);
+				console.log("localdb Systems = " + dbSystems.length);
 				//Get All of the Systems that have changed since the localDB was collected.
 				if (dbSystems.length > 0) {
 					maxDate = dbSystems.max(function (system) { return system.DateLastModified });
@@ -727,13 +731,13 @@
 					.expand("SystemType")
 					.query().$promise.then(function (data) {
 
-						//console.log("odata Systems =" + data.length);
+						console.log("odata Systems =" + data.length);
 
 						var combinedData = data
 							.concat(dbSystems)
 							.distinct(function (a, b) { return a.Id == b.Id });
 
-						//console.log("combined Systems = " + combinedData.length);
+						console.log("combined Systems = " + combinedData.length);
 
 
 						//Adjust the string valued dates in all of the tags so that they have a regular javascript format date.
@@ -782,10 +786,10 @@
 
 			var t0 = performance.now();
 			//console.log("localDB = %O", localDB);
-			//console.log("Getting localdb " + collectionName + "...");
+			console.log("Getting localdb " + collectionName + "...");
 			return localDB.getById(collectionName, 1).then(function (dbData) {
 				dbCollection = dbData ? dbData[collectionName] : [];
-				//console.log("localdb " + collectionName + " = " + dbCollection.length + " - " + (performance.now() - t0) + "ms");
+				console.log("localdb " + collectionName + " = " + dbCollection.length + " - " + (performance.now() - t0) + "ms");
 
 				//---G
 				//+Get All of the entities that have changed since the localDB was collected.
@@ -798,13 +802,20 @@
 				}
 
 
+
+
+
 				maxDate = (new Date(maxDate));
 
 
 				maxDate = maxDate.setDate(maxDate.getDate());
 				maxDate = utilityService.GetUTCQueryDate(maxDate);
 
-				//console.log("localdb " + collectionName + " maxdate = %O", maxDate);
+
+
+
+
+				console.log("localdb " + collectionName + " maxdate = %O", maxDate);
 
 				//Get only changed entities from the odata source
 
@@ -813,11 +824,11 @@
 					.filter("LastModifiedDate", ">", maxDate)
 					.query().$promise.then(function (data) {
 
-						//console.log("odata " + collectionName + " = " + data.length);
+						console.log("odata " + collectionName + " = " + data.length);
 
 						var combinedData = data.concat(dbCollection).distinct(function (a, b) { return a.Id == b.Id });
 
-						//console.log("combined " + collectionName + " = " + combinedData.length);
+						console.log("combined " + collectionName + " = " + combinedData.length);
 
 
 						localDB.upsert(collectionName, { Id: 1, [collectionName]: combinedData });
@@ -837,10 +848,11 @@
 			var maxDate;
 
 			//Get all of the tags in the localDB
-			//console.log("Getting localdb tags...");
+			console.log("Getting localdb tags...");
 			return localDB.getById("Tags", 1).then(function (dbData) {
 				dbTags = dbData ? dbData.Tags : [];
-				//console.log("localdb tags = " + dbTags.length);
+				//dbTags = [];
+				console.log("localdb tags = " + dbTags.length);
 				//Get All of the tags that have changed since the localDB was collected.
 				if (dbTags.length > 0) {
 					maxDate = dbTags.max(function (tag) { return tag.LastModifiedDate });
@@ -854,12 +866,14 @@
 				maxDate = (new Date(maxDate));
 
 
-				maxDate = maxDate.setDate(maxDate.getDate() - .001);
 				maxDate = utilityService.GetUTCQueryDate(maxDate);
 
+
+				console.log("localdb Tags maxdate = %O", maxDate);
 				//Get only changed tags from the odata source
 				return odataService.GetResource("iOPS", "Tags")
 					.odata()
+
 					.filter("LastModifiedDate", ">", maxDate)
 					.filter("LastObservationId", "!=", null)
 					.select([
@@ -868,13 +882,13 @@
 					])
 					.query().$promise.then(function (data) {
 
-						//console.log("odata tags =" + data.length);
+						console.log("odata tags =" + data.length);
 
 						var combinedData = data
 							.concat(dbTags)
 							.distinct(function (a, b) { return a.Id == b.Id });
 
-						//console.log("combined tags = " + combinedData.length);
+						console.log("combined tags = " + combinedData.length);
 
 
 						//Adjust the string valued dates in all of the tags so that they have a regular javascript format date.
@@ -1386,13 +1400,16 @@
 
 		service.GetWidgetPanelBodyDimensions = function (widgetId) {
 			var widgetPanelBody = $("#" + widgetId);
-			var panelElement = widgetPanelBody[0].parentElement;
-			//Find the panel heading so we can determine its height
-			var panelHeadingElement = $(panelElement).find(".panel-heading")[0];
-			var panelHeadingHeight = panelHeadingElement.offsetHeight;
-			var panelWidth = panelElement.offsetWidth;
-			var widgetContentHeight = panelElement.offsetHeight - panelHeadingElement.offsetHeight;
-			return { width: panelWidth, height: widgetContentHeight };
+			if (widgetPanelBody[0]) {
+				var panelElement = widgetPanelBody[0].parentElement;
+				//Find the panel heading so we can determine its height
+				var panelHeadingElement = $(panelElement).find(".panel-heading")[0];
+				var panelHeadingHeight = panelHeadingElement.offsetHeight;
+				var panelWidth = panelElement.offsetWidth;
+				var widgetContentHeight = panelElement.offsetHeight - panelHeadingElement.offsetHeight;
+				return { width: panelWidth, height: widgetContentHeight };
+
+			}
 		}
 
 		service.GetDivDimensionsById = function (Id) {
@@ -2111,19 +2128,19 @@
 
 
 		function JoinUserSignalRGroups() {
-			if (Global.User.AuthorizedActivities.contains("AuthorizedActivity.AdministerSystem")) {
-				signalR.JoinGroup("Admin");
+			//if (Global.User.AuthorizedActivities.contains("AuthorizedActivity.AdministerSystem")) {
+			//	signalR.JoinGroup("Admin");
 
-				console.log("Joining all Site Groups for admin access");
-				//Get all of the sites in the system and join the signalR group for all of them
-				dataService.GetIOPSCollection("Sites").then(function (sites) {
-					console.log("Sites to join = %O", sites);
-					sites.forEach(function (site) {
-						//console.log("Joining Site " + site.Name);
-						signalR.JoinGroup(site.Name);
-					});
-				});
-			}
+			//	//console.log("Joining all Site Groups for admin access");
+			//	//Get all of the sites in the system and join the signalR group for all of them
+			//	dataService.GetIOPSCollection("Sites").then(function (sites) {
+			//		console.log("Sites to join = %O", sites);
+			//		sites.forEach(function (site) {
+			//			//console.log("Joining Site " + site.Name);
+			//			signalR.JoinGroup(site.Name);
+			//		});
+			//	});
+			//}
 
 			Global.User.ReaderOf.forEach(function (ro) {
 				var site = ro.replace('Site.', '')

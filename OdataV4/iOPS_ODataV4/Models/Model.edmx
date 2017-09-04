@@ -153,6 +153,7 @@
           <Property Name="Location" Type="varchar" MaxLength="255" Nullable="false" />
           <Property Name="SystemId" Type="bigint" />
           <Property Name="IsSelectedForCount" Type="int" />
+          <Property Name="IsDefaultDestination" Type="int" />
         </EntityType>
         <EntityType Name="DeviceLocationThroughput">
           <Key>
@@ -562,6 +563,9 @@
           <Property Name="Row" Type="int" />
           <Property Name="Col" Type="int" />
           <Property Name="EmbeddedDashboardId" Type="bigint" />
+          <Property Name="TerminalSystemId" Type="bigint" />
+          <Property Name="ZoneSystemId" Type="bigint" />
+          <Property Name="GateSystemId" Type="bigint" />
         </EntityType>
         <EntityType Name="WidgetType">
           <Key>
@@ -1213,6 +1217,7 @@
           <Parameter Name="BeginTime" Type="datetime" Mode="In" />
           <Parameter Name="EndTime" Type="datetime" Mode="In" />
           <Parameter Name="SiteId" Type="bigint" Mode="In" />
+          <Parameter Name="ODataAccessToken" Type="varchar" Mode="In" />
         </Function>
         <Function Name="BHSAlarmAreaCountDetails" Aggregate="false" BuiltIn="false" NiladicFunction="false" IsComposable="false" ParameterTypeSemantics="AllowImplicitConversion" Schema="BHS">
           <Parameter Name="BeginTime" Type="datetime" Mode="In" />
@@ -1267,6 +1272,16 @@
           <Parameter Name="endDate" Type="datetime" Mode="In" />
           <Parameter Name="location" Type="varchar" Mode="In" />
         </Function>
+        <Function Name="BHSPercentOfFailSafePerDay" Aggregate="false" BuiltIn="false" NiladicFunction="false" IsComposable="false" ParameterTypeSemantics="AllowImplicitConversion" Schema="BHS">
+          <Parameter Name="BeginDateTime" Type="datetime" Mode="In" />
+          <Parameter Name="EndDateTime" Type="datetime" Mode="In" />
+          <Parameter Name="SiteId" Type="bigint" Mode="In" />
+        </Function>
+        <Function Name="BHSPercentOfFailSafePerHour" Aggregate="false" BuiltIn="false" NiladicFunction="false" IsComposable="false" ParameterTypeSemantics="AllowImplicitConversion" Schema="BHS">
+          <Parameter Name="BeginDateTime" Type="datetime" Mode="In" />
+          <Parameter Name="EndDateTime" Type="datetime" Mode="In" />
+          <Parameter Name="SiteId" Type="bigint" Mode="In" />
+        </Function>
         <Function Name="BHSTop5AlarmTypeLongestDuration" Aggregate="false" BuiltIn="false" NiladicFunction="false" IsComposable="false" ParameterTypeSemantics="AllowImplicitConversion" Schema="BHS">
           <Parameter Name="BeginTime" Type="datetime" Mode="In" />
           <Parameter Name="EndTime" Type="datetime" Mode="In" />
@@ -1291,6 +1306,7 @@
           <Parameter Name="beginTime" Type="datetime" Mode="In" />
           <Parameter Name="endTime" Type="datetime" Mode="In" />
           <Parameter Name="SiteId" Type="bigint" Mode="In" />
+          <Parameter Name="ODataAccessToken" Type="varchar" Mode="In" />
         </Function>
         <EntityContainer Name="iOPS_NormalizedModelStoreContainer">
           <EntitySet Name="AlarmHistory" EntityType="Self.AlarmHistory" Schema="BHS" store:Type="Tables" />
@@ -1830,6 +1846,7 @@
             <Parameter Name="beginTime" Mode="In" Type="DateTime" />
             <Parameter Name="endTime" Mode="In" Type="DateTime" />
             <Parameter Name="SiteId" Mode="In" Type="Int64" />
+            <Parameter Name="ODataAccessToken" Mode="In" Type="String" />
           </FunctionImport>
           <FunctionImport Name="BHSTop5AlarmTypeLongestDuration" ReturnType="Collection(iOPS_NormalizedModel.BHSTop5AlarmTypeLongestDuration_Result1)">
             <Parameter Name="BeginTime" Mode="In" Type="DateTime" />
@@ -1844,6 +1861,7 @@
             <Parameter Name="BeginTime" Mode="In" Type="DateTime" />
             <Parameter Name="EndTime" Mode="In" Type="DateTime" />
             <Parameter Name="SiteId" Mode="In" Type="Int64" />
+            <Parameter Name="ODataAccessToken" Mode="In" Type="String" />
           </FunctionImport>
           <FunctionImport Name="BHSTop5JamDeviceswithCount" ReturnType="Collection(iOPS_NormalizedModel.BHSTop5JamDeviceswithCount_Result)">
             <Parameter Name="BeginTime" Mode="In" Type="DateTime" />
@@ -1881,6 +1899,16 @@
           <FunctionImport Name="BHSTop5JamDeviceswithLongestDuration" ReturnType="Collection(iOPS_NormalizedModel.BHSTop5JamDeviceswithLongestDuration_Result)">
             <Parameter Name="BeginTime" Mode="In" Type="DateTime" />
             <Parameter Name="EndTime" Mode="In" Type="DateTime" />
+            <Parameter Name="SiteId" Mode="In" Type="Int64" />
+          </FunctionImport>
+          <FunctionImport Name="BHSPercentOfFailSafePerDay" ReturnType="Collection(iOPS_NormalizedModel.BHSPercentOfFailSafePerDay_Result1)">
+            <Parameter Name="BeginDateTime" Mode="In" Type="DateTime" />
+            <Parameter Name="EndDateTime" Mode="In" Type="DateTime" />
+            <Parameter Name="SiteId" Mode="In" Type="Int64" />
+          </FunctionImport>
+          <FunctionImport Name="BHSPercentOfFailSafePerHour" ReturnType="Collection(iOPS_NormalizedModel.BHSPercentOfFailSafePerHour_Result1)">
+            <Parameter Name="BeginDateTime" Mode="In" Type="DateTime" />
+            <Parameter Name="EndDateTime" Mode="In" Type="DateTime" />
             <Parameter Name="SiteId" Mode="In" Type="Int64" />
           </FunctionImport>
           </EntityContainer>
@@ -2628,6 +2656,9 @@
           <NavigationProperty Name="Dashboard" Relationship="iOPS_NormalizedModel.FK_Widget_Dashboard" FromRole="Widget" ToRole="Dashboard" />
           <Property Name="EmbeddedDashboardId" Type="Int64" />
           <NavigationProperty Name="EmbeddedDashboard" Relationship="iOPS_NormalizedModel.FK_Widget_Dashboard1" FromRole="Widget" ToRole="Dashboard" />
+          <Property Name="TerminalSystemId" Type="Int64" />
+          <Property Name="ZoneSystemId" Type="Int64" />
+          <Property Name="GateSystemId" Type="Int64" />
         </EntityType>
         <EntityType Name="WidgetType">
           <Key>
@@ -2816,6 +2847,7 @@
           <Property Name="IsDimentioner" Type="Int32" />
           <Property Name="IsSelectedForCount" Type="Int32" />
           <NavigationProperty Name="BHSDeviceLocationCarrierMaps" Relationship="iOPS_NormalizedModel.FK_BHSDeviceLocationCarrierMap_DeviceLocations" FromRole="BHSDeviceLocation" ToRole="BHSDeviceLocationCarrierMap" />
+          <Property Name="IsDefaultDestination" Type="Int32" />
         </EntityType>
         <Association Name="FK_DeviceLocations_Site">
           <End Type="iOPS_NormalizedModel.Site" Role="Site" Multiplicity="0..1" />
@@ -3456,6 +3488,58 @@
           <Property Type="Int32" Name="MinDurationSec" Nullable="true" />
           <Property Type="Int32" Name="AverageDuration" Nullable="true" />
         </ComplexType>
+        <ComplexType Name="BHSPercentOfFailSafePerDay_Result">
+          <Property Type="DateTime" Name="Day" Nullable="true" />
+          <Property Type="String" Name="BHSName" Nullable="true" MaxLength="8000" />
+          <Property Type="Int32" Name="PE_Bag_Count" Nullable="true" />
+          <Property Type="Int32" Name="AlarmCount" Nullable="true" />
+          <Property Type="Decimal" Name="Percent" Nullable="true" Precision="19" Scale="3" />
+          <Property Type="String" Name="Description" Nullable="false" MaxLength="19" />
+          <Property Type="DateTime" Name="MinActiveDateTime" Nullable="true" Precision="23" />
+          <Property Type="DateTime" Name="MaxActiveDateTime" Nullable="true" Precision="23" />
+          <Property Type="Int32" Name="MaxDurationSec" Nullable="true" />
+          <Property Type="Int32" Name="MinDurationSec" Nullable="true" />
+          <Property Type="Int32" Name="AverageDuration" Nullable="true" />
+        </ComplexType>
+        <ComplexType Name="BHSPercentOfFailSafePerHour_Result">
+          <Property Type="DateTime" Name="Hour" Nullable="true" Precision="23" />
+          <Property Type="String" Name="BHSName" Nullable="true" MaxLength="8000" />
+          <Property Type="Int32" Name="PE_Bag_Count" Nullable="true" />
+          <Property Type="Int32" Name="AlarmCount" Nullable="true" />
+          <Property Type="Decimal" Name="Percent" Nullable="true" Precision="19" Scale="3" />
+          <Property Type="String" Name="Description" Nullable="false" MaxLength="19" />
+          <Property Type="DateTime" Name="MinActiveDateTime" Nullable="true" Precision="23" />
+          <Property Type="DateTime" Name="MaxActiveDateTime" Nullable="true" Precision="23" />
+          <Property Type="Int32" Name="MaxDurationSec" Nullable="true" />
+          <Property Type="Int32" Name="MinDurationSec" Nullable="true" />
+          <Property Type="Int32" Name="AverageDuration" Nullable="true" />
+        </ComplexType>
+        <ComplexType Name="BHSPercentOfFailSafePerDay_Result1">
+          <Property Type="DateTime" Name="Day" Nullable="true" />
+          <Property Type="String" Name="BHSName" Nullable="true" MaxLength="8000" />
+          <Property Type="Int32" Name="PEBagCount" Nullable="true" />
+          <Property Type="Int32" Name="AlarmCount" Nullable="true" />
+          <Property Type="Decimal" Name="Percent" Nullable="true" Precision="19" Scale="3" />
+          <Property Type="String" Name="Description" Nullable="false" MaxLength="19" />
+          <Property Type="DateTime" Name="MinActiveDateTime" Nullable="true" Precision="23" />
+          <Property Type="DateTime" Name="MaxActiveDateTime" Nullable="true" Precision="23" />
+          <Property Type="Int32" Name="MaxDurationSec" Nullable="true" />
+          <Property Type="Int32" Name="MinDurationSec" Nullable="true" />
+          <Property Type="Int32" Name="AverageDuration" Nullable="true" />
+        </ComplexType>
+        <ComplexType Name="BHSPercentOfFailSafePerHour_Result1">
+          <Property Type="DateTime" Name="Hour" Nullable="true" Precision="23" />
+          <Property Type="String" Name="BHSName" Nullable="true" MaxLength="8000" />
+          <Property Type="Int32" Name="PEBagCount" Nullable="true" />
+          <Property Type="Int32" Name="AlarmCount" Nullable="true" />
+          <Property Type="Decimal" Name="Percent" Nullable="true" Precision="19" Scale="3" />
+          <Property Type="String" Name="Description" Nullable="false" MaxLength="19" />
+          <Property Type="DateTime" Name="MinActiveDateTime" Nullable="true" Precision="23" />
+          <Property Type="DateTime" Name="MaxActiveDateTime" Nullable="true" Precision="23" />
+          <Property Type="Int32" Name="MaxDurationSec" Nullable="true" />
+          <Property Type="Int32" Name="MinDurationSec" Nullable="true" />
+          <Property Type="Int32" Name="AverageDuration" Nullable="true" />
+        </ComplexType>
         </Schema>
     </edmx:ConceptualModels>
     <!-- C-S mapping content -->
@@ -3792,6 +3876,9 @@
           <EntitySetMapping Name="Widgets">
             <EntityTypeMapping TypeName="iOPS_NormalizedModel.Widget">
               <MappingFragment StoreEntitySet="Widget">
+                <ScalarProperty Name="GateSystemId" ColumnName="GateSystemId" />
+                <ScalarProperty Name="ZoneSystemId" ColumnName="ZoneSystemId" />
+                <ScalarProperty Name="TerminalSystemId" ColumnName="TerminalSystemId" />
                 <ScalarProperty Name="EmbeddedDashboardId" ColumnName="EmbeddedDashboardId" />
                 <ScalarProperty Name="Col" ColumnName="Col" />
                 <ScalarProperty Name="Row" ColumnName="Row" />
@@ -3943,6 +4030,7 @@
           <EntitySetMapping Name="BHSDeviceLocations">
             <EntityTypeMapping TypeName="iOPS_NormalizedModel.BHSDeviceLocation">
               <MappingFragment StoreEntitySet="DeviceLocations">
+                <ScalarProperty Name="IsDefaultDestination" ColumnName="IsDefaultDestination" />
                 <ScalarProperty Name="IsSelectedForCount" ColumnName="IsSelectedForCount" />
                 <ScalarProperty Name="IsDimentioner" ColumnName="IsDimentioner" />
                 <ScalarProperty Name="SystemId" ColumnName="SystemId" />
@@ -4389,6 +4477,40 @@
               <ComplexTypeMapping TypeName="iOPS_NormalizedModel.BHSTop5JamDeviceswithLongestDuration_Result">
                 <ScalarProperty Name="DeviceName" ColumnName="DeviceName" />
                 <ScalarProperty Name="AlarmCount" ColumnName="AlarmCount" />
+                <ScalarProperty Name="MinActiveDateTime" ColumnName="MinActiveDateTime" />
+                <ScalarProperty Name="MaxActiveDateTime" ColumnName="MaxActiveDateTime" />
+                <ScalarProperty Name="MaxDurationSec" ColumnName="MaxDurationSec" />
+                <ScalarProperty Name="MinDurationSec" ColumnName="MinDurationSec" />
+                <ScalarProperty Name="AverageDuration" ColumnName="AverageDuration" />
+              </ComplexTypeMapping>
+            </ResultMapping>
+          </FunctionImportMapping>
+          <FunctionImportMapping FunctionImportName="BHSPercentOfFailSafePerDay" FunctionName="iOPS_NormalizedModel.Store.BHSPercentOfFailSafePerDay">
+            <ResultMapping>
+              <ComplexTypeMapping TypeName="iOPS_NormalizedModel.BHSPercentOfFailSafePerDay_Result1">
+                <ScalarProperty Name="Day" ColumnName="Day" />
+                <ScalarProperty Name="BHSName" ColumnName="BHSName" />
+                <ScalarProperty Name="PEBagCount" ColumnName="PEBagCount" />
+                <ScalarProperty Name="AlarmCount" ColumnName="AlarmCount" />
+                <ScalarProperty Name="Percent" ColumnName="Percent" />
+                <ScalarProperty Name="Description" ColumnName="Description" />
+                <ScalarProperty Name="MinActiveDateTime" ColumnName="MinActiveDateTime" />
+                <ScalarProperty Name="MaxActiveDateTime" ColumnName="MaxActiveDateTime" />
+                <ScalarProperty Name="MaxDurationSec" ColumnName="MaxDurationSec" />
+                <ScalarProperty Name="MinDurationSec" ColumnName="MinDurationSec" />
+                <ScalarProperty Name="AverageDuration" ColumnName="AverageDuration" />
+              </ComplexTypeMapping>
+            </ResultMapping>
+          </FunctionImportMapping>
+          <FunctionImportMapping FunctionImportName="BHSPercentOfFailSafePerHour" FunctionName="iOPS_NormalizedModel.Store.BHSPercentOfFailSafePerHour">
+            <ResultMapping>
+              <ComplexTypeMapping TypeName="iOPS_NormalizedModel.BHSPercentOfFailSafePerHour_Result1">
+                <ScalarProperty Name="Hour" ColumnName="Hour" />
+                <ScalarProperty Name="BHSName" ColumnName="BHSName" />
+                <ScalarProperty Name="PEBagCount" ColumnName="PEBagCount" />
+                <ScalarProperty Name="AlarmCount" ColumnName="AlarmCount" />
+                <ScalarProperty Name="Percent" ColumnName="Percent" />
+                <ScalarProperty Name="Description" ColumnName="Description" />
                 <ScalarProperty Name="MinActiveDateTime" ColumnName="MinActiveDateTime" />
                 <ScalarProperty Name="MaxActiveDateTime" ColumnName="MaxActiveDateTime" />
                 <ScalarProperty Name="MaxDurationSec" ColumnName="MaxDurationSec" />

@@ -282,7 +282,7 @@
 						dataService.GetIOPSWebAPIResource("BHSTotalSystemThroughput")
 												.query(GetQueryParametersObject(),
 													function (data) {
-														if (vm.data.length == data.length) {
+														if (vm.data && vm.data.length == data.length) {
 															vm.data = data;
 															UpdateChartWithNewData(data);
 														} else {

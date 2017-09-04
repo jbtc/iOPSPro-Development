@@ -13,7 +13,7 @@ namespace iOPS_ODataV4.Controllers.WebAPI
         private iOPS_NormalizedEntities db = new iOPS_NormalizedEntities();
         public IEnumerable<BHSAlarmAreaCount_Result> Get(DateTime beginDate, DateTime endDate, int siteId)
         {
-            var result = db.BHSAlarmAreaCount(beginDate, endDate, siteId);
+            var result = db.BHSAlarmAreaCount(beginDate, endDate, siteId, "");
 
             return result;
 

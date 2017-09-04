@@ -28,10 +28,10 @@
 					console.log("$scope = %O", $scope);
 
 					if (!vm.widget) {
-						console.log("No Widget Present");
+						//console.log("No Widget Present");
 						displaySetupService.SetPanelDimensions();
 					} else {
-						console.log("Widget Present");
+						//console.log("Widget Present");
 						displaySetupService.SetWidgetPanelBodyDimensions(vm.widget.Id);
 					}
 

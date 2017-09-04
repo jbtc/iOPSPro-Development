@@ -280,6 +280,8 @@
     <Compile Include="Controllers\WebAPI\BHSLocationThroughputController.cs" />
     <Compile Include="Controllers\WebAPI\BHSLocationThroughputHistoryByDayController.cs" />
     <Compile Include="Controllers\WebAPI\BHSLocationThroughputHistoryByHourController.cs" />
+    <Compile Include="Controllers\WebAPI\BHSPercentOfFailSafePerDayController.cs" />
+    <Compile Include="Controllers\WebAPI\BHSPercentOfFailSafePerHourController.cs" />
     <Compile Include="Controllers\WebAPI\BHSTop5AlarmTypeLongestDurationController.cs" />
     <Compile Include="Controllers\WebAPI\BHSTop5AlarmTypesController.cs" />
     <Compile Include="Controllers\WebAPI\BHSTop5JamDeviceswithCountController.cs" />
@@ -414,6 +416,18 @@
       <DependentUpon>Model1.tt</DependentUpon>
     </Compile>
     <Compile Include="Models\BHSLocationThroughput_Result1.cs">
+      <DependentUpon>Model1.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Models\BHSPercentOfFailSafePerDay_Result.cs">
+      <DependentUpon>Model1.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Models\BHSPercentOfFailSafePerDay_Result1.cs">
+      <DependentUpon>Model1.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Models\BHSPercentOfFailSafePerHour_Result.cs">
+      <DependentUpon>Model1.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Models\BHSPercentOfFailSafePerHour_Result1.cs">
       <DependentUpon>Model1.tt</DependentUpon>
     </Compile>
     <Compile Include="Models\BHSSectionThroughput_Result.cs">

@@ -29,6 +29,9 @@ namespace iOPS_ODataV4.Models
         public Nullable<int> Row { get; set; }
         public Nullable<int> Col { get; set; }
         public Nullable<long> EmbeddedDashboardId { get; set; }
+        public Nullable<long> TerminalSystemId { get; set; }
+        public Nullable<long> ZoneSystemId { get; set; }
+        public Nullable<long> GateSystemId { get; set; }
     
         public virtual WidgetType WidgetType { get; set; }
         public virtual Dashboard Dashboard { get; set; }

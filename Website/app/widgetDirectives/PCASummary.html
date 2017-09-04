@@ -26,40 +26,40 @@
     <div id="plots" style="display: none;">
         <table id="plot_container" border="0">
             <tbody>
-            <tr>
-                <td id="options">
-                    <div id="ptype_lbl">
-                        <table>
-                            <tbody>
-                            <tr>
-                                <td>Ambient Temp:</td>
-                                <td><div style="width:14px;height:14px;background-color:#80C3FF;"></div></td>
-                            </tr>
-                            <tr>
-                                <td>Discharge Temp:</td>
-                                <td><div style="width:14px;height:14px;background-color:#FF8C1A;"></div></td>
-                            </tr>
-                            </tbody>
-                        </table>
-                    </div>
-
-                    <div id="live_container">
-                        <label>Live Data</label>
-                        <div>
-                            <div class="toggle btn btn-default off" data-toggle="toggle" style="width: 50px; height: 25px;"><input id="live_data" type="checkbox" data-toggle="toggle"><div class="toggle-group"><label class="btn btn-primary toggle-on">On</label><label class="btn btn-default active toggle-off">Off</label><span class="toggle-handle btn btn-default"></span></div></div>
+                <tr>
+                    <td id="options">
+                        <div id="ptype_lbl">
+                            <table>
+                                <tbody>
+                                    <tr>
+                                        <td>Ambient Temp:</td>
+                                        <td><div style="width:14px;height:14px;background-color:#80C3FF;"></div></td>
+                                    </tr>
+                                    <tr>
+                                        <td>Discharge Temp:</td>
+                                        <td><div style="width:14px;height:14px;background-color:#FF8C1A;"></div></td>
+                                    </tr>
+                                </tbody>
+                            </table>
                         </div>
-                    </div>
 
-                </td>
-                <td id="plot_data"></td>
-            </tr>
+                        <div id="live_container">
+                            <label>Live Data</label>
+                            <div>
+                                <div class="toggle btn btn-default off" data-toggle="toggle" style="width: 50px; height: 25px;"><input id="live_data" type="checkbox" data-toggle="toggle"><div class="toggle-group"><label class="btn btn-primary toggle-on">On</label><label class="btn btn-default active toggle-off">Off</label><span class="toggle-handle btn btn-default"></span></div></div>
+                            </div>
+                        </div>
+
+                    </td>
+                    <td id="plot_data"></td>
+                </tr>
             </tbody>
         </table>
     </div>
-    <div ng-if="vm."  id="graphics_container">
+    <div id="graphics_container">
 
         <div id="dynamic_pca_main_background" class="background">
-            <div ng-if="vm.blowerOn" class="img blower-on dynamic_blower_img"></div>
+            <div class="img blower-on dynamic_blower_img"></div>
             <div id="dynamic_heating_stage_1_img" class="img"></div>
             <div id="dynamic_heating_stage_2_img" class="img"></div>
             <div id="dynamic_cooling_stage_1_img" class="img cooling-stage-1-on"></div>
@@ -73,9 +73,80 @@
 
 
 <div ng-if="vm.showSettings">
-    
-    
-    .....form.....
-    
+
+    <form class="form-horizontal" role="form" name="userForm" id="userForm" novalidate>
+        <div class="row" style="padding: 20px;">
+
+
+            <!-- Site - If the user has access to more than one -->
+            <div class="form-group">
+                <label class="col-sm-{{vm.bootstrapLabelColumns}} control-label innovation-right-aligned">
+                    Site
+                </label>
+                <div class="col-sm-{{vm.bootstrapInputColumns}}">
+                    <label ng-repeat="site in vm.userSites" style="margin: 1px;" class="btn btn-default" ng-model="vm.widget.WidgetResource.SiteId" uib-btn-radio="{{site.Id}}">{{site.Name}}</label>
+                </div>
+            </div>
+
+
+
+
+            <!-- Site Terminals (if more than one) -->
+            <div class="form-group" ng-show="vm.terminals">
+                <label class="col-sm-{{vm.bootstrapLabelColumns}} control-label innovation-right-aligned">
+                    Terminal
+                </label>
+                <div class="col-sm-{{vm.bootstrapInputColumns}}">
+                    <label ng-repeat="terminalSystem in vm.terminals" style="margin: 1px;" class="btn btn-default" ng-model="vm.widget.WidgetResource.TerminalSystemId" uib-btn-radio="{{terminalSystem.Id}}">{{terminalSystem.Name}}</label>
+                </div>
+            </div>
+
+            <!-- Terminal Zones (if more than one) -->
+            <div class="form-group" ng-show="vm.zones">
+                <label class="col-sm-{{vm.bootstrapLabelColumns}} control-label innovation-right-aligned">
+                    Zone
+                </label>
+                <div class="col-sm-{{vm.bootstrapInputColumns}}">
+                    <label ng-repeat="zoneSystem in vm.zones" style="margin: 1px;" class="btn btn-default" ng-model="vm.widget.WidgetResource.ZoneSystemId" uib-btn-radio="{{zoneSystem.Id}}">{{zoneSystem.Name}}</label>
+                </div>
+            </div>
+
+            <!-- Zone Gates (if more than one) -->
+            <div class="form-group" ng-show="vm.gates">
+                <label class="col-sm-{{vm.bootstrapLabelColumns}} control-label innovation-right-aligned">
+                    Gate
+                </label>
+                <div class="col-sm-{{vm.bootstrapInputColumns}}">
+                    <label ng-repeat="gateSystem in vm.gates" style="margin: 1px;" class="btn btn-default" ng-model="vm.widget.WidgetResource.GateSystemId" uib-btn-radio="{{gateSystem.Id}}">{{gateSystem.Name}}</label>
+                </div>
+            </div>
+
+            <div class="form-group" ng-show="vm.pca">
+                {{vm.pca.Name}}
+                <div ng-repeat="tag in vm.pca.Tags">
+                    {{tag.Name}}                    
+                </div>
+
+
+
+            </div>
+
+
+
+
+
+
+        </div>
+
+
+
+
+
+
+
+
+
+
+    </form>
 
 </div>

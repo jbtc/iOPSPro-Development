@@ -281,7 +281,7 @@ namespace iOPS_ODataV4.Models
             return ((IObjectContextAdapter)this).ObjectContext.ExecuteFunction<BHSTop5AlarmTypes_Result>("BHSTop5AlarmTypes", beginTimeParameter, endTimeParameter, siteIdParameter);
         }
     
-        public virtual ObjectResult<BHSTotalSystemThroughput_Result1> BHSTotalSystemThroughput(Nullable<System.DateTime> beginTime, Nullable<System.DateTime> endTime, Nullable<long> siteId)
+        public virtual ObjectResult<BHSTotalSystemThroughput_Result1> BHSTotalSystemThroughput(Nullable<System.DateTime> beginTime, Nullable<System.DateTime> endTime, Nullable<long> siteId, string oDataAccessToken)
         {
             var beginTimeParameter = beginTime.HasValue ?
                 new ObjectParameter("beginTime", beginTime) :
@@ -295,7 +295,11 @@ namespace iOPS_ODataV4.Models
                 new ObjectParameter("SiteId", siteId) :
                 new ObjectParameter("SiteId", typeof(long));
     
-            return ((IObjectContextAdapter)this).ObjectContext.ExecuteFunction<BHSTotalSystemThroughput_Result1>("BHSTotalSystemThroughput", beginTimeParameter, endTimeParameter, siteIdParameter);
+            var oDataAccessTokenParameter = oDataAccessToken != null ?
+                new ObjectParameter("ODataAccessToken", oDataAccessToken) :
+                new ObjectParameter("ODataAccessToken", typeof(string));
+    
+            return ((IObjectContextAdapter)this).ObjectContext.ExecuteFunction<BHSTotalSystemThroughput_Result1>("BHSTotalSystemThroughput", beginTimeParameter, endTimeParameter, siteIdParameter, oDataAccessTokenParameter);
         }
     
         public virtual ObjectResult<BHSTop5AlarmTypeLongestDuration_Result1> BHSTop5AlarmTypeLongestDuration(Nullable<System.DateTime> beginTime, Nullable<System.DateTime> endTime, Nullable<long> siteId)
@@ -315,7 +319,7 @@ namespace iOPS_ODataV4.Models
             return ((IObjectContextAdapter)this).ObjectContext.ExecuteFunction<BHSTop5AlarmTypeLongestDuration_Result1>("BHSTop5AlarmTypeLongestDuration", beginTimeParameter, endTimeParameter, siteIdParameter);
         }
     
-        public virtual ObjectResult<BHSAlarmAreaCount_Result> BHSAlarmAreaCount(Nullable<System.DateTime> beginTime, Nullable<System.DateTime> endTime, Nullable<long> siteId)
+        public virtual ObjectResult<BHSAlarmAreaCount_Result> BHSAlarmAreaCount(Nullable<System.DateTime> beginTime, Nullable<System.DateTime> endTime, Nullable<long> siteId, string oDataAccessToken)
         {
             var beginTimeParameter = beginTime.HasValue ?
                 new ObjectParameter("BeginTime", beginTime) :
@@ -329,7 +333,11 @@ namespace iOPS_ODataV4.Models
                 new ObjectParameter("SiteId", siteId) :
                 new ObjectParameter("SiteId", typeof(long));
     
-            return ((IObjectContextAdapter)this).ObjectContext.ExecuteFunction<BHSAlarmAreaCount_Result>("BHSAlarmAreaCount", beginTimeParameter, endTimeParameter, siteIdParameter);
+            var oDataAccessTokenParameter = oDataAccessToken != null ?
+                new ObjectParameter("ODataAccessToken", oDataAccessToken) :
+                new ObjectParameter("ODataAccessToken", typeof(string));
+    
+            return ((IObjectContextAdapter)this).ObjectContext.ExecuteFunction<BHSAlarmAreaCount_Result>("BHSAlarmAreaCount", beginTimeParameter, endTimeParameter, siteIdParameter, oDataAccessTokenParameter);
         }
     
         public virtual ObjectResult<BHSTop5JamDeviceswithCount_Result> BHSTop5JamDeviceswithCount(Nullable<System.DateTime> beginTime, Nullable<System.DateTime> endTime, Nullable<long> siteId)
@@ -427,6 +435,40 @@ namespace iOPS_ODataV4.Models
                 new ObjectParameter("SiteId", typeof(long));
     
             return ((IObjectContextAdapter)this).ObjectContext.ExecuteFunction<BHSTop5JamDeviceswithLongestDuration_Result>("BHSTop5JamDeviceswithLongestDuration", beginTimeParameter, endTimeParameter, siteIdParameter);
+        }
+    
+        public virtual ObjectResult<BHSPercentOfFailSafePerDay_Result1> BHSPercentOfFailSafePerDay(Nullable<System.DateTime> beginDateTime, Nullable<System.DateTime> endDateTime, Nullable<long> siteId)
+        {
+            var beginDateTimeParameter = beginDateTime.HasValue ?
+                new ObjectParameter("BeginDateTime", beginDateTime) :
+                new ObjectParameter("BeginDateTime", typeof(System.DateTime));
+    
+            var endDateTimeParameter = endDateTime.HasValue ?
+                new ObjectParameter("EndDateTime", endDateTime) :
+                new ObjectParameter("EndDateTime", typeof(System.DateTime));
+    
+            var siteIdParameter = siteId.HasValue ?
+                new ObjectParameter("SiteId", siteId) :
+                new ObjectParameter("SiteId", typeof(long));
+    
+            return ((IObjectContextAdapter)this).ObjectContext.ExecuteFunction<BHSPercentOfFailSafePerDay_Result1>("BHSPercentOfFailSafePerDay", beginDateTimeParameter, endDateTimeParameter, siteIdParameter);
+        }
+    
+        public virtual ObjectResult<BHSPercentOfFailSafePerHour_Result1> BHSPercentOfFailSafePerHour(Nullable<System.DateTime> beginDateTime, Nullable<System.DateTime> endDateTime, Nullable<long> siteId)
+        {
+            var beginDateTimeParameter = beginDateTime.HasValue ?
+                new ObjectParameter("BeginDateTime", beginDateTime) :
+                new ObjectParameter("BeginDateTime", typeof(System.DateTime));
+    
+            var endDateTimeParameter = endDateTime.HasValue ?
+                new ObjectParameter("EndDateTime", endDateTime) :
+                new ObjectParameter("EndDateTime", typeof(System.DateTime));
+    
+            var siteIdParameter = siteId.HasValue ?
+                new ObjectParameter("SiteId", siteId) :
+                new ObjectParameter("SiteId", typeof(long));
+    
+            return ((IObjectContextAdapter)this).ObjectContext.ExecuteFunction<BHSPercentOfFailSafePerHour_Result1>("BHSPercentOfFailSafePerHour", beginDateTimeParameter, endDateTimeParameter, siteIdParameter);
         }
     }
 }
