@@ -23,13 +23,16 @@
 					console.log("vm.user = %O", vm.user);
 
 					//Get the site entities for which the user has access.
-					dataService.GetIOPSCollection("Sites").then(function (data) {
+					dataService.GetJBTData().then(function(JBTData) {
+						vm.JBTData = JBTData;
+						var userSiteCodes = vm.user.ReaderOf.where(function(s) { return s.split('.')[0] == 'Site' })
+							.select(function(s) { return s.split('.')[1] });
 
-						var userSiteCodes = vm.user.ReaderOf.where(function (s) { return s.split('.')[0] == 'Site' }).select(function (s) { return s.split('.')[1] });
 						console.log("user site codes = %O", userSiteCodes);
 
-						console.log("Sites from odata = %O", data);
-						vm.userSites = data.where(function (site) { return userSiteCodes.any(function (sc) { return sc == site.Name }) });
+						vm.userSites = vm.JBTData.Sites.where(function(site) {
+							return userSiteCodes.any(function(sc) { return sc == site.Name })
+						});
 
 						console.log("vm.userSites = %O", vm.userSites);
 
@@ -44,7 +47,6 @@
 								GetTerminalsForWidgetSite();
 							}
 						}
-
 					});
 
 					//Start watching for site id changes	
@@ -57,6 +59,7 @@
 							vm.terminals = null;
 							vm.zones = null;
 							vm.gates = null;
+							vm.pca = null;
 							GetTerminalsForWidgetSite();
 						}
 					});
@@ -65,16 +68,18 @@
 						if (vm.widget.WidgetResource.SiteId) {
 
 							console.log("Getting the terminals for the widget site");
-							dataService.GetIOPSCollection("SystemGroups", "SiteId", vm.widget.WidgetResource.SiteId).then(function (data) {
-								vm.terminals = data.where(function (system) { return system.TypeId == 1 });
-								console.log("vm.terminals = %O", vm.terminals);
-								if (vm.terminals.length == 1) {
-									vm.widget.WidgetResource.TerminalSystemId = vm.terminals[0].Id;
-									vm.widgetTerminal = vm.terminals[0];
-									GetZonesForWidgetTerminal();
-								}
 
-							});
+							vm.terminals = vm.JBTData
+								.Systems
+								.where(function(s) { return s.SiteId == vm.widget.WidgetResource.SiteId && s.Type == 'Terminal' });
+
+
+							if (vm.terminals.length > 0) {								
+								vm.widget.WidgetResource.TerminalSystemId = vm.terminals[0].Id;
+								vm.widgetTerminal = vm.terminals[0];
+								GetZonesForWidgetTerminal();
+							}
+
 						}
 					}
 
@@ -86,6 +91,9 @@
 							console.log("vm.widget.WidgetResource.TerminalSystemId changed. Now = %O", vm.widget);
 							vm.widget.WidgetResource.ZoneSystemId = null;
 							vm.widget.WidgetResource.GateSystemId = null;
+							vm.zones = null;
+							vm.gates = null;
+							vm.pca = null;
 							GetZonesForWidgetTerminal();
 						}
 					});
@@ -94,16 +102,18 @@
 						if (vm.terminals && vm.widget.WidgetResource.TerminalSystemId) {
 
 							console.log("Getting the zone (area system) for the widget terminal");
-							dataService.GetIOPSCollection("SystemGroups", "ParentSystemId", vm.widget.WidgetResource.TerminalSystemId).then(function (data) {
-								vm.zones = data.where(function (system) { return system.TypeId == 2 }).orderBy(function (z) { return z.Name });
-								console.log("vm.zones = %O", vm.zones);
-								if (vm.zones.length == 1) {
-									vm.widget.WidgetResource.ZoneSystemId = vm.zones[0].Id;
-									vm.widgetZone = vm.zones[0];
-								}
-								GetGatesForWidgetZone();
 
-							});
+							vm.zones = vm.JBTData
+								.Systems
+								.where(function(s){return s.Type == 'Zone' && s.ParentSystemId == vm.widget.WidgetResource.TerminalSystemId});
+
+							console.log("vm.zones = %O", vm.zones);
+							if (vm.zones.length == 1) {
+								vm.widget.WidgetResource.ZoneSystemId = vm.zones[0].Id;
+								vm.widgetZone = vm.zones[0];
+							}
+							GetGatesForWidgetZone();
+
 						}
 					}
 
@@ -115,6 +125,8 @@
 						if (vm.widget.WidgetResource.ZoneSystemId) {
 
 							console.log("vm.widget.WidgetResource.ZoneSystemId changed. Now = %O", vm.widget);
+							vm.gates = null;
+							vm.pca = null;
 							GetGatesForWidgetZone();
 						}
 					});
@@ -123,15 +135,18 @@
 						if (vm.zones && vm.widget.WidgetResource.ZoneSystemId) {
 
 							console.log("Getting the gate (gate system) for the widget zone");
-							dataService.GetIOPSCollection("SystemGroups", "ParentSystemId", vm.widget.WidgetResource.ZoneSystemId).then(function (data) {
-								vm.gates = data.where(function (system) { return system.TypeId == 3 }).orderBy(function (g) { return g.Name });
-								console.log("vm.gates = %O", vm.gates);
-								if (vm.gates.length == 1) {
-									vm.widget.WidgetResource.GateSystemId = vm.gates[0].Id;
-									vm.widgetGate = vm.gates[0];
-								}
 
-							});
+							vm.gates = vm.JBTData
+								.Systems
+								.where(function (s) { return s.Type == 'Gate' && s.ParentSystemId == vm.widget.WidgetResource.ZoneSystemId && vm.JBTData.Assets.any(function(a){return a.ParentSystemId == s.Id && a.Name == 'PCA'})});
+
+							console.log("vm.gates = %O", vm.gates);
+							if (vm.gates.length == 1) {
+								vm.widget.WidgetResource.GateSystemId = vm.gates[0].Id;
+								vm.widgetGate = vm.gates[0];
+							}
+
+
 						}
 					}
 
@@ -142,6 +157,7 @@
 						if (vm.widget.WidgetResource.GateSystemId) {
 
 							console.log("vm.widget.WidgetResource.GateSystemId changed. Now = %O", vm.widget);
+							vm.pca = null;
 							GetAssetsForGate();
 						}
 					});
@@ -150,19 +166,14 @@
 
 					function GetAssetsForGate() {
 
-						dataService.GetIOPSCollection("Assets","ParentSystemId", vm.widget.WidgetResource.GateSystemId).then(function(assets) {
-							vm.pca = assets.where(function (asset) { return asset.ParentSystemId == vm.widget.WidgetResource.GateSystemId && asset.Name == 'PCA' }).first();
-							if (vm.pca) {
 
-								dataService.GetTags().then(function(tagsData) {
-									vm.pca.Tags = tagsData.where(function(tag) { return tag.AssetId == vm.pca.Id });
-								});
+						vm.pca = vm.JBTData
+							.Assets
+							.first(function(a) { return a.ParentSystemId == vm.widget.WidgetResource.GateSystemId && a.Name == 'PCA' });
 
-							}
-							console.log("vm.pca = %O", vm.pca);
+						console.log("vm.pca = %O", vm.pca);
+						dataService.GetAllSignalRObservationFormattedTagsForAssetIdIntoInventory(vm.pca.Id);
 
-
-						});
 					}
 					
 

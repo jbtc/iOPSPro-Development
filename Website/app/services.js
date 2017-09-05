@@ -645,6 +645,8 @@
 		}
 
 
+
+
 		//==========================================================================
 		//The user can disconnect their machine from the network and put it to sleep. 
 		//SignalR will detect this event and begin trying to reconnect upon wakeup.
@@ -844,6 +846,8 @@
 
 		function GetODataTags() {
 
+
+			return $q.when([]);
 			var dbTags;
 			var maxDate;
 
@@ -965,41 +969,107 @@
 
 		var signalRTimeStamp = performance.now();
 
+		service.GetAllSignalRObservationFormattedTagsForAssetIdIntoInventory = function (assetId) {
 
+
+			var asset = cache.assets.first(function (a) { return a.Id == assetId });
+
+			//The asset object in the dataService might have already loaded all its tags into the running inventory. If it has, we do nothing.
+			if (!asset.AllTagsLoaded) {
+				service.GetIOPSResource("Tags")
+					.filter("AssetId", assetId)
+					.query()
+					.$promise
+					.then(function (data) {
+						data.select(function (tag) {
+
+							var site = cache.sites.first(function (s) { return s.Id == tag.SiteId });
+
+							var signalRData = {
+								Date: new Date(tag.LastObservationDate),
+								AssetId: tag.AssetId,
+								SiteId: tag.SiteId,
+								ObservationId: tag.LastObservationId,
+								TagId: tag.Id,
+								SiteName: site ? site.Name : null,
+								TagName: tag.Name,
+								JBTStandardObservationId: tag.JBTStandardObservationId,
+								Value: tag.LastObservationTextValue,
+								Quality: "true",
+								JBTStandardObservation: cache.jbtStandardObservations.first(function (s) { return s.Id == tag.JBTStandardObservationId }),
+								NumericValue: +tag.LastObservationTextValue
+
+							}
+
+							LoadSignalRObservationToInventory(signalRData);
+							var asset = cache.assets.first(function (a) { return a.Id == assetId });
+
+							//Flag the asset as having all of its tags now loaded. 
+							if (asset) {
+								asset.AllTagsLoaded = true;
+							}
+
+						});
+					});
+
+
+			}
+
+
+
+
+
+
+
+		}
 
 		//===================================================================================================================
 		//++SignalR Observation Update - push messages in real-time.
-		//This function is run whenver each signalR message arrives.
+		//This function is run whenever each signalR message arrives.
 		//===================================================================================================================
 		var tagLookupAverage = 0;
 		function UpdateObservationFromSignalR(signalRData) {
 			//Split the change data out into the components
+
 			var t0 = performance.now();
 
 			service.Statistics.SignalR.MessageCount++;
 
 			signalRData = GetJsonFromSignalR(signalRData);
-			//console.log("JSON From SQL SignalR Message = %O", signalRData);
+			signalRData.AssetId = +signalRData.AssetId;
+			signalRData.TagId = +signalRData.TagId;
+			signalRData.SiteId = +signalRData.SiteId;
+			signalRData.ObservationId = +signalRData.ObservationId;
+			signalRData.JBTStandardObservationId = +signalRData.JBTStandardObservationId;
+			signalRData.JBTStandardObservation = cache.jbtStandardObservations.first(function (s) { return s.Id == signalRData.JBTStandardObservationId });
+			signalRData.NumericValue = +signalRData.Value;
 
-			if (signalRData.TagId || signalRData.TagName) {
+			LoadSignalRObservationToInventory(signalRData);
+
+		}
+
+		function LoadSignalRObservationToInventory(obs) {
+			//+Load the tag represented by the observation into the local inventory of tags.
+			if (obs.TagId || obs.TagName) {
 				//Scan the inventory for it.
 
 
 				var tag;
-				if (signalRData.TagId) {
-					tag = cache.tags.first(function (et) { return et.Id == +signalRData.TagId });
+				if (obs.TagId) {
+					//console.log("Checking for tagid");
+					tag = cache.tags.first(function (et) { return et.TagId == obs.TagId });
 				}
 
-				if (!tag && signalRData.TagName) {
-					tag = cache.tags.first(function (et) { return et.Name == signalRData.TagName });
+				if (!tag && obs.TagName) {
+					tag = cache.tags.first(function (et) { return et.TagName == obs.TagName });
 				}
 
 
 				//If we found the tag in the inventory, update it in our cache
 				if (tag) {
 
-
-					var observationDate = utilityService.GetNonUTCQueryDate(signalRData.Date);
+					//console.log("Tag found in inventory = %O", tag);
+					var observationDate = utilityService.GetNonUTCQueryDate(obs.Date);
 
 
 					if (!tag.Observations) {
@@ -1007,6 +1077,21 @@
 						tag.Observations = [];
 
 					}
+
+
+					if (!tag.Asset) {
+						//Set the asset object for the tag in the inventory if not yet already set.
+						tag.Asset = cache.assets.first(function (asset) { return asset.Id == tag.AssetId });
+						if (tag.Asset) {
+							//If we found a matching asset then add this tag to the tags collection for the asset.
+							if (!tag.Asset.Tags) {
+								tag.Asset.Tags = [];
+							}
+							tag.Asset.Tags.push(tag);
+						}
+
+					}
+
 
 					MetadataCounterUpdate(tag);
 					if (tag.Asset) {
@@ -1017,19 +1102,44 @@
 					}
 
 
-
 					if (tag.LastObservationDate <= observationDate) {
 						tag.LastObservationDate = observationDate;
 						tag.LastModifiedDate = new Date();
-						tag.LastObservationTextValue = signalRData.Value;
-						tag.LastObservationId = signalRData.ObservationId;
+						tag.LastObservationTextValue = obs.Value;
+						tag.LastObservationId = obs.ObservationId;
 						tag.Metadata.Status.LastValueWasHistorical = false;
 					} else {
 						tag.Metadata.Status.LastValueWasHistorical = true;
 					}
 
+				} else {
+					//We did not find the tag in the inventory.
+					//Add the tag to the cache with an attached metadata object
+					AttachBlankMetadataObject(obs);
+
+					//Attach the asset to the tag, and attach the tags collection to the asset - IF the asset is found
+					var asset = cache.assets.first(function (asset) { return asset.Id == +obs.AssetId });
+
+					//console.log("Asset Found = %O", asset);
+					if (asset) {
+						if (!asset.Tags) {
+							asset.Tags = [];
+						}
+						asset.Tags.push(obs);
+						obs.Asset = asset;
+					}
+
+
+
+
+					cache.tags.push(obs);
+					MetadataCounterUpdate(obs);
+					//console.log("New Tag Entry = %)",obs);
+
+
 				}
 			}
+
 		}
 
 
@@ -1074,6 +1184,7 @@
 		//called with the affected tag as the parameter.
 		//==============================================================================
 		function MetadataCounterUpdate(obj) {
+
 			if (obj && obj.Metadata && obj.Metadata.Statistics) {
 				obj.Metadata.Statistics.ChangeCount++;
 				obj.Metadata.Statistics.MessageCount++;
@@ -1099,6 +1210,18 @@
 				cache.tags.select(function (tag) {
 
 					UpdateMessagesPersecondForEntity(tag);
+					if (!tag.Asset) {
+						var asset = cache.assets.first(function (asset) { return asset.Id == tag.AssetId });
+						tag.Asset = asset;
+
+						if (asset) {
+							if (asset.Tags) {
+								asset.Tags.push(tag);
+							}
+
+						}
+
+					}
 				});
 			}
 
@@ -1135,7 +1258,7 @@
 			//Keep only the last two hundred values by date
 			service.Statistics.SignalR.MessagesPerSecondHistory = service.Statistics.SignalR.MessagesPerSecondHistory.orderByDescending(function (e) { return e.Date }).take(200).orderBy(function (e) { return e.Date });
 			//console.log("Messages Per Second History = %O",service.Statistics.SignalR.MessagesPerSecondHistory);
-
+			//console.log(("cache.tags = %O", cache.tags));
 
 
 		}, 1000);

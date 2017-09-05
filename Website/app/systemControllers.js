@@ -475,17 +475,21 @@
 				vm.dashboards = dashboardsForUser.where(function(d){return !d.ParentDashboardId}).orderBy(function (db) { return db.Ordinal });;
 				vm.showMenu = true;
 
-
 				//If there are dashboards defined for the user, transition to the first one.
 				if (vm.dashboards && vm.dashboards.length > 0) {
 					$state.go("home.app.dashboard", { DashboardId: vm.dashboards.first().Id });
 				}
+
 
 			});
 
 
 			//Get the sites
 			if (dataService.IsReady()) {
+
+
+
+
 				dataService.GetJBTData().then(function (data) {
 					if (data && data.Sites) {
 						var siteGateSystemMenuItems = data.Sites
@@ -848,7 +852,7 @@
 
 		}
 
-		SetupMenu();
+		//SetupMenu();
 
 		displaySetupService.SetPanelDimensions();
 
@@ -1831,7 +1835,13 @@
 			$scope.$on("$destroy",
                 function () {
                 	$interval.cancel(vm.chartUpdateInterval);
+                	$interval.cancel(vm.dataUpdateInterval);
                 });
+
+
+			vm.dataUpdateInterval = $interval(function () {
+				GetData();
+			}, 100);
 
 
 			vm.chartUpdateInterval = $interval(function () {
@@ -1841,7 +1851,7 @@
 						y = dataService.Statistics.SignalR.MessagesPerSecond;
 					vm.chartSeries.addPoint([x, y], true, true);
 				}
-
+				GetData();
 			}, 1000);
 
 			//Load the first time for responsiveness.
@@ -1868,14 +1878,18 @@
 
 		function GetData() {
 
-			dataService.GetCompanies().then(function (data) {
-				data.select(function (c) {
-					if (!c.Tags) {
-						c.Tags = c.Assets.selectMany(function (a) { return a.Tags });
+			dataService.GetSites().then(function(sites) {
+				sites.select(function (site) {
+					
+					if (site.Assets) {
+						site.Tags = site.Assets.selectMany(function (a) { return a.Tags });
 					}
 				});
-				vm.companies = data.orderByDescending(function (c) { return c.Tags.length });
+				vm.sites = sites.orderByDescending(function (site) { return site.Tags.length });
+				//console.log("vm.sites = %O", vm.sites);
+
 			});
+
 
 
 		}
