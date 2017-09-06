@@ -35,6 +35,18 @@
 						displaySetupService.SetWidgetPanelBodyDimensions(vm.widget.Id);
 					}
 
+
+					vm.openSettingsDash = function ($event, widget) {
+						var element = $("#widget-settings-" + widget.Id)[0].parentNode.parentNode.offsetParent;
+						var position = $(element).offset();
+						position.width = $(element).width();
+
+						$("#widget-settings-" + widget.Id).css({left: position.left + 20, width: 500 });
+						$("#widget-settings-" + widget.Id).slideToggle();
+
+					}
+
+
 					uibButtonConfig.activeClass = 'radio-active';
 
 					//If this is an embedded dashboard, then a lot of things change.
@@ -54,7 +66,7 @@
 								});
 
 							}
-                        }
+						}
 
 						vm.supressWidgetHeaders = true;
 
@@ -113,15 +125,24 @@
 
 					}
 
-					vm.CamelCaseToSnakeCase = function(cc) {
-						
-						return cc.replace(/([A-Z])/g, function($1){return "-"+$1.toLowerCase();});
+					vm.CamelCaseToSnakeCase = function (cc) {
+
+						return cc.replace(/([A-Z])/g, function ($1) { return "-" + $1.toLowerCase(); });
 
 
 
 
 
 					}
+
+
+					vm.openSettings = function (widget) {
+						console.log("Opening Settings. widget = %O", widget);
+						return hs.htmlExpand(this, { contentId: 'highslide-html' + widget.Id, headingText: widget.Name + ' Settings' });
+					}
+
+
+
 
 					vm.fullscreen = false;
 					vm.screenSwitchClass = "static-panel";
@@ -199,8 +220,6 @@
 							vm.subTitle = vm.dashboard.CustomStartDate + " to " + vm.dashboard.CustomEndDate;
 						}
 					}
-
-
 
 
 

@@ -108,8 +108,15 @@
                             </div>
 
                             <div ng-if="!widget.WidgetResource.EmbeddedDashboardId" class='btn-toolbar pull-right' style="display: inline-block;">
-                                <i ui-sref=".editWidget({ WidgetId: widget.Id})" class="fa fa-pencil-square-o" aria-hidden="true" title="bEdit widget {{widget.Name}}" style="cursor: default; padding: 4px;"></i>
-                                <i ng-click="vm.deleteWidget(widget)" class="fa fa-times" aria-hidden="true" title='Delete "{{widget.Name}}" widget' style="color: red; margin-left: 0; cursor: default; padding: 4px;"></i>
+                               
+                                <i ng-click="vm.openSettingsDash($event, widget)" class="fa fa-cog" aria-hidden="true" style="cursor: pointer; padding: 4px;"></i>
+
+
+
+
+
+                                <i ui-sref=".editWidget({ WidgetId: widget.Id})" class="fa fa-pencil-square-o" aria-hidden="true" title="Edit widget {{widget.Name}}" style="cursor: pointer; padding: 4px;"></i>
+                                <i ng-click="vm.deleteWidget(widget)" class="fa fa-times" aria-hidden="true" title='Delete "{{widget.Name}}" widget' style="color: red; margin-left: 0; cursor: pointer; padding: 4px;"></i>
                             </div>
                             {{widget.Name}}
                         </div>

@@ -4,34 +4,102 @@
 
 	app.directive('pcaSummary',
 		[
-			"dataService", "utilityService", "$state", "hotkeys", "displaySetupService", "$timeout", "$window", "$interval", "signalR",
+			"dataService", "utilityService", "$state", "hotkeys", "displaySetupService", "$timeout", "$window", "$interval", "signalR", "uibButtonConfig",
 
-			function (dataService, utilityService, $state, hotkeys, displaySetupService, $timeout, $window, $interval, signalR) {
+			function (dataService, utilityService, $state, hotkeys, displaySetupService, $timeout, $window, $interval, signalR, uibButtonConfig) {
 
 				var controller = function ($scope) {
 					var vm = this;
 
 					vm.showSettings = true;
-					vm.bootstrapLabelColumns = 3;
-					vm.bootstrapInputColumns = 9;
+					vm.bootstrapLabelColumns = 2;
+					vm.bootstrapInputColumns = 10;
+					uibButtonConfig.activeClass = 'radio-active';
 
 					//Get a copy of the user record to determine privs
-					console.log("=========== PCA Summary Directive ================================================");
 					vm.user = Global.User;
 					console.log("vm.widget = %O", vm.widget);
 
 					console.log("vm.user = %O", vm.user);
 
+
+					var gaugeOptions = {
+
+						chart: {
+							type: 'solidgauge'
+						},
+
+						title: null,
+
+						pane: {
+							center: ['50%', '85%'],
+							size: '140%',
+							startAngle: -90,
+							endAngle: 90,
+							background: {
+								backgroundColor: (Highcharts.theme && Highcharts.theme.background2) || '#EEE',
+								innerRadius: '60%',
+								outerRadius: '100%',
+								shape: 'arc'
+							}
+						},
+
+						tooltip: {
+							enabled: false
+						},
+
+						// the value axis
+						yAxis: {
+							stops: [
+								[0.1, '#55BF3B'], // green
+								[0.5, '#DDDF0D'], // yellow
+								[0.9, '#DF5353'] // red
+							],
+							lineWidth: 0,
+							minorTickInterval: null,
+							tickAmount: 2,
+							title: {
+								y: -70
+							},
+							labels: {
+								y: 16
+							}
+						},
+
+						plotOptions: {
+							solidgauge: {
+								dataLabels: {
+									y: 5,
+									borderWidth: 0,
+									useHTML: true
+								}
+							}
+						}
+					};
+
+					$timeout(function () {
+						if (!vm.pca) {
+
+							var element = $("#widget-settings-" + widget.Id)[0].parentNode.parentNode.offsetParent;
+							var position = $(element).offset();
+							position.width = $(element).width();
+
+							$("#widget-settings-" + widget.Id).css({left: position.left + 20, width: 500 });
+							$("#widget-settings-" + vm.widget.WidgetResource.Id).slideToggle();
+						}
+					}, 200);
+
+
 					//Get the site entities for which the user has access.
-					dataService.GetJBTData().then(function(JBTData) {
+					dataService.GetJBTData().then(function (JBTData) {
 						vm.JBTData = JBTData;
-						var userSiteCodes = vm.user.ReaderOf.where(function(s) { return s.split('.')[0] == 'Site' })
-							.select(function(s) { return s.split('.')[1] });
+						var userSiteCodes = vm.user.ReaderOf.where(function (s) { return s.split('.')[0] == 'Site' })
+							.select(function (s) { return s.split('.')[1] });
 
 						console.log("user site codes = %O", userSiteCodes);
 
-						vm.userSites = vm.JBTData.Sites.where(function(site) {
-							return userSiteCodes.any(function(sc) { return sc == site.Name })
+						vm.userSites = vm.JBTData.Sites.where(function (site) {
+							return userSiteCodes.any(function (sc) { return sc == site.Name })
 						});
 
 						console.log("vm.userSites = %O", vm.userSites);
@@ -49,6 +117,9 @@
 						}
 					});
 
+
+
+
 					//Start watching for site id changes	
 					$scope.$watch("vm.widget.WidgetResource.SiteId",
 					function (newValue, oldValue) {
@@ -56,11 +127,17 @@
 
 							console.log("vm.widget.WidgetResource.SiteId changed. Now = %O", vm.widget);
 							vm.widgetSite = vm.userSites.first(function (s) { return s.Id == vm.widget.SiteId });
-							vm.terminals = null;
-							vm.zones = null;
-							vm.gates = null;
-							vm.pca = null;
-							GetTerminalsForWidgetSite();
+							if (oldValue != newValue) {
+								vm.terminals = null;
+								vm.zones = null;
+								vm.gates = null;
+								vm.pca = null;
+								vm.widget.WidgetResource.TerminalSystemId = null;
+								vm.widget.WidgetResource.ZoneSystemId = null;
+								vm.widget.WidgetResource.GateSystemId = null;
+								vm.widget.WidgetResource.$save();
+								GetTerminalsForWidgetSite();
+							}
 						}
 					});
 
@@ -71,14 +148,14 @@
 
 							vm.terminals = vm.JBTData
 								.Systems
-								.where(function(s) { return s.SiteId == vm.widget.WidgetResource.SiteId && s.Type == 'Terminal' });
+								.where(function (s) { return s.SiteId == vm.widget.WidgetResource.SiteId && s.Type == 'Terminal' });
 
 
-							if (vm.terminals.length > 0) {								
-								vm.widget.WidgetResource.TerminalSystemId = vm.terminals[0].Id;
-								vm.widgetTerminal = vm.terminals[0];
+							if (vm.terminals.length > 0) {
 								GetZonesForWidgetTerminal();
 							}
+
+
 
 						}
 					}
@@ -88,12 +165,18 @@
 					function (newValue, oldValue) {
 						if (vm.widget.WidgetResource.TerminalSystemId) {
 
-							console.log("vm.widget.WidgetResource.TerminalSystemId changed. Now = %O", vm.widget);
-							vm.widget.WidgetResource.ZoneSystemId = null;
-							vm.widget.WidgetResource.GateSystemId = null;
-							vm.zones = null;
-							vm.gates = null;
-							vm.pca = null;
+							console.log("vm.widget.WidgetResource.TerminalSystemId changed. Old = %O", oldValue);
+							console.log("vm.widget.WidgetResource.TerminalSystemId changed. New = %O", newValue);
+							if (newValue != oldValue) {
+								vm.widget.WidgetResource.ZoneSystemId = null;
+								vm.widget.WidgetResource.GateSystemId = null;
+								vm.zones = null;
+								vm.gates = null;
+								vm.pca = null;
+								vm.widget.WidgetResource.$save();
+
+							}
+
 							GetZonesForWidgetTerminal();
 						}
 					});
@@ -105,13 +188,14 @@
 
 							vm.zones = vm.JBTData
 								.Systems
-								.where(function(s){return s.Type == 'Zone' && s.ParentSystemId == vm.widget.WidgetResource.TerminalSystemId});
+								.where(function (s) { return s.Type == 'Zone' && s.ParentSystemId == vm.widget.WidgetResource.TerminalSystemId }) //children of this terminal
+								.where(function (zoneSystem) { return vm.JBTData.Systems.any(function (s) { return s.Type == 'Gate' && s.ParentSystemId == zoneSystem.Id && s.Assets.any(function (gateSystemAsset) { return gateSystemAsset.Name == "PCA" }) }) }); //that have at least one gate system child
+
+
+
 
 							console.log("vm.zones = %O", vm.zones);
-							if (vm.zones.length == 1) {
-								vm.widget.WidgetResource.ZoneSystemId = vm.zones[0].Id;
-								vm.widgetZone = vm.zones[0];
-							}
+							vm.widget.WidgetResource.$save();
 							GetGatesForWidgetZone();
 
 						}
@@ -125,8 +209,13 @@
 						if (vm.widget.WidgetResource.ZoneSystemId) {
 
 							console.log("vm.widget.WidgetResource.ZoneSystemId changed. Now = %O", vm.widget);
-							vm.gates = null;
-							vm.pca = null;
+							if (newValue != oldValue) {
+								vm.gates = null;
+								vm.pca = null;
+								vm.widget.WidgetResource.GateSystemId = null;
+								vm.widget.WidgetResource.$save();
+
+							}
 							GetGatesForWidgetZone();
 						}
 					});
@@ -138,13 +227,12 @@
 
 							vm.gates = vm.JBTData
 								.Systems
-								.where(function (s) { return s.Type == 'Gate' && s.ParentSystemId == vm.widget.WidgetResource.ZoneSystemId && vm.JBTData.Assets.any(function(a){return a.ParentSystemId == s.Id && a.Name == 'PCA'})});
+								.where(function (s) { return s.Type == 'Gate' })
+								.where(function (s) { return s.ParentSystemId == vm.widget.WidgetResource.ZoneSystemId })
+								.where(function (s) { return vm.JBTData.Assets.any(function (a) { return a.ParentSystemId == s.Id && a.Name == 'PCA' }) });
 
 							console.log("vm.gates = %O", vm.gates);
-							if (vm.gates.length == 1) {
-								vm.widget.WidgetResource.GateSystemId = vm.gates[0].Id;
-								vm.widgetGate = vm.gates[0];
-							}
+
 
 
 						}
@@ -157,7 +245,16 @@
 						if (vm.widget.WidgetResource.GateSystemId) {
 
 							console.log("vm.widget.WidgetResource.GateSystemId changed. Now = %O", vm.widget);
-							vm.pca = null;
+
+							if (newValue != oldValue) {
+								vm.pca = null;
+								vm.widget.WidgetResource.$save();
+								$timeout(function () {
+									if (vm.pca) {
+										$("#widget-settings-" + vm.widget.WidgetResource.Id).slideToggle();
+									}
+								}, 400);
+							}
 							GetAssetsForGate();
 						}
 					});
@@ -166,16 +263,25 @@
 
 					function GetAssetsForGate() {
 
+						dataService.GetJBTData().then(function (jbtData) {
+							vm.JBTData = jbtData;
 
-						vm.pca = vm.JBTData
-							.Assets
-							.first(function(a) { return a.ParentSystemId == vm.widget.WidgetResource.GateSystemId && a.Name == 'PCA' });
+							
 
-						console.log("vm.pca = %O", vm.pca);
-						dataService.GetAllSignalRObservationFormattedTagsForAssetIdIntoInventory(vm.pca.Id);
+							vm.pca = vm.JBTData
+								.Assets
+								.first(function (a) { return a.ParentSystemId == vm.widget.WidgetResource.GateSystemId && a.Name == 'PCA' });
+
+							console.log("vm.pca = %O", vm.pca);
+
+							vm.widget.WidgetResource.AssetId = vm.pca.Id;
+							vm.widget.WidgetResource.$save();
+							dataService.GetAllSignalRObservationFormattedTagsForAssetIdIntoInventory(vm.pca.Id);
+						});
+
 
 					}
-					
+
 
 
 

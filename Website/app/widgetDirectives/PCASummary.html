@@ -1,4 +1,63 @@
-﻿<div ng-if="!vm.showSettings" class="display contain" style="display: block;">
+﻿<div class="panel panel-info" style="display: none; position: fixed; z-index: 30; left: 20px; width: 90%; border: 3px solid darkcyan;" id="widget-settings-{{vm.widget.WidgetResource.Id}}">
+
+    <div class="panel-heading" style="min-height: 20px;">
+        Asset Settings for {{vm.widget.Name}}
+    </div>
+    <div class="panel-body" style="overflow-x: hidden; background: linear-gradient(to bottom,#bebebe, #eeeeee);">
+        <form class="form-horizontal" role="form" name="userForm" id="userForm" novalidate>
+            <div class="row" style="padding: 20px;">
+
+
+                <!-- Site - If the user has access to more than one -->
+                <div class="form-group">
+                    <label class="col-sm-{{vm.bootstrapLabelColumns}} control-label innovation-right-aligned">
+                        Site
+                    </label>
+                    <div class="col-sm-{{vm.bootstrapInputColumns}}">
+                        <label ng-repeat="site in vm.userSites" style="margin: 1px;" class="btn btn-default" ng-model="vm.widget.WidgetResource.SiteId" uib-btn-radio="{{site.Id}}">{{site.Name}}</label>
+                    </div>
+                </div>
+
+
+
+
+                <!-- Site Terminals (if more than one) -->
+                <div class="form-group" ng-show="vm.terminals.length > 0">
+                    <label class="col-sm-{{vm.bootstrapLabelColumns}} control-label innovation-right-aligned">
+                        Terminal
+                    </label>
+                    <div class="col-sm-{{vm.bootstrapInputColumns}}">
+                        <label ng-repeat="terminalSystem in vm.terminals" style="margin: 1px;" class="btn btn-default" ng-model="vm.widget.WidgetResource.TerminalSystemId" uib-btn-radio="{{terminalSystem.Id}}">{{terminalSystem.Name}}</label>
+                    </div>
+                </div>
+
+                <!-- Terminal Zones (if more than one) -->
+                <div class="form-group" ng-show="vm.zones && vm.zones.length > 0">
+                    <label class="col-sm-{{vm.bootstrapLabelColumns}} control-label innovation-right-aligned">
+                        Zone
+                    </label>
+                    <div class="col-sm-{{vm.bootstrapInputColumns}}">
+                        <label ng-repeat="zoneSystem in vm.zones" style="margin: 1px;" class="btn btn-default" ng-model="vm.widget.WidgetResource.ZoneSystemId" uib-btn-radio="{{zoneSystem.Id}}">{{zoneSystem.Name}}</label>
+                    </div>
+                </div>
+
+                <!-- Zone Gates (if more than one) -->
+                <div class="form-group" ng-show="vm.gates && vm.gates.length > 0">
+                    <label class="col-sm-{{vm.bootstrapLabelColumns}} control-label innovation-right-aligned">
+                        Gate
+                    </label>
+                    <div class="col-sm-{{vm.bootstrapInputColumns}}">
+                        <label ng-repeat="gateSystem in vm.gates" style="margin: 1px;" class="btn btn-default" ng-model="vm.widget.WidgetResource.GateSystemId" uib-btn-radio="{{gateSystem.Id}}">{{gateSystem.Name}}</label>
+                    </div>
+                </div>
+            </div>
+        </form>
+    </div>
+
+
+
+</div>
+<div ng-if="vm.pca" class="display contain" style="display: block;">
     <div id="display_label">
         <h1></h1>
     </div>
@@ -6,147 +65,106 @@
         <div id="view_main">
             <div id="power_indicator"><div class="active"><i class="fa fa-circle"></i> ON</div></div>
             <div id="txt_connected_time"><i class="fa fa-clock-o"></i> 00:23:10</div>
-            <div id="gauge_volts_out_19"><svg height="100%" version="1.1" width="100%" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 200 150" preserveAspectRatio="xMidYMid meet" style="overflow: hidden; position: relative;"><desc style="-webkit-tap-highlight-color: rgba(0, 0, 0, 0);">Created with Raphaël 2.1.4</desc><defs style="-webkit-tap-highlight-color: rgba(0, 0, 0, 0);"><filter id="inner-shadow-gauge_volts_out_19"><feOffset dx="0" dy="10"></feOffset><feGaussianBlur result="offset-blur" stdDeviation="5"></feGaussianBlur><feComposite operator="out" in="SourceGraphic" in2="offset-blur" result="inverse"></feComposite><feFlood flood-color="black" flood-opacity="1" result="color"></feFlood><feComposite operator="in" in="color" in2="inverse" result="shadow"></feComposite><feComposite operator="over" in="shadow" in2="SourceGraphic"></feComposite></filter></defs><path fill="#edebeb" stroke="none" d="M41.875,120L25,120A75,75,0,0,1,175,120L158.125,120A58.125,58.125,0,0,0,41.875,120Z" filter="url(#inner-shadow-gauge_volts_out_19)" style="-webkit-tap-highlight-color: rgba(0, 0, 0, 0);"></path><path fill="#ffcc66" stroke="none" d="M41.875,120L25,120A75,75,0,0,1,64.69720508760005,53.8281580173785L72.64033394289004,68.71682246346833A58.125,58.125,0,0,0,41.875,120Z" filter="url(#inner-shadow-gauge_volts_out_19)" style="-webkit-tap-highlight-color: rgba(0, 0, 0, 0);"></path><path fill="#000000" stroke="#ffffff" d="M84.70128626550155,84.9505351956714L79.40753890689183,87.77475878866339L67.05072474842672,58.23961414955326Z" stroke-width="1" stroke-linecap="round" style="-webkit-tap-highlight-color: rgba(0, 0, 0, 0); stroke-linecap: round;"></path><text x="100" y="23.4375" text-anchor="middle" font-family="Arial" font-size="15px" stroke="none" fill="#999999" font-weight="bold" fill-opacity="1" style="-webkit-tap-highlight-color: rgba(0, 0, 0, 0); text-anchor: middle; font-family: Arial; font-size: 15px; font-weight: bold; fill-opacity: 1;"><tspan dy="0" style="-webkit-tap-highlight-color: rgba(0, 0, 0, 0);"> </tspan></text><text x="100" y="117.64705882352942" text-anchor="middle" font-family="Arial" font-size="23px" stroke="none" fill="#010101" style="-webkit-tap-highlight-color: rgba(0, 0, 0, 0); text-anchor: middle; font-family: Arial; font-size: 23px; font-weight: bold; fill-opacity: 1;" font-weight="bold" fill-opacity="1"><tspan dy="0" style="-webkit-tap-highlight-color: rgba(0, 0, 0, 0);">43 F</tspan></text><text x="100" y="134.18552036199097" text-anchor="middle" font-family="Arial" font-size="10px" stroke="none" fill="#b3b3b3" style="-webkit-tap-highlight-color: rgba(0, 0, 0, 0); text-anchor: middle; font-family: Arial; font-size: 10px; font-weight: normal; fill-opacity: 1;" font-weight="normal" fill-opacity="1"><tspan dy="0" style="-webkit-tap-highlight-color: rgba(0, 0, 0, 0);">Discharge Temperature</tspan></text><text x="33.4375" y="134.18552036199097" text-anchor="middle" font-family="Arial" font-size="10px" stroke="none" fill="#b3b3b3" style="-webkit-tap-highlight-color: rgba(0, 0, 0, 0); text-anchor: middle; font-family: Arial; font-size: 10px; font-weight: normal; fill-opacity: 1;" font-weight="normal" fill-opacity="1"><tspan dy="0" style="-webkit-tap-highlight-color: rgba(0, 0, 0, 0);">0</tspan></text><text x="166.5625" y="134.18552036199097" text-anchor="middle" font-family="Arial" font-size="10px" stroke="none" fill="#b3b3b3" style="-webkit-tap-highlight-color: rgba(0, 0, 0, 0); text-anchor: middle; font-family: Arial; font-size: 10px; font-weight: normal; fill-opacity: 1;" font-weight="normal" fill-opacity="1"><tspan dy="0" style="-webkit-tap-highlight-color: rgba(0, 0, 0, 0);">125</tspan></text></svg><div class="bad_data" style="display:none;">BAD DATA</div></div><div id="amps_out_19"><svg height="100%" version="1.1" width="100%" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 200 150" preserveAspectRatio="xMidYMid meet" style="overflow: hidden; position: relative;"><desc style="-webkit-tap-highlight-color: rgba(0, 0, 0, 0);">Created with Raphaël 2.1.4</desc><defs style="-webkit-tap-highlight-color: rgba(0, 0, 0, 0);"><filter id="inner-shadow-amps_out_19"><feOffset dx="0" dy="10"></feOffset><feGaussianBlur result="offset-blur" stdDeviation="5"></feGaussianBlur><feComposite operator="out" in="SourceGraphic" in2="offset-blur" result="inverse"></feComposite><feFlood flood-color="black" flood-opacity="1" result="color"></feFlood><feComposite operator="in" in="color" in2="inverse" result="shadow"></feComposite><feComposite operator="over" in="shadow" in2="SourceGraphic"></feComposite></filter></defs><path fill="#edebeb" stroke="none" d="M41.875,120L25,120A75,75,0,0,1,175,120L158.125,120A58.125,58.125,0,0,0,41.875,120Z" filter="url(#inner-shadow-amps_out_19)" style="-webkit-tap-highlight-color: rgba(0, 0, 0, 0);"></path><path fill="#00b300" stroke="none" d="M41.875,120L25,120A75,75,0,0,1,120.16898654614494,47.76280749017563L115.63096457326232,64.01617580488612A58.125,58.125,0,0,0,41.875,120Z" filter="url(#inner-shadow-amps_out_19)" style="-webkit-tap-highlight-color: rgba(0, 0, 0, 0);"></path><path fill="#000000" stroke="#ffffff" d="M113.14205586134997,84.08618660268509L107.36308046056402,82.47266767899349L118.8243874430686,52.57862032416392Z" stroke-width="1" stroke-linecap="round" style="-webkit-tap-highlight-color: rgba(0, 0, 0, 0); stroke-linecap: round;"></path><text x="100" y="23.4375" text-anchor="middle" font-family="Arial" font-size="15px" stroke="none" fill="#999999" font-weight="bold" fill-opacity="1" style="-webkit-tap-highlight-color: rgba(0, 0, 0, 0); text-anchor: middle; font-family: Arial; font-size: 15px; font-weight: bold; fill-opacity: 1;"><tspan dy="0" style="-webkit-tap-highlight-color: rgba(0, 0, 0, 0);"> </tspan></text><text x="100" y="117.64705882352942" text-anchor="middle" font-family="Arial" font-size="23px" stroke="none" fill="#010101" style="-webkit-tap-highlight-color: rgba(0, 0, 0, 0); text-anchor: middle; font-family: Arial; font-size: 23px; font-weight: bold; fill-opacity: 1;" font-weight="bold" fill-opacity="1"><tspan dy="0" style="-webkit-tap-highlight-color: rgba(0, 0, 0, 0);">88 F</tspan></text><text x="100" y="134.18552036199097" text-anchor="middle" font-family="Arial" font-size="10px" stroke="none" fill="#b3b3b3" style="-webkit-tap-highlight-color: rgba(0, 0, 0, 0); text-anchor: middle; font-family: Arial; font-size: 10px; font-weight: normal; fill-opacity: 1;" font-weight="normal" fill-opacity="1"><tspan dy="0" style="-webkit-tap-highlight-color: rgba(0, 0, 0, 0);">Ambient Temperature</tspan></text><text x="33.4375" y="134.18552036199097" text-anchor="middle" font-family="Arial" font-size="10px" stroke="none" fill="#b3b3b3" style="-webkit-tap-highlight-color: rgba(0, 0, 0, 0); text-anchor: middle; font-family: Arial; font-size: 10px; font-weight: normal; fill-opacity: 1;" font-weight="normal" fill-opacity="1"><tspan dy="0" style="-webkit-tap-highlight-color: rgba(0, 0, 0, 0);">0</tspan></text><text x="166.5625" y="134.18552036199097" text-anchor="middle" font-family="Arial" font-size="10px" stroke="none" fill="#b3b3b3" style="-webkit-tap-highlight-color: rgba(0, 0, 0, 0); text-anchor: middle; font-family: Arial; font-size: 10px; font-weight: normal; fill-opacity: 1;" font-weight="normal" fill-opacity="1"><tspan dy="0" style="-webkit-tap-highlight-color: rgba(0, 0, 0, 0);">150</tspan></text></svg><div class="bad_data" style="display:none;">BAD DATA</div></div>
+            <!--<div id="gauge_volts_out_19">
+            <svg height="100%" version="1.1"
+                 width="100%"
+                 xmlns="http://www.w3.org/2000/svg"
+                 xmlns:xlink="http://www.w3.org/1999/xlink"
+                 viewBox="0 0 200 150"
+                 preserveAspectRatio="xMidYMid meet"
+                 style="overflow: hidden; position: relative;">
+                <desc style="-webkit-tap-highlight-color: rgba(0, 0, 0, 0);">
+                    Created with Raphaël 2.1.4
+                </desc>
+                <defs style="-webkit-tap-highlight-color: rgba(0, 0, 0, 0);"><filter id="inner-shadow-gauge_volts_out_19"><feOffset dx="0" dy="10"></feOffset><feGaussianBlur result="offset-blur" stdDeviation="5"></feGaussianBlur><feComposite operator="out" in="SourceGraphic" in2="offset-blur" result="inverse"></feComposite><feFlood flood-color="black" flood-opacity="1" result="color"></feFlood><feComposite operator="in" in="color" in2="inverse" result="shadow"></feComposite><feComposite operator="over" in="shadow" in2="SourceGraphic"></feComposite></filter></defs>
+                <path fill="#edebeb" stroke="none" d="M41.875,120L25,120A75,75,0,0,1,175,120L158.125,120A58.125,58.125,0,0,0,41.875,120Z" filter="url(#inner-shadow-gauge_volts_out_19)" style="-webkit-tap-highlight-color: rgba(0, 0, 0, 0);"></path>
+                <path fill="#ffcc66" stroke="none" d="M41.875,120L25,120A75,75,0,0,1,64.69720508760005,53.8281580173785L72.64033394289004,68.71682246346833A58.125,58.125,0,0,0,41.875,120Z" filter="url(#inner-shadow-gauge_volts_out_19)" style="-webkit-tap-highlight-color: rgba(0, 0, 0, 0);"></path>
+                <path fill="#000000" stroke="#ffffff" d="M84.70128626550155,84.9505351956714L79.40753890689183,87.77475878866339L67.05072474842672,58.23961414955326Z" stroke-width="1" stroke-linecap="round" style="-webkit-tap-highlight-color: rgba(0, 0, 0, 0); stroke-linecap: round;"></path>
+                <text x="100" y="23.4375" text-anchor="middle" font-family="Arial" font-size="15px" stroke="none" fill="#999999" font-weight="bold" fill-opacity="1" style="-webkit-tap-highlight-color: rgba(0, 0, 0, 0); text-anchor: middle; font-family: Arial; font-size: 15px; font-weight: bold; fill-opacity: 1;"><tspan dy="0" style="-webkit-tap-highlight-color: rgba(0, 0, 0, 0);"> </tspan></text>
+                <text x="100" y="117.64705882352942" text-anchor="middle" font-family="Arial" font-size="23px" stroke="none" fill="#010101" style="-webkit-tap-highlight-color: rgba(0, 0, 0, 0); text-anchor: middle; font-family: Arial; font-size: 23px; font-weight: bold; fill-opacity: 1;" font-weight="bold" fill-opacity="1"><tspan dy="0" style="-webkit-tap-highlight-color: rgba(0, 0, 0, 0);">43 F</tspan></text>
+                <text x="100" y="134.18552036199097" text-anchor="middle" font-family="Arial" font-size="10px" stroke="none" fill="#b3b3b3" style="-webkit-tap-highlight-color: rgba(0, 0, 0, 0); text-anchor: middle; font-family: Arial; font-size: 10px; font-weight: normal; fill-opacity: 1;" font-weight="normal" fill-opacity="1"><tspan dy="0" style="-webkit-tap-highlight-color: rgba(0, 0, 0, 0);">Discharge Temperature</tspan></text>
+                <text x="33.4375" y="134.18552036199097" text-anchor="middle" font-family="Arial" font-size="10px" stroke="none" fill="#b3b3b3" style="-webkit-tap-highlight-color: rgba(0, 0, 0, 0); text-anchor: middle; font-family: Arial; font-size: 10px; font-weight: normal; fill-opacity: 1;" font-weight="normal" fill-opacity="1"><tspan dy="0" style="-webkit-tap-highlight-color: rgba(0, 0, 0, 0);">0</tspan></text>
+                <text x="166.5625" y="134.18552036199097" text-anchor="middle" font-family="Arial" font-size="10px" stroke="none" fill="#b3b3b3" style="-webkit-tap-highlight-color: rgba(0, 0, 0, 0); text-anchor: middle; font-family: Arial; font-size: 10px; font-weight: normal; fill-opacity: 1;" font-weight="normal" fill-opacity="1"><tspan dy="0" style="-webkit-tap-highlight-color: rgba(0, 0, 0, 0);">125</tspan></text>
+            </svg>
+            <div class="bad_data" style="display: none;">BAD DATA</div>-->
         </div>
-        <div id="pca_coil_dp" class="val">COIL DP : 2.00</div>
-        <div id="pca_vfd_speed" class="val">VFD : 8.79</div>
-        <div id="pca_ambient_humidity" class="val">Amb Humidity : 61.49</div>
-        <div id="pca_suction_pressure_1" class="val">SP1 : 95.43</div>
-        <div id="pca_suction_pressure_2" class="val">SP2 : 46.73</div>
-        <div id="pca_suction_pressure_3" class="val"> </div>
-        <div id="pca_headpri1" class="val"> </div>
-        <div id="pca_headpri2" class="val"> </div>
-        <div id="pca_headpri3" class="val"> </div>
-        <div id="pca_hot_gas_1" class="val">HG1 : 0.01</div>
-        <div id="pca_hot_gas_2" class="val">HG2 : 0.01</div>
-        <div id="pca_pump_cond" class="val">Condensate Pump : Off</div>
-        <div id="pca_bridge_damper" class="val">Aircraft Damper : Open</div>
-        <div id="pca_bridge_air" class="val">Bridge Damper : Close</div>
-    </div>
-    <div id="plots" style="display: none;">
-        <table id="plot_container" border="0">
-            <tbody>
-                <tr>
-                    <td id="options">
-                        <div id="ptype_lbl">
-                            <table>
-                                <tbody>
-                                    <tr>
-                                        <td>Ambient Temp:</td>
-                                        <td><div style="width:14px;height:14px;background-color:#80C3FF;"></div></td>
-                                    </tr>
-                                    <tr>
-                                        <td>Discharge Temp:</td>
-                                        <td><div style="width:14px;height:14px;background-color:#FF8C1A;"></div></td>
-                                    </tr>
-                                </tbody>
-                            </table>
-                        </div>
-
-                        <div id="live_container">
-                            <label>Live Data</label>
-                            <div>
-                                <div class="toggle btn btn-default off" data-toggle="toggle" style="width: 50px; height: 25px;"><input id="live_data" type="checkbox" data-toggle="toggle"><div class="toggle-group"><label class="btn btn-primary toggle-on">On</label><label class="btn btn-default active toggle-off">Off</label><span class="toggle-handle btn btn-default"></span></div></div>
-                            </div>
-                        </div>
-
-                    </td>
-                    <td id="plot_data"></td>
-                </tr>
-            </tbody>
-        </table>
-    </div>
-    <div id="graphics_container">
-
-        <div id="dynamic_pca_main_background" class="background">
-            <div class="img blower-on dynamic_blower_img"></div>
-            <div id="dynamic_heating_stage_1_img" class="img"></div>
-            <div id="dynamic_heating_stage_2_img" class="img"></div>
-            <div id="dynamic_cooling_stage_1_img" class="img cooling-stage-1-on"></div>
-            <div id="dynamic_cooling_stage_2_img" class="img cooling-stage-2-on"></div>
-            <div id="dynamic_accool_img" class="img ac-cool-on"></div>
-            <div id="dynamic_bccool_img" class="img"></div>
+        <div id="amps_out_19">
+            <!--<svg height="100%" version="1.1" width="100%" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 200 150" preserveAspectRatio="xMidYMid meet" style="overflow: hidden; position: relative;"><desc style="-webkit-tap-highlight-color: rgba(0, 0, 0, 0);">Created with Raphaël 2.1.4</desc><defs style="-webkit-tap-highlight-color: rgba(0, 0, 0, 0);"><filter id="inner-shadow-amps_out_19"><feOffset dx="0" dy="10"></feOffset><feGaussianBlur result="offset-blur" stdDeviation="5"></feGaussianBlur><feComposite operator="out" in="SourceGraphic" in2="offset-blur" result="inverse"></feComposite><feFlood flood-color="black" flood-opacity="1" result="color"></feFlood><feComposite operator="in" in="color" in2="inverse" result="shadow"></feComposite><feComposite operator="over" in="shadow" in2="SourceGraphic"></feComposite></filter></defs><path fill="#edebeb" stroke="none" d="M41.875,120L25,120A75,75,0,0,1,175,120L158.125,120A58.125,58.125,0,0,0,41.875,120Z" filter="url(#inner-shadow-amps_out_19)" style="-webkit-tap-highlight-color: rgba(0, 0, 0, 0);"></path><path fill="#00b300" stroke="none" d="M41.875,120L25,120A75,75,0,0,1,120.16898654614494,47.76280749017563L115.63096457326232,64.01617580488612A58.125,58.125,0,0,0,41.875,120Z" filter="url(#inner-shadow-amps_out_19)" style="-webkit-tap-highlight-color: rgba(0, 0, 0, 0);"></path><path fill="#000000" stroke="#ffffff" d="M113.14205586134997,84.08618660268509L107.36308046056402,82.47266767899349L118.8243874430686,52.57862032416392Z" stroke-width="1" stroke-linecap="round" style="-webkit-tap-highlight-color: rgba(0, 0, 0, 0); stroke-linecap: round;"></path><text x="100" y="23.4375" text-anchor="middle" font-family="Arial" font-size="15px" stroke="none" fill="#999999" font-weight="bold" fill-opacity="1" style="-webkit-tap-highlight-color: rgba(0, 0, 0, 0); text-anchor: middle; font-family: Arial; font-size: 15px; font-weight: bold; fill-opacity: 1;"><tspan dy="0" style="-webkit-tap-highlight-color: rgba(0, 0, 0, 0);"> </tspan></text><text x="100" y="117.64705882352942" text-anchor="middle" font-family="Arial" font-size="23px" stroke="none" fill="#010101" style="-webkit-tap-highlight-color: rgba(0, 0, 0, 0); text-anchor: middle; font-family: Arial; font-size: 23px; font-weight: bold; fill-opacity: 1;" font-weight="bold" fill-opacity="1"><tspan dy="0" style="-webkit-tap-highlight-color: rgba(0, 0, 0, 0);">88 F</tspan></text><text x="100" y="134.18552036199097" text-anchor="middle" font-family="Arial" font-size="10px" stroke="none" fill="#b3b3b3" style="-webkit-tap-highlight-color: rgba(0, 0, 0, 0); text-anchor: middle; font-family: Arial; font-size: 10px; font-weight: normal; fill-opacity: 1;" font-weight="normal" fill-opacity="1"><tspan dy="0" style="-webkit-tap-highlight-color: rgba(0, 0, 0, 0);">Ambient Temperature</tspan></text><text x="33.4375" y="134.18552036199097" text-anchor="middle" font-family="Arial" font-size="10px" stroke="none" fill="#b3b3b3" style="-webkit-tap-highlight-color: rgba(0, 0, 0, 0); text-anchor: middle; font-family: Arial; font-size: 10px; font-weight: normal; fill-opacity: 1;" font-weight="normal" fill-opacity="1"><tspan dy="0" style="-webkit-tap-highlight-color: rgba(0, 0, 0, 0);">0</tspan></text><text x="166.5625" y="134.18552036199097" text-anchor="middle" font-family="Arial" font-size="10px" stroke="none" fill="#b3b3b3" style="-webkit-tap-highlight-color: rgba(0, 0, 0, 0); text-anchor: middle; font-family: Arial; font-size: 10px; font-weight: normal; fill-opacity: 1;" font-weight="normal" fill-opacity="1"><tspan dy="0" style="-webkit-tap-highlight-color: rgba(0, 0, 0, 0);">150</tspan></text></svg>-->
+            <div class="bad_data" style="display: none;">BAD DATA</div>
         </div>
     </div>
+    <div id="pca_coil_dp" class="val">COIL DP : 2.00</div>
+    <div id="pca_vfd_speed" class="val">VFD : 8.79</div>
+    <div id="pca_ambient_humidity" class="val">Amb Humidity : 61.49</div>
+    <div id="pca_suction_pressure_1" class="val">SP1 : 95.43</div>
+    <div id="pca_suction_pressure_2" class="val">SP2 : 46.73</div>
+    <div id="pca_suction_pressure_3" class="val"> </div>
+    <div id="pca_headpri1" class="val"> </div>
+    <div id="pca_headpri2" class="val"> </div>
+    <div id="pca_headpri3" class="val"> </div>
+    <div id="pca_hot_gas_1" class="val">HG1 : 0.01</div>
+    <div id="pca_hot_gas_2" class="val">HG2 : 0.01</div>
+    <div id="pca_pump_cond" class="val">Condensate Pump : Off</div>
+    <div id="pca_bridge_damper" class="val">Aircraft Damper : Open</div>
+    <div id="pca_bridge_air" class="val">Bridge Damper : Close</div>
+</div>
+<div id="plots" style="display: none;">
+    <table id="plot_container" border="0">
+        <tbody>
+            <tr>
+                <td id="options">
+                    <div id="ptype_lbl">
+                        <table>
+                            <tbody>
+                                <tr>
+                                    <td>Ambient Temp:</td>
+                                    <td><div style="width:14px;height:14px;background-color:#80C3FF;"></div></td>
+                                </tr>
+                                <tr>
+                                    <td>Discharge Temp:</td>
+                                    <td><div style="width:14px;height:14px;background-color:#FF8C1A;"></div></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <div id="live_container">
+                        <label>Live Data</label>
+                        <div>
+                            <div class="toggle btn btn-default off" data-toggle="toggle" style="width: 50px; height: 25px;"><input id="live_data" type="checkbox" data-toggle="toggle"><div class="toggle-group"><label class="btn btn-primary toggle-on">On</label><label class="btn btn-default active toggle-off">Off</label><span class="toggle-handle btn btn-default"></span></div></div>
+                        </div>
+                    </div>
+
+                </td>
+                <td id="plot_data"></td>
+            </tr>
+        </tbody>
+    </table>
+</div>
+<div id="graphics_container">
+
+    <div id="dynamic_pca_main_background" class="background">
+        <div class="img blower-on dynamic_blower_img"></div>
+        <div id="dynamic_heating_stage_1_img" class="img"></div>
+        <div id="dynamic_heating_stage_2_img" class="img"></div>
+        <div id="dynamic_cooling_stage_1_img" class="img cooling-stage-1-on"></div>
+        <div id="dynamic_cooling_stage_2_img" class="img cooling-stage-2-on"></div>
+        <div id="dynamic_accool_img" class="img ac-cool-on"></div>
+        <div id="dynamic_bccool_img" class="img"></div>
+    </div>
+</div>
+<br />
+<br />
+<div>
+    {{vm.pca.Name}} Id={{vm.pca.Id}}
+    <div ng-repeat="tag in vm.pca.Tags" style="background-color: {{tag.Metadata.Status.LastValueWasHistorical ? 'rgba(173, 173, 173,' : 'rgba(0, 255, 0,'}} .{{tag.Metadata.UpdateCountDowns.OneSecond}});">
+        {{tag.JBTStandardObservation.Name}} {{tag.LastObservationDate}} {{tag.LastObservationTextValue}}
+    </div>
+
+
+
+</div>
 </div>
 
 
 
-<div ng-if="vm.showSettings">
-
-    <form class="form-horizontal" role="form" name="userForm" id="userForm" novalidate>
-        <div class="row" style="padding: 20px;">
-
-
-            <!-- Site - If the user has access to more than one -->
-            <div class="form-group">
-                <label class="col-sm-{{vm.bootstrapLabelColumns}} control-label innovation-right-aligned">
-                    Site
-                </label>
-                <div class="col-sm-{{vm.bootstrapInputColumns}}">
-                    <label ng-repeat="site in vm.userSites" style="margin: 1px;" class="btn btn-default" ng-model="vm.widget.WidgetResource.SiteId" uib-btn-radio="{{site.Id}}">{{site.Name}}</label>
-                </div>
-            </div>
-
-
-
-
-            <!-- Site Terminals (if more than one) -->
-            <div class="form-group" ng-show="vm.terminals.length > 0">
-                <label class="col-sm-{{vm.bootstrapLabelColumns}} control-label innovation-right-aligned">
-                    Terminal
-                </label>
-                <div class="col-sm-{{vm.bootstrapInputColumns}}">
-                    <label ng-repeat="terminalSystem in vm.terminals" style="margin: 1px;" class="btn btn-default" ng-model="vm.widget.WidgetResource.TerminalSystemId" uib-btn-radio="{{terminalSystem.Id}}">{{terminalSystem.Name}}</label>
-                </div>
-            </div>
-
-            <!-- Terminal Zones (if more than one) -->
-            <div class="form-group" ng-show="vm.zones && vm.zones.length > 0">
-                <label class="col-sm-{{vm.bootstrapLabelColumns}} control-label innovation-right-aligned">
-                    Zone
-                </label>
-                <div class="col-sm-{{vm.bootstrapInputColumns}}">
-                    <label ng-repeat="zoneSystem in vm.zones" style="margin: 1px;" class="btn btn-default" ng-model="vm.widget.WidgetResource.ZoneSystemId" uib-btn-radio="{{zoneSystem.Id}}">{{zoneSystem.Name}}</label>
-                </div>
-            </div>
-
-            <!-- Zone Gates (if more than one) -->
-            <div class="form-group" ng-show="vm.gates && vm.gates.length > 0">
-                <label class="col-sm-{{vm.bootstrapLabelColumns}} control-label innovation-right-aligned">
-                    Gate
-                </label>
-                <div class="col-sm-{{vm.bootstrapInputColumns}}">
-                    <label ng-repeat="gateSystem in vm.gates" style="margin: 1px;" class="btn btn-default" ng-model="vm.widget.WidgetResource.GateSystemId" uib-btn-radio="{{gateSystem.Id}}">{{gateSystem.Name}}</label>
-                </div>
-            </div>
-
-            <div class="form-group" ng-show="vm.pca">
-                {{vm.pca.Name}} Id={{vm.pca.Id}}
-                <div ng-repeat="tag in vm.pca.Tags">
-                    {{tag.TagName}}                    
-                </div>
-
-
-
-            </div>
-
-
-
-
-
-
-        </div>
-
-
-
-
-
-
-
-
-
-
-    </form>
-
-</div>

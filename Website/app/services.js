@@ -283,7 +283,7 @@
 				cache.ready = true;
 				service.ready = true;
 
-				$rootScope.$broadcast("dataService.ready");
+				
 			}, 500);
 
 		});
@@ -498,6 +498,8 @@
 									s2.ParentSystem = system;
 									return s2;
 								});
+
+							system.Assets = cache.assets.where(function(asset) { return asset.ParentSystemId == system.Id });
 
 							return system;
 						}),
@@ -1116,7 +1118,9 @@
 					//We did not find the tag in the inventory.
 					//Add the tag to the cache with an attached metadata object
 					AttachBlankMetadataObject(obs);
-
+					obs.LastObservationDate = utilityService.GetNonUTCQueryDate(obs.Date);
+					obs.LastObservationTextValue = obs.Value;
+					obs.LastObservationNumericValue = +obs.Value;
 					//Attach the asset to the tag, and attach the tags collection to the asset - IF the asset is found
 					var asset = cache.assets.first(function (asset) { return asset.Id == +obs.AssetId });
 
