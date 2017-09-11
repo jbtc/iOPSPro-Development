@@ -345,6 +345,31 @@ angular.module('app').config(['$routeProvider', '$urlRouterProvider', '$statePro
 							})
 
 							//***
+							.state('home.app.assetModels',
+							{
+								views: {
+									'contentPane@home': {
+										templateUrl: "app/stateContent/admin/systemTables/assetModels.html?seq=" + Date.now(),
+										controller: "AssetModelsCtrl as vm"
+									}
+								}
+							})
+
+									//***
+									.state('home.app.assetModels.edit',
+									{
+										params: {
+											AssetModelId: null
+										},
+										views: {
+											'contentPane@home.app.assetModels': {
+												templateUrl: "app/stateContent/admin/systemTables/assetModelEdit.html?seq=" + Date.now(),
+												controller: "AssetModelEditCtrl as vm"
+											}
+										}
+									})
+
+							//***
 							.state('home.app.assets.standardObservations',
 							{
 								params: {

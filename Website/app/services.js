@@ -76,6 +76,8 @@
 			widgetTypes: [],
 			jbtStandardObservations: [],
 			bhsJamAlarms: [],
+			assetModels: [],
+			assetModelImages: [],
 			ready: false
 
 		}
@@ -95,8 +97,19 @@
 				MessagesPerSecondHistory: []
 			}
 		}
+		//***G
+		//++Intercept all database updates here and integrate into the data structures.
+		$rootScope.$on("AssetModel", function (event, assetModel) {
+
+			console.log("AssetModel change. AssetModel = %O", assetModel);
+			cache.assetModels = [assetModel].concat(cache.assetModels).distinct(function (a, b) { return a.Id == b.Id });
 
 
+			assetModel.Assets = cache.assets.where(function(a) { return a.AssetModelId == assetModel.Id });
+
+
+		});
+		//***G
 
 
 		//Create a central 15 seconds time tick. Send the tick out as a broadcast event to sync all of the widget refreshes
@@ -283,7 +296,7 @@
 				cache.ready = true;
 				service.ready = true;
 
-				
+
 			}, 500);
 
 		});
@@ -292,7 +305,7 @@
 		function LoadDataCollections() {
 
 			//Get an instance of the localDB and proceed from there.
-			indexedDBService.getDBInstance("iOPS", 14, [
+			indexedDBService.getDBInstance("iOPS", 15, [
 							{
 								dataStoreName: "Companies",
 								keyName: "Id"
@@ -303,6 +316,14 @@
 							},
 							{
 								dataStoreName: "Assets",
+								keyName: "Id"
+							},
+							{
+								dataStoreName: "AssetModels",
+								keyName: "Id"
+							},
+							{
+								dataStoreName: "AssetModelImages",
 								keyName: "Id"
 							},
 							{
@@ -376,6 +397,16 @@
 							return AttachBlankMetadataObject(d);
 						});
 						console.log("Systems Loaded = %O", data);
+
+					}),
+
+					service.GetIOPSCollection("AssetModels").then(function (data) {
+						cache.assetModels = data;
+
+					}),
+
+					service.GetIOPSCollection("AssetModelImages").then(function (data) {
+						cache.assetModelImages = data;
 
 					}),
 
@@ -499,7 +530,7 @@
 									return s2;
 								});
 
-							system.Assets = cache.assets.where(function(asset) { return asset.ParentSystemId == system.Id });
+							system.Assets = cache.assets.where(function (asset) { return asset.ParentSystemId == system.Id });
 
 							return system;
 						}),
@@ -513,8 +544,25 @@
 									return tag;
 								});
 
+							asset.AssetModel = cache.assetModels.first(function (m) { return asset.AssetModelId == m.Id });
+							if (asset.AssetModel) {
+								asset.AssetModel.Asset = asset;							
+							}
+
 							return asset;
 
+						}),
+
+
+
+						AssetModels: cache.assetModels.select(function (m) {
+							m.AssetModelImages = cache.assetModelImages
+												.where(function (mi) { return mi.AssetModelId == m.Id })
+												.select(function (mi) {
+													mi.AssetModel = m;
+													return mi;
+												});
+							return m;
 						}),
 
 						Tags: cache.tags.select(function (tag) {
@@ -569,6 +617,11 @@
 		}
 
 
+
+
+		service.GetCache = function() {
+			return cache;
+		}
 
 
 		$rootScope.$on("Company", function (event, modifiedCompany) {
@@ -2255,19 +2308,19 @@
 
 
 		function JoinUserSignalRGroups() {
-			//if (Global.User.AuthorizedActivities.contains("AuthorizedActivity.AdministerSystem")) {
-			//	signalR.JoinGroup("Admin");
+			if (Global.User.AuthorizedActivities.contains("AuthorizedActivity.AdministerSystem")) {
+				signalR.JoinGroup("Admin");
 
-			//	//console.log("Joining all Site Groups for admin access");
-			//	//Get all of the sites in the system and join the signalR group for all of them
-			//	dataService.GetIOPSCollection("Sites").then(function (sites) {
-			//		console.log("Sites to join = %O", sites);
-			//		sites.forEach(function (site) {
-			//			//console.log("Joining Site " + site.Name);
-			//			signalR.JoinGroup(site.Name);
-			//		});
-			//	});
-			//}
+				//console.log("Joining all Site Groups for admin access");
+				//Get all of the sites in the system and join the signalR group for all of them
+				//dataService.GetIOPSCollection("Sites").then(function (sites) {
+				//	console.log("Sites to join = %O", sites);
+				//	sites.forEach(function (site) {
+				//		//console.log("Joining Site " + site.Name);
+				//		signalR.JoinGroup(site.Name);
+				//	});
+				//});
+			}
 
 			Global.User.ReaderOf.forEach(function (ro) {
 				var site = ro.replace('Site.', '')

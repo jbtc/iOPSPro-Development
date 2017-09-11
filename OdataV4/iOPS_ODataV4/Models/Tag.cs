@@ -55,6 +55,7 @@ namespace iOPS_ODataV4.Models
         public string LastObservationTextValue { get; set; }
         public Nullable<bool> IsValidated { get; set; }
         public Nullable<bool> IsNotified { get; set; }
+        public Nullable<long> SiteId { get; set; }
     
         public virtual Asset Asset { get; set; }
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]

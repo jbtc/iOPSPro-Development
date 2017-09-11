@@ -111,6 +111,13 @@ namespace iOPS_ODataV4.Controllers.OdataV4
             return SingleResult.Create(db.Assets.Where(m => m.Id == key).Select(m => m.AssetType));
         }
 
+        // GET: odata/Assets(5)/AssetModel
+        [EnableQuery]
+        public SingleResult<AssetModel> GetAssetModel([FromODataUri] long key)
+        {
+            return SingleResult.Create(db.Assets.Where(m => m.Id == key).Select(m => m.AssetModel));
+        }
+
         // GET: odata/Assets(5)/AssetCondition
         [EnableQuery]
         public SingleResult<AssetCondition> GetAssetCondition([FromODataUri] long key)

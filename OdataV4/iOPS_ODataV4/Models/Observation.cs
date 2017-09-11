@@ -26,6 +26,7 @@ namespace iOPS_ODataV4.Models
         public string GoogleLongitude { get; set; }
         public Nullable<System.DateTime> CreationDate { get; set; }
         public Nullable<int> DateIsUTC { get; set; }
+        public Nullable<int> Quality { get; set; }
     
         public virtual Tag Tag { get; set; }
     }

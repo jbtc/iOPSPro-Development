@@ -756,6 +756,7 @@
 										{ id: "companies", label: "Companies", description: "", state: "home.app.companies" },
 										{ id: "people", label: "People", description: "", state: "home.app.people" },
 										//{ id: "assets", label: "Assets", description: "", state: ".assets" },
+										{ id: "assetModels", label: "Asset Model Types", description: "", state: "home.app.assetModels" },
 										{ id: "tags", label: "Tags", description: "", state: "home.app.tags" },
 										//{ id: "sites", label: "Sites", description: "", state: ".sites" },
 										{
@@ -1271,6 +1272,196 @@
 
 
 })();
+
+//++CompanyEdit Controller
+(function () {
+	"use strict";
+
+
+	function CompanyEditCtrl($q, $state, $rootScope, $scope, securityService, dataService, $stateParams, utilityService, $timeout, uibButtonConfig, hotkeys, $interval, displaySetupService, signalR) {
+		var vm = this;
+
+		vm.state = $state;
+
+		//Column proportions for the view
+		vm.bootstrapLabelColumns = 4;
+		vm.bootstrapInputColumns = 8;
+
+		//Do not show a screen until it is all ready.
+		vm.showScreen = false;
+
+		//Makes the uib buttons a nice shade of blue.
+		uibButtonConfig.activeClass = 'radio-active';
+		if ($stateParams.CompanyId < 0) {
+			$stateParams.CompanyId = 0;
+		}
+
+
+		dataService.GetJBTData().then(function (data) {
+			vm.sites = data.Sites.where(function (site) { return site.Name.length < 10 });
+		});
+
+
+		//+Simultaneously and asyncronously get all of the data collections we need to edit the user object.
+
+		//+After we have finished obtaining all of the above collections of data, put together the vm.user DTO.
+		if ($stateParams.CompanyId > 0) {
+			//Existing User
+
+			dataService.GetIOPSResource("Companies")
+				.expandPredicate("SiteCompanies")
+					.expand("Site")
+				.finish()
+				.get($stateParams.CompanyId)
+				.$promise
+				.then(function (data) {
+					vm.company = data;
+					vm.company.associatedSiteIds = [];
+
+					vm.company.SiteCompanies.forEach(function (sc) {
+						vm.company.associatedSiteIds[sc.Site.Id] = true;
+					});
+					vm.panelTitle = "iOPS Company: " + vm.company.Name + " - " + vm.company.ShortName;
+					vm.panelSubtitle = "Editing Existing Company";
+
+					$scope.$$postDigest(function () {
+						displaySetupService.SetPanelDimensions(10);
+
+						vm.showScreen = true;
+						console.log("vm = %O", vm);
+					});
+
+
+				});
+
+
+
+		} else {
+			vm.company = {
+				Id: 0
+			};
+			vm.panelTitle = "New Company";
+			vm.panelSubtitle = "Enter a new Company for iOPS";
+			vm.showScreen = true;
+
+		}
+
+
+		hotkeys.bindTo($scope)
+		.add({
+			combo: 'ctrl+s',
+			description: 'Save and Close any form data input form',
+			allowIn: ['INPUT', 'SELECT', 'TEXTAREA'],
+			callback: function () {
+				event.preventDefault();
+				vm.Save();
+
+			}
+		})
+		.add({
+			combo: 'esc',
+			description: 'Cancel and close any input form',
+			allowIn: ['INPUT', 'SELECT', 'TEXTAREA'],
+			callback: function () {
+				$state.go("^");
+			}
+		});
+
+
+
+
+		vm.Save = function () {
+			var associatedSiteIdObjects = [];
+
+			console.log("Company to save = %O", vm.company);
+
+			vm.company.associatedSiteIds.forEach(function (enabled, siteId) {
+				associatedSiteIdObjects.push({ SiteId: siteId, Enabled: enabled });
+			});
+
+			dataService.GetEntityById("Companies", vm.company.Id).then(function (odataCompany) {
+				odataCompany.Name = vm.company.Name;
+				odataCompany.ShortName = vm.company.ShortName;
+				odataCompany.Description = vm.company.Description;
+				odataCompany.Address = vm.company.Address;
+
+				odataCompany.$save().then(function (modCompany) {
+
+
+					$q.all(
+							//All Sites that are present in the company already associated set, that are not present in the enabled sites list in the company, as delete promise set.
+							vm.company
+							.SiteCompanies
+							.where(function (sc) { return !vm.company.associatedSiteIds[sc.SiteId] })
+							.select(function (scToRemoveFromCompany) {
+								return dataService.GetIOPSResource("SiteCompanies")
+									.filter("CompanyId", vm.company.Id)
+									.filter("SiteId", scToRemoveFromCompany.SiteId)
+									.query().$promise.then(function (data) {
+
+										var scToDelete = data.first();
+										scToDelete.Id = -scToDelete.Id;
+
+										return scToDelete.$save();
+									});
+
+
+							}),
+
+							$q.all(
+								associatedSiteIdObjects
+								.where(function (en) {
+									return en.Enabled && !vm.company.SiteCompanies.any(function (sc) { return sc.SiteId == en.SiteId });
+								})
+								.select(function (scToInsert) {
+
+									return dataService.AddEntity("SiteCompanies",
+									{
+										Id: 0,
+										SiteId: scToInsert.SiteId,
+										CompanyId: vm.company.Id
+									});
+								})
+							)
+
+					).then(function () {
+						signalR.SignalAllClientsInGroup("Admin", "Company", modCompany);
+						$state.go("^");
+					});
+
+				});
+
+
+			});
+
+		}
+
+	}
+
+	angular
+			.module("app")
+			.controller("CompanyEditCtrl", [
+				"$q",
+				"$state",
+				"$rootScope",
+				"$scope",
+				"securityService",
+				"dataService",
+				"$stateParams",
+				"utilityService",
+				"$timeout",
+				"uibButtonConfig",
+				"hotkeys",
+				"$interval",
+				"displaySetupService",
+				"signalR",
+				CompanyEditCtrl
+			]);
+
+
+
+})();
+
 
 //++Assets Controller
 (function () {
@@ -2202,6 +2393,8 @@
 
 })();
 
+
+
 //++UserEdit Controller
 (function () {
 	"use strict";
@@ -2627,6 +2820,199 @@
 
 })();
 
+//++AssetModelEdit Controller
+(function () {
+	"use strict";
+
+
+	function AssetModelEditCtrl($q, $state, $rootScope, $scope, securityService, dataService, $stateParams, utilityService, $timeout, uibButtonConfig, hotkeys, $interval, displaySetupService, signalR) {
+		var vm = this;
+
+		vm.state = $state;
+
+		//Column proportions for the view
+		vm.bootstrapLabelColumns = 4;
+		vm.bootstrapInputColumns = 8;
+
+		//Do not show a screen until it is all ready.
+		vm.showScreen = false;
+
+		//Makes the uib buttons a nice shade of blue.
+		uibButtonConfig.activeClass = 'radio-active';
+		if ($stateParams.AssetModelId < 0) {
+			$stateParams.AssetModelId = 0;
+		}
+
+
+
+
+		if ($stateParams.AssetModelId > 0) {
+			//Existing Asset Model
+
+			dataService.GetEntityById("AssetModels", $stateParams.AssetModelId)
+				.then(function (data) {
+					vm.assetModel = data;
+
+					vm.panelTitle = "iOPS Asset Model Type: " + vm.assetModel.Name + " - ";
+					vm.panelSubtitle = "Editing Existing Asset Model Type";
+
+					$scope.$$postDigest(function () {
+						displaySetupService.SetPanelDimensions(10);
+
+						vm.showScreen = true;
+						console.log("vm = %O", vm);
+					});
+
+
+				});
+
+
+
+		} else {
+			vm.assetModel = {
+				Id: 0
+			};
+			vm.panelTitle = "New Asset Model Type";
+			vm.panelSubtitle = "Enter a new Asset Model Type for iOPS";
+			vm.showScreen = true;
+
+		}
+
+
+		hotkeys.bindTo($scope)
+		.add({
+			combo: 'ctrl+s',
+			description: 'Save and Close any form data input form',
+			allowIn: ['INPUT', 'SELECT', 'TEXTAREA'],
+			callback: function () {
+				event.preventDefault();
+				vm.Save();
+
+			}
+		})
+		.add({
+			combo: 'esc',
+			description: 'Cancel and close any input form',
+			allowIn: ['INPUT', 'SELECT', 'TEXTAREA'],
+			callback: function () {
+				$state.go("^");
+			}
+		});
+
+
+
+
+		vm.Save = function () {
+
+			console.log("Asset Model to save = %O", vm.assetModel);
+
+			(vm.assetModel.Id > 0
+				? dataService.GetEntityById("AssetModels", vm.assetModel.Id).then(function(odataAssetModel) {
+					odataAssetModel.Name = vm.assetModel.Name;
+					odataAssetModel.Size = vm.assetModel.Size;
+					odataAssetModel.Description = vm.assetModel.Description;
+					odataAssetModel.GraphicsPath = vm.assetModel.GraphicsPath;
+
+					return odataAssetModel.$save();
+
+
+				})
+				: dataService.AddEntity("AssetModels", vm.assetModel)).then(function(assetModel) {
+
+					//At this point we have either added or updated an AssetModel entity
+
+					signalR.SignalAllClientsInGroup("Admin", "AssetModel", assetModel);
+					$state.go("^");
+
+			});
+		}
+
+
+		
+
+	}
+
+	angular
+			.module("app")
+			.controller("AssetModelEditCtrl", [
+				"$q",
+				"$state",
+				"$rootScope",
+				"$scope",
+				"securityService",
+				"dataService",
+				"$stateParams",
+				"utilityService",
+				"$timeout",
+				"uibButtonConfig",
+				"hotkeys",
+				"$interval",
+				"displaySetupService",
+				"signalR",
+				AssetModelEditCtrl
+			]);
+
+
+
+})();
+
+//++Asset Models Controller
+(function () {
+	"use strict";
+
+
+	function AssetModelsCtrl($scope, $state, displaySetupService, dataService, signalR, $interval, $q) {
+		console.log("AssetModelsCtrl conroller invoked.");
+		var vm = this;
+
+		vm.columnWidths = {
+			name: 20,
+			description: 50,
+			graphicsPath: 30
+
+		};
+
+		vm.buttonPanelWidth = 20;
+
+		vm.state = $state;
+		displaySetupService.SetPanelDimensions();
+
+		vm.assetModels = dataService.GetCache().assetModels;
+		console.log("assetModels = %O", vm.assetModels);
+
+		$scope.$on("AssetModel", function (event, assetModel) {
+
+			console.log("AssetModel change. AssetModel = %O", assetModel);
+			vm.assetModels = [assetModel].concat(vm.assetModels).distinct(function (a, b) { return a.Id == b.Id });
+
+		});
+
+
+		vm.scrolledToEnd = function () {
+			console.log("scrolled to end");
+		}
+
+
+
+	}
+
+	angular
+			.module("app")
+			.controller("AssetModelsCtrl", [
+				"$scope",
+				"$state",
+				"displaySetupService",
+				"dataService",
+				"signalR",
+                "$interval",
+				"$q",
+				AssetModelsCtrl
+			]);
+
+
+
+})();
+
 //++LiveTagDataMonitorPanels Controller
 (function () {
 	"use strict";
@@ -3042,194 +3428,6 @@
 
 })();
 
-//++CompanyEdit Controller
-(function () {
-	"use strict";
-
-
-	function CompanyEditCtrl($q, $state, $rootScope, $scope, securityService, dataService, $stateParams, utilityService, $timeout, uibButtonConfig, hotkeys, $interval, displaySetupService, signalR) {
-		var vm = this;
-
-		vm.state = $state;
-
-		//Column proportions for the view
-		vm.bootstrapLabelColumns = 4;
-		vm.bootstrapInputColumns = 8;
-
-		//Do not show a screen until it is all ready.
-		vm.showScreen = false;
-
-		//Makes the uib buttons a nice shade of blue.
-		uibButtonConfig.activeClass = 'radio-active';
-		if ($stateParams.CompanyId < 0) {
-			$stateParams.CompanyId = 0;
-		}
-
-
-		dataService.GetJBTData().then(function (data) {
-			vm.sites = data.Sites.where(function (site) { return site.Name.length < 10 });
-		});
-
-
-		//+Simultaneously and asyncronously get all of the data collections we need to edit the user object.
-
-		//+After we have finished obtaining all of the above collections of data, put together the vm.user DTO.
-		if ($stateParams.CompanyId > 0) {
-			//Existing User
-
-			dataService.GetIOPSResource("Companies")
-				.expandPredicate("SiteCompanies")
-					.expand("Site")
-				.finish()
-				.get($stateParams.CompanyId)
-				.$promise
-				.then(function (data) {
-					vm.company = data;
-					vm.company.associatedSiteIds = [];
-
-					vm.company.SiteCompanies.forEach(function (sc) {
-						vm.company.associatedSiteIds[sc.Site.Id] = true;
-					});
-					vm.panelTitle = "iOPS Company: " + vm.company.Name + " - " + vm.company.ShortName;
-					vm.panelSubtitle = "Editing Existing Company";
-
-					$scope.$$postDigest(function () {
-						displaySetupService.SetPanelDimensions(10);
-
-						vm.showScreen = true;
-						console.log("vm = %O", vm);
-					});
-
-
-				});
-
-
-
-		} else {
-			vm.company = {
-				Id: 0
-			};
-			vm.panelTitle = "New Company";
-			vm.panelSubtitle = "Enter a new Company for iOPS";
-			vm.showScreen = true;
-
-		}
-
-
-		hotkeys.bindTo($scope)
-		.add({
-			combo: 'ctrl+s',
-			description: 'Save and Close any form data input form',
-			allowIn: ['INPUT', 'SELECT', 'TEXTAREA'],
-			callback: function () {
-				event.preventDefault();
-				vm.Save();
-
-			}
-		})
-		.add({
-			combo: 'esc',
-			description: 'Cancel and close any input form',
-			allowIn: ['INPUT', 'SELECT', 'TEXTAREA'],
-			callback: function () {
-				$state.go("^");
-			}
-		});
-
-
-
-
-		vm.Save = function () {
-			var associatedSiteIdObjects = [];
-
-			console.log("Company to save = %O", vm.company);
-
-			vm.company.associatedSiteIds.forEach(function (enabled, siteId) {
-				associatedSiteIdObjects.push({ SiteId: siteId, Enabled: enabled });
-			});
-
-			dataService.GetEntityById("Companies", vm.company.Id).then(function (odataCompany) {
-				odataCompany.Name = vm.company.Name;
-				odataCompany.ShortName = vm.company.ShortName;
-				odataCompany.Description = vm.company.Description;
-				odataCompany.Address = vm.company.Address;
-
-				odataCompany.$save().then(function (modCompany) {
-
-
-					$q.all(
-							//All Sites that are present in the company already associated set, that are not present in the enabled sites list in the company, as delete promise set.
-							vm.company
-							.SiteCompanies
-							.where(function (sc) { return !vm.company.associatedSiteIds[sc.SiteId] })
-							.select(function (scToRemoveFromCompany) {
-								return dataService.GetIOPSResource("SiteCompanies")
-									.filter("CompanyId", vm.company.Id)
-									.filter("SiteId", scToRemoveFromCompany.SiteId)
-									.query().$promise.then(function (data) {
-
-										var scToDelete = data.first();
-										scToDelete.Id = -scToDelete.Id;
-
-										return scToDelete.$save();
-									});
-
-
-							}),
-
-							$q.all(
-								associatedSiteIdObjects
-								.where(function (en) {
-									return en.Enabled && !vm.company.SiteCompanies.any(function (sc) { return sc.SiteId == en.SiteId });
-								})
-								.select(function (scToInsert) {
-
-									return dataService.AddEntity("SiteCompanies",
-									{
-										Id: 0,
-										SiteId: scToInsert.SiteId,
-										CompanyId: vm.company.Id
-									});
-								})
-							)
-
-					).then(function () {
-						signalR.SignalAllClientsInGroup("Admin", "Company", modCompany);
-						$state.go("^");
-					});
-
-				});
-
-
-			});
-
-		}
-
-	}
-
-	angular
-			.module("app")
-			.controller("CompanyEditCtrl", [
-				"$q",
-				"$state",
-				"$rootScope",
-				"$scope",
-				"securityService",
-				"dataService",
-				"$stateParams",
-				"utilityService",
-				"$timeout",
-				"uibButtonConfig",
-				"hotkeys",
-				"$interval",
-				"displaySetupService",
-				"signalR",
-				CompanyEditCtrl
-			]);
-
-
-
-})();
 
 //++People Controller
 (function () {

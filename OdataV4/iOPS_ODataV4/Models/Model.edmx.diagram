@@ -43,8 +43,8 @@
         <AssociationConnector Association="iOPS_NormalizedModel.FK_Asset_Condition" />
         <AssociationConnector Association="iOPS_NormalizedModel.FK_Client_ClientType" />
         <EntityTypeShape EntityType="iOPS_NormalizedModel.SystemType" Width="1.5" PointX="18.375" PointY="10" />
-        <EntityTypeShape EntityType="iOPS_NormalizedModel.Observation" Width="1.5" PointX="34.5" PointY="3.25" />
-        <EntityTypeShape EntityType="iOPS_NormalizedModel.Tag" Width="2.5" PointX="31.125" PointY="0.875" />
+        <EntityTypeShape EntityType="iOPS_NormalizedModel.Observation" Width="1.5" PointX="35.5" PointY="3.25" />
+        <EntityTypeShape EntityType="iOPS_NormalizedModel.Tag" Width="3.375" PointX="31.125" PointY="0.875" />
         <AssociationConnector Association="iOPS_NormalizedModel.FK_Tag_Asset" />
         <AssociationConnector Association="iOPS_NormalizedModel.FK_Observation_Tag" />
         <EntityTypeShape EntityType="iOPS_NormalizedModel.SystemGroup" Width="1.5" PointX="13.75" PointY="10" />
@@ -93,6 +93,10 @@
         <EntityTypeShape EntityType="iOPS_NormalizedModel.BHSDeviceLocationCarrierMap" Width="2.5" PointX="2.5" PointY="7.375" />
         <AssociationConnector Association="iOPS_NormalizedModel.FK_BHSDeviceLocationCarrierMap_BHSCarrier" />
         <AssociationConnector Association="iOPS_NormalizedModel.FK_BHSDeviceLocationCarrierMap_DeviceLocations" />
+        <EntityTypeShape EntityType="iOPS_NormalizedModel.AssetModel" Width="1.75" PointX="9.75" PointY="6.375" />
+        <EntityTypeShape EntityType="iOPS_NormalizedModel.AssetModelImage" Width="2.375" PointX="6.5" PointY="6.375" />
+        <AssociationConnector Association="iOPS_NormalizedModel.FK_Asset_AssetModel" />
+        <AssociationConnector Association="iOPS_NormalizedModel.FK_AssetModelImage_AssetModel" />
         </Diagram>
     </edmx:Diagrams>
   </edmx:Designer>

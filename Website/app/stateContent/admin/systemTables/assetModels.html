@@ -1,0 +1,74 @@
+﻿<div class="modal-blocking-backdrop"></div>
+<div class="modal-holder">
+    <div class="panel panel-primary static-panel">
+        <div class="panel-heading">
+            <div class='btn-toolbar pull-right' style="display: inline-block;">
+                <button ui-sref=".edit({ AssetModelId: -1 })" class="btn btn-default responsive-button">Add New Model</button>
+            </div>
+            <div class="panel-heading-title">
+                Asset Models
+            </div>
+            <div class="panel-heading-subtitle">
+            </div>
+
+        </div>
+        <div class="panel-body repeater-container" style="overflow: hidden; width: 100%">
+
+
+            <table class="table table-hover table-responsive table-striped">
+                <thead>
+                    <tr>
+                        <th style="width: {{vm.columnWidths.name}}%">
+                            Name
+                        </th>
+                        <th style="width: {{vm.columnWidths.name}}%">
+                            Description
+                        </th>
+                        <th style="width: {{vm.columnWidths.graphicsPath}}%">
+                            Graphics Path
+                        </th>
+                        <th style="width: 150px;">
+                            Actions
+                        </th>
+                    </tr>
+                </thead>
+
+                <tbody vs-repeat vs-excess="10" vs-scroll-parent=".repeater-container" vs-scrolled-to-end="vm.scrolledToEnd()">
+                    <tr ng-repeat="model in vm.assetModels track by model.Id">
+
+                        <td style="width: {{vm.columnWidths.name}}%">
+                            {{model.Name}}
+                        </td>
+                        <td style="width: {{vm.columnWidths.description}}%">
+                            {{model.Description}}
+                        </td>
+                        <td style="width: {{vm.columnWidths.graphicsPath}}%">
+                            {{model.GraphicsPath}}
+                        </td>
+                        <td width="{{vm.buttonPanelWidth}}px">
+                            <div class="btn-group" style="width: {{vm.buttonPanelWidth}}]px; -moz-min-width: {{vm.buttonPanelWidth}}px; -ms-min-width: {{vm.buttonPanelWidth}}px; -o-min-width: {{vm.buttonPanelWidth}}px; -webkit-min-width: {{vm.buttonPanelWidth}}px; min-width: {{vm.buttonPanelWidth}}px">
+                                <a title="Edit Model Type"
+                                   class="btn btn-default responsive-button"
+                                   style="height: 37px; padding-top: 7px; width: 115px; min-width: 115px;"
+                                   ui-sref=".edit({ AssetModelId: model.Id })">
+                                    Edit
+                                </a>
+                                <a title="Edit graphic files for this model"
+                                   class="btn btn-default responsive-button"
+                                   style="height: 37px; padding-top: 7px; width: 115px; min-width: 115px;"
+                                   ui-sref=".graphicFiles({ AssetModelId: model.Id })">
+                                    Graphic Files
+                                </a>
+                            </div>
+                        </td>
+                    </tr>
+
+                </tbody>
+            </table>
+
+        </div>
+        <div ui-view="contentPane"></div>
+    </div>
+
+</div>
+
