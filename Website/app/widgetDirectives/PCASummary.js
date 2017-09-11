@@ -90,7 +90,7 @@
 							position.width = $(element).width();
 
 
-							$("#widget-settings-" + vm.widget.WidgetResource.Id).css({left: position.left + 20, top: position.top + 35, width: 500 });
+							$("#widget-settings-" + vm.widget.WidgetResource.Id).css({ left: position.left + 20, top: position.top + 35, width: 500 });
 							$("#widget-settings-" + vm.widget.WidgetResource.Id).slideToggle();
 						}
 					}, 200);
@@ -196,7 +196,7 @@
 								.Systems
 								.where(function (s) { return s.Type == 'Zone' && s.ParentSystemId == vm.widget.WidgetResource.TerminalSystemId }) //children of this terminal
 								.where(function (zoneSystem) { return vm.JBTData.Systems.any(function (s) { return s.Type == 'Gate' && s.ParentSystemId == zoneSystem.Id && s.Assets.any(function (gateSystemAsset) { return gateSystemAsset.Name == "PCA" }) }) }) //that have at least one gate system child
-								.orderBy(function(z){ return z.Name});
+								.orderBy(function (z) { return z.Name });
 
 
 
@@ -237,7 +237,7 @@
 								.where(function (s) { return s.Type == 'Gate' })
 								.where(function (s) { return s.ParentSystemId == vm.widget.WidgetResource.ZoneSystemId })
 								.where(function (s) { return vm.JBTData.Assets.any(function (a) { return a.ParentSystemId == s.Id && a.Name == 'PCA' }) })
-								.orderBy(function(s){return s.Name});
+								.orderBy(function (s) { return s.Name });
 
 
 
@@ -277,7 +277,7 @@
 						dataService.GetJBTData().then(function (jbtData) {
 							vm.JBTData = jbtData;
 
-							
+
 
 
 							vm.pca = vm.JBTData
@@ -295,16 +295,16 @@
 							dataService.GetAllSignalRObservationFormattedTagsForAssetIdIntoInventory(vm.pca.Id);
 
 
-							$timeout(function() {
-								
-								var temp = vm.pca.Tags.select(function(tag) {
-									return {
-										StdObsName: tag.JBTStandardObservation.Name,
-										StdObsId: tag.JBTStandardObservation.Id
-									}
-								});
-								console.log("Tag Names and Standard Names and Ids = %O",temp);
-							}, 1000);
+							//$timeout(function () {
+
+							//	var temp = vm.pca.Tags.select(function (tag) {
+							//		return {
+							//			StdObsName: tag.JBTStandardObservation.Name,
+							//			StdObsId: tag.JBTStandardObservation.Id
+							//		}
+							//	});
+							//	console.log("Tag Names and Standard Names and Ids = %O", temp);
+							//}, 1000);
 
 							dataService.GetIOPSResource("AssetGraphics")
 								.filter("AssetId", vm.pca.Id)
@@ -315,17 +315,20 @@
 
 
 									//Add a boolean on or off flag to each image. The view will use this to show the image or not.
-									data.select(function(i) {
+									data.select(function (i) {
 										i.showImage = false;
 									});
 									vm.AssetGraphics = data;
 
 									//Just for simulation
-									vm.AssetGraphics[0].showImage = true;
+									if (vm.AssetGraphics && vm.AssetGraphics.length > 0) {
+										vm.AssetGraphics[0].showImage = true;
 
-									
+									}
 
-									console.log("Asset Graphics = %O", data);
+
+
+									//console.log("Asset Graphics = %O", data);
 								});
 						});
 
@@ -335,16 +338,19 @@
 
 					//Simulate values changing
 					var index = 0;
-					$interval(function() {
+					$interval(function () {
 						//vm.showAssetModelImages = !vm.showAssetModelImages;
-						vm.AssetGraphics[index++].showImage = false;
-						if (index == vm.AssetGraphics.length) {
-							index = 0;
+						if (vm.AssetGraphics && vm.AssetGraphics.length > 0) {
+							vm.AssetGraphics[index++].showImage = false;
+							if (index == vm.AssetGraphics.length) {
+								index = 0;
+							}
+							vm.AssetGraphics[index].showImage = true;
+
 						}
-						vm.AssetGraphics[index].showImage = true;
 
 
-					},400);
+					}, 400);
 
 
 
