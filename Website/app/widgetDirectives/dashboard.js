@@ -41,7 +41,7 @@
 						var position = $(element).offset();
 						position.width = $(element).width();
 
-						$("#widget-settings-" + widget.Id).css({left: position.left + 20, width: 500 });
+						$("#widget-settings-" + widget.Id).css({left: position.left + 20, top: position.top + 35, width: 500 });
 						$("#widget-settings-" + widget.Id).slideToggle();
 
 					}

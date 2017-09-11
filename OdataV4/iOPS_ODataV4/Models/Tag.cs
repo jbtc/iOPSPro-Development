@@ -57,9 +57,9 @@ namespace iOPS_ODataV4.Models
         public Nullable<bool> IsNotified { get; set; }
         public Nullable<long> SiteId { get; set; }
     
-        public virtual Asset Asset { get; set; }
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<Observation> Observations { get; set; }
         public virtual JBTStandardObservation JBTStandardObservation { get; set; }
+        public virtual Asset Asset { get; set; }
     }
 }

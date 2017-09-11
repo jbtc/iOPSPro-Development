@@ -21,6 +21,11 @@
 					console.log("vm.widget = %O", vm.widget);
 
 					console.log("vm.user = %O", vm.user);
+					//displaySetupService.SetWidgetPanelBodyDimensions(vm.widget.Id);
+
+
+
+
 
 
 					var gaugeOptions = {
@@ -80,11 +85,12 @@
 					$timeout(function () {
 						if (!vm.pca) {
 
-							var element = $("#widget-settings-" + widget.Id)[0].parentNode.parentNode.offsetParent;
+							var element = $("#widget-settings-" + vm.widget.WidgetResource.Id)[0].parentNode.parentNode.offsetParent;
 							var position = $(element).offset();
 							position.width = $(element).width();
 
-							$("#widget-settings-" + widget.Id).css({left: position.left + 20, width: 500 });
+
+							$("#widget-settings-" + vm.widget.WidgetResource.Id).css({left: position.left + 20, top: position.top + 35, width: 500 });
 							$("#widget-settings-" + vm.widget.WidgetResource.Id).slideToggle();
 						}
 					}, 200);
@@ -189,8 +195,8 @@
 							vm.zones = vm.JBTData
 								.Systems
 								.where(function (s) { return s.Type == 'Zone' && s.ParentSystemId == vm.widget.WidgetResource.TerminalSystemId }) //children of this terminal
-								.where(function (zoneSystem) { return vm.JBTData.Systems.any(function (s) { return s.Type == 'Gate' && s.ParentSystemId == zoneSystem.Id && s.Assets.any(function (gateSystemAsset) { return gateSystemAsset.Name == "PCA" }) }) }); //that have at least one gate system child
-
+								.where(function (zoneSystem) { return vm.JBTData.Systems.any(function (s) { return s.Type == 'Gate' && s.ParentSystemId == zoneSystem.Id && s.Assets.any(function (gateSystemAsset) { return gateSystemAsset.Name == "PCA" }) }) }) //that have at least one gate system child
+								.orderBy(function(z){ return z.Name});
 
 
 
@@ -225,11 +231,15 @@
 
 							console.log("Getting the gate (gate system) for the widget zone");
 
+
 							vm.gates = vm.JBTData
 								.Systems
 								.where(function (s) { return s.Type == 'Gate' })
 								.where(function (s) { return s.ParentSystemId == vm.widget.WidgetResource.ZoneSystemId })
-								.where(function (s) { return vm.JBTData.Assets.any(function (a) { return a.ParentSystemId == s.Id && a.Name == 'PCA' }) });
+								.where(function (s) { return vm.JBTData.Assets.any(function (a) { return a.ParentSystemId == s.Id && a.Name == 'PCA' }) })
+								.orderBy(function(s){return s.Name});
+
+
 
 							console.log("vm.gates = %O", vm.gates);
 
@@ -251,6 +261,7 @@
 								vm.widget.WidgetResource.$save();
 								$timeout(function () {
 									if (vm.pca) {
+										//Uncomment to cause the settings window to close after a short delay after gate selection
 										$("#widget-settings-" + vm.widget.WidgetResource.Id).slideToggle();
 									}
 								}, 400);
@@ -268,19 +279,72 @@
 
 							
 
+
 							vm.pca = vm.JBTData
 								.Assets
 								.first(function (a) { return a.ParentSystemId == vm.widget.WidgetResource.GateSystemId && a.Name == 'PCA' });
 
+
+
+
 							console.log("vm.pca = %O", vm.pca);
+
 
 							vm.widget.WidgetResource.AssetId = vm.pca.Id;
 							vm.widget.WidgetResource.$save();
 							dataService.GetAllSignalRObservationFormattedTagsForAssetIdIntoInventory(vm.pca.Id);
+
+
+							$timeout(function() {
+								
+								var temp = vm.pca.Tags.select(function(tag) {
+									return {
+										StdObsName: tag.JBTStandardObservation.Name,
+										StdObsId: tag.JBTStandardObservation.Id
+									}
+								});
+								console.log("Tag Names and Standard Names and Ids = %O",temp);
+							}, 1000);
+
+							dataService.GetIOPSResource("AssetGraphics")
+								.filter("AssetId", vm.pca.Id)
+								.filter("JBTStandardObservationId", "!=", null)
+								.query()
+								.$promise
+								.then(function (data) {
+
+
+									//Add a boolean on or off flag to each image. The view will use this to show the image or not.
+									data.select(function(i) {
+										i.showImage = false;
+									});
+									vm.AssetGraphics = data;
+
+									//Just for simulation
+									vm.AssetGraphics[0].showImage = true;
+
+									
+
+									console.log("Asset Graphics = %O", data);
+								});
 						});
 
 
 					}
+
+
+					//Simulate values changing
+					var index = 0;
+					$interval(function() {
+						//vm.showAssetModelImages = !vm.showAssetModelImages;
+						vm.AssetGraphics[index++].showImage = false;
+						if (index == vm.AssetGraphics.length) {
+							index = 0;
+						}
+						vm.AssetGraphics[index].showImage = true;
+
+
+					},400);
 
 
 
@@ -304,9 +368,9 @@
 					});
 
 					vm.state = $state;
+					displaySetupService.SetPanelBodyWithIdHeight(vm.widget.Id);
 
-
-					vm.widgetDimensions = displaySetupService.GetWidgetPanelBodyDimensions(vm.widget.Id);
+					//vm.widgetDimensions = displaySetupService.GetWidgetPanelBodyDimensions(vm.widget.Id);
 
 					//var oneDay = 24 * 60 * 60 * 1000; // hours*minutes*seconds*milliseconds
 					//vm.diffDays = Math.round(Math.abs((vm.dashboard.derivedStartDate.getTime() - new Date().getTime()) / (oneDay)));

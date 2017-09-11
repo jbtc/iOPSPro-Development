@@ -34,7 +34,6 @@ namespace iOPS_ODataV4.Models
         public virtual DbSet<UserEventType> UserEventTypes { get; set; }
         public virtual DbSet<Country> Countries { get; set; }
         public virtual DbSet<Person> People { get; set; }
-        public virtual DbSet<Asset> Assets { get; set; }
         public virtual DbSet<Company> Companies { get; set; }
         public virtual DbSet<CompanyContact> CompanyContacts { get; set; }
         public virtual DbSet<CompanyDataReader> CompanyDataReaders { get; set; }
@@ -68,8 +67,8 @@ namespace iOPS_ODataV4.Models
         public virtual DbSet<BHSAlarmHistory> BHSAlarmHistories { get; set; }
         public virtual DbSet<BHSCarrier> BHSCarriers { get; set; }
         public virtual DbSet<BHSDeviceLocationCarrierMap> BHSDeviceLocationCarrierMaps { get; set; }
-        public virtual DbSet<AssetModel> AssetModels { get; set; }
-        public virtual DbSet<AssetModelImage> AssetModelImages { get; set; }
+        public virtual DbSet<AssetGraphic> AssetGraphics { get; set; }
+        public virtual DbSet<Asset> Assets { get; set; }
     
         public virtual ObjectResult<BHSLocationThroughput_Result1> BHSLocationThroughput(Nullable<System.DateTime> beginDate, Nullable<System.DateTime> endDate, string location)
         {

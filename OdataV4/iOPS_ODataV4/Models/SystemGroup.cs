@@ -17,8 +17,8 @@ namespace iOPS_ODataV4.Models
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2214:DoNotCallOverridableMethodsInConstructors")]
         public SystemGroup()
         {
-            this.Assets = new HashSet<Asset>();
             this.Children = new HashSet<SystemGroup>();
+            this.Assets = new HashSet<Asset>();
         }
     
         public long Id { get; set; }
@@ -31,13 +31,13 @@ namespace iOPS_ODataV4.Models
         public Nullable<System.DateTime> DateLastModified { get; set; }
         public Nullable<System.DateTime> CreateDate { get; set; }
     
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
-        public virtual ICollection<Asset> Assets { get; set; }
         public virtual Company Company { get; set; }
         public virtual Site Site { get; set; }
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<SystemGroup> Children { get; set; }
         public virtual SystemGroup Parent { get; set; }
         public virtual SystemType SystemType { get; set; }
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
+        public virtual ICollection<Asset> Assets { get; set; }
     }
 }

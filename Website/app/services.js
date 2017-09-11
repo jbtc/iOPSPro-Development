@@ -76,8 +76,6 @@
 			widgetTypes: [],
 			jbtStandardObservations: [],
 			bhsJamAlarms: [],
-			assetModels: [],
-			assetModelImages: [],
 			ready: false
 
 		}
@@ -305,7 +303,7 @@
 		function LoadDataCollections() {
 
 			//Get an instance of the localDB and proceed from there.
-			indexedDBService.getDBInstance("iOPS", 15, [
+			indexedDBService.getDBInstance("iOPS", 16, [
 							{
 								dataStoreName: "Companies",
 								keyName: "Id"
@@ -316,14 +314,6 @@
 							},
 							{
 								dataStoreName: "Assets",
-								keyName: "Id"
-							},
-							{
-								dataStoreName: "AssetModels",
-								keyName: "Id"
-							},
-							{
-								dataStoreName: "AssetModelImages",
 								keyName: "Id"
 							},
 							{
@@ -400,15 +390,6 @@
 
 					}),
 
-					service.GetIOPSCollection("AssetModels").then(function (data) {
-						cache.assetModels = data;
-
-					}),
-
-					service.GetIOPSCollection("AssetModelImages").then(function (data) {
-						cache.assetModelImages = data;
-
-					}),
 
 					GetODataAssets().then(function (data) {
 						cache.assets = data.select(function (d) {
@@ -544,26 +525,12 @@
 									return tag;
 								});
 
-							asset.AssetModel = cache.assetModels.first(function (m) { return asset.AssetModelId == m.Id });
-							if (asset.AssetModel) {
-								asset.AssetModel.Asset = asset;							
-							}
 
 							return asset;
 
 						}),
 
 
-
-						AssetModels: cache.assetModels.select(function (m) {
-							m.AssetModelImages = cache.assetModelImages
-												.where(function (mi) { return mi.AssetModelId == m.Id })
-												.select(function (mi) {
-													mi.AssetModel = m;
-													return mi;
-												});
-							return m;
-						}),
 
 						Tags: cache.tags.select(function (tag) {
 
@@ -1029,14 +996,23 @@
 
 			var asset = cache.assets.first(function (a) { return a.Id == assetId });
 
+			if (asset.AllTagsLoaded) {
+				return $q.when(true);
+			}
+
 			//The asset object in the dataService might have already loaded all its tags into the running inventory. If it has, we do nothing.
 			if (!asset.AllTagsLoaded) {
-				service.GetIOPSResource("Tags")
+				return service.GetIOPSResource("Tags")
 					.filter("AssetId", assetId)
 					.query()
 					.$promise
 					.then(function (data) {
-						data.select(function (tag) {
+
+
+
+						data
+							.where(function(tag) {return tag.Name.indexOf('|') > 0}) //Only the new format tags have pipe symbols in the name.
+							.select(function (tag) {
 
 							var site = cache.sites.first(function (s) { return s.Id == tag.SiteId });
 
@@ -1053,7 +1029,6 @@
 								Quality: "true",
 								JBTStandardObservation: cache.jbtStandardObservations.first(function (s) { return s.Id == tag.JBTStandardObservationId }),
 								NumericValue: +tag.LastObservationTextValue
-
 							}
 
 							LoadSignalRObservationToInventory(signalRData);
@@ -1124,7 +1099,7 @@
 				if (tag) {
 
 					//console.log("Tag found in inventory = %O", tag);
-					var observationDate = utilityService.GetNonUTCQueryDate(obs.Date);
+					var observationDate = utilityService.GetLocalDateFromUTCDate(obs.Date);
 
 
 					if (!tag.Observations) {
@@ -1171,7 +1146,7 @@
 					//We did not find the tag in the inventory.
 					//Add the tag to the cache with an attached metadata object
 					AttachBlankMetadataObject(obs);
-					obs.LastObservationDate = utilityService.GetNonUTCQueryDate(obs.Date);
+					obs.LastObservationDate = utilityService.GetLocalDateFromUTCDate(obs.Date);
 					obs.LastObservationTextValue = obs.Value;
 					obs.LastObservationNumericValue = +obs.Value;
 					//Attach the asset to the tag, and attach the tags collection to the asset - IF the asset is found
@@ -2955,6 +2930,9 @@
 
 				.fail(function (error) {
 					console.log("SignalR Error " + error);
+					$timeout(function() {
+						HubStart();
+					}, 1000);
 				}
 			);
 

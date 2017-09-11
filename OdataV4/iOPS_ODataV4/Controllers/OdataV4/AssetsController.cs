@@ -111,13 +111,6 @@ namespace iOPS_ODataV4.Controllers.OdataV4
             return SingleResult.Create(db.Assets.Where(m => m.Id == key).Select(m => m.AssetType));
         }
 
-        // GET: odata/Assets(5)/AssetModel
-        [EnableQuery]
-        public SingleResult<AssetModel> GetAssetModel([FromODataUri] long key)
-        {
-            return SingleResult.Create(db.Assets.Where(m => m.Id == key).Select(m => m.AssetModel));
-        }
-
         // GET: odata/Assets(5)/AssetCondition
         [EnableQuery]
         public SingleResult<AssetCondition> GetAssetCondition([FromODataUri] long key)
@@ -130,6 +123,13 @@ namespace iOPS_ODataV4.Controllers.OdataV4
         public IQueryable<Tag> GetTags([FromODataUri] long key)
         {
             return db.Assets.Where(m => m.Id == key).SelectMany(m => m.Tags);
+        }
+
+        // GET: odata/Assets(5)/AssetGraphics
+        [EnableQuery]
+        public IQueryable<AssetGraphic> GetAssetGraphics([FromODataUri] long key)
+        {
+            return db.Assets.Where(m => m.Id == key).SelectMany(m => m.AssetGraphics);
         }
 
         // GET: odata/Assets(5)/System

@@ -17,12 +17,12 @@ namespace iOPS_ODataV4.Models
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2214:DoNotCallOverridableMethodsInConstructors")]
         public Company()
         {
-            this.Assets = new HashSet<Asset>();
             this.CompanyContacts = new HashSet<CompanyContact>();
             this.CompanyDataReaders = new HashSet<CompanyDataReader>();
             this.SiteCompanies = new HashSet<SiteCompany>();
             this.Systems = new HashSet<SystemGroup>();
             this.CustomJBTStandardObservations = new HashSet<CustomJBTStandardObservation>();
+            this.Assets = new HashSet<Asset>();
         }
     
         public long Id { get; set; }
@@ -36,8 +36,6 @@ namespace iOPS_ODataV4.Models
         public string ODataAccessToken { get; set; }
     
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
-        public virtual ICollection<Asset> Assets { get; set; }
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<CompanyContact> CompanyContacts { get; set; }
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<CompanyDataReader> CompanyDataReaders { get; set; }
@@ -48,5 +46,7 @@ namespace iOPS_ODataV4.Models
         public virtual ICollection<SystemGroup> Systems { get; set; }
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<CustomJBTStandardObservation> CustomJBTStandardObservations { get; set; }
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
+        public virtual ICollection<Asset> Assets { get; set; }
     }
 }

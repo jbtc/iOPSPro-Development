@@ -26,8 +26,7 @@ namespace iOPS_ODataV4
             builder.EntitySet<Asset>("Assets");
             builder.EntitySet<AssetCondition>("AssetConditions");
             builder.EntitySet<AssetType>("AssetTypes");
-            builder.EntitySet<AssetModel>("AssetModels");
-            builder.EntitySet<AssetModelImage>("AssetModelImages");
+            builder.EntitySet<AssetGraphic>("AssetGraphics");
             builder.EntitySet<AuthorizableActivity>("AuthorizableActivities");
             builder.EntitySet<BHSBagTagScan>("BHSBagTagScans");
             builder.EntitySet<Company>("Companies");

@@ -12,15 +12,15 @@ namespace iOPS_ODataV4.Models
     using System;
     using System.Collections.Generic;
     
-    public partial class AssetModelImage
+    public partial class AssetGraphic
     {
         public long Id { get; set; }
-        public Nullable<long> AssetModelId { get; set; }
-        public string ImageFileName { get; set; }
+        public Nullable<long> AssetId { get; set; }
+        public string ImageURL { get; set; }
         public Nullable<long> JBTStandardObservationId { get; set; }
         public string ValueWhenVisible { get; set; }
         public string ValueWhenInvisible { get; set; }
     
-        public virtual AssetModel AssetModel { get; set; }
+        public virtual Asset Asset { get; set; }
     }
 }

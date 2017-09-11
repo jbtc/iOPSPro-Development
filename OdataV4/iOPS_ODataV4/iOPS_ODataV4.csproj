@@ -233,8 +233,7 @@
     <Compile Include="App_Start\RouteConfig.cs" />
     <Compile Include="App_Start\WebApiConfig.cs" />
     <Compile Include="Controllers\OdataV4\AssetConditionsController.cs" />
-    <Compile Include="Controllers\OdataV4\AssetModelImagesController.cs" />
-    <Compile Include="Controllers\OdataV4\AssetModelsController.cs" />
+    <Compile Include="Controllers\OdataV4\AssetGraphicsController.cs" />
     <Compile Include="Controllers\OdataV4\AssetsController.cs" />
     <Compile Include="Controllers\OdataV4\AssetTypesController.cs" />
     <Compile Include="Controllers\OdataV4\AuthorizableActivitiesController.cs" />
@@ -312,10 +311,7 @@
     <Compile Include="Models\AssetCondition.cs">
       <DependentUpon>Model1.tt</DependentUpon>
     </Compile>
-    <Compile Include="Models\AssetModel.cs">
-      <DependentUpon>Model1.tt</DependentUpon>
-    </Compile>
-    <Compile Include="Models\AssetModelImage.cs">
+    <Compile Include="Models\AssetGraphic.cs">
       <DependentUpon>Model1.tt</DependentUpon>
     </Compile>
     <Compile Include="Models\AssetType.cs">

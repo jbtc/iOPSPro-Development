@@ -17,7 +17,6 @@ namespace iOPS_ODataV4.Models
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2214:DoNotCallOverridableMethodsInConstructors")]
         public Site()
         {
-            this.Assets = new HashSet<Asset>();
             this.SiteCompanies = new HashSet<SiteCompany>();
             this.SiteDataReaders = new HashSet<SiteDataReader>();
             this.Systems = new HashSet<SystemGroup>();
@@ -30,6 +29,7 @@ namespace iOPS_ODataV4.Models
             this.TokenTrackers = new HashSet<BHSTokenTracker>();
             this.Tokens = new HashSet<BHSToken>();
             this.BHSAlarmHistories = new HashSet<BHSAlarmHistory>();
+            this.Assets = new HashSet<Asset>();
         }
     
         public long Id { get; set; }
@@ -41,8 +41,6 @@ namespace iOPS_ODataV4.Models
         public Nullable<double> GoogleLatitude { get; set; }
         public Nullable<double> GoogleLongitude { get; set; }
     
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
-        public virtual ICollection<Asset> Assets { get; set; }
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<SiteCompany> SiteCompanies { get; set; }
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
@@ -67,5 +65,7 @@ namespace iOPS_ODataV4.Models
         public virtual ICollection<BHSToken> Tokens { get; set; }
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<BHSAlarmHistory> BHSAlarmHistories { get; set; }
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
+        public virtual ICollection<Asset> Assets { get; set; }
     }
 }

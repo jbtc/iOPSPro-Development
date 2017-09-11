@@ -23,33 +23,31 @@ namespace iOPS_ODataV4.Controllers.OdataV4
     using System.Web.OData.Extensions;
     using iOPS_ODataV4.Models;
     ODataConventionModelBuilder builder = new ODataConventionModelBuilder();
-    builder.EntitySet<AssetModel>("AssetModels");
+    builder.EntitySet<AssetGraphic>("AssetGraphics");
     builder.EntitySet<Asset>("Assets"); 
-    builder.EntitySet<AssetModelImage>("AssetModelImages"); 
     config.MapODataServiceRoute("odata", "odata", builder.GetEdmModel());
     */
-    public class AssetModelsController : ODataController
+    public class AssetGraphicsController : ODataController
     {
         private iOPS_NormalizedEntities db = new iOPS_NormalizedEntities();
 
-        // GET: odata/AssetModels
+        // GET: odata/AssetGraphics
         [EnableQuery]
-        public IQueryable<AssetModel> GetAssetModels()
+        public IQueryable<AssetGraphic> GetAssetGraphics()
         {
-            return db.AssetModels;
+            return db.AssetGraphics;
         }
 
-        // GET: odata/AssetModels(5)
+        // GET: odata/AssetGraphics(5)
         [EnableQuery]
-        public SingleResult<AssetModel> GetAssetModel([FromODataUri] long key)
+        public SingleResult<AssetGraphic> GetAssetGraphic([FromODataUri] long key)
         {
-            return SingleResult.Create(db.AssetModels.Where(assetModel => assetModel.Id == key));
+            return SingleResult.Create(db.AssetGraphics.Where(assetGraphic => assetGraphic.Id == key));
         }
 
+        // POST: odata/AssetGraphic
 
-        // POST: odata/AssetModel
-
-        public async Task<IHttpActionResult> Post(AssetModel entity)
+        public async Task<IHttpActionResult> Post(AssetGraphic entity)
         {
             if (!ModelState.IsValid)
             {
@@ -59,43 +57,37 @@ namespace iOPS_ODataV4.Controllers.OdataV4
 
             if (entity.Id < 0)
             {
-                var delEntity = new AssetModel { Id = -entity.Id };
-                db.AssetModels.Attach(delEntity);
-                db.AssetModels.Remove(delEntity);
+                var delEntity = new AssetGraphic { Id = -entity.Id };
+                db.AssetGraphics.Attach(delEntity);
+                db.AssetGraphics.Remove(delEntity);
                 await db.SaveChangesAsync();
                 return StatusCode(HttpStatusCode.NoContent);
             }
 
-            var modifiedEntity = await db.AssetModels.FindAsync(entity.Id);
+            var modifiedEntity = await db.AssetGraphics.FindAsync(entity.Id);
 
             if (modifiedEntity != null)
             {
                 db.Entry(modifiedEntity).State = EntityState.Detached;
-                db.AssetModels.Attach(entity);
+                db.AssetGraphics.Attach(entity);
                 db.Entry(entity).State = EntityState.Modified;
                 await db.SaveChangesAsync();
                 return Updated(entity);
 
             }
-            modifiedEntity = db.AssetModels.Add(entity);
+            modifiedEntity = db.AssetGraphics.Add(entity);
 
             await db.SaveChangesAsync();
 
             return Created(modifiedEntity);
         }
 
-        // GET: odata/AssetModels(5)/Assets
-        [EnableQuery]
-        public IQueryable<Asset> GetAssets([FromODataUri] long key)
-        {
-            return db.AssetModels.Where(m => m.Id == key).SelectMany(m => m.Assets);
-        }
 
-        // GET: odata/AssetModels(5)/AssetModelImages
+        // GET: odata/AssetGraphics(5)/Asset
         [EnableQuery]
-        public IQueryable<AssetModelImage> GetAssetModelImages([FromODataUri] long key)
+        public SingleResult<Asset> GetAsset([FromODataUri] long key)
         {
-            return db.AssetModels.Where(m => m.Id == key).SelectMany(m => m.AssetModelImages);
+            return SingleResult.Create(db.AssetGraphics.Where(m => m.Id == key).Select(m => m.Asset));
         }
 
         protected override void Dispose(bool disposing)
@@ -107,9 +99,9 @@ namespace iOPS_ODataV4.Controllers.OdataV4
             base.Dispose(disposing);
         }
 
-        private bool AssetModelExists(long key)
+        private bool AssetGraphicExists(long key)
         {
-            return db.AssetModels.Count(e => e.Id == key) > 0;
+            return db.AssetGraphics.Count(e => e.Id == key) > 0;
         }
     }
 }
