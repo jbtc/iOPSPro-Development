@@ -81,6 +81,11 @@
 		}
 
 
+		
+
+		
+
+
 		var JBTData = {};
 
 
@@ -1704,10 +1709,11 @@
 
 
 		service.SetPanelBodyWithIdHeight = function (id) {
-
+			//console.log("Id = " + id);
 			$timeout(function () {
 				$("#" + id).each(function (index, element) {
 
+					//console.log("Element = %O", element);
 					$(element).css('height', $(element)[0].parentNode.offsetHeight - 40);
 					$(element).css('offsetHeight', $(element)[0].parentNode.offsetHeight - 40);
 
@@ -2423,7 +2429,7 @@
 	"use strict";
 
 
-	function SignalR($rootScope, $window, store, $interval) {
+	function SignalR($rootScope, $window, store, $interval, $timeout, $q) {
 
 
 		//console.log("SignalR service created");
@@ -2785,91 +2791,116 @@
 			//Signal down the chain locally. 
 			//console.log("Broadcasting " + code);
 			$rootScope.$broadcast(code, item);
-			service.SignalOnlyOtherClients(code, item);
+			return service.SignalOnlyOtherClients(code, item);
 		}
 
 		service.SignalAllClientsInGroup = function (groupName, code, item) {
 			//Signal down the chain locally. 
 			console.log("Broadcasting " + code);
 			$rootScope.$broadcast(code, item);
-			service.SignalOnlyOtherClientsInGroup(groupName, code, item);
+			return service.SignalOnlyOtherClientsInGroup(groupName, code, item);
 		}
 
 		service.SignalOnlyOtherClients = function (code, item) {
 			//console.log("Sending SignalR to all clients. Code = " + code + " object = %O", item);
+			var deferred = $q.defer();
 			$.connection.hub.start({ transport: ["webSockets", "serverSentEvents", "longPolling"] })
 				.done(function () {
 					var connId = $.connection.hub.id;
 
 
 					//Signal everybody else.
-					signalRHub.server.notifyOtherClients(code, item);
 					LocalLogOut(code, item);
+					return signalRHub.server.notifyOtherClients(code, item);
 
 				})
 				.fail(function (error) {
 					console.log("SignalR Error " + error);
+					deferred.reject("SignalR Error " + error);
 				});
+
+			return deferred.promise;
 		}
 
 		service.SignalOnlyOtherClientsInGroup = function (groupName, code, item) {
 			//console.log("Sending SignalR to all clients. Code = " + code + " object = %O", item);
+			var deferred = $q.defer();
+
 			$.connection.hub.start({ transport: ["webSockets", "serverSentEvents", "longPolling"] })
 				.done(function () {
 					var connId = $.connection.hub.id;
 
-
 					//Signal everybody else.
-					signalRHub.server.notifyOtherClientsInGroup(groupName, code, item);
 					LocalLogOut(code, item);
+					return signalRHub.server.notifyOtherClientsInGroup(groupName, code, item);
 
 				})
 				.fail(function (error) {
 					console.log("SignalR Error " + error);
+					deferred.reject("SignalR Error");
 				});
+			return deferred.promise;
 		}
 
 
 		service.JoinGroup = function (groupName) {
+
+			var deferred = $q.defer();
+
 			$.connection.hub.start({ transport: ["webSockets", "serverSentEvents", "longPolling"] })
 				.done(function () {
 					var connId = $.connection.hub.id;
 
 
-					signalRHub.server.joinGroup(groupName);
+					signalRHub.server.joinGroup(groupName).then(function() {
+						deferred.resolve();
+					});
 					//console.log("Joined signalR Group " + groupName);
 
 				})
 				.fail(function (error) {
 					console.log("SignalR Error " + error);
+					deferred.reject("Could not start signalR Hub");
 				});
+
+			return deferred.promise;
 		}
 		service.LeaveGroup = function (groupName) {
+
+			var deferred = $q.defer();
+
 			$.connection.hub.start({ transport: ["webSockets", "serverSentEvents", "longPolling"] })
 				.done(function () {
 					var connId = $.connection.hub.id;
 
 
 					//Signal everybody else.
-					signalRHub.server.leaveGroup(groupName);
+					return signalRHub.server.leaveGroup(groupName);
 
 				})
 				.fail(function (error) {
 					console.log("SignalR Error " + error);
+					deferred.reject("SignalR Error " + error);
 				});
+
+			return deferred.promise;
 		}
 
 		service.SignalSpecificClient = function (clientId, code, item) {
 			//console.log("Local->Client " + clientId +  " Code:" + code + " Data:%O", item);
+			var deferred = $q.defer();
+
 			$.connection.hub.start({ transport: ["webSockets", "serverSentEvents", "longPolling"] })
 				.done(function () {
 					var connId = $.connection.hub.id;
-					signalRHub.server.notifySpecificClient(clientId, code, item);
 					LocalLogOut(code, item);
+					return signalRHub.server.notifySpecificClient(clientId, code, item);
 				})
 				.fail(function (error) {
 					console.log("SignalR Error " + error);
+					deferred.reject("SignalR Error " + error);
 				});
+			return deferred.promise;
 		}
 
 		service.SendEmail = function (emailData) {
@@ -2882,6 +2913,8 @@
 					console.log("SignalR Error " + error);
 				});
 		}
+
+		
 
 
 		function ConsoleLogAllConnectedClients() {
@@ -2909,6 +2942,19 @@
 
 		});
 
+		//Conduct a signalR round trip timing test
+		function SignalRPerformanceTest() {
+
+			startTime = performance.now();
+			console.log("signalR Client = %O", service.Me);
+			service.SignalSpecificClient(service.Me.ClientId, "signalRPerformanceTest", true);
+
+
+		}
+
+		$rootScope.$on("signalRPerformanceTest", function(event, obj) {
+			console.log("SignalR Trip Time = " + (performance.now() - startTime)/2);
+		});
 
 		//IMPORTANT!!!! - This has to be defined AFTER THE HUB IS DEFINED - PLACE THE START FUNCTION NEAR THE END OF THE SERVICE DEFINITION - WHERE IT IS NOW -     DO NOT MOVE IT TO THE TOP.
 		function HubStart() {
@@ -2916,13 +2962,14 @@
 
 				.done(function () {
 					//console.log("SignalR start is done.");
-					//console.log("Local ClientId:" + $.connection.hub.id);
+					console.log("Local ClientId:" + $.connection.hub.id);
 					var dataObject = GetClientDataObject();
 					if (dataObject) {
 						service.Me = dataObject;
 						SaveUserByClientId(dataObject.ClientId, dataObject);
 						service.SignalAllClients("System.ClientConnectionEstablished", GetClientDataObject());
 					}
+					SignalRPerformanceTest();
 
 
 
@@ -2947,7 +2994,7 @@
 
 	angular
 		.module("app")
-		.factory('signalR', ["$rootScope", "$window", "store", "$interval", SignalR]);
+		.factory('signalR', ["$rootScope", "$window", "store", "$interval", "$timeout", "$q", SignalR]);
 
 
 

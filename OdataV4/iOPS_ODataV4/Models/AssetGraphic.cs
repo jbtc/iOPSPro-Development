@@ -19,7 +19,6 @@ namespace iOPS_ODataV4.Models
         public string ImageURL { get; set; }
         public Nullable<long> JBTStandardObservationId { get; set; }
         public string ValueWhenVisible { get; set; }
-        public string ValueWhenInvisible { get; set; }
     
         public virtual Asset Asset { get; set; }
     }

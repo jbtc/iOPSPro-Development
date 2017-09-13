@@ -17,8 +17,8 @@ namespace iOPS_ODataV4.Models
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2214:DoNotCallOverridableMethodsInConstructors")]
         public Asset()
         {
-            this.AssetGraphics = new HashSet<AssetGraphic>();
             this.Tags = new HashSet<Tag>();
+            this.AssetGraphics = new HashSet<AssetGraphic>();
         }
     
         public long Id { get; set; }
@@ -47,6 +47,8 @@ namespace iOPS_ODataV4.Models
         public Nullable<long> ParentSystemId { get; set; }
         public Nullable<long> ParentAssetId { get; set; }
         public string BaseUnitImageURL { get; set; }
+        public string Make { get; set; }
+        public string Program { get; set; }
     
         public virtual Company Company { get; set; }
         public virtual AssetType AssetType { get; set; }
@@ -54,8 +56,8 @@ namespace iOPS_ODataV4.Models
         public virtual Site Site { get; set; }
         public virtual SystemGroup System { get; set; }
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
-        public virtual ICollection<AssetGraphic> AssetGraphics { get; set; }
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<Tag> Tags { get; set; }
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
+        public virtual ICollection<AssetGraphic> AssetGraphics { get; set; }
     }
 }

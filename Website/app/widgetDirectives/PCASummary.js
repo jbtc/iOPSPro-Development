@@ -25,9 +25,6 @@
 
 
 
-
-
-
 					var gaugeOptions = {
 
 						chart: {
@@ -262,7 +259,7 @@
 								$timeout(function () {
 									if (vm.pca) {
 										//Uncomment to cause the settings window to close after a short delay after gate selection
-										$("#widget-settings-" + vm.widget.WidgetResource.Id).slideToggle();
+										//$("#widget-settings-" + vm.widget.WidgetResource.Id).slideToggle();
 									}
 								}, 400);
 							}
@@ -326,6 +323,66 @@
 
 									}
 
+									$scope.$$postDigest(function () {
+										displaySetupService.SetPanelBodyWithIdHeight(vm.widget.Id);
+										$scope.$$postDigest(function () {
+											$(function () {
+												$("#accordion" + vm.widget.Id)
+												  .accordion({
+												  	header: "> div > h3",
+												  	collapsible: true,
+												  	heightStyle: "fill"
+
+												  })
+												  .sortable({
+												  	axis: "y",
+												  	handle: "h3",
+												  	stop: function (event, ui) {
+												  		// IE doesn't register the blur when sorting
+												  		// so trigger focusout handlers to remove .ui-state-focus
+												  		console.log("Stop Drag event = %O", event);
+												  		console.log("Stop Drag ui = %O", ui);
+												  		ui.item.children("h3").triggerHandler("focusout");
+
+												  		// Refresh accordion to handle new order
+												  		$(this).accordion("refresh");
+												  	}
+												  });
+
+
+
+
+
+											});
+
+											$scope.$$postDigest(function () {
+
+												Split(['#containerData' + vm.widget.Id, '#containerGraphics' + vm.widget.Id],
+													{
+														elementStyle: function (dimension, size, gutterSize) {
+															return {
+																'flex-basis': 'calc(' + size + '% - ' + gutterSize + 'px)'
+															}
+														},
+														gutterStyle: function (dimension, gutterSize) {
+															return {
+																'flex-basis': gutterSize + 'px',
+																'background-image': "url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAUAAAAeCAYAAADkftS9AAAAIklEQVQoU2M4c+bMfxAGAgYYmwGrIIiDjrELjpo5aiZeMwF+yNnOs5KSvgAAAABJRU5ErkJggg==')",
+																'background-repeat': 'no-repeat',
+																'background-position': '50%',
+																'cursor': 'col-resize'
+															}
+														},
+														sizes: [30, 70],
+														minSize: 200
+													});
+											});
+
+
+										});
+
+
+									});
 
 
 									//console.log("Asset Graphics = %O", data);
@@ -335,15 +392,22 @@
 
 					}
 
+					function SetupAccordion() {
+						
+					}
+
 
 					//Simulate values changing
 					var index = 0;
 					$interval(function () {
 						//vm.showAssetModelImages = !vm.showAssetModelImages;
 						if (vm.AssetGraphics && vm.AssetGraphics.length > 0) {
-							vm.AssetGraphics[index++].showImage = false;
-							if (index == vm.AssetGraphics.length) {
-								index = 0;
+							if (vm.AssetGraphics[index]) {
+								vm.AssetGraphics[index++].showImage = false;
+								if (index == vm.AssetGraphics.length) {
+									index = 0;
+								}
+
 							}
 							vm.AssetGraphics[index].showImage = true;
 
@@ -360,7 +424,7 @@
 					$scope.$on("WidgetResize", function (event, resizedWidgetId) {
 
 						if (vm.widget.Id == resizedWidgetId || resizedWidgetId == 0) {
-
+							displaySetupService.SetPanelBodyWithIdHeight(vm.widget.Id);
 						}
 					});
 
@@ -374,7 +438,16 @@
 					});
 
 					vm.state = $state;
-					displaySetupService.SetPanelBodyWithIdHeight(vm.widget.Id);
+
+
+					$scope.$$postDigest(function () {
+						displaySetupService.SetPanelBodyWithIdHeight(vm.widget.Id);
+
+					});
+
+
+
+
 
 					//vm.widgetDimensions = displaySetupService.GetWidgetPanelBodyDimensions(vm.widget.Id);
 
