@@ -582,6 +582,8 @@
           <Property Name="TerminalSystemId" Type="bigint" />
           <Property Name="ZoneSystemId" Type="bigint" />
           <Property Name="GateSystemId" Type="bigint" />
+          <Property Name="SplitLeftPercentage" Type="float" />
+          <Property Name="SplitRightPercentage" Type="float" />
         </EntityType>
         <EntityType Name="WidgetType">
           <Key>
@@ -2592,6 +2594,8 @@
           <Property Name="TerminalSystemId" Type="Int64" />
           <Property Name="ZoneSystemId" Type="Int64" />
           <Property Name="GateSystemId" Type="Int64" />
+          <Property Name="SplitLeftPercentage" Type="Double" />
+          <Property Name="SplitRightPercentage" Type="Double" />
         </EntityType>
         <EntityType Name="WidgetType">
           <Key>
@@ -3916,6 +3920,8 @@
           <EntitySetMapping Name="Widgets">
             <EntityTypeMapping TypeName="iOPS_NormalizedModel.Widget">
               <MappingFragment StoreEntitySet="Widget">
+                <ScalarProperty Name="SplitRightPercentage" ColumnName="SplitRightPercentage" />
+                <ScalarProperty Name="SplitLeftPercentage" ColumnName="SplitLeftPercentage" />
                 <ScalarProperty Name="GateSystemId" ColumnName="GateSystemId" />
                 <ScalarProperty Name="ZoneSystemId" ColumnName="ZoneSystemId" />
                 <ScalarProperty Name="TerminalSystemId" ColumnName="TerminalSystemId" />

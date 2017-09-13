@@ -7,7 +7,7 @@
                 <div id="accordion{{vm.widget.Id}}" style="height: 100%;">
                     <div class="group">
                         <h3>Tag Data Details</h3>
-                        <div style="overflow-y: auto;">
+                        <div style="overflow-y: auto; height: 100%;">
                             <table class="table table-condensed table-striped">
                                 <thead>
                                     <tr>
@@ -31,8 +31,8 @@
                                         <td>
                                             {{tag.LastObservationTextValue}}
                                         </td>
-                                        <td>
-                                            {{tag.LastObservationDate | date:'MM/dd HH:mm:ss.ss'}}
+                                        <td nowrap>
+                                            {{tag.LastObservationDate | date:'MM/dd HH:mm:ss'}}
                                         </td>
                                     </tr>
                                 </tbody>
