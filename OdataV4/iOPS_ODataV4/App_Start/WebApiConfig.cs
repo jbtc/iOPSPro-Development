@@ -57,6 +57,7 @@ namespace iOPS_ODataV4
             builder.EntitySet<DatabaseMailQueue>("DatabaseMailQueues");
             builder.EntitySet<Widget>("Widgets");
             builder.EntitySet<WidgetType>("WidgetTypes");
+            builder.EntitySet<WidgetCustomTagDisplayOrder>("WidgetCustomTagDisplayOrders");
             builder.EntitySet<BHSDeviceLocation>("BHSDeviceLocations");
             builder.EntitySet<BHSCurrentAlarm>("BHSCurrentAlarms");
             builder.EntitySet<DashboardTimeScope>("DashboardTimeScopes");

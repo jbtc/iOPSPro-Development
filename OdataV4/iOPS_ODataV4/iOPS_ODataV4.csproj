@@ -264,6 +264,7 @@
     <Compile Include="Controllers\OdataV4\TagsController.cs" />
     <Compile Include="Controllers\OdataV4\UnitsController.cs" />
     <Compile Include="Controllers\OdataV4\UserAuthorizedActivitiesController.cs" />
+    <Compile Include="Controllers\OdataV4\WidgetCustomTagDisplayOrdersController.cs" />
     <Compile Include="Controllers\OdataV4\WidgetsController.cs" />
     <Compile Include="Controllers\OdataV4\WidgetTypesController.cs" />
     <Compile Include="Controllers\WebAPI\BHSActiveAlarmSummaryByAlarmTypeAndDayWithAverageDurationInSecondsController.cs" />
@@ -555,6 +556,9 @@
       <DependentUpon>Model1.tt</DependentUpon>
     </Compile>
     <Compile Include="Models\Widget.cs">
+      <DependentUpon>Model1.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Models\WidgetCustomTagDisplayOrder.cs">
       <DependentUpon>Model1.tt</DependentUpon>
     </Compile>
     <Compile Include="Models\WidgetType.cs">

@@ -1082,6 +1082,7 @@
 			LoadSignalRObservationToInventory(signalRData);
 
 		}
+		var tag = null;
 
 		function LoadSignalRObservationToInventory(obs) {
 			//+Load the tag represented by the observation into the local inventory of tags.
@@ -1089,7 +1090,6 @@
 				//Scan the inventory for it.
 
 
-				var tag;
 				if (obs.TagId) {
 					//console.log("Checking for tagid");
 					tag = cache.tags.first(function (et) { return et.TagId == obs.TagId });
@@ -1171,11 +1171,15 @@
 
 					cache.tags.push(obs);
 					MetadataCounterUpdate(obs);
+
+					tag = obs;
 					//console.log("New Tag Entry = %)",obs);
 
 
 				}
 			}
+
+			$rootScope.$broadcast("dataService.TagUpdate", tag);
 
 		}
 

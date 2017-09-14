@@ -91,6 +91,13 @@ namespace iOPS_ODataV4.Controllers.OdataV4
             return db.JBTStandardObservations.Where(m => m.Id == key).SelectMany(m => m.CustomJBTStandardObservations);
         }
 
+        // GET: odata/JBTStandardObservations(5)/WidgetCustonTagDisplayOrders
+        [EnableQuery]
+        public IQueryable<WidgetCustomTagDisplayOrder> GetWidgetCustomTagDisplayOrders([FromODataUri] long key)
+        {
+            return db.JBTStandardObservations.Where(m => m.Id == key).SelectMany(m => m.WidgetCustomTagDisplayOrders);
+        }
+
         // GET: odata/JBTStandardObservations(5)/Unit
         [EnableQuery]
         public SingleResult<Unit> GetUnit([FromODataUri] long key)

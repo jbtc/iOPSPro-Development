@@ -12,6 +12,7 @@ using System.Web.ModelBinding;
 using System.Web.OData;
 using System.Web.OData.Query;
 using System.Web.OData.Routing;
+using iOPS_ODataV4.Filters;
 using iOPS_ODataV4.Models;
 
 namespace iOPS_ODataV4.Controllers.OdataV4
@@ -103,6 +104,14 @@ namespace iOPS_ODataV4.Controllers.OdataV4
         {
             return SingleResult.Create(db.Widgets.Where(m => m.Id == key).Select(m => m.WidgetType));
         }
+
+        // GET: odata/Widgets(5)/WidgetCustomTagDisplayOrders
+        [EnableQuery(MaxExpansionDepth = 100)]
+        public IQueryable<WidgetCustomTagDisplayOrder> GetWidgetCustomTagDisplayOrders([FromODataUri] long key)
+        {
+            return db.Widgets.Where(m => m.Id == key).SelectMany(m => m.WidgetCustomTagDisplayOrders);
+        }
+
 
         protected override void Dispose(bool disposing)
         {

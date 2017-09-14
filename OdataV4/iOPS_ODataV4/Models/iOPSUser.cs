@@ -22,6 +22,7 @@ namespace iOPS_ODataV4.Models
             this.CompanyDataReaders = new HashSet<CompanyDataReader>();
             this.SiteDataReaders = new HashSet<SiteDataReader>();
             this.Dashboards = new HashSet<Dashboard>();
+            this.WidgetCustomTagDisplayOrders = new HashSet<WidgetCustomTagDisplayOrder>();
         }
     
         public long Id { get; set; }
@@ -50,5 +51,7 @@ namespace iOPS_ODataV4.Models
         public virtual ICollection<SiteDataReader> SiteDataReaders { get; set; }
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<Dashboard> Dashboards { get; set; }
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
+        public virtual ICollection<WidgetCustomTagDisplayOrder> WidgetCustomTagDisplayOrders { get; set; }
     }
 }
