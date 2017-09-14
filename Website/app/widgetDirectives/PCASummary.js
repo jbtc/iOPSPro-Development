@@ -25,9 +25,6 @@
 
 
 
-
-
-
 					var gaugeOptions = {
 
 						chart: {
@@ -262,7 +259,7 @@
 								$timeout(function () {
 									if (vm.pca) {
 										//Uncomment to cause the settings window to close after a short delay after gate selection
-										$("#widget-settings-" + vm.widget.WidgetResource.Id).slideToggle();
+										//$("#widget-settings-" + vm.widget.WidgetResource.Id).slideToggle();
 									}
 								}, 400);
 							}
@@ -326,10 +323,88 @@
 
 									}
 
-
+									$timeout(function() {
+										SetupAccordion();
+										
+									},50);
 
 									//console.log("Asset Graphics = %O", data);
 								});
+						});
+
+
+					}
+
+					function SetupAccordion() {
+						$scope.$$postDigest(function () {
+							displaySetupService.SetPanelBodyWithIdHeight(vm.widget.Id);
+							$scope.$$postDigest(function () {
+								$(function () {
+									$("#accordion" + vm.widget.Id)
+									  .accordion({
+									  	header: "> div > h3",
+									  	collapsible: true,
+									  	heightStyle: "fill"
+
+									  })
+									  .sortable({
+									  	axis: "y",
+									  	handle: "h3",
+									  	stop: function (event, ui) {
+									  		// IE doesn't register the blur when sorting
+									  		// so trigger focusout handlers to remove .ui-state-focus
+									  		console.log("Stop Drag event = %O", event);
+									  		console.log("Stop Drag ui = %O", ui);
+									  		ui.item.children("h3").triggerHandler("focusout");
+
+									  		// Refresh accordion to handle new order
+									  		$(this).accordion("refresh");
+									  	}
+									  });
+
+
+
+
+
+								});
+
+								$scope.$$postDigest(function () {
+
+									vm.widget.WidgetResource.SplitLeftPercentage = vm.widget.WidgetResource.SplitLeftPercentage || 50; 
+									vm.widget.WidgetResource.SplitRightPercentage = vm.widget.WidgetResource.SplitRightPercentage || 50; 
+
+									vm.splitter = Split(['#containerData' + vm.widget.Id, '#containerGraphics' + vm.widget.Id],
+										{
+											elementStyle: function (dimension, size, gutterSize) {
+												return {
+													'flex-basis': 'calc(' + size + '% - ' + gutterSize + 'px)'
+												}
+											},
+											gutterStyle: function (dimension, gutterSize) {
+												return {
+													'flex-basis': gutterSize + 'px',
+													'background-image': "url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAUAAAAeCAYAAADkftS9AAAAIklEQVQoU2M4c+bMfxAGAgYYmwGrIIiDjrELjpo5aiZeMwF+yNnOs5KSvgAAAABJRU5ErkJggg==')",
+													'background-repeat': 'no-repeat',
+													'background-position': '50%',
+													'cursor': 'col-resize'
+												}
+											},
+											sizes: [vm.widget.WidgetResource.SplitLeftPercentage, vm.widget.WidgetResource.SplitRightPercentage],
+											minSize: 200,
+											onDragEnd: function () {
+												var sizes = vm.splitter.getSizes();
+												vm.widget.WidgetResource.SplitLeftPercentage = sizes[0];
+												vm.widget.WidgetResource.SplitRightPercentage = sizes[1];
+												vm.widget.WidgetResource.$save();
+												console.log("Split Sizes = %O", sizes);
+											}
+										});
+								});
+
+
+							});
+
+
 						});
 
 
@@ -341,9 +416,12 @@
 					$interval(function () {
 						//vm.showAssetModelImages = !vm.showAssetModelImages;
 						if (vm.AssetGraphics && vm.AssetGraphics.length > 0) {
-							vm.AssetGraphics[index++].showImage = false;
-							if (index == vm.AssetGraphics.length) {
-								index = 0;
+							if (vm.AssetGraphics[index]) {
+								vm.AssetGraphics[index++].showImage = false;
+								if (index == vm.AssetGraphics.length) {
+									index = 0;
+								}
+
 							}
 							vm.AssetGraphics[index].showImage = true;
 
@@ -360,6 +438,7 @@
 					$scope.$on("WidgetResize", function (event, resizedWidgetId) {
 
 						if (vm.widget.Id == resizedWidgetId || resizedWidgetId == 0) {
+							displaySetupService.SetPanelBodyWithIdHeight(vm.widget.Id);
 
 						}
 					});
@@ -374,7 +453,16 @@
 					});
 
 					vm.state = $state;
-					displaySetupService.SetPanelBodyWithIdHeight(vm.widget.Id);
+
+
+					$scope.$$postDigest(function () {
+						displaySetupService.SetPanelBodyWithIdHeight(vm.widget.Id);
+
+					});
+
+
+
+
 
 					//vm.widgetDimensions = displaySetupService.GetWidgetPanelBodyDimensions(vm.widget.Id);
 

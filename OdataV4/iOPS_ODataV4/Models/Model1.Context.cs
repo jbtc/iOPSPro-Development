@@ -67,8 +67,8 @@ namespace iOPS_ODataV4.Models
         public virtual DbSet<BHSAlarmHistory> BHSAlarmHistories { get; set; }
         public virtual DbSet<BHSCarrier> BHSCarriers { get; set; }
         public virtual DbSet<BHSDeviceLocationCarrierMap> BHSDeviceLocationCarrierMaps { get; set; }
-        public virtual DbSet<AssetGraphic> AssetGraphics { get; set; }
         public virtual DbSet<Asset> Assets { get; set; }
+        public virtual DbSet<AssetGraphic> AssetGraphics { get; set; }
     
         public virtual ObjectResult<BHSLocationThroughput_Result1> BHSLocationThroughput(Nullable<System.DateTime> beginDate, Nullable<System.DateTime> endDate, string location)
         {

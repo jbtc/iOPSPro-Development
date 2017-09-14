@@ -253,6 +253,8 @@
           <Property Name="ParentSystemId" Type="bigint" />
           <Property Name="ParentAssetId" Type="bigint" />
           <Property Name="BaseUnitImageURL" Type="varchar" MaxLength="500" />
+          <Property Name="Make" Type="varchar" MaxLength="100" />
+          <Property Name="Program" Type="varchar" MaxLength="50" />
         </EntityType>
         <EntityType Name="AssetCondition">
           <Key>
@@ -271,7 +273,6 @@
           <Property Name="ImageURL" Type="varchar" MaxLength="500" />
           <Property Name="JBTStandardObservationId" Type="bigint" />
           <Property Name="ValueWhenVisible" Type="varchar" MaxLength="100" />
-          <Property Name="ValueWhenInvisible" Type="varchar" MaxLength="100" />
         </EntityType>
         <EntityType Name="AssetType">
           <Key>
@@ -548,6 +549,7 @@
           <Property Name="IsValidated" Type="bit" />
           <Property Name="IsNotified" Type="bit" />
           <Property Name="SiteId" Type="bigint" />
+          <Property Name="LastReportedDate" Type="datetime" />
         </EntityType>
         <EntityType Name="Unit">
           <Key>
@@ -580,6 +582,8 @@
           <Property Name="TerminalSystemId" Type="bigint" />
           <Property Name="ZoneSystemId" Type="bigint" />
           <Property Name="GateSystemId" Type="bigint" />
+          <Property Name="SplitLeftPercentage" Type="float" />
+          <Property Name="SplitRightPercentage" Type="float" />
         </EntityType>
         <EntityType Name="WidgetType">
           <Key>
@@ -1917,7 +1921,6 @@
             <Parameter Name="EndDateTime" Mode="In" Type="DateTime" />
             <Parameter Name="SiteId" Mode="In" Type="Int64" />
           </FunctionImport>
-          <EntitySet Name="AssetGraphics" EntityType="iOPS_NormalizedModel.AssetGraphic" />
           <EntitySet Name="Assets" EntityType="iOPS_NormalizedModel.Asset" />
           <AssociationSet Name="FK_Asset_Airport" Association="iOPS_NormalizedModel.FK_Asset_Airport">
             <End Role="Company" EntitySet="Companies" />
@@ -1939,13 +1942,14 @@
             <End Role="SystemGroup" EntitySet="SystemGroups" />
             <End Role="Asset" EntitySet="Assets" />
           </AssociationSet>
-          <AssociationSet Name="FK_AssetModelImage_Asset" Association="iOPS_NormalizedModel.FK_AssetModelImage_Asset">
-            <End Role="Asset" EntitySet="Assets" />
-            <End Role="AssetGraphic" EntitySet="AssetGraphics" />
-          </AssociationSet>
           <AssociationSet Name="FK_Tag_Asset" Association="iOPS_NormalizedModel.FK_Tag_Asset">
             <End Role="Asset" EntitySet="Assets" />
             <End Role="Tag" EntitySet="Tags" />
+          </AssociationSet>
+          <EntitySet Name="AssetGraphics" EntityType="iOPS_NormalizedModel.AssetGraphic" />
+          <AssociationSet Name="FK_AssetModelImage_Asset" Association="iOPS_NormalizedModel.FK_AssetModelImage_Asset">
+            <End Role="Asset" EntitySet="Assets" />
+            <End Role="AssetGraphic" EntitySet="AssetGraphics" />
           </AssociationSet>
           </EntityContainer>
         <EntityType Name="AuthorizableActivity">
@@ -2398,6 +2402,7 @@
           <NavigationProperty Name="JBTStandardObservation" Relationship="iOPS_NormalizedModel.FK_Tag_JBTStandardObservation" FromRole="Tag" ToRole="JBTStandardObservation" />
           <Property Name="SiteId" Type="Int64" />
           <NavigationProperty Name="Asset" Relationship="iOPS_NormalizedModel.FK_Tag_Asset" FromRole="Tag" ToRole="Asset" />
+          <Property Name="LastReportedDate" Type="DateTime" Precision="3" />
         </EntityType>
         <Association Name="FK_Observation_Tag">
           <End Type="iOPS_NormalizedModel.Tag" Role="Tag" Multiplicity="0..1" />
@@ -2589,6 +2594,8 @@
           <Property Name="TerminalSystemId" Type="Int64" />
           <Property Name="ZoneSystemId" Type="Int64" />
           <Property Name="GateSystemId" Type="Int64" />
+          <Property Name="SplitLeftPercentage" Type="Double" />
+          <Property Name="SplitRightPercentage" Type="Double" />
         </EntityType>
         <EntityType Name="WidgetType">
           <Key>
@@ -3470,18 +3477,6 @@
           <Property Type="Int32" Name="MinDurationSec" Nullable="true" />
           <Property Type="Int32" Name="AverageDuration" Nullable="true" />
         </ComplexType>
-        <EntityType Name="AssetGraphic">
-          <Key>
-            <PropertyRef Name="Id" />
-          </Key>
-          <Property Name="Id" Type="Int64" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
-          <Property Name="AssetId" Type="Int64" />
-          <Property Name="ImageURL" Type="String" MaxLength="500" FixedLength="false" Unicode="false" />
-          <Property Name="JBTStandardObservationId" Type="Int64" />
-          <Property Name="ValueWhenVisible" Type="String" MaxLength="100" FixedLength="false" Unicode="false" />
-          <Property Name="ValueWhenInvisible" Type="String" MaxLength="100" FixedLength="false" Unicode="false" />
-          <NavigationProperty Name="Asset" Relationship="iOPS_NormalizedModel.FK_AssetModelImage_Asset" FromRole="AssetGraphic" ToRole="Asset" />
-        </EntityType>
         <EntityType Name="Asset">
           <Key>
             <PropertyRef Name="Id" />
@@ -3517,8 +3512,10 @@
           <NavigationProperty Name="AssetCondition" Relationship="iOPS_NormalizedModel.FK_Asset_Condition" FromRole="Asset" ToRole="AssetCondition" />
           <NavigationProperty Name="Site" Relationship="iOPS_NormalizedModel.FK_Asset_Site" FromRole="Asset" ToRole="Site" />
           <NavigationProperty Name="System" Relationship="iOPS_NormalizedModel.FK_Asset_System" FromRole="Asset" ToRole="SystemGroup" />
-          <NavigationProperty Name="AssetGraphics" Relationship="iOPS_NormalizedModel.FK_AssetModelImage_Asset" FromRole="Asset" ToRole="AssetGraphic" />
           <NavigationProperty Name="Tags" Relationship="iOPS_NormalizedModel.FK_Tag_Asset" FromRole="Asset" ToRole="Tag" />
+          <NavigationProperty Name="AssetGraphics" Relationship="iOPS_NormalizedModel.FK_AssetModelImage_Asset" FromRole="Asset" ToRole="AssetGraphic" />
+          <Property Name="Make" Type="String" MaxLength="100" FixedLength="false" Unicode="false" />
+          <Property Name="Program" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
         </EntityType>
         <Association Name="FK_Asset_Airport">
           <End Type="iOPS_NormalizedModel.Company" Role="Company" Multiplicity="0..1" />
@@ -3580,18 +3577,6 @@
             </Dependent>
           </ReferentialConstraint>
         </Association>
-        <Association Name="FK_AssetModelImage_Asset">
-          <End Type="iOPS_NormalizedModel.Asset" Role="Asset" Multiplicity="0..1" />
-          <End Type="iOPS_NormalizedModel.AssetGraphic" Role="AssetGraphic" Multiplicity="*" />
-          <ReferentialConstraint>
-            <Principal Role="Asset">
-              <PropertyRef Name="Id" />
-            </Principal>
-            <Dependent Role="AssetGraphic">
-              <PropertyRef Name="AssetId" />
-            </Dependent>
-          </ReferentialConstraint>
-        </Association>
         <Association Name="FK_Tag_Asset">
           <End Type="iOPS_NormalizedModel.Asset" Role="Asset" Multiplicity="0..1" />
           <End Type="iOPS_NormalizedModel.Tag" Role="Tag" Multiplicity="*" />
@@ -3600,6 +3585,29 @@
               <PropertyRef Name="Id" />
             </Principal>
             <Dependent Role="Tag">
+              <PropertyRef Name="AssetId" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <EntityType Name="AssetGraphic">
+          <Key>
+            <PropertyRef Name="Id" />
+          </Key>
+          <Property Name="Id" Type="Int64" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="AssetId" Type="Int64" />
+          <Property Name="ImageURL" Type="String" MaxLength="500" FixedLength="false" Unicode="false" />
+          <Property Name="JBTStandardObservationId" Type="Int64" />
+          <Property Name="ValueWhenVisible" Type="String" MaxLength="100" FixedLength="false" Unicode="false" />
+          <NavigationProperty Name="Asset" Relationship="iOPS_NormalizedModel.FK_AssetModelImage_Asset" FromRole="AssetGraphic" ToRole="Asset" />
+        </EntityType>
+        <Association Name="FK_AssetModelImage_Asset">
+          <End Type="iOPS_NormalizedModel.Asset" Role="Asset" Multiplicity="0..1" />
+          <End Type="iOPS_NormalizedModel.AssetGraphic" Role="AssetGraphic" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Asset">
+              <PropertyRef Name="Id" />
+            </Principal>
+            <Dependent Role="AssetGraphic">
               <PropertyRef Name="AssetId" />
             </Dependent>
           </ReferentialConstraint>
@@ -3820,6 +3828,7 @@
           <EntitySetMapping Name="Tags">
             <EntityTypeMapping TypeName="iOPS_NormalizedModel.Tag">
               <MappingFragment StoreEntitySet="Tag">
+                <ScalarProperty Name="LastReportedDate" ColumnName="LastReportedDate" />
                 <ScalarProperty Name="SiteId" ColumnName="SiteId" />
                 <ScalarProperty Name="IsNotified" ColumnName="IsNotified" />
                 <ScalarProperty Name="IsValidated" ColumnName="IsValidated" />
@@ -3911,6 +3920,8 @@
           <EntitySetMapping Name="Widgets">
             <EntityTypeMapping TypeName="iOPS_NormalizedModel.Widget">
               <MappingFragment StoreEntitySet="Widget">
+                <ScalarProperty Name="SplitRightPercentage" ColumnName="SplitRightPercentage" />
+                <ScalarProperty Name="SplitLeftPercentage" ColumnName="SplitLeftPercentage" />
                 <ScalarProperty Name="GateSystemId" ColumnName="GateSystemId" />
                 <ScalarProperty Name="ZoneSystemId" ColumnName="ZoneSystemId" />
                 <ScalarProperty Name="TerminalSystemId" ColumnName="TerminalSystemId" />
@@ -4554,21 +4565,11 @@
               </ComplexTypeMapping>
             </ResultMapping>
           </FunctionImportMapping>
-          <EntitySetMapping Name="AssetGraphics">
-            <EntityTypeMapping TypeName="iOPS_NormalizedModel.AssetGraphic">
-              <MappingFragment StoreEntitySet="AssetGraphic">
-                <ScalarProperty Name="ValueWhenInvisible" ColumnName="ValueWhenInvisible" />
-                <ScalarProperty Name="ValueWhenVisible" ColumnName="ValueWhenVisible" />
-                <ScalarProperty Name="JBTStandardObservationId" ColumnName="JBTStandardObservationId" />
-                <ScalarProperty Name="ImageURL" ColumnName="ImageURL" />
-                <ScalarProperty Name="AssetId" ColumnName="AssetId" />
-                <ScalarProperty Name="Id" ColumnName="Id" />
-              </MappingFragment>
-            </EntityTypeMapping>
-          </EntitySetMapping>
           <EntitySetMapping Name="Assets">
             <EntityTypeMapping TypeName="iOPS_NormalizedModel.Asset">
               <MappingFragment StoreEntitySet="Asset">
+                <ScalarProperty Name="Program" ColumnName="Program" />
+                <ScalarProperty Name="Make" ColumnName="Make" />
                 <ScalarProperty Name="BaseUnitImageURL" ColumnName="BaseUnitImageURL" />
                 <ScalarProperty Name="ParentAssetId" ColumnName="ParentAssetId" />
                 <ScalarProperty Name="ParentSystemId" ColumnName="ParentSystemId" />
@@ -4594,6 +4595,17 @@
                 <ScalarProperty Name="Description" ColumnName="Description" />
                 <ScalarProperty Name="AssetTypeId" ColumnName="AssetTypeId" />
                 <ScalarProperty Name="Name" ColumnName="Name" />
+                <ScalarProperty Name="Id" ColumnName="Id" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="AssetGraphics">
+            <EntityTypeMapping TypeName="iOPS_NormalizedModel.AssetGraphic">
+              <MappingFragment StoreEntitySet="AssetGraphic">
+                <ScalarProperty Name="ValueWhenVisible" ColumnName="ValueWhenVisible" />
+                <ScalarProperty Name="JBTStandardObservationId" ColumnName="JBTStandardObservationId" />
+                <ScalarProperty Name="ImageURL" ColumnName="ImageURL" />
+                <ScalarProperty Name="AssetId" ColumnName="AssetId" />
                 <ScalarProperty Name="Id" ColumnName="Id" />
               </MappingFragment>
             </EntityTypeMapping>
