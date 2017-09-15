@@ -94,14 +94,13 @@ thead > .shaded-gray {
   .gutter.gutter-horizontal {
     cursor: col-resize;
     background-image: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAUAAAAeCAYAAADkftS9AAAAIklEQVQoU2M4c+bMfxAGAgYYmwGrIIiDjrELjpo5aiZeMwF+yNnOs5KSvgAAAABJRU5ErkJggg==');
-    background-color: lightgrey;
-      z-index: 3;
+    z-index: 3;
   }
 
   .gutter.gutter-vertical {
     cursor: row-resize;
     background-image: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAB4AAAAFAQMAAABo7865AAAABlBMVEVHcEzMzMzyAv2sAAAAAXRSTlMAQObYZgAAABBJREFUeF5jOAMEEAIEEFwAn3kMwcB6I2AAAAAASUVORK5CYII=') ;
-    background-color: lightgrey;
+    
       z-index: 3;
   }
 
@@ -109,5 +108,13 @@ thead > .shaded-gray {
     height: 100%;
     float: left;
   }
+  .ui-accordion .ui-accordion-header {
+      margin: 1px 0 0 0;
+      height: 30px;
+  }
+
+  .ui-accordion .ui-accordion-content {
+    padding: 1em 1em;
+}
 
 

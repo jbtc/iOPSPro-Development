@@ -14,6 +14,12 @@ namespace iOPS_ODataV4.Models
     
     public partial class Widget
     {
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2214:DoNotCallOverridableMethodsInConstructors")]
+        public Widget()
+        {
+            this.WidgetCustomTagDisplayOrders = new HashSet<WidgetCustomTagDisplayOrder>();
+        }
+    
         public long Id { get; set; }
         public string Name { get; set; }
         public Nullable<long> WidgetTypeId { get; set; }
@@ -38,5 +44,7 @@ namespace iOPS_ODataV4.Models
         public virtual WidgetType WidgetType { get; set; }
         public virtual Dashboard Dashboard { get; set; }
         public virtual Dashboard EmbeddedDashboard { get; set; }
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
+        public virtual ICollection<WidgetCustomTagDisplayOrder> WidgetCustomTagDisplayOrders { get; set; }
     }
 }

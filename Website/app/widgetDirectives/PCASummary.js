@@ -289,51 +289,48 @@
 
 							vm.widget.WidgetResource.AssetId = vm.pca.Id;
 							vm.widget.WidgetResource.$save();
-							dataService.GetAllSignalRObservationFormattedTagsForAssetIdIntoInventory(vm.pca.Id);
+							dataService.GetAllSignalRObservationFormattedTagsForAssetIdIntoInventory(vm.pca.Id).then(function () {
+
+								dataService.GetIOPSResource("AssetGraphics")
+									.filter("AssetId", vm.pca.Id)
+									.filter("JBTStandardObservationId", "!=", null)
+									.query()
+									.$promise
+									.then(function (data) {
 
 
-							//$timeout(function () {
+										//Add a boolean on or off flag to each image. The view will use this to show the image or not.
+										data.select(function (i) {
+											i.showImage = false;
+										});
+										vm.AssetGraphics = data;
 
-							//	var temp = vm.pca.Tags.select(function (tag) {
-							//		return {
-							//			StdObsName: tag.JBTStandardObservation.Name,
-							//			StdObsId: tag.JBTStandardObservation.Id
-							//		}
-							//	});
-							//	console.log("Tag Names and Standard Names and Ids = %O", temp);
-							//}, 1000);
+										//Just for simulation
+										//if (vm.AssetGraphics && vm.AssetGraphics.length > 0) {
+										//	vm.AssetGraphics[0].showImage = true;
 
-							dataService.GetIOPSResource("AssetGraphics")
-								.filter("AssetId", vm.pca.Id)
-								.filter("JBTStandardObservationId", "!=", null)
-								.query()
-								.$promise
-								.then(function (data) {
+										//}
 
+										$timeout(function () {
+											SetupAccordion();
 
-									//Add a boolean on or off flag to each image. The view will use this to show the image or not.
-									data.select(function (i) {
-										i.showImage = false;
+										}, 50);
+
+										console.log("Asset Graphics = %O", data);
+										vm.pca.Tags.forEach(function(tag) {
+											UpdateGraphicsVisibilityForSingleTag(tag);
+										});
 									});
-									vm.AssetGraphics = data;
+							});
 
-									//Just for simulation
-									if (vm.AssetGraphics && vm.AssetGraphics.length > 0) {
-										vm.AssetGraphics[0].showImage = true;
 
-									}
 
-									$timeout(function() {
-										SetupAccordion();
-										
-									},50);
-
-									//console.log("Asset Graphics = %O", data);
-								});
 						});
 
 
 					}
+
+
 
 					function SetupAccordion() {
 						$scope.$$postDigest(function () {
@@ -370,8 +367,8 @@
 
 								$scope.$$postDigest(function () {
 
-									vm.widget.WidgetResource.SplitLeftPercentage = vm.widget.WidgetResource.SplitLeftPercentage || 50; 
-									vm.widget.WidgetResource.SplitRightPercentage = vm.widget.WidgetResource.SplitRightPercentage || 50; 
+									vm.widget.WidgetResource.SplitLeftPercentage = vm.widget.WidgetResource.SplitLeftPercentage || 50;
+									vm.widget.WidgetResource.SplitRightPercentage = vm.widget.WidgetResource.SplitRightPercentage || 50;
 
 									vm.splitter = Split(['#containerData' + vm.widget.Id, '#containerGraphics' + vm.widget.Id],
 										{
@@ -386,6 +383,7 @@
 													'background-image': "url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAUAAAAeCAYAAADkftS9AAAAIklEQVQoU2M4c+bMfxAGAgYYmwGrIIiDjrELjpo5aiZeMwF+yNnOs5KSvgAAAABJRU5ErkJggg==')",
 													'background-repeat': 'no-repeat',
 													'background-position': '50%',
+													'background-color': 'transparent',
 													'cursor': 'col-resize'
 												}
 											},
@@ -412,23 +410,23 @@
 
 
 					//Simulate values changing
-					var index = 0;
-					$interval(function () {
-						//vm.showAssetModelImages = !vm.showAssetModelImages;
-						if (vm.AssetGraphics && vm.AssetGraphics.length > 0) {
-							if (vm.AssetGraphics[index]) {
-								vm.AssetGraphics[index++].showImage = false;
-								if (index == vm.AssetGraphics.length) {
-									index = 0;
-								}
+					//var index = 0;
+					//$interval(function () {
+					//	//vm.showAssetModelImages = !vm.showAssetModelImages;
+					//	if (vm.AssetGraphics && vm.AssetGraphics.length > 0) {
+					//		if (vm.AssetGraphics[index]) {
+					//			vm.AssetGraphics[index++].showImage = false;
+					//			if (index == vm.AssetGraphics.length) {
+					//				index = 0;
+					//			}
 
-							}
-							vm.AssetGraphics[index].showImage = true;
+					//		}
+					//		vm.AssetGraphics[index].showImage = true;
 
-						}
+					//	}
 
 
-					}, 400);
+					//}, 400);
 
 
 
@@ -442,6 +440,50 @@
 
 						}
 					});
+
+
+					//***G
+					//++Data Service Tag Updates
+					//---G
+					//The data service is tracking all signalR pushed tag value updates in real-time.
+					//The data service will keep an inventory of all such updates as they happen.
+					//When the data service is finished updating it's local inventory of tag data, it will retransmit "dataService.TagUpdate" to the rest of the application locally.
+					//We will watch for it here and set the appropriate graphics flag.
+					$scope.$on("dataService.TagUpdate", function (event, updatedTag) {
+
+						UpdateGraphicsVisibilityForSingleTag(updatedTag);
+					});
+
+
+
+					function UpdateGraphicsVisibilityForSingleTag(updatedTag) {
+
+						if (updatedTag) {
+							//See if this is the asset to which the tag belongs
+							if (updatedTag.AssetId == vm.pca.Id) {
+								console.log("Updated Tag For widget - %O", updatedTag);
+
+								//Update all of the graphics flags for the matching JBTStandardObservationId that was in the updatedTag
+								vm.AssetGraphics
+									.where(function (g) { return g.JBTStandardObservationId == updatedTag.JBTStandardObservationId })
+									.forEach(function (g) {
+										g.showImage = updatedTag.LastObservationTextValue == g.ValueWhenVisible;
+									});
+							}
+
+						} 
+
+
+					}
+					//***G
+
+
+
+
+
+
+
+
 
 					$scope.$on("Dashboard", function (event, modifiedExpandedDashboard) {
 						console.log("pcaSummary Dashboard event. Modified Dashboard = %O", modifiedExpandedDashboard);

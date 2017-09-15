@@ -233,6 +233,14 @@ namespace iOPS_ODataV4.Controllers.OdataV4
             return db.iOPSUsers.Where(m => m.Id == key).SelectMany(m => m.UserEventLogs);
         }
 
+        // GET: odata/iOPSUsers(5)/WidgetCustomTagDisplayOrders
+        [IOPSAuthorize]
+        [EnableQuery(MaxExpansionDepth = 100)]
+        public IQueryable<WidgetCustomTagDisplayOrder> GetWidgetCustomTagDisplayOrders([FromODataUri] long key)
+        {
+            return db.iOPSUsers.Where(m => m.Id == key).SelectMany(m => m.WidgetCustomTagDisplayOrders);
+        }
+
         // GET: odata/iOPSUsers(5)/UserAuthorizedActivities
         [IOPSAuthorize]
         [EnableQuery(MaxExpansionDepth = 100)]
