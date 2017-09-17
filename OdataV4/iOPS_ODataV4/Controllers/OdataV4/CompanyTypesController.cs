@@ -32,14 +32,14 @@ namespace iOPS_ODataV4.Controllers.OdataV4
         private iOPS_NormalizedEntities db = new iOPS_NormalizedEntities();
 
         // GET: odata/CompanyTypes
-        [EnableQuery]
+        [EnableQuery(MaxExpansionDepth = 100)]
         public IQueryable<CompanyType> GetCompanyTypes()
         {
             return db.CompanyTypes;
         }
 
         // GET: odata/CompanyTypes(5)
-        [EnableQuery]
+        [EnableQuery(MaxExpansionDepth = 100)]
         public SingleResult<CompanyType> GetCompanyType([FromODataUri] long key)
         {
             return SingleResult.Create(db.CompanyTypes.Where(companyType => companyType.Id == key));
@@ -85,7 +85,7 @@ namespace iOPS_ODataV4.Controllers.OdataV4
 
 
         // GET: odata/CompanyTypes(5)/Companies
-        [EnableQuery]
+        [EnableQuery(MaxExpansionDepth = 100)]
         public IQueryable<Company> GetCompanies([FromODataUri] long key)
         {
             return db.CompanyTypes.Where(m => m.Id == key).SelectMany(m => m.Companies);

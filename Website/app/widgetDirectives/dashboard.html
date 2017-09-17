@@ -38,6 +38,10 @@
                 Add Widget
             </button>
 
+            <button ng-if="vm.dashboard.tagsToGraph.length > 0" ng-click="vm.AddGraphWidgetToDashboard()" class="btn btn-default responsive-button mid-size-button">
+                <i class="fa fa-line-chart" aria-hidden="true" title="Add graph widget from the selected tag values" style="cursor: pointer;"></i>
+            </button>
+
             <button ng-if="!vm.fullscreen" ng-click="vm.ToggleFullScreen()" class="btn btn-default responsive-button mid-size-button" title="Expand To FULL Screen">
                 <i ng-class="" class="glyphicon glyphicon-fullscreen"></i>
             </button>
@@ -62,63 +66,61 @@
 
         <div gridster="vm.gridsterOpts">
             <ul ng-if="vm.widgets">
-                <li gridster-item="widget" ng-repeat="widget in vm.widgets" style="border: none;">
+                <li gridster-item="widget" ng-repeat="widget in vm.widgets" style="border: none;" id="gridster{{widget.Id}}">
                     <div class="panel panel-default" style="height: 100%; overflow-y: hidden;" id="widget-panel-heading{{widget.Id}}">
-                        <div class="panel-heading" id="{{vm.dashboard.Id}}" style="cursor: move;">
-                            <div ng-if="widget.WidgetResource.EmbeddedDashboardId" class='btn-toolbar pull-right' style="display: -webkit-inline-box">
-                                <div class="btn-group">
+                        <div class="panel-heading" id="{{vm.dashboard.Id}}" style="cursor: move; font-size:.9em; padding-top:5px; height:30px; background: {{widget.displaySettings.headingBackground ? widget.displaySettings.headingBackground : 'linear-gradient(to bottom,#7ede7e, #befebe)'}};">
+                            <!--<div ng-if="widget.WidgetResource.EmbeddedDashboardId" class='btn-toolbar pull-right' style="display: -webkit-inline-box;">
+                        <div class="btn-group">
 
-                                    <a ng-click="vm.SetTimeScope(365)" class="btn btn-default responsive-button tiny-button" ng-class="{'radio-active': vm.dashboard.DashboardTimeScope.Days == 365}" title="Set time window to the last year back from now">
-                                        Year
-                                    </a>
-                                    <a ng-click="vm.SetTimeScope(180)" class="btn btn-default responsive-button tiny-button" ng-class="{'radio-active': vm.dashboard.DashboardTimeScope.Days == 180}" title="Set time window to the last 6 months back from now">
-                                        180d
-                                    </a>
-                                    <a ng-click="vm.SetTimeScope(90)" class="btn btn-default responsive-button tiny-button" ng-class="{'radio-active': vm.dashboard.DashboardTimeScope.Days == 90}" title="Set time window to the last 90 days back from now">
-                                        90d
-                                    </a>
-                                    <a ng-click="vm.SetTimeScope(30)" class="btn btn-default responsive-button tiny-button" ng-class="{'radio-active': vm.dashboard.DashboardTimeScope.Days == 30}" title="Set time window to the last 30 days back from now">
-                                        30d
-                                    </a>
-                                    <a ng-click="vm.SetTimeScope(7)" class="btn btn-default responsive-button tiny-button" ng-class="{'radio-active': vm.dashboard.DashboardTimeScope.Days == 7}" title="Set time window to the last week back from now">
-                                        7d
-                                    </a>
-                                    <a ng-click="vm.SetTimeScope(1)" class="btn btn-default responsive-button tiny-button" ng-class="{'radio-active': vm.dashboard.DashboardTimeScope.Days == 1}" title="Set time window to the last 24 hours back from now">
-                                        24h
-                                    </a>
-                                    <a ng-click="vm.SetTimeScope(0)" class="btn btn-default responsive-button tiny-button" ng-class="{'radio-active': vm.dashboard.DashboardTimeScope.Days == 0}" title="Set time window to today since midnight">
-                                        Today
-                                    </a>
-                                    <a ng-click="vm.SetTimeScope(-1)" class="btn btn-default responsive-button tiny-button" ng-class="{'radio-active': vm.dashboard.DashboardTimeScope.Days == -1}" title="Set time window to yesterday from midnight to midnight">
-                                        Yesterday
-                                    </a>
-                                    <a ui-sref=".addWidget({ DashboardId: widget.WidgetResource.EmbeddedDashboardId })" class="btn btn-default responsive-button tiny-button">
-                                        Add Widget
-                                    </a>
-                                </div>
-
-
-                                <i ui-sref=".editWidget({ WidgetId: widget.Id})" class="fa fa-pencil-square-o" aria-hidden="true" title="aEdit widget {{widget.Name}}" style="cursor: default; padding: 4px; margin-left: 15px;"></i>
-                                <i ng-click="vm.deleteWidget(widget)" class="fa fa-times" aria-hidden="true" title='Delete "{{widget.Name}}" widget' style="color: red; margin-left: 0; cursor: default; padding: 4px;"></i>
+                            <a ng-click="vm.SetTimeScope(365)" class="btn btn-default responsive-button tiny-button" ng-class="{'radio-active': vm.dashboard.DashboardTimeScope.Days == 365}" title="Set time window to the last year back from now">
+                                Year
+                            </a>
+                            <a ng-click="vm.SetTimeScope(180)" class="btn btn-default responsive-button tiny-button" ng-class="{'radio-active': vm.dashboard.DashboardTimeScope.Days == 180}" title="Set time window to the last 6 months back from now">
+                                180d
+                            </a>
+                            <a ng-click="vm.SetTimeScope(90)" class="btn btn-default responsive-button tiny-button" ng-class="{'radio-active': vm.dashboard.DashboardTimeScope.Days == 90}" title="Set time window to the last 90 days back from now">
+                                90d
+                            </a>
+                            <a ng-click="vm.SetTimeScope(30)" class="btn btn-default responsive-button tiny-button" ng-class="{'radio-active': vm.dashboard.DashboardTimeScope.Days == 30}" title="Set time window to the last 30 days back from now">
+                                30d
+                            </a>
+                            <a ng-click="vm.SetTimeScope(7)" class="btn btn-default responsive-button tiny-button" ng-class="{'radio-active': vm.dashboard.DashboardTimeScope.Days == 7}" title="Set time window to the last week back from now">
+                                7d
+                            </a>
+                            <a ng-click="vm.SetTimeScope(1)" class="btn btn-default responsive-button tiny-button" ng-class="{'radio-active': vm.dashboard.DashboardTimeScope.Days == 1}" title="Set time window to the last 24 hours back from now">
+                                24h
+                            </a>
+                            <a ng-click="vm.SetTimeScope(0)" class="btn btn-default responsive-button tiny-button" ng-class="{'radio-active': vm.dashboard.DashboardTimeScope.Days == 0}" title="Set time window to today since midnight">
+                                Today
+                            </a>
+                            <a ng-click="vm.SetTimeScope(-1)" class="btn btn-default responsive-button tiny-button" ng-class="{'radio-active': vm.dashboard.DashboardTimeScope.Days == -1}" title="Set time window to yesterday from midnight to midnight">
+                                Yesterday
+                            </a>
+                            <a ui-sref=".addWidget({ DashboardId: widget.WidgetResource.EmbeddedDashboardId })" class="btn btn-default responsive-button tiny-button">
+                                Add Widget
+                            </a>
+                        </div>
 
 
+                        <i ui-sref=".editWidget({ WidgetId: widget.Id})" class="fa fa-pencil-square-o" aria-hidden="true" title="aEdit widget {{widget.Name}}" style="cursor: default; padding: 4px; margin-left: 15px;"></i>
+                        <i ng-click="vm.deleteWidget(widget)" class="fa fa-times" aria-hidden="true" title='Delete "{{widget.Name}}" widget' style="color: red; margin-left: 0; cursor: default; padding: 4px;"></i>
 
-
-
-                            </div>
+                    </div>-->
 
                             <div ng-if="!widget.WidgetResource.EmbeddedDashboardId" class='btn-toolbar pull-right' style="display: inline-block;">
-                               
+
+
+                                <button ng-if="widget.tagsToGraph" ng-click="vm.AddTagsToSpecificWidgetGraph(widget)" class="btn btn-default responsive-button tiny-button" style="margin-top: -3px;" title="Add the selected data to this graph">
+                                    + <i class="fa fa-line-chart" aria-hidden="true" style="cursor: pointer;"></i>
+                                </button>
+
                                 <i ng-click="vm.openSettingsDash($event, widget)" class="fa fa-cog" aria-hidden="true" style="cursor: pointer; padding: 4px;"></i>
-
-
-
 
 
                                 <i ui-sref=".editWidget({ WidgetId: widget.Id})" class="fa fa-pencil-square-o" aria-hidden="true" title="Edit widget {{widget.Name}}" style="cursor: pointer; padding: 4px;"></i>
                                 <i ng-click="vm.deleteWidget(widget)" class="fa fa-times" aria-hidden="true" title='Delete "{{widget.Name}}" widget' style="color: red; margin-left: 0; cursor: pointer; padding: 4px;"></i>
                             </div>
-                            {{widget.Name}}
+                            {{widget.Name}} {{widget.displaySettings.headingExtraTitle}}
                         </div>
                         <div class="panel-body" id="{{widget.Id}}" style="overflow-y: hidden; padding: 0; height: 100%;">
                             <bhs-current-alarms-table ng-if="widget.WidgetResource.WidgetType.AngularDirectiveName == 'bhsCurrentAlarmsTable'" widget="widget" dashboard="vm.dashboard"></bhs-current-alarms-table>
@@ -136,7 +138,8 @@
                             <bhs-top-five-jam-devices-with-count ng-if="widget.WidgetResource.WidgetType.AngularDirectiveName == 'bhsTopFiveJamDevicesWithCount'" widget="widget" dashboard="vm.dashboard"></bhs-top-five-jam-devices-with-count>
                             <bhs-top-five-jam-devices-with-longest-duration ng-if="widget.WidgetResource.WidgetType.AngularDirectiveName == 'bhsTopFiveJamDevicesWithLongestDuration'" widget="widget" dashboard="vm.dashboard"></bhs-top-five-jam-devices-with-longest-duration>
                             <bhs-percent-of-failsafe ng-if="widget.WidgetResource.WidgetType.AngularDirectiveName == 'bhsPercentOfFailsafe'" widget="widget" dashboard="vm.dashboard"></bhs-percent-of-failsafe>
-                            <pca-summary ng-if="widget.WidgetResource.WidgetType.AngularDirectiveName == 'pcaSummary'" widget="widget" dashboard="vm.dashboard"></pca-summary>
+                            <pca-summary ng-if="widget.WidgetResource.WidgetType.AngularDirectiveName == 'pcaSummary'" widget="widget" dashboard="vm.dashboard" add-tags-to-graph-function="vm.AddTagsToGraph"></pca-summary>
+                            <tag-graph ng-if="widget.WidgetResource.WidgetType.AngularDirectiveName == 'tagGraph'" widget="widget" dashboard="vm.dashboard"></tag-graph>
 
                             <!--<dashboard ng-if="widget.WidgetResource.WidgetType.AngularDirectiveName == 'dashboard'" widget="widget" dashboard="widget.WidgetResource.EmbeddedDashboard" dashboard-id="widget.WidgetResource.EmbeddedDashboard.Id"></dashboard>-->
                         </div>

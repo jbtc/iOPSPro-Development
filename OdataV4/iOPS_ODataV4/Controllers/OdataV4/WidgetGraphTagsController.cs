@@ -23,32 +23,31 @@ namespace iOPS_ODataV4.Controllers.OdataV4
     using System.Web.OData.Extensions;
     using iOPS_ODataV4.Models;
     ODataConventionModelBuilder builder = new ODataConventionModelBuilder();
-    builder.EntitySet<UserAuthorizedActivity>("UserAuthorizedActivities");
-    builder.EntitySet<AuthorizableActivity>("AuthorizableActivities"); 
-    builder.EntitySet<iOPSUser>("iOPSUsers"); 
+    builder.EntitySet<WidgetGraphTag>("WidgetGraphTags");
+    builder.EntitySet<Tag>("Tags"); 
+    builder.EntitySet<Widget>("Widgets"); 
     config.MapODataServiceRoute("odata", "odata", builder.GetEdmModel());
     */
-    public class UserAuthorizedActivitiesController : ODataController
+    public class WidgetGraphTagsController : ODataController
     {
         private iOPS_NormalizedEntities db = new iOPS_NormalizedEntities();
 
-        // GET: odata/UserAuthorizedActivities
+        // GET: odata/WidgetGraphTags
         [EnableQuery(MaxExpansionDepth = 100)]
-        public IQueryable<UserAuthorizedActivity> GetUserAuthorizedActivities()
+        public IQueryable<WidgetGraphTag> GetWidgetGraphTags()
         {
-            return db.UserAuthorizedActivities;
+            return db.WidgetGraphTags;
         }
 
-        // GET: odata/UserAuthorizedActivities(5)
+        // GET: odata/WidgetGraphTags(5)
         [EnableQuery(MaxExpansionDepth = 100)]
-        public SingleResult<UserAuthorizedActivity> GetUserAuthorizedActivity([FromODataUri] long key)
+        public SingleResult<WidgetGraphTag> GetWidgetGraphTag([FromODataUri] long key)
         {
-            return SingleResult.Create(db.UserAuthorizedActivities.Where(userAuthorizedActivity => userAuthorizedActivity.Id == key));
+            return SingleResult.Create(db.WidgetGraphTags.Where(widgetGraphTag => widgetGraphTag.Id == key));
         }
 
-        
-        //+ POST: odata/UserAuthorizedActivities
-        public async Task<IHttpActionResult> Post(UserAuthorizedActivity entity)
+        // POST: odata/AssetGraphic
+        public async Task<IHttpActionResult> Post(WidgetGraphTag entity)
         {
             if (!ModelState.IsValid)
             {
@@ -58,43 +57,44 @@ namespace iOPS_ODataV4.Controllers.OdataV4
 
             if (entity.Id < 0)
             {
-                var delEntity = new UserAuthorizedActivity { Id = -entity.Id };
-                db.UserAuthorizedActivities.Attach(delEntity);
-                db.UserAuthorizedActivities.Remove(delEntity);
+                var delEntity = new WidgetGraphTag { Id = -entity.Id };
+                db.WidgetGraphTags.Attach(delEntity);
+                db.WidgetGraphTags.Remove(delEntity);
                 await db.SaveChangesAsync();
                 return StatusCode(HttpStatusCode.NoContent);
             }
 
-            var modifiedEntity = await db.UserAuthorizedActivities.FindAsync(entity.Id);
+            var modifiedEntity = await db.WidgetGraphTags.FindAsync(entity.Id);
 
             if (modifiedEntity != null)
             {
                 db.Entry(modifiedEntity).State = EntityState.Detached;
-                db.UserAuthorizedActivities.Attach(entity);
+                db.WidgetGraphTags.Attach(entity);
                 db.Entry(entity).State = EntityState.Modified;
                 await db.SaveChangesAsync();
                 return Updated(entity);
 
             }
-            modifiedEntity = db.UserAuthorizedActivities.Add(entity);
+            modifiedEntity = db.WidgetGraphTags.Add(entity);
 
             await db.SaveChangesAsync();
 
             return Created(modifiedEntity);
         }
 
-        // GET: odata/UserAuthorizedActivities(5)/AuthorizableActivity
+
+        // GET: odata/WidgetGraphTags(5)/Tag
         [EnableQuery(MaxExpansionDepth = 100)]
-        public SingleResult<AuthorizableActivity> GetAuthorizableActivity([FromODataUri] long key)
+        public SingleResult<Tag> GetTag([FromODataUri] long key)
         {
-            return SingleResult.Create(db.UserAuthorizedActivities.Where(m => m.Id == key).Select(m => m.AuthorizableActivity));
+            return SingleResult.Create(db.WidgetGraphTags.Where(m => m.Id == key).Select(m => m.Tag));
         }
 
-        // GET: odata/UserAuthorizedActivities(5)/iOPSUser
+        // GET: odata/WidgetGraphTags(5)/Widget
         [EnableQuery(MaxExpansionDepth = 100)]
-        public SingleResult<iOPSUser> GetiOPSUser([FromODataUri] long key)
+        public SingleResult<Widget> GetWidget([FromODataUri] long key)
         {
-            return SingleResult.Create(db.UserAuthorizedActivities.Where(m => m.Id == key).Select(m => m.iOPSUser));
+            return SingleResult.Create(db.WidgetGraphTags.Where(m => m.Id == key).Select(m => m.Widget));
         }
 
         protected override void Dispose(bool disposing)
@@ -106,9 +106,9 @@ namespace iOPS_ODataV4.Controllers.OdataV4
             base.Dispose(disposing);
         }
 
-        private bool UserAuthorizedActivityExists(long key)
+        private bool WidgetGraphTagExists(long key)
         {
-            return db.UserAuthorizedActivities.Count(e => e.Id == key) > 0;
+            return db.WidgetGraphTags.Count(e => e.Id == key) > 0;
         }
     }
 }

@@ -23,32 +23,30 @@ namespace iOPS_ODataV4.Controllers.OdataV4
     using System.Web.OData.Extensions;
     using iOPS_ODataV4.Models;
     ODataConventionModelBuilder builder = new ODataConventionModelBuilder();
-    builder.EntitySet<UserAuthorizedActivity>("UserAuthorizedActivities");
-    builder.EntitySet<AuthorizableActivity>("AuthorizableActivities"); 
-    builder.EntitySet<iOPSUser>("iOPSUsers"); 
+    builder.EntitySet<AssetGraphicVisibleValue>("AssetGraphicVisibleValues");
+    builder.EntitySet<AssetGraphic>("AssetGraphics"); 
     config.MapODataServiceRoute("odata", "odata", builder.GetEdmModel());
     */
-    public class UserAuthorizedActivitiesController : ODataController
+    public class AssetGraphicVisibleValuesController : ODataController
     {
         private iOPS_NormalizedEntities db = new iOPS_NormalizedEntities();
 
-        // GET: odata/UserAuthorizedActivities
+        // GET: odata/AssetGraphicVisibleValues
         [EnableQuery(MaxExpansionDepth = 100)]
-        public IQueryable<UserAuthorizedActivity> GetUserAuthorizedActivities()
+        public IQueryable<AssetGraphicVisibleValue> GetAssetGraphicVisibleValues()
         {
-            return db.UserAuthorizedActivities;
+            return db.AssetGraphicVisibleValues;
         }
 
-        // GET: odata/UserAuthorizedActivities(5)
+        // GET: odata/AssetGraphicVisibleValues(5)
         [EnableQuery(MaxExpansionDepth = 100)]
-        public SingleResult<UserAuthorizedActivity> GetUserAuthorizedActivity([FromODataUri] long key)
+        public SingleResult<AssetGraphicVisibleValue> GetAssetGraphicVisibleValue([FromODataUri] long key)
         {
-            return SingleResult.Create(db.UserAuthorizedActivities.Where(userAuthorizedActivity => userAuthorizedActivity.Id == key));
+            return SingleResult.Create(db.AssetGraphicVisibleValues.Where(assetGraphicVisibleValue => assetGraphicVisibleValue.Id == key));
         }
 
-        
-        //+ POST: odata/UserAuthorizedActivities
-        public async Task<IHttpActionResult> Post(UserAuthorizedActivity entity)
+        // POST: odata/AssetGraphicVisibleValue
+        public async Task<IHttpActionResult> Post(AssetGraphicVisibleValue entity)
         {
             if (!ModelState.IsValid)
             {
@@ -58,43 +56,36 @@ namespace iOPS_ODataV4.Controllers.OdataV4
 
             if (entity.Id < 0)
             {
-                var delEntity = new UserAuthorizedActivity { Id = -entity.Id };
-                db.UserAuthorizedActivities.Attach(delEntity);
-                db.UserAuthorizedActivities.Remove(delEntity);
+                var delEntity = new AssetGraphicVisibleValue { Id = -entity.Id };
+                db.AssetGraphicVisibleValues.Attach(delEntity);
+                db.AssetGraphicVisibleValues.Remove(delEntity);
                 await db.SaveChangesAsync();
                 return StatusCode(HttpStatusCode.NoContent);
             }
 
-            var modifiedEntity = await db.UserAuthorizedActivities.FindAsync(entity.Id);
+            var modifiedEntity = await db.AssetGraphicVisibleValues.FindAsync(entity.Id);
 
             if (modifiedEntity != null)
             {
                 db.Entry(modifiedEntity).State = EntityState.Detached;
-                db.UserAuthorizedActivities.Attach(entity);
+                db.AssetGraphicVisibleValues.Attach(entity);
                 db.Entry(entity).State = EntityState.Modified;
                 await db.SaveChangesAsync();
                 return Updated(entity);
 
             }
-            modifiedEntity = db.UserAuthorizedActivities.Add(entity);
+            modifiedEntity = db.AssetGraphicVisibleValues.Add(entity);
 
             await db.SaveChangesAsync();
 
             return Created(modifiedEntity);
         }
 
-        // GET: odata/UserAuthorizedActivities(5)/AuthorizableActivity
+        // GET: odata/AssetGraphicVisibleValues(5)/AssetGraphic
         [EnableQuery(MaxExpansionDepth = 100)]
-        public SingleResult<AuthorizableActivity> GetAuthorizableActivity([FromODataUri] long key)
+        public SingleResult<AssetGraphic> GetAssetGraphic([FromODataUri] long key)
         {
-            return SingleResult.Create(db.UserAuthorizedActivities.Where(m => m.Id == key).Select(m => m.AuthorizableActivity));
-        }
-
-        // GET: odata/UserAuthorizedActivities(5)/iOPSUser
-        [EnableQuery(MaxExpansionDepth = 100)]
-        public SingleResult<iOPSUser> GetiOPSUser([FromODataUri] long key)
-        {
-            return SingleResult.Create(db.UserAuthorizedActivities.Where(m => m.Id == key).Select(m => m.iOPSUser));
+            return SingleResult.Create(db.AssetGraphicVisibleValues.Where(m => m.Id == key).Select(m => m.AssetGraphic));
         }
 
         protected override void Dispose(bool disposing)
@@ -106,9 +97,9 @@ namespace iOPS_ODataV4.Controllers.OdataV4
             base.Dispose(disposing);
         }
 
-        private bool UserAuthorizedActivityExists(long key)
+        private bool AssetGraphicVisibleValueExists(long key)
         {
-            return db.UserAuthorizedActivities.Count(e => e.Id == key) > 0;
+            return db.AssetGraphicVisibleValues.Count(e => e.Id == key) > 0;
         }
     }
 }

@@ -35,14 +35,14 @@ namespace iOPS_ODataV4.Controllers.OdataV4
         private iOPS_NormalizedEntities db = new iOPS_NormalizedEntities();
 
         // GET: odata/SystemGroups
-        [EnableQuery]
+        [EnableQuery(MaxExpansionDepth = 100)]
         public IQueryable<SystemGroup> GetSystemGroups()
         {
             return db.SystemGroups;
         }
 
         // GET: odata/SystemGroups(5)
-        [EnableQuery]
+        [EnableQuery(MaxExpansionDepth = 100)]
         public SingleResult<SystemGroup> GetSystemGroup([FromODataUri] long key)
         {
             return SingleResult.Create(db.SystemGroups.Where(systemGroup => systemGroup.Id == key));
@@ -88,42 +88,42 @@ namespace iOPS_ODataV4.Controllers.OdataV4
 
 
         // GET: odata/SystemGroups(5)/Assets
-        [EnableQuery]
+        [EnableQuery(MaxExpansionDepth = 100)]
         public IQueryable<Asset> GetAssets([FromODataUri] long key)
         {
             return db.SystemGroups.Where(m => m.Id == key).SelectMany(m => m.Assets);
         }
 
         // GET: odata/SystemGroups(5)/Company
-        [EnableQuery]
+        [EnableQuery(MaxExpansionDepth = 100)]
         public SingleResult<Company> GetCompany([FromODataUri] long key)
         {
             return SingleResult.Create(db.SystemGroups.Where(m => m.Id == key).Select(m => m.Company));
         }
 
         // GET: odata/SystemGroups(5)/Site
-        [EnableQuery]
+        [EnableQuery(MaxExpansionDepth = 100)]
         public SingleResult<Site> GetSite([FromODataUri] long key)
         {
             return SingleResult.Create(db.SystemGroups.Where(m => m.Id == key).Select(m => m.Site));
         }
 
         // GET: odata/SystemGroups(5)/Children
-        [EnableQuery]
+        [EnableQuery(MaxExpansionDepth = 100)]
         public IQueryable<SystemGroup> GetChildren([FromODataUri] long key)
         {
             return db.SystemGroups.Where(m => m.Id == key).SelectMany(m => m.Children);
         }
 
         // GET: odata/SystemGroups(5)/Parent
-        [EnableQuery]
+        [EnableQuery(MaxExpansionDepth = 100)]
         public SingleResult<SystemGroup> GetParent([FromODataUri] long key)
         {
             return SingleResult.Create(db.SystemGroups.Where(m => m.Id == key).Select(m => m.Parent));
         }
 
         // GET: odata/SystemGroups(5)/SystemType
-        [EnableQuery]
+        [EnableQuery(MaxExpansionDepth = 100)]
         public SingleResult<SystemType> GetSystemType([FromODataUri] long key)
         {
             return SingleResult.Create(db.SystemGroups.Where(m => m.Id == key).Select(m => m.SystemType));

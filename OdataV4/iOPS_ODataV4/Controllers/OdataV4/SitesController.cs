@@ -31,14 +31,14 @@ namespace iOPS_ODataV4.Controllers.OdataV4
         private iOPS_NormalizedEntities db = new iOPS_NormalizedEntities();
 
         // GET: odata/Sites
-        [EnableQuery]
+        [EnableQuery(MaxExpansionDepth = 100)]
         public IQueryable<Site> GetSites()
         {
             return db.Sites;
         }
 
         // GET: odata/Sites(5)
-        [EnableQuery]
+        [EnableQuery(MaxExpansionDepth = 100)]
         public SingleResult<Site> GetSite([FromODataUri] long key)
         {
             return SingleResult.Create(db.Sites.Where(site => site.Id == key));
@@ -86,56 +86,56 @@ namespace iOPS_ODataV4.Controllers.OdataV4
        
 
         // GET: odata/Sites(5)/Assets
-        [EnableQuery]
+        [EnableQuery(MaxExpansionDepth = 100)]
         public IQueryable<Asset> GetAssets([FromODataUri] long key)
         {
             return db.Sites.Where(m => m.Id == key).SelectMany(m => m.Assets);
         }
 
         // GET: odata/Sites(5)/SiteCompanies
-        [EnableQuery]
+        [EnableQuery(MaxExpansionDepth = 100)]
         public IQueryable<SiteCompany> GetSiteCompanies([FromODataUri] long key)
         {
             return db.Sites.Where(m => m.Id == key).SelectMany(m => m.SiteCompanies);
         }
 
         // GET: odata/Sites(5)/SiteDataReaders
-        [EnableQuery]
+        [EnableQuery(MaxExpansionDepth = 100)]
         public IQueryable<SiteDataReader> GetSiteDataReaders([FromODataUri] long key)
         {
             return db.Sites.Where(m => m.Id == key).SelectMany(m => m.SiteDataReaders);
         }
 
         // GET: odata/Sites(5)/Systems
-        [EnableQuery]
+        [EnableQuery(MaxExpansionDepth = 100)]
         public IQueryable<SystemGroup> GetSystems([FromODataUri] long key)
         {
             return db.Sites.Where(m => m.Id == key).SelectMany(m => m.Systems);
         }
 
         //// GET: odata/Sites(5)/BHSAlarms
-        //[EnableQuery]
+        //[EnableQuery(MaxExpansionDepth = 100)]
         //public IQueryable<BHSAlarm> GetBHSAlarms([FromODataUri] long key)
         //{
         //    return db.Sites.Where(m => m.Id == key).SelectMany(m => m.BHSAlarms);
         //}
 
         // GET: odata/Sites(5)/BagTagScans
-        [EnableQuery]
+        [EnableQuery(MaxExpansionDepth = 100)]
         public IQueryable<BHSBagTagScan> GetBagTagScans([FromODataUri] long key)
         {
             return db.Sites.Where(m => m.Id == key).SelectMany(m => m.BagTagScans);
         }
 
         // GET: odata/Sites(5)/JamAlarms
-        [EnableQuery]
+        [EnableQuery(MaxExpansionDepth = 100)]
         public IQueryable<BHSJamAlarm> GetBHSJamAlarms([FromODataUri] long key)
         {
             return db.Sites.Where(m => m.Id == key).SelectMany(m => m.BHSJamAlarms);
         }
 
         // GET: odata/Sites(5)/BHSDeviceLocations
-        [EnableQuery]
+        [EnableQuery(MaxExpansionDepth = 100)]
         public IQueryable<BHSDeviceLocation> GetBHSDeviceLocations([FromODataUri] long key)
         {
             return db.Sites.Where(m => m.Id == key).SelectMany(m => m.BHSDeviceLocations);
@@ -143,14 +143,14 @@ namespace iOPS_ODataV4.Controllers.OdataV4
 
 
         // GET: odata/Sites(5)/BHSCurrentAlarms
-        [EnableQuery]
+        [EnableQuery(MaxExpansionDepth = 100)]
         public IQueryable<BHSCurrentAlarm> GetBHSCurrentAlarms([FromODataUri] long key)
         {
             return db.Sites.Where(m => m.Id == key).SelectMany(m => m.BHSCurrentAlarms);
         }
 
         // GET: odata/Sites(5)/BHSAlarmHistories
-        [EnableQuery]
+        [EnableQuery(MaxExpansionDepth = 100)]
         public IQueryable<BHSAlarmHistory> GetBHSAlarmHistories([FromODataUri] long key)
         {
             return db.Sites.Where(m => m.Id == key).SelectMany(m => m.BHSAlarmHistories);

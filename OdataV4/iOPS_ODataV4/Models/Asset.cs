@@ -49,6 +49,7 @@ namespace iOPS_ODataV4.Models
         public string BaseUnitImageURL { get; set; }
         public string Make { get; set; }
         public string Program { get; set; }
+        public string ModelGenericName { get; set; }
     
         public virtual Company Company { get; set; }
         public virtual AssetType AssetType { get; set; }

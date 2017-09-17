@@ -37,14 +37,82 @@
 
 
 					vm.openSettingsDash = function ($event, widget) {
-						var element = $("#widget-settings-" + widget.Id)[0].parentNode.parentNode.offsetParent;
-						var position = $(element).offset();
-						position.width = $(element).width();
+						try {
+							var element = $("#widget-settings-" + widget.Id)[0].parentNode.parentNode.offsetParent;
+							var position = $(element).offset();
+							position.width = $(element).width();
 
-						$("#widget-settings-" + widget.Id).css({left: position.left + 20, top: position.top + 35, width: 500 });
-						$("#widget-settings-" + widget.Id).slideToggle();
+							$("#gridster" + widget.Id).css('z-index', '35');
+							$("#widget-settings-" + widget.Id).css({ left: position.left + 20, top: position.top + 35, width: 500, 'z-index': 3500 });
+							$("#widget-settings-" + widget.Id).slideToggle();
+
+
+						} catch (e) {
+
+						}
 
 					}
+
+					vm.AddTagsToSpecificWidgetGraph = function(widget) {
+						$rootScope.$broadcast("Widget.AddTagsToGraph", widget);
+					}
+
+
+					vm.AddTagsToGraph = function (tagObjectCollectionFromWidget) {
+						vm.dashboard.tagsToGraph = tagObjectCollectionFromWidget.concat(vm.dashboard.tagsToGraph).distinct(function (a, b) { return a.TagId == b.TagId }).where(function (t) { return t.Enabled });
+						console.log("Dashboard vm.dashboard.tagsToGraph = %O", vm.dashboard.tagsToGraph);
+						if (vm.dashboard.tagsToGraph.length > 0) {
+							$rootScope.$broadcast("Dashboard.TagsToGraph", vm.dashboard.tagsToGraph);
+						} else {
+							$rootScope.$broadcast("Dashboard.TagsToGraph", null);
+						}
+					}
+
+					vm.AddGraphWidgetToDashboard = function () {
+
+
+
+
+						//Find the hidden system type called tagGraph and add one to this dashboard.
+						dataService.GetIOPSCollection("WidgetTypes", "AngularDirectiveName", "tagGraph").then(function (data) {
+							var tagGraphWidgetType = data[0];
+
+							dataService.AddEntity("Widgets", {
+								Name: 'Tag History',
+								WidgetTypeId: tagGraphWidgetType.Id,
+								ParentDashboardId: vm.dashboard.Id,
+								EmbeddedDashboardId: null,
+								Width: tagGraphWidgetType.InitialWidth,
+								Height: tagGraphWidgetType.InitialHeight,
+								Row: 0,
+								Col: 0
+							}).then(function (newWidget) {
+
+								//Save all of the tag ids to the WidgetGraphTag table
+								$q.all(vm.dashboard.tagsToGraph.select(function (t) {
+									return dataService.AddEntity("WidgetGraphTags", { WidgetId: newWidget.Id, TagId: t.TagId });
+
+								})).then(function () {
+
+									//This will cause all graph selecting widgets to clear their local collection of tags to graph, causing all of the buttons depressed to reset.
+									$rootScope.$broadcast("GraphWidgetAdded", newWidget);
+
+									//Clear out the selection of tag to graph
+									vm.dashboard.tagsToGraph = [];
+								});
+
+
+							});
+
+
+						});
+
+
+
+
+					}
+
+
 
 
 					uibButtonConfig.activeClass = 'radio-active';
@@ -88,6 +156,8 @@
 						dataService.GetExpandedDashboardById(vm.dashboardId)
 						.then(function (data) {
 							vm.dashboard = data;
+							vm.dashboard.tagsToGraph = [];
+
 							SetSubTitleBasedOnDashboardTimeScope();
 							//console.log("vm.dashboard = %O", vm.dashboard);
 						})
@@ -229,7 +299,7 @@
 
 
 					$scope.$on("Widget", function (event, widget) {
-
+						console.log("Widget Event");
 						if (widget.ParentDashboardId == vm.dashboardId) {
 							vm.widgets = [widget].select(function (w) {
 								return {
@@ -246,10 +316,43 @@
 
 								}
 
-							})
-							.concat(vm.widgets)
-								.distinct(function (a, b) { return a.Id == b.Id });
+							}).concat(vm.widgets).distinct(function (a, b) { return a.Id == b.Id });
 
+						}
+
+					});
+
+					$scope.$on("GraphWidgetAdded", function (event, widget) {
+						console.log("Widget Event");
+						if (widget.ParentDashboardId == vm.dashboardId) {
+							vm.widgets = [widget].select(function (w) {
+								return {
+									sizeX: w.Width,
+									sizeY: w.Height,
+									row: w.Row,
+									col: w.Col,
+									prevRow: w.Row,
+									prevCol: w.Col,
+									Id: w.Id,
+									Name: w.Name,
+									WidgetResource: w,
+									HasChanged: false
+
+								}
+
+							}).concat(vm.widgets).distinct(function (a, b) { return a.Id == b.Id });
+
+							$timeout(function() {
+
+								console.log("State Change");
+								$state.go("^");
+								$timeout(function() {
+									$state.go("home.app.dashboard", { DashboardId: vm.dashboard.Id });
+									
+								},10)
+
+								
+							},10);
 						}
 
 					});
@@ -304,13 +407,27 @@
 
 								dataService.GetIOPSResource("Widgets").filter("Id", widget.Id).query().$promise.then(function (widgetToDeleteArray) {
 									var widgetToDelete = widgetToDeleteArray[0];
-									//console.log("Widget to delete = %O", widgetToDelete);
-									widgetToDelete.Id = -widgetToDelete.Id;
-									widgetToDelete.$save().then(function () {
-										console.log("Widget Deleted");
-										widgetToDelete.Id = -widgetToDelete.Id;
-										signalR.SignalAllClients("Widget.Deleted", widgetToDelete);
+
+									//Delete any WidgetGraphTag rows that might be associated with this widget
+									dataService.GetIOPSCollection("WidgetGraphTags", "WidgetId", widget.Id).then(function (gts) {
+										$q.all(
+											gts.select(function (gt) {
+												gt.Id = -gt.Id;
+												return gt.$save();
+											})
+										).then(function () {
+											//console.log("Widget to delete = %O", widgetToDelete);
+											widgetToDelete.Id = -widgetToDelete.Id;
+											widgetToDelete.$save().then(function () {
+												console.log("Widget Deleted");
+												widgetToDelete.Id = -widgetToDelete.Id;
+												signalR.SignalAllClients("Widget.Deleted", widgetToDelete);
+											});
+
+										});
 									});
+
+
 								});
 
 

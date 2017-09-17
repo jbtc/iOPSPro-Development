@@ -33,14 +33,14 @@ namespace iOPS_ODataV4.Controllers.OdataV4
         private iOPS_NormalizedEntities db = new iOPS_NormalizedEntities();
 
         // GET: odata/CompanyContacts
-        [EnableQuery]
+        [EnableQuery(MaxExpansionDepth = 100)]
         public IQueryable<CompanyContact> GetCompanyContacts()
         {
             return db.CompanyContacts;
         }
 
         // GET: odata/CompanyContacts(5)
-        [EnableQuery]
+        [EnableQuery(MaxExpansionDepth = 100)]
         public SingleResult<CompanyContact> GetCompanyContact([FromODataUri] long key)
         {
             return SingleResult.Create(db.CompanyContacts.Where(companyContact => companyContact.Id == key));
@@ -92,14 +92,14 @@ namespace iOPS_ODataV4.Controllers.OdataV4
 
 
         // GET: odata/CompanyContacts(5)/Company
-        [EnableQuery]
+        [EnableQuery(MaxExpansionDepth = 100)]
         public SingleResult<Company> GetCompany([FromODataUri] long key)
         {
             return SingleResult.Create(db.CompanyContacts.Where(m => m.Id == key).Select(m => m.Company));
         }
 
         // GET: odata/CompanyContacts(5)/Person
-        [EnableQuery]
+        [EnableQuery(MaxExpansionDepth = 100)]
         public SingleResult<Person> GetPerson([FromODataUri] long key)
         {
             return SingleResult.Create(db.CompanyContacts.Where(m => m.Id == key).Select(m => m.Person));

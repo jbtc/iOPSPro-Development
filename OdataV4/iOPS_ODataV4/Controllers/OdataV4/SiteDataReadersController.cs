@@ -33,14 +33,14 @@ namespace iOPS_ODataV4.Controllers.OdataV4
         private iOPS_NormalizedEntities db = new iOPS_NormalizedEntities();
 
         // GET: odata/SiteDataReaders
-        [EnableQuery]
+        [EnableQuery(MaxExpansionDepth = 100)]
         public IQueryable<SiteDataReader> GetSiteDataReaders()
         {
             return db.SiteDataReaders;
         }
 
         // GET: odata/SiteDataReaders(5)
-        [EnableQuery]
+        [EnableQuery(MaxExpansionDepth = 100)]
         public SingleResult<SiteDataReader> GetSiteDataReader([FromODataUri] long key)
         {
             return SingleResult.Create(db.SiteDataReaders.Where(siteDataReader => siteDataReader.Id == key));
@@ -84,14 +84,14 @@ namespace iOPS_ODataV4.Controllers.OdataV4
         }
 
         // GET: odata/SiteDataReaders(5)/Site
-        [EnableQuery]
+        [EnableQuery(MaxExpansionDepth = 100)]
         public SingleResult<Site> GetSite([FromODataUri] long key)
         {
             return SingleResult.Create(db.SiteDataReaders.Where(m => m.Id == key).Select(m => m.Site));
         }
 
         // GET: odata/SiteDataReaders(5)/iOPSUser
-        [EnableQuery]
+        [EnableQuery(MaxExpansionDepth = 100)]
         public SingleResult<iOPSUser> GetiOPSUser([FromODataUri] long key)
         {
             return SingleResult.Create(db.SiteDataReaders.Where(m => m.Id == key).Select(m => m.iOPSUser));

@@ -32,14 +32,14 @@ namespace iOPS_ODataV4.Controllers.OdataV4
         private iOPS_NormalizedEntities db = new iOPS_NormalizedEntities();
 
         // GET: odata/Dashboards
-        [EnableQuery]
+        [EnableQuery(MaxExpansionDepth = 100)]
         public IQueryable<Dashboard> GetDashboards()
         {
             return db.Dashboards;
         }
 
         // GET: odata/Dashboards(5)
-        [EnableQuery]
+        [EnableQuery(MaxExpansionDepth = 100)]
         public SingleResult<Dashboard> GetDashboard([FromODataUri] long key)
         {
             return SingleResult.Create(db.Dashboards.Where(dashboard => dashboard.Id == key));
@@ -83,7 +83,7 @@ namespace iOPS_ODataV4.Controllers.OdataV4
         }
 
         // GET: odata/Dashboards(5)/iOPSUser
-        [EnableQuery]
+        [EnableQuery(MaxExpansionDepth = 100)]
         public SingleResult<iOPSUser> GetiOPSUser([FromODataUri] long key)
         {
             return SingleResult.Create(db.Dashboards.Where(m => m.Id == key).Select(m => m.iOPSUser));
@@ -91,7 +91,7 @@ namespace iOPS_ODataV4.Controllers.OdataV4
         
         
         // GET: odata/Dashboards(5)/iOPSUser
-        [EnableQuery]
+        [EnableQuery(MaxExpansionDepth = 100)]
         public SingleResult<DashboardTimeScope> GetDashboardTimeScope([FromODataUri] long key)
         {
             return SingleResult.Create(db.Dashboards.Where(m => m.Id == key).Select(m => m.DashboardTimeScope));
@@ -99,7 +99,7 @@ namespace iOPS_ODataV4.Controllers.OdataV4
 
 
         // GET: odata/Dashboards(5)/DashboardWidgets
-        [EnableQuery]
+        [EnableQuery(MaxExpansionDepth = 100)]
         public IQueryable<Widget> GetWidgets([FromODataUri] long key)
         {
             return db.Dashboards.Where(m => m.Id == key).SelectMany(m => m.Widgets);

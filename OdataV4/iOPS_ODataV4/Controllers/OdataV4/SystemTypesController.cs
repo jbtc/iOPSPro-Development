@@ -32,14 +32,14 @@ namespace iOPS_ODataV4.Controllers.OdataV4
         private iOPS_NormalizedEntities db = new iOPS_NormalizedEntities();
 
         // GET: odata/SystemTypes
-        [EnableQuery]
+        [EnableQuery(MaxExpansionDepth = 100)]
         public IQueryable<SystemType> GetSystemTypes()
         {
             return db.SystemTypes;
         }
 
         // GET: odata/SystemTypes(5)
-        [EnableQuery]
+        [EnableQuery(MaxExpansionDepth = 100)]
         public SingleResult<SystemType> GetSystemType([FromODataUri] long key)
         {
             return SingleResult.Create(db.SystemTypes.Where(systemType => systemType.Id == key));
@@ -85,7 +85,7 @@ namespace iOPS_ODataV4.Controllers.OdataV4
 
 
         // GET: odata/SystemTypes(5)/Systems
-        [EnableQuery]
+        [EnableQuery(MaxExpansionDepth = 100)]
         public IQueryable<SystemGroup> GetSystems([FromODataUri] long key)
         {
             return db.SystemTypes.Where(m => m.Id == key).SelectMany(m => m.Systems);

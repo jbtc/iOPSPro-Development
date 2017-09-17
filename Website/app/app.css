@@ -36,6 +36,14 @@ body {
     font-size: .7em;
 }
 
+.tiny-fa-icon-button {
+    height: 15px;
+    font-size: .7em;
+    width: 15px;
+}
+
+
+
 .mid-size-button {
     height: 25px;
     font-size: .8em;
@@ -114,7 +122,11 @@ thead > .shaded-gray {
   }
 
   .ui-accordion .ui-accordion-content {
-    padding: 1em 1em;
+    padding: .6em .6em;
 }
+
+  .ui-state-active {
+      background-color: lightblue;
+  }
 
 

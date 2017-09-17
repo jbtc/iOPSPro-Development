@@ -18,6 +18,7 @@ namespace iOPS_ODataV4.Models
         public Widget()
         {
             this.WidgetCustomTagDisplayOrders = new HashSet<WidgetCustomTagDisplayOrder>();
+            this.WidgetGraphTags = new HashSet<WidgetGraphTag>();
         }
     
         public long Id { get; set; }
@@ -46,5 +47,7 @@ namespace iOPS_ODataV4.Models
         public virtual Dashboard EmbeddedDashboard { get; set; }
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<WidgetCustomTagDisplayOrder> WidgetCustomTagDisplayOrders { get; set; }
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
+        public virtual ICollection<WidgetGraphTag> WidgetGraphTags { get; set; }
     }
 }

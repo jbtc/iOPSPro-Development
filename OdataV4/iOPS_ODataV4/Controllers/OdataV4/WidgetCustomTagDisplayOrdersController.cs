@@ -34,14 +34,14 @@ namespace iOPS_ODataV4.Controllers.OdataV4
         private iOPS_NormalizedEntities db = new iOPS_NormalizedEntities();
 
         // GET: odata/WidgetCustomTagDisplayOrders
-        [EnableQuery]
+        [EnableQuery(MaxExpansionDepth = 100)]
         public IQueryable<WidgetCustomTagDisplayOrder> GetWidgetCustomTagDisplayOrders()
         {
             return db.WidgetCustomTagDisplayOrders;
         }
 
         // GET: odata/WidgetCustomTagDisplayOrders(5)
-        [EnableQuery]
+        [EnableQuery(MaxExpansionDepth = 100)]
         public SingleResult<WidgetCustomTagDisplayOrder> GetWidgetCustomTagDisplayOrder([FromODataUri] long key)
         {
             return SingleResult.Create(db.WidgetCustomTagDisplayOrders.Where(widgetCustomTagDisplayOrder => widgetCustomTagDisplayOrder.Id == key));
@@ -85,21 +85,21 @@ namespace iOPS_ODataV4.Controllers.OdataV4
 
 
         // GET: odata/WidgetCustomTagDisplayOrders(5)/Widget
-        [EnableQuery]
+        [EnableQuery(MaxExpansionDepth = 100)]
         public SingleResult<Widget> GetWidget([FromODataUri] long key)
         {
             return SingleResult.Create(db.WidgetCustomTagDisplayOrders.Where(m => m.Id == key).Select(m => m.Widget));
         }
 
         // GET: odata/WidgetCustomTagDisplayOrders(5)/iOPSUser
-        [EnableQuery]
+        [EnableQuery(MaxExpansionDepth = 100)]
         public SingleResult<iOPSUser> GetiOPSUser([FromODataUri] long key)
         {
             return SingleResult.Create(db.WidgetCustomTagDisplayOrders.Where(m => m.Id == key).Select(m => m.iOPSUser));
         }
 
         // GET: odata/WidgetCustomTagDisplayOrders(5)/JBTStandardObservation
-        [EnableQuery]
+        [EnableQuery(MaxExpansionDepth = 100)]
         public SingleResult<JBTStandardObservation> GetJBTStandardObservation([FromODataUri] long key)
         {
             return SingleResult.Create(db.WidgetCustomTagDisplayOrders.Where(m => m.Id == key).Select(m => m.JBTStandardObservation));

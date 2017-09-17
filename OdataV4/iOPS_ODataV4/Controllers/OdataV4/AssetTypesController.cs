@@ -32,14 +32,14 @@ namespace iOPS_ODataV4.Controllers.OdataV4
         private iOPS_NormalizedEntities db = new iOPS_NormalizedEntities();
 
         // GET: odata/AssetTypes
-        [EnableQuery]
+        [EnableQuery(MaxExpansionDepth = 100)]
         public IQueryable<AssetType> GetAssetTypes()
         {
             return db.AssetTypes;
         }
 
         // GET: odata/AssetTypes(5)
-        [EnableQuery]
+        [EnableQuery(MaxExpansionDepth = 100)]
         public SingleResult<AssetType> GetAssetType([FromODataUri] long key)
         {
             return SingleResult.Create(db.AssetTypes.Where(assetType => assetType.Id == key));
@@ -88,7 +88,7 @@ namespace iOPS_ODataV4.Controllers.OdataV4
       
 
         // GET: odata/AssetTypes(5)/Assets
-        [EnableQuery]
+        [EnableQuery(MaxExpansionDepth = 100)]
         public IQueryable<Asset> GetAssets([FromODataUri] long key)
         {
             return db.AssetTypes.Where(m => m.Id == key).SelectMany(m => m.Assets);

@@ -32,14 +32,14 @@ namespace iOPS_ODataV4.Controllers.OdataV4
         private iOPS_NormalizedEntities db = new iOPS_NormalizedEntities();
 
         // GET: odata/WidgetTypes
-        [EnableQuery]
+        [EnableQuery(MaxExpansionDepth = 100)]
         public IQueryable<WidgetType> GetWidgetTypes()
         {
             return db.WidgetTypes;
         }
 
         // GET: odata/WidgetTypes(5)
-        [EnableQuery]
+        [EnableQuery(MaxExpansionDepth = 100)]
         public SingleResult<WidgetType> GetWidgetType([FromODataUri] long key)
         {
             return SingleResult.Create(db.WidgetTypes.Where(widgetType => widgetType.Id == key));
@@ -83,7 +83,7 @@ namespace iOPS_ODataV4.Controllers.OdataV4
         }
 
         // GET: odata/WidgetTypes(5)/Widgets
-        [EnableQuery]
+        [EnableQuery(MaxExpansionDepth = 100)]
         public IQueryable<Widget> GetWidgets([FromODataUri] long key)
         {
             return db.WidgetTypes.Where(m => m.Id == key).SelectMany(m => m.Widgets);

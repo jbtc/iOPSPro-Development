@@ -308,7 +308,7 @@
 		function LoadDataCollections() {
 
 			//Get an instance of the localDB and proceed from there.
-			indexedDBService.getDBInstance("iOPS", 16, [
+			indexedDBService.getDBInstance("iOPS", 18, [
 							{
 								dataStoreName: "Companies",
 								keyName: "Id"
@@ -1534,7 +1534,7 @@
 				var panelHeadingHeight = panelHeadingElement.offsetHeight;
 				var panelWidth = panelElement.offsetWidth;
 				var widgetContentHeight = panelElement.offsetHeight - panelHeadingElement.offsetHeight;
-				widgetPanelBody.css('height', widgetContentHeight);
+				widgetPanelBody.css('height', widgetContentHeight + 28);
 				$("." + widgetId + "-repeater-container").each(function (index, element) {
 					$(element).css('height', +widgetContentHeight - 33);
 					$(element).css('width', +panelWidth - 17);
@@ -2292,19 +2292,17 @@
 
 
 
+		$rootScope.$on("signalR.Reconnect", function(event, obj) {
+			//For some reason (like putting your system to sleep) the signalR service disconnected.
+			//On reconnection, join the appropriate groups.
+			JoinUserSignalRGroups();
+		});
+
+
+
 		function JoinUserSignalRGroups() {
 			if (Global.User.AuthorizedActivities.contains("AuthorizedActivity.AdministerSystem")) {
 				signalR.JoinGroup("Admin");
-
-				//console.log("Joining all Site Groups for admin access");
-				//Get all of the sites in the system and join the signalR group for all of them
-				//dataService.GetIOPSCollection("Sites").then(function (sites) {
-				//	console.log("Sites to join = %O", sites);
-				//	sites.forEach(function (site) {
-				//		//console.log("Joining Site " + site.Name);
-				//		signalR.JoinGroup(site.Name);
-				//	});
-				//});
 			}
 
 			Global.User.ReaderOf.forEach(function (ro) {
@@ -2312,7 +2310,6 @@
 				//console.log("User ReaderOf Sites site = to join = %O", site);
 				signalR.JoinGroup(site);
 			});
-
 		}
 
 
@@ -2445,6 +2442,9 @@
 
 		service.connectedClients = [];
 
+
+		service.connected = false;
+
 		var signalRHub = $.connection.jbthub;
 
 
@@ -2475,6 +2475,7 @@
 
 		$interval(function () {
 			if (service.connectionState == "disconnected") {
+				service.connected = false;
 				HubStart();
 			}
 		}, 1000);
@@ -2966,14 +2967,18 @@
 
 				.done(function () {
 					//console.log("SignalR start is done.");
-					console.log("Local ClientId:" + $.connection.hub.id);
-					var dataObject = GetClientDataObject();
-					if (dataObject) {
-						service.Me = dataObject;
-						SaveUserByClientId(dataObject.ClientId, dataObject);
-						service.SignalAllClients("System.ClientConnectionEstablished", GetClientDataObject());
+					if(!service.connected){
+						service.connected = true;
+						console.log("Client Connect - Local ClientId:" + $.connection.hub.id);
+						var dataObject = GetClientDataObject();
+						if (dataObject) {
+							service.Me = dataObject;
+							SaveUserByClientId(dataObject.ClientId, dataObject);
+						
+							service.SignalAllClients("System.ClientConnectionEstablished", GetClientDataObject());
+						}
+						SignalRPerformanceTest();
 					}
-					SignalRPerformanceTest();
 
 
 
@@ -2981,7 +2986,8 @@
 
 				.fail(function (error) {
 					console.log("SignalR Error " + error);
-					$timeout(function() {
+					service.connected = false;
+					$timeout(function () {
 						HubStart();
 					}, 1000);
 				}

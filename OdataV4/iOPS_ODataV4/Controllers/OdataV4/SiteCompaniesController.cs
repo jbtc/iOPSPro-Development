@@ -33,14 +33,14 @@ namespace iOPS_ODataV4.Controllers.OdataV4
         private iOPS_NormalizedEntities db = new iOPS_NormalizedEntities();
 
         // GET: odata/SiteCompanies
-        [EnableQuery]
+        [EnableQuery(MaxExpansionDepth = 100)]
         public IQueryable<SiteCompany> GetSiteCompanies()
         {
             return db.SiteCompanies;
         }
 
         // GET: odata/SiteCompanies(5)
-        [EnableQuery]
+        [EnableQuery(MaxExpansionDepth = 100)]
         public SingleResult<SiteCompany> GetSiteCompany([FromODataUri] long key)
         {
             return SingleResult.Create(db.SiteCompanies.Where(siteCompany => siteCompany.Id == key));
@@ -84,14 +84,14 @@ namespace iOPS_ODataV4.Controllers.OdataV4
         }
 
         // GET: odata/SiteCompanies(5)/Company
-        [EnableQuery]
+        [EnableQuery(MaxExpansionDepth = 100)]
         public SingleResult<Company> GetCompany([FromODataUri] long key)
         {
             return SingleResult.Create(db.SiteCompanies.Where(m => m.Id == key).Select(m => m.Company));
         }
 
         // GET: odata/SiteCompanies(5)/Site
-        [EnableQuery]
+        [EnableQuery(MaxExpansionDepth = 100)]
         public SingleResult<Site> GetSite([FromODataUri] long key)
         {
             return SingleResult.Create(db.SiteCompanies.Where(m => m.Id == key).Select(m => m.Site));

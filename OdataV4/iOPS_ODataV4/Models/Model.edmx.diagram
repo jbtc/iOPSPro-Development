@@ -93,12 +93,17 @@
         <AssociationConnector Association="iOPS_NormalizedModel.FK_Asset_Site" />
         <AssociationConnector Association="iOPS_NormalizedModel.FK_Asset_System" />
         <AssociationConnector Association="iOPS_NormalizedModel.FK_Tag_Asset" />
-        <EntityTypeShape EntityType="iOPS_NormalizedModel.AssetGraphic" Width="2.25" PointX="9.375" PointY="6.75" />
-        <AssociationConnector Association="iOPS_NormalizedModel.FK_AssetModelImage_Asset" />
         <EntityTypeShape EntityType="iOPS_NormalizedModel.WidgetCustomTagDisplayOrder" Width="2.375" PointX="26.5" PointY="23.875" />
         <AssociationConnector Association="iOPS_NormalizedModel.FK_WidgetCustomTagDisplayOrder_Widget" />
         <AssociationConnector Association="iOPS_NormalizedModel.FK_WidgetCustomTagDisplayOrder_iOPSUser" />
         <AssociationConnector Association="iOPS_NormalizedModel.FK_WidgetCustomTagDisplayOrder_JBTStandardObservation" />
+        <EntityTypeShape EntityType="iOPS_NormalizedModel.AssetGraphic" Width="2" PointX="10.25" PointY="6.75" />
+        <EntityTypeShape EntityType="iOPS_NormalizedModel.AssetGraphicVisibleValue" Width="2.25" PointX="7.375" PointY="6.75" />
+        <AssociationConnector Association="iOPS_NormalizedModel.FK_AssetModelImage_Asset" />
+        <AssociationConnector Association="iOPS_NormalizedModel.FK_AssetGraphicVisibleValue_AssetGraphic" />
+        <EntityTypeShape EntityType="iOPS_NormalizedModel.WidgetGraphTag" Width="2" PointX="35.25" PointY="14" />
+        <AssociationConnector Association="iOPS_NormalizedModel.FK_WidgetGraphTag_Tag" />
+        <AssociationConnector Association="iOPS_NormalizedModel.FK_WidgetGraphTag_Widget" />
         </Diagram>
     </edmx:Diagrams>
   </edmx:Designer>

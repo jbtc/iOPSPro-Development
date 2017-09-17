@@ -37,14 +37,14 @@ namespace iOPS_ODataV4.Controllers.OdataV4
         private iOPS_NormalizedEntities db = new iOPS_NormalizedEntities();
 
         // GET: odata/Assets
-        [EnableQuery]
+        [EnableQuery(MaxExpansionDepth = 100)]
         public IQueryable<Asset> GetAssets()
         {
             return db.Assets;
         }
 
         // GET: odata/Assets(5)
-        [EnableQuery]
+        [EnableQuery(MaxExpansionDepth = 100)]
         public SingleResult<Asset> GetAsset([FromODataUri] long key)
         {
             return SingleResult.Create(db.Assets.Where(asset => asset.Id == key));
@@ -53,7 +53,6 @@ namespace iOPS_ODataV4.Controllers.OdataV4
        
 
         // POST: odata/Assets
-
         public async Task<IHttpActionResult> Post(Asset entity)
         {
             if (!ModelState.IsValid)
@@ -91,49 +90,49 @@ namespace iOPS_ODataV4.Controllers.OdataV4
 
 
         // GET: odata/Assets(5)/Company
-        [EnableQuery]
+        [EnableQuery(MaxExpansionDepth = 100)]
         public SingleResult<Company> GetCompany([FromODataUri] long key)
         {
             return SingleResult.Create(db.Assets.Where(m => m.Id == key).Select(m => m.Company));
         }
 
         // GET: odata/Assets(5)/Site
-        [EnableQuery]
+        [EnableQuery(MaxExpansionDepth = 100)]
         public SingleResult<Site> GetSite([FromODataUri] long key)
         {
             return SingleResult.Create(db.Assets.Where(m => m.Id == key).Select(m => m.Site));
         }
 
         // GET: odata/Assets(5)/AssetType
-        [EnableQuery]
+        [EnableQuery(MaxExpansionDepth = 100)]
         public SingleResult<AssetType> GetAssetType([FromODataUri] long key)
         {
             return SingleResult.Create(db.Assets.Where(m => m.Id == key).Select(m => m.AssetType));
         }
 
         // GET: odata/Assets(5)/AssetCondition
-        [EnableQuery]
+        [EnableQuery(MaxExpansionDepth = 100)]
         public SingleResult<AssetCondition> GetAssetCondition([FromODataUri] long key)
         {
             return SingleResult.Create(db.Assets.Where(m => m.Id == key).Select(m => m.AssetCondition));
         }
 
         // GET: odata/Assets(5)/Tags
-        [EnableQuery]
+        [EnableQuery(MaxExpansionDepth = 100)]
         public IQueryable<Tag> GetTags([FromODataUri] long key)
         {
             return db.Assets.Where(m => m.Id == key).SelectMany(m => m.Tags);
         }
 
         // GET: odata/Assets(5)/AssetGraphics
-        [EnableQuery]
+        [EnableQuery(MaxExpansionDepth = 100)]
         public IQueryable<AssetGraphic> GetAssetGraphics([FromODataUri] long key)
         {
             return db.Assets.Where(m => m.Id == key).SelectMany(m => m.AssetGraphics);
         }
 
         // GET: odata/Assets(5)/System
-        [EnableQuery]
+        [EnableQuery(MaxExpansionDepth = 100)]
         public SingleResult<SystemGroup> GetSystem([FromODataUri] long key)
         {
             return SingleResult.Create(db.Assets.Where(m => m.Id == key).Select(m => m.System));

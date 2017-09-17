@@ -32,14 +32,14 @@ namespace iOPS_ODataV4.Controllers.OdataV4
         private iOPS_NormalizedEntities db = new iOPS_NormalizedEntities();
 
         // GET: odata/BHSAlarmHistories
-        [EnableQuery]
+        [EnableQuery(MaxExpansionDepth = 100)]
         public IQueryable<BHSAlarmHistory> GetBHSAlarmHistories()
         {
             return db.BHSAlarmHistories;
         }
 
         // GET: odata/BHSAlarmHistories(5)
-        [EnableQuery]
+        [EnableQuery(MaxExpansionDepth = 100)]
         public SingleResult<BHSAlarmHistory> GetBHSAlarmHistory([FromODataUri] long key)
         {
             return SingleResult.Create(db.BHSAlarmHistories.Where(bHSAlarmHistory => bHSAlarmHistory.Id == key));
@@ -48,7 +48,7 @@ namespace iOPS_ODataV4.Controllers.OdataV4
        
 
         // GET: odata/BHSAlarmHistories(5)/Site
-        [EnableQuery]
+        [EnableQuery(MaxExpansionDepth = 100)]
         public SingleResult<Site> GetSite([FromODataUri] long key)
         {
             return SingleResult.Create(db.BHSAlarmHistories.Where(m => m.Id == key).Select(m => m.Site));

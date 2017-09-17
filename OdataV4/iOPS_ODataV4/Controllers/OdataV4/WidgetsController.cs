@@ -34,14 +34,14 @@ namespace iOPS_ODataV4.Controllers.OdataV4
         private iOPS_NormalizedEntities db = new iOPS_NormalizedEntities();
 
         // GET: odata/Widgets
-        [EnableQuery]
+        [EnableQuery(MaxExpansionDepth = 100)]
         public IQueryable<Widget> GetWidgets()
         {
             return db.Widgets;
         }
 
         // GET: odata/Widgets(5)
-        [EnableQuery]
+        [EnableQuery(MaxExpansionDepth = 100)]
         public SingleResult<Widget> GetWidget([FromODataUri] long key)
         {
             return SingleResult.Create(db.Widgets.Where(widget => widget.Id == key));
@@ -85,21 +85,21 @@ namespace iOPS_ODataV4.Controllers.OdataV4
         }
 
         // GET: odata/Widgets(5)/Dashboard
-        [EnableQuery]
+        [EnableQuery(MaxExpansionDepth = 100)]
         public SingleResult<Dashboard> GetDashboard([FromODataUri] long key)
         {
             return SingleResult.Create(db.Widgets.Where(m => m.Id == key).Select(m => m.Dashboard));
         }
 
         // GET: odata/Widgets(5)/EmbeddedDashboard
-        [EnableQuery]
+        [EnableQuery(MaxExpansionDepth = 100)]
         public SingleResult<Dashboard> GetEmbeddedDashboard([FromODataUri] long key)
         {
             return SingleResult.Create(db.Widgets.Where(m => m.Id == key).Select(m => m.EmbeddedDashboard));
         }
 
         // GET: odata/Widgets(5)/WidgetType
-        [EnableQuery]
+        [EnableQuery(MaxExpansionDepth = 100)]
         public SingleResult<WidgetType> GetWidgetType([FromODataUri] long key)
         {
             return SingleResult.Create(db.Widgets.Where(m => m.Id == key).Select(m => m.WidgetType));
@@ -112,6 +112,12 @@ namespace iOPS_ODataV4.Controllers.OdataV4
             return db.Widgets.Where(m => m.Id == key).SelectMany(m => m.WidgetCustomTagDisplayOrders);
         }
 
+        // GET: odata/Widgets(5)/WidgetGraphTags
+        [EnableQuery(MaxExpansionDepth = 100)]
+        public IQueryable<WidgetGraphTag> GetWidgetGraphTags([FromODataUri] long key)
+        {
+            return db.Widgets.Where(m => m.Id == key).SelectMany(m => m.WidgetGraphTags);
+        }
 
         protected override void Dispose(bool disposing)
         {

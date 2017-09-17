@@ -3154,6 +3154,7 @@
 		vm.Save = function () {
 			vm.widgetType.IsAvailableToAdmin = vm.isAvailableToAdmin == 1 ? true : false;
 			vm.widgetType.IsAvailableToAll = vm.isAvailableToAll == 1 ? true : false;
+			vm.widgetType.IsHiddenSystemType = vm.isHiddenSystemType == 1 ? true : false;
 			(vm.widgetType.Id > 0 ? vm.widgetType.$save() : dataService.AddEntity("WidgetTypes", vm.widgetType)).then(function (data) {
 				signalR.SignalAllClientsInGroup("Admin", "WidgetType", data);
 				$state.go("^");
@@ -3196,13 +3197,16 @@
 
 
 		vm.columnWidths = {
-			id: 5,
-			priority: 5,
+
 			name: 15,
 			description: 25,
 			initialHeight: 8,
 			initialWidth: 8,
-			creationDate: 25
+			creationDate: 25,
+			angularDirectiveName: 20,
+			adminStatus: 10,
+			allStatus: 10,
+			hiddenStatus: 10
 		};
 
 		vm.buttonPanelWidth = 20;

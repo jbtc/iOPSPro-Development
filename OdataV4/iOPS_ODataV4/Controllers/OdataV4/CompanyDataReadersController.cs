@@ -33,14 +33,14 @@ namespace iOPS_ODataV4.Controllers.OdataV4
         private iOPS_NormalizedEntities db = new iOPS_NormalizedEntities();
 
         // GET: odata/CompanyDataReaders
-        [EnableQuery]
+        [EnableQuery(MaxExpansionDepth = 100)]
         public IQueryable<CompanyDataReader> GetCompanyDataReaders()
         {
             return db.CompanyDataReaders;
         }
 
         // GET: odata/CompanyDataReaders(5)
-        [EnableQuery]
+        [EnableQuery(MaxExpansionDepth = 100)]
         public SingleResult<CompanyDataReader> GetCompanyDataReader([FromODataUri] long key)
         {
             return SingleResult.Create(db.CompanyDataReaders.Where(companyDataReader => companyDataReader.Id == key));
@@ -87,14 +87,14 @@ namespace iOPS_ODataV4.Controllers.OdataV4
 
 
         // GET: odata/CompanyDataReaders(5)/Company
-        [EnableQuery]
+        [EnableQuery(MaxExpansionDepth = 100)]
         public SingleResult<Company> GetCompany([FromODataUri] long key)
         {
             return SingleResult.Create(db.CompanyDataReaders.Where(m => m.Id == key).Select(m => m.Company));
         }
 
         // GET: odata/CompanyDataReaders(5)/iOPSUser
-        [EnableQuery]
+        [EnableQuery(MaxExpansionDepth = 100)]
         public SingleResult<iOPSUser> GetiOPSUser([FromODataUri] long key)
         {
             return SingleResult.Create(db.CompanyDataReaders.Where(m => m.Id == key).Select(m => m.iOPSUser));

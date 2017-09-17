@@ -31,14 +31,14 @@ namespace iOPS_ODataV4.Controllers.OdataV4
         private iOPS_NormalizedEntities db = new iOPS_NormalizedEntities();
 
         // GET: odata/DatabaseMailQueues
-        [EnableQuery]
+        [EnableQuery(MaxExpansionDepth = 100)]
         public IQueryable<DatabaseMailQueue> GetDatabaseMailQueues()
         {
             return db.DatabaseMailQueues;
         }
 
         // GET: odata/DatabaseMailQueues(5)
-        [EnableQuery]
+        [EnableQuery(MaxExpansionDepth = 100)]
         public SingleResult<DatabaseMailQueue> GetDatabaseMailQueue([FromODataUri] long key)
         {
             return SingleResult.Create(db.DatabaseMailQueues.Where(databaseMailQueue => databaseMailQueue.Id == key));

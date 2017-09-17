@@ -27,6 +27,7 @@ namespace iOPS_ODataV4
             builder.EntitySet<AssetCondition>("AssetConditions");
             builder.EntitySet<AssetType>("AssetTypes");
             builder.EntitySet<AssetGraphic>("AssetGraphics");
+            builder.EntitySet<AssetGraphicVisibleValue>("AssetGraphicVisibleValues");
             builder.EntitySet<AuthorizableActivity>("AuthorizableActivities");
             builder.EntitySet<BHSBagTagScan>("BHSBagTagScans");
             builder.EntitySet<Company>("Companies");
@@ -56,6 +57,7 @@ namespace iOPS_ODataV4
             builder.EntitySet<StateAbbreviation>("StateAbbreviations");
             builder.EntitySet<DatabaseMailQueue>("DatabaseMailQueues");
             builder.EntitySet<Widget>("Widgets");
+            builder.EntitySet<WidgetGraphTag>("WidgetGraphTags");
             builder.EntitySet<WidgetType>("WidgetTypes");
             builder.EntitySet<WidgetCustomTagDisplayOrder>("WidgetCustomTagDisplayOrders");
             builder.EntitySet<BHSDeviceLocation>("BHSDeviceLocations");

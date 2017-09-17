@@ -33,14 +33,14 @@ namespace iOPS_ODataV4.Controllers.OdataV4
         private iOPS_NormalizedEntities db = new iOPS_NormalizedEntities();
 
         // GET: odata/CustomJBTStandardObservations
-        [EnableQuery]
+        [EnableQuery(MaxExpansionDepth = 100)]
         public IQueryable<CustomJBTStandardObservation> GetCustomJBTStandardObservations()
         {
             return db.CustomJBTStandardObservations;
         }
 
         // GET: odata/CustomJBTStandardObservations(5)
-        [EnableQuery]
+        [EnableQuery(MaxExpansionDepth = 100)]
         public SingleResult<CustomJBTStandardObservation> GetCustomJBTStandardObservation([FromODataUri] long key)
         {
             return SingleResult.Create(db.CustomJBTStandardObservations.Where(customJBTStandardObservation => customJBTStandardObservation.Id == key));
@@ -86,14 +86,14 @@ namespace iOPS_ODataV4.Controllers.OdataV4
 
 
         // GET: odata/CustomJBTStandardObservations(5)/Company
-        [EnableQuery]
+        [EnableQuery(MaxExpansionDepth = 100)]
         public SingleResult<Company> GetCompany([FromODataUri] long key)
         {
             return SingleResult.Create(db.CustomJBTStandardObservations.Where(m => m.Id == key).Select(m => m.Company));
         }
 
         // GET: odata/CustomJBTStandardObservations(5)/JBTStandardObservation
-        [EnableQuery]
+        [EnableQuery(MaxExpansionDepth = 100)]
         public SingleResult<JBTStandardObservation> GetJBTStandardObservation([FromODataUri] long key)
         {
             return SingleResult.Create(db.CustomJBTStandardObservations.Where(m => m.Id == key).Select(m => m.JBTStandardObservation));

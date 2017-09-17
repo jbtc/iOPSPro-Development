@@ -11,17 +11,56 @@
 				var controller = function ($scope) {
 					var vm = this;
 
-					vm.showSettings = true;
+					function GetHeadingExtraTitle() {
+						if (vm.GateSystem) {						
+							return ' - Gate ' + vm.GateSystem.Name + ' - ' + vm.pca.ModelGenericName;
+						}
+					}
+
+					vm.widget.headingBackground = 'linear-gradient(to bottom,#7e7e7e, #fefefe)';
+
+
+					vm.widget.displaySettings = {
+						headingBackground: 'linear-gradient(to bottom,#7e7e7e, #fefefe)',
+						tagDataSortField: '-LastObservationDate',
+						headingExtraTitle: '',
+						obscureGraphics: true
+					}
+
+					vm.tagsToGraph = [];
+
 					vm.bootstrapLabelColumns = 2;
 					vm.bootstrapInputColumns = 10;
 					uibButtonConfig.activeClass = 'radio-active';
 
 					//Get a copy of the user record to determine privs
 					vm.user = Global.User;
-					console.log("vm.widget = %O", vm.widget);
+					//console.log("vm.widget = %O", vm.widget);
 
-					console.log("vm.user = %O", vm.user);
-					//displaySetupService.SetWidgetPanelBodyDimensions(vm.widget.Id);
+					//console.log("vm.user = %O", vm.user);
+					displaySetupService.SetWidgetPanelBodyDimensions(vm.widget.Id);
+
+
+					//Do not display the widget contents until the accordions have been setup.
+					vm.showWidget = false;
+
+					vm.SetSortField = function (fieldName) {
+						var t0 = performance.now();
+
+						if (vm.widget.displaySettings.tagDataSortField.substr(1, 50) == fieldName || vm.widget.displaySettings.tagDataSortField == fieldName) {
+							if (vm.widget.displaySettings.tagDataSortField.substr(0, 1) == "-") {
+								vm.widget.displaySettings.tagDataSortField = fieldName;
+
+
+							} else {
+								vm.widget.displaySettings.tagDataSortField = "-" + fieldName;
+
+							}
+						} else {
+							vm.widget.displaySettings.tagDataSortField = fieldName;
+						}
+					}
+
 
 
 
@@ -86,11 +125,51 @@
 							var position = $(element).offset();
 							position.width = $(element).width();
 
-
-							$("#widget-settings-" + vm.widget.WidgetResource.Id).css({ left: position.left + 20, top: position.top + 35, width: 500 });
+							$("#gridster" + vm.widget.Id).css('z-index', '35');
+							$("#widget-settings-" + vm.widget.WidgetResource.Id).css({ left: position.left + 20, top: position.top + 35, width: 500, 'z-index': 35 });
 							$("#widget-settings-" + vm.widget.WidgetResource.Id).slideToggle();
 						}
 					}, 200);
+
+
+
+
+
+					vm.ProcessTagsToGraph = function (tag) {
+
+						//$timeout(function() {
+							vm.tagsToGraphObjects = [];
+							vm.tagsToGraph.forEach(function (enabled, tagId) {
+								vm.tagsToGraphObjects.push({ TagId: tagId, Enabled: enabled });
+							});
+
+							//console.log("vm.tagsToGraphObjects = %O", vm.tagsToGraphObjects);
+
+
+
+							//Call the function that the dashboard provided with the collection of tags to add to the possible new widget
+							vm.addTagsToGraphFunction()(vm.tagsToGraphObjects);
+
+						//});
+
+						
+
+						return;
+						var element = $("#widget-linegraph-" + vm.widget.WidgetResource.Id)[0].parentNode.parentNode.offsetParent;
+						var position = $(element).offset();
+						position.width = $(element).width();
+
+
+						$("#gridster" + vm.widget.Id).css('z-index', '35');
+
+
+
+						$("#widget-linegraph-" + vm.widget.WidgetResource.Id).css({ left: window.outerHeight * .6, top: position.top + 35, width: 1000, height: 1000 });
+						$("#widget-linegraph-" + vm.widget.WidgetResource.Id).slideToggle();
+					}
+
+
+
 
 
 					//Get the site entities for which the user has access.
@@ -99,13 +178,13 @@
 						var userSiteCodes = vm.user.ReaderOf.where(function (s) { return s.split('.')[0] == 'Site' })
 							.select(function (s) { return s.split('.')[1] });
 
-						console.log("user site codes = %O", userSiteCodes);
+						//console.log("user site codes = %O", userSiteCodes);
 
 						vm.userSites = vm.JBTData.Sites.where(function (site) {
 							return userSiteCodes.any(function (sc) { return sc == site.Name })
 						});
 
-						console.log("vm.userSites = %O", vm.userSites);
+						//console.log("vm.userSites = %O", vm.userSites);
 
 						if (vm.userSites.length == 1) {
 							console.log("User only has a single Site");
@@ -128,7 +207,7 @@
 					function (newValue, oldValue) {
 						if (vm.widget.WidgetResource.SiteId && vm.userSites) {
 
-							console.log("vm.widget.WidgetResource.SiteId changed. Now = %O", vm.widget);
+							//console.log("vm.widget.WidgetResource.SiteId changed. Now = %O", vm.widget);
 							vm.widgetSite = vm.userSites.first(function (s) { return s.Id == vm.widget.SiteId });
 							if (oldValue != newValue) {
 								vm.terminals = null;
@@ -147,7 +226,7 @@
 					function GetTerminalsForWidgetSite() {
 						if (vm.widget.WidgetResource.SiteId) {
 
-							console.log("Getting the terminals for the widget site");
+							//console.log("Getting the terminals for the widget site");
 
 							vm.terminals = vm.JBTData
 								.Systems
@@ -168,8 +247,8 @@
 					function (newValue, oldValue) {
 						if (vm.widget.WidgetResource.TerminalSystemId) {
 
-							console.log("vm.widget.WidgetResource.TerminalSystemId changed. Old = %O", oldValue);
-							console.log("vm.widget.WidgetResource.TerminalSystemId changed. New = %O", newValue);
+							//console.log("vm.widget.WidgetResource.TerminalSystemId changed. Old = %O", oldValue);
+							//console.log("vm.widget.WidgetResource.TerminalSystemId changed. New = %O", newValue);
 							if (newValue != oldValue) {
 								vm.widget.WidgetResource.ZoneSystemId = null;
 								vm.widget.WidgetResource.GateSystemId = null;
@@ -187,7 +266,7 @@
 					function GetZonesForWidgetTerminal() {
 						if (vm.terminals && vm.widget.WidgetResource.TerminalSystemId) {
 
-							console.log("Getting the zone (area system) for the widget terminal");
+							//console.log("Getting the zone (area system) for the widget terminal");
 
 							vm.zones = vm.JBTData
 								.Systems
@@ -197,7 +276,7 @@
 
 
 
-							console.log("vm.zones = %O", vm.zones);
+							//console.log("vm.zones = %O", vm.zones);
 							vm.widget.WidgetResource.$save();
 							GetGatesForWidgetZone();
 
@@ -211,7 +290,7 @@
 					function (newValue, oldValue) {
 						if (vm.widget.WidgetResource.ZoneSystemId) {
 
-							console.log("vm.widget.WidgetResource.ZoneSystemId changed. Now = %O", vm.widget);
+							//console.log("vm.widget.WidgetResource.ZoneSystemId changed. Now = %O", vm.widget);
 							if (newValue != oldValue) {
 								vm.gates = null;
 								vm.pca = null;
@@ -226,7 +305,7 @@
 					function GetGatesForWidgetZone() {
 						if (vm.zones && vm.widget.WidgetResource.ZoneSystemId) {
 
-							console.log("Getting the gate (gate system) for the widget zone");
+							//console.log("Getting the gate (gate system) for the widget zone");
 
 
 							vm.gates = vm.JBTData
@@ -238,7 +317,7 @@
 
 
 
-							console.log("vm.gates = %O", vm.gates);
+							//console.log("vm.gates = %O", vm.gates);
 
 
 
@@ -251,15 +330,23 @@
 					function (newValue, oldValue) {
 						if (vm.widget.WidgetResource.GateSystemId) {
 
-							console.log("vm.widget.WidgetResource.GateSystemId changed. Now = %O", vm.widget);
+							//console.log("vm.widget.WidgetResource.GateSystemId changed. Now = %O", vm.widget);
 
 							if (newValue != oldValue) {
 								vm.pca = null;
 								vm.widget.WidgetResource.$save();
+
+								dataService.GetEntityById("SystemGroups", newValue).then(function (gateSystem) {
+									vm.GateSystem = gateSystem;
+									//vm.widget.displaySettings.headingExtraTitle = GetHeadingExtraTitle();
+								});
+
 								$timeout(function () {
 									if (vm.pca) {
 										//Uncomment to cause the settings window to close after a short delay after gate selection
-										//$("#widget-settings-" + vm.widget.WidgetResource.Id).slideToggle();
+										if (Global.User.Username != 'markzzzz') {
+											$("#widget-settings-" + vm.widget.WidgetResource.Id).slideToggle();
+										}
 									}
 								}, 400);
 							}
@@ -282,7 +369,12 @@
 								.first(function (a) { return a.ParentSystemId == vm.widget.WidgetResource.GateSystemId && a.Name == 'PCA' });
 
 
+							if (vm.widget.WidgetResource.GateSystemId) {
+								dataService.GetEntityById("SystemGroups", vm.widget.WidgetResource.GateSystemId).then(function (gateSystem) {
+									vm.GateSystem = gateSystem;
+								});
 
+							}
 
 							console.log("vm.pca = %O", vm.pca);
 
@@ -293,7 +385,9 @@
 
 								dataService.GetIOPSResource("AssetGraphics")
 									.filter("AssetId", vm.pca.Id)
-									.filter("JBTStandardObservationId", "!=", null)
+									.expandPredicate("AssetGraphicVisibleValues")
+										.filter("JBTStandardObservationId", "!=", null)
+									.finish()
 									.query()
 									.$promise
 									.then(function (data) {
@@ -317,9 +411,17 @@
 										}, 50);
 
 										console.log("Asset Graphics = %O", data);
-										vm.pca.Tags.forEach(function(tag) {
+										vm.pca.Tags.forEach(function (tag) {
 											UpdateGraphicsVisibilityForSingleTag(tag);
 										});
+
+										vm.atLeastOneGraphicIsVisible = AtLeastOneGraphicIsVisible();
+										vm.widget.displaySettings.obscureGraphics = !AtLeastOneGraphicIsVisible();
+										SetHeadingBackground();
+										vm.widget.displaySettings.headingExtraTitle = GetHeadingExtraTitle();
+										vm.showWidget = true;
+
+
 									});
 							});
 
@@ -330,6 +432,25 @@
 
 					}
 
+					function SetHeadingBackground() {
+						if (AtLeastOneGraphicIsVisible()) {
+							vm.widget.displaySettings.headingBackground = 'linear-gradient(to bottom,#3eff3e, #eefeee)';
+						} else {
+							vm.widget.displaySettings.headingBackground = 'linear-gradient(to bottom,#dedede, #fefefe)';
+						}
+
+					}
+
+
+
+
+					function AtLeastOneGraphicIsVisible() {
+						if (vm.AssetGraphics) {
+							return vm.AssetGraphics.any(function (ag) { return ag.showImage });
+
+						}
+						return false;
+					}
 
 
 					function SetupAccordion() {
@@ -397,6 +518,7 @@
 												console.log("Split Sizes = %O", sizes);
 											}
 										});
+
 								});
 
 
@@ -441,6 +563,28 @@
 						}
 					});
 
+					$scope.$on("GraphWidgetAdded", function (event, graphWidget) {
+
+
+						if(vm.dashboard.Id == graphWidget.ParentDashboardId) {
+
+							//Clear the add tag checkbox buttons
+							vm.tagsToGraphObjects = [];
+							vm.tagsToGraph = [];
+						}
+					});
+
+					$scope.$on("Widget.AddTagsToGraph", function (event, graphWidget) {
+
+						console.log("Widget.AddTagsToGraph event at PCA Summary");
+
+							//Clear the add tag checkbox buttons
+							vm.tagsToGraphObjects = [];
+							vm.tagsToGraph = [];
+					});
+
+					
+
 
 					//***G
 					//++Data Service Tag Updates
@@ -458,28 +602,61 @@
 
 					function UpdateGraphicsVisibilityForSingleTag(updatedTag) {
 
-						if (updatedTag) {
+						if (updatedTag && vm.pca) {
 							//See if this is the asset to which the tag belongs
+
 							if (updatedTag.AssetId == vm.pca.Id) {
-								console.log("Updated Tag For widget - %O", updatedTag);
+								//console.log("Updated Tag For widget - %O", updatedTag);
 
 								//Update all of the graphics flags for the matching JBTStandardObservationId that was in the updatedTag
-								vm.AssetGraphics
-									.where(function (g) { return g.JBTStandardObservationId == updatedTag.JBTStandardObservationId })
-									.forEach(function (g) {
-										g.showImage = updatedTag.LastObservationTextValue == g.ValueWhenVisible;
+								if (vm.AssetGraphics) {
+
+
+									vm.AssetGraphics.forEach(function (ag) {
+
+										//Set the "showImage" flag on each appropriately.
+										ag.AssetGraphicVisibleValues.forEach(function (vv) {
+											if (vv.JBTStandardObservationId == updatedTag.JBTStandardObservationId) {
+												vv.showImage = updatedTag.LastObservationTextValue == vv.ValueWhenVisible;
+											}
+										});
+
+
+										//Set the upper AssetGraphic flag if ALL of the lower flags are set.
+										ag.showImage = ag.AssetGraphicVisibleValues.length > 0 && ag.AssetGraphicVisibleValues.all(function (av) {
+											return av.showImage;
+										});
+
+
 									});
+
+
+
+								}
 							}
 
-						} 
+						}
+
+						vm.widget.displaySettings.obscureGraphics = !AtLeastOneGraphicIsVisible();
+						SetHeadingBackground();
 
 
 					}
 					//***G
 
+					vm.tagOrderByLastChange = true;
 
+					vm.SetTagOrderByLastChange = function () {
+						vm.tagOrderByLastChange = true;
+						vm.tagOrderByCustom = false;
 
+					}
 
+					vm.SetTagOrderByCustom = function () {
+						vm.tagOrderByLastChange = false;
+						vm.tagOrderByCustom = true;
+
+					}
 
 
 
@@ -554,7 +731,7 @@
 
 						dashboard: "=",
 						widget: "=",
-						signalUpdateFunction: "&",
+						addTagsToGraphFunction: "&",
 						setPanelHeadingColorFunction: "&",
 						mode: "@"
 					},

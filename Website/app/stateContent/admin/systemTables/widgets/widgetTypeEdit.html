@@ -57,9 +57,9 @@
                             </div>
 
 
-                          
-                            
-                             <!-- Is Available to Admin? -->
+
+
+                            <!-- Is Available to Admin? -->
                             <div class="form-group">
                                 <label class="col-sm-{{vm.bootstrapLabelColumns}} control-label innovation-right-aligned">
                                     Is Available to Admin?
@@ -70,7 +70,7 @@
                                 </div>
                             </div>
 
-                             <!-- Is Available to All? -->
+                            <!-- Is Available to All? -->
                             <div class="form-group">
                                 <label class="col-sm-{{vm.bootstrapLabelColumns}} control-label innovation-right-aligned">
                                     Is Available to All Users?
@@ -78,6 +78,17 @@
                                 <div class="col-sm-{{vm.bootstrapInputColumns}}">
                                     <label class="btn btn-default" style="width: 55px; margin: 1px;" ng-model="vm.isAvailableToAll" uib-btn-radio=1>Yes</label>
                                     <label class="btn btn-default" style="width: 55px; margin: 1px;" ng-model="vm.isAvailableToAll" uib-btn-radio=0>No</label>
+                                </div>
+                            </div>
+                            
+                            <!-- Is Hidden System Type? -->
+                            <div class="form-group">
+                                <label class="col-sm-{{vm.bootstrapLabelColumns}} control-label innovation-right-aligned">
+                                    Is A Hidden, System Type?
+                                </label>
+                                <div class="col-sm-{{vm.bootstrapInputColumns}}">
+                                    <label class="btn btn-default" style="width: 55px; margin: 1px;" ng-model="vm.isHiddenSystemType" uib-btn-radio=1>Yes</label>
+                                    <label class="btn btn-default" style="width: 55px; margin: 1px;" ng-model="vm.isHiddenSystemType" uib-btn-radio=0>No</label>
                                 </div>
                             </div>
 
@@ -93,7 +104,7 @@
                             </textarea-input-field>
 
 
-                             <!-- Angular Directive Name -->
+                            <!-- Angular Directive Name -->
                             <text-input-field model="vm.widgetType.AngularDirectiveName"
                                               label-text="Angular Directive Name"
                                               id-text="angularDirectiveName"
