@@ -66,46 +66,10 @@
 
         <div gridster="vm.gridsterOpts">
             <ul ng-if="vm.widgets">
-                <li gridster-item="widget" ng-repeat="widget in vm.widgets" style="border: none;" id="gridster{{widget.Id}}">
+                <li ng-repeat="widget in vm.widgets track by widget.Id" gridster-item="widget"  style="border: none;" id="gridster{{widget.Id}}">
                     <div class="panel panel-default" style="height: 100%; overflow-y: hidden;" id="widget-panel-heading{{widget.Id}}">
                         <div class="panel-heading" id="{{vm.dashboard.Id}}" style="cursor: move; font-size:.9em; padding-top:5px; height:30px; background: {{widget.displaySettings.headingBackground ? widget.displaySettings.headingBackground : 'linear-gradient(to bottom,#7ede7e, #befebe)'}};">
-                            <!--<div ng-if="widget.WidgetResource.EmbeddedDashboardId" class='btn-toolbar pull-right' style="display: -webkit-inline-box;">
-                        <div class="btn-group">
-
-                            <a ng-click="vm.SetTimeScope(365)" class="btn btn-default responsive-button tiny-button" ng-class="{'radio-active': vm.dashboard.DashboardTimeScope.Days == 365}" title="Set time window to the last year back from now">
-                                Year
-                            </a>
-                            <a ng-click="vm.SetTimeScope(180)" class="btn btn-default responsive-button tiny-button" ng-class="{'radio-active': vm.dashboard.DashboardTimeScope.Days == 180}" title="Set time window to the last 6 months back from now">
-                                180d
-                            </a>
-                            <a ng-click="vm.SetTimeScope(90)" class="btn btn-default responsive-button tiny-button" ng-class="{'radio-active': vm.dashboard.DashboardTimeScope.Days == 90}" title="Set time window to the last 90 days back from now">
-                                90d
-                            </a>
-                            <a ng-click="vm.SetTimeScope(30)" class="btn btn-default responsive-button tiny-button" ng-class="{'radio-active': vm.dashboard.DashboardTimeScope.Days == 30}" title="Set time window to the last 30 days back from now">
-                                30d
-                            </a>
-                            <a ng-click="vm.SetTimeScope(7)" class="btn btn-default responsive-button tiny-button" ng-class="{'radio-active': vm.dashboard.DashboardTimeScope.Days == 7}" title="Set time window to the last week back from now">
-                                7d
-                            </a>
-                            <a ng-click="vm.SetTimeScope(1)" class="btn btn-default responsive-button tiny-button" ng-class="{'radio-active': vm.dashboard.DashboardTimeScope.Days == 1}" title="Set time window to the last 24 hours back from now">
-                                24h
-                            </a>
-                            <a ng-click="vm.SetTimeScope(0)" class="btn btn-default responsive-button tiny-button" ng-class="{'radio-active': vm.dashboard.DashboardTimeScope.Days == 0}" title="Set time window to today since midnight">
-                                Today
-                            </a>
-                            <a ng-click="vm.SetTimeScope(-1)" class="btn btn-default responsive-button tiny-button" ng-class="{'radio-active': vm.dashboard.DashboardTimeScope.Days == -1}" title="Set time window to yesterday from midnight to midnight">
-                                Yesterday
-                            </a>
-                            <a ui-sref=".addWidget({ DashboardId: widget.WidgetResource.EmbeddedDashboardId })" class="btn btn-default responsive-button tiny-button">
-                                Add Widget
-                            </a>
-                        </div>
-
-
-                        <i ui-sref=".editWidget({ WidgetId: widget.Id})" class="fa fa-pencil-square-o" aria-hidden="true" title="aEdit widget {{widget.Name}}" style="cursor: default; padding: 4px; margin-left: 15px;"></i>
-                        <i ng-click="vm.deleteWidget(widget)" class="fa fa-times" aria-hidden="true" title='Delete "{{widget.Name}}" widget' style="color: red; margin-left: 0; cursor: default; padding: 4px;"></i>
-
-                    </div>-->
+                            
 
                             <div ng-if="!widget.WidgetResource.EmbeddedDashboardId" class='btn-toolbar pull-right' style="display: inline-block;">
 

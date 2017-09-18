@@ -118,18 +118,18 @@
 						}
 					};
 
-					$timeout(function () {
-						if (!vm.pca) {
+					//$timeout(function () {
+					//	if (!vm.pca) {
 
-							var element = $("#widget-settings-" + vm.widget.WidgetResource.Id)[0].parentNode.parentNode.offsetParent;
-							var position = $(element).offset();
-							position.width = $(element).width();
+					//		var element = $("#widget-settings-" + vm.widget.WidgetResource.Id)[0].parentNode.parentNode.offsetParent;
+					//		var position = $(element).offset();
+					//		position.width = $(element).width();
 
-							$("#gridster" + vm.widget.Id).css('z-index', '35');
-							$("#widget-settings-" + vm.widget.WidgetResource.Id).css({ left: position.left + 20, top: position.top + 35, width: 500, 'z-index': 35 });
-							$("#widget-settings-" + vm.widget.WidgetResource.Id).slideToggle();
-						}
-					}, 200);
+					//		$("#gridster" + vm.widget.Id).css('z-index', '35');
+					//		$("#widget-settings-" + vm.widget.WidgetResource.Id).css({ left: position.left + 20, top: position.top + 35, width: 500, 'z-index': 35 });
+					//		$("#widget-settings-" + vm.widget.WidgetResource.Id).slideToggle();
+					//	}
+					//}, 200);
 
 
 
@@ -594,7 +594,7 @@
 					//When the data service is finished updating it's local inventory of tag data, it will retransmit "dataService.TagUpdate" to the rest of the application locally.
 					//We will watch for it here and set the appropriate graphics flag.
 					$scope.$on("dataService.TagUpdate", function (event, updatedTag) {
-
+						//console.log("tag update");
 						UpdateGraphicsVisibilityForSingleTag(updatedTag);
 					});
 
@@ -636,6 +636,7 @@
 							}
 
 						}
+						//console.log("vm.widget = %O", vm.widget);
 
 						vm.widget.displaySettings.obscureGraphics = !AtLeastOneGraphicIsVisible();
 						SetHeadingBackground();

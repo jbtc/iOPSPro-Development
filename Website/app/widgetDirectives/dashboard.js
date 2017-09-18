@@ -27,6 +27,12 @@
 					console.log("vm = %O", vm);
 					console.log("$scope = %O", $scope);
 
+					function ReportStep(stepNumber) {
+
+						console.log("Step = " + stepNumber);
+
+					}
+
 					if (!vm.widget) {
 						//console.log("No Widget Present");
 						displaySetupService.SetPanelDimensions();
@@ -34,6 +40,8 @@
 						//console.log("Widget Present");
 						displaySetupService.SetWidgetPanelBodyDimensions(vm.widget.Id);
 					}
+
+					ReportStep(1);
 
 
 					vm.openSettingsDash = function ($event, widget) {
@@ -53,7 +61,9 @@
 
 					}
 
-					vm.AddTagsToSpecificWidgetGraph = function(widget) {
+					ReportStep(2);
+
+					vm.AddTagsToSpecificWidgetGraph = function (widget) {
 						$rootScope.$broadcast("Widget.AddTagsToGraph", widget);
 					}
 
@@ -67,6 +77,8 @@
 							$rootScope.$broadcast("Dashboard.TagsToGraph", null);
 						}
 					}
+
+					ReportStep(3);
 
 					vm.AddGraphWidgetToDashboard = function () {
 
@@ -114,6 +126,8 @@
 
 
 
+					ReportStep(4);
+
 
 					uibButtonConfig.activeClass = 'radio-active';
 
@@ -152,6 +166,8 @@
 					}
 
 
+					ReportStep(5);
+
 					function GetDashboardData() {
 						dataService.GetExpandedDashboardById(vm.dashboardId)
 						.then(function (data) {
@@ -169,6 +185,11 @@
 								.query()
 								.$promise
 								.then(function (widgets) {
+
+									ReportStep(6);
+
+
+
 									vm.widgets = widgets.select(function (w) {
 										return {
 											sizeX: w.Width,
@@ -183,6 +204,12 @@
 											HasChanged: false
 										}
 									});
+
+									console.log("Dashboard widgets = %O", vm.widgets);
+
+									ReportStep(7);
+
+
 									if (!vm.widget) {
 										console.log("No widget this invokation");
 										displaySetupService.SetPanelDimensions();
@@ -298,64 +325,54 @@
 
 
 
-					$scope.$on("Widget", function (event, widget) {
-						console.log("Widget Event");
+					$scope.$on("WidgetAdded", function (event, widget) {
+						console.log("Widget Event - widget passed = %O", widget);
 						if (widget.ParentDashboardId == vm.dashboardId) {
-							vm.widgets = [widget].select(function (w) {
-								return {
-									sizeX: w.Width,
-									sizeY: w.Height,
-									row: w.Row,
-									col: w.Col,
-									prevRow: w.Row,
-									prevCol: w.Col,
-									Id: w.Id,
-									Name: w.Name,
-									WidgetResource: w,
-									HasChanged: false
-
-								}
-
-							}).concat(vm.widgets).distinct(function (a, b) { return a.Id == b.Id });
-
+							AddWidgetStructureToTheList(widget);
 						}
 
 					});
 
-					$scope.$on("GraphWidgetAdded", function (event, widget) {
-						console.log("Widget Event");
-						if (widget.ParentDashboardId == vm.dashboardId) {
-							vm.widgets = [widget].select(function (w) {
-								return {
-									sizeX: w.Width,
-									sizeY: w.Height,
-									row: w.Row,
-									col: w.Col,
-									prevRow: w.Row,
-									prevCol: w.Col,
-									Id: w.Id,
-									Name: w.Name,
-									WidgetResource: w,
-									HasChanged: false
 
-								}
 
-							}).concat(vm.widgets).distinct(function (a, b) { return a.Id == b.Id });
 
-							$timeout(function() {
+					$scope.$on("GraphWidgetAdded",
+						function (event, widget) {
+							console.log("Widget Event");
+							if (widget.ParentDashboardId == vm.dashboardId) {
+								AddWidgetStructureToTheList(widget);
+							}
+						});
 
-								console.log("State Change");
-								$state.go("^");
-								$timeout(function() {
-									$state.go("home.app.dashboard", { DashboardId: vm.dashboard.Id });
-									
-								},10)
 
-								
-							},10);
-						}
 
-					});
+					function AddWidgetStructureToTheList(widget) {
+
+						dataService.GetJBTData().then(function (jbtData) {
+
+							widget.WidgetType = jbtData.WidgetTypes.first(function (wt) { return wt.Id == widget.WidgetTypeId });
+							var newWidgetStructure = {
+								sizeX: widget.Width,
+								sizeY: widget.Height,
+								row: widget.Row,
+								col: widget.Col,
+								prevRow: widget.Row,
+								prevCol: widget,
+								Id: widget.Id,
+								Name: widget.Name,
+								WidgetResource: widget,
+								HasChanged: false
+
+							};
+
+
+							vm.widgets.push(newWidgetStructure);
+
+
+						});
+
+					}
+
 
 					$scope.$on("Widget.Deleted", function (event, deletedWidget) {
 
@@ -458,7 +475,7 @@
 						mobileModeEnabled: true, // whether or not to toggle mobile mode when screen width is less than mobileBreakPoint
 						minColumns: 1, // the minimum columns the grid must have
 						minRows: 2, // the minimum height of the grid, in rows
-						maxRows: 100,
+						maxRows: 5000,
 						defaultSizeX: 2, // the default width of a gridster item, if not specifed
 						defaultSizeY: 1, // the default height of a gridster item, if not specified
 						minSizeX: 1, // minimum column width of an item
@@ -470,7 +487,8 @@
 							handles: ['n', 'e', 's', 'w', 'ne', 'se', 'sw', 'nw'],
 							start: function (event, $element, widget) { }, // optional callback fired when resize is started,
 							resize: function (event, $element, widget) {
-								//console.log("resize:  event= %O", event);
+								//console.log("widget resize = %O", widget);
+								//console.log("resize:  widget x = %O", widget.sizeX);
 								//console.log("resize:  $element= %O", $element);
 								widget.HasChanged = true;
 								displaySetupService.SetPanelBodyWithIdHeight(widget.Id);
@@ -480,7 +498,7 @@
 							},
 							// optional callback fired when item is finished resizing
 							stop: function (event, $element, widget) {
-								$rootScope.$broadcast("WidgetResize", widget.Id);
+								$rootScope.$broadcast("WidgetResize.Stop", widget.Id);
 								SaveWidget(widget);
 							}
 						},
@@ -499,9 +517,13 @@
 					}
 
 
+
+
+
 					function SaveWidget(widget) {
 
 						//If for some reason the widget resource is not a real one, then go get a real one.
+						//console.log("Widget to be saved = %O", widget);
 						(widget.WidgetResource.$save && !widget.WidgetResource.EmbeddedDashboard
 							? $q.when(widget.WidgetResource)
 							: dataService.GetIOPSResource("Widgets").filter("Id", widget.Id).expand("WidgetType").query().$promise.then(function (data) {
@@ -569,7 +591,7 @@
 							widget1.WidgetResource.Height = widget1.sizeY;
 
 							widget1.WidgetResource.$save().then(function (widget2) {
-								signalR.SignalAllClients("Widget", widget2);
+								signalR.SignalAllClients("Widget.Updated", widget2);
 							});
 						});
 

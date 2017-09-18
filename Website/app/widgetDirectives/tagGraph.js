@@ -15,12 +15,47 @@
 					console.log("tagGraph controller invoked");
 
 
+
+
+					//***G
+					//+Resizing
+					//The graph of a lot of tags can result in slow resizes if they are allowed to happen as fast as resize events come it.
+					//Create a counter that will show the resize events coming in.
+					//If the chart has more than 5000 points, then use the resize interval, not real-time.
+					vm.resizeEventCounter = 0;
+					vm.pointCount = 0;
+					vm.pointCountResizeIntervalLevel = 50000;
+					vm.resizeInterval = $interval(function () {
+						if (vm.resizeEventCounter > 0) {
+							displaySetupService.SetLoneChartSize(vm.widget.Id, vm.chart);
+							vm.resizeEventCounter = 0;
+						}
+					}, 500);
+
 					$scope.$on("WidgetResize", function (event, resizedWidgetId) {
 						//console.log("Widget resize event");
+						//Set a counter to increment with each resize event.
 						if (vm.widget.Id == resizedWidgetId || resizedWidgetId == 0) {
-							displaySetupService.SetLoneChartSize(vm.widget.Id, vm.chart);
+							if (vm.pointCount < vm.pointCountResizeIntervalLevel) {
+								displaySetupService.SetLoneChartSize(vm.widget.Id, vm.chart);
+							} else {
+								vm.resizeEventCounter++;
+							}
+							//console.log("vm.pointCount = " + vm.pointCount);
 						}
 					});
+
+
+					
+
+
+					$scope.$on("$destroy", function () {
+						$interval.cancel(vm.resizeInterval);
+
+					});
+					//***G
+
+
 
 					$scope.$on("Dashboard", function (event, modifiedExpandedDashboard) {
 						console.log("bhsTopFiveJamDevicesWithLongestDuration Dashboard event. Modified Dashboard = %O", modifiedExpandedDashboard);
@@ -32,28 +67,28 @@
 
 
 
-					$scope.$on("Dashboard.TagsToGraph", function(event, tagsToGraph) {
+					$scope.$on("Dashboard.TagsToGraph", function (event, tagsToGraph) {
 						vm.widget.tagsToGraph = tagsToGraph;
 
 					});
 
-					$scope.$on("Widget.AddTagsToGraph", function(event, widget) {
+					$scope.$on("Widget.AddTagsToGraph", function (event, widget) {
 						//See if the widget selected is us
 						if (widget.Id == vm.widget.Id) {
-								//Add all of the tag ids to the WidgetGraphTag table
-								$q.all(vm.widget.tagsToGraph.select(function (t) {
-									return dataService.AddEntity("WidgetGraphTags", { WidgetId: vm.widget.Id, TagId: t.TagId });
+							//Add all of the tag ids to the WidgetGraphTag table
+							$q.all(vm.widget.tagsToGraph.select(function (t) {
+								return dataService.AddEntity("WidgetGraphTags", { WidgetId: vm.widget.Id, TagId: t.TagId });
 
-								})).then(function () {
+							})).then(function () {
 
-									//This will cause all graph selecting widgets to clear their local collection of tags to graph, causing all of the buttons depressed to reset.
-									$rootScope.$broadcast("GraphWidgetAdded", vm.widget);
-									vm.widget.tagsToGraph = null;
+								//This will cause all graph selecting widgets to clear their local collection of tags to graph, causing all of the buttons depressed to reset.
+								$rootScope.$broadcast("GraphWidgetAdded", vm.widget);
+								vm.widget.tagsToGraph = null;
 
-									//Clear out the selection of tag to graph
-									vm.dashboard.tagsToGraph = [];
-									GetChartData();
-								});
+								//Clear out the selection of tag to graph
+								vm.dashboard.tagsToGraph = [];
+								GetChartData();
+							});
 
 						}
 
@@ -68,6 +103,65 @@
 						}
 					});
 
+					vm.AskUserCheckForDeleteSeries = function (series) {
+						alertify.set({
+							labels: {
+								ok: "Just Hide Tag",
+								cancel: "Remove Tag From Chart"
+							},
+							buttonFocus: "ok"
+						});
+
+						var message = series.name;
+
+						alertify.confirm(message, function (e) {
+							if (e) {
+								// user clicked "hide"
+
+								console.log("hide");
+
+
+
+
+							} else {
+								// user clicked "no"
+								console.log("remove");
+								var tagId = series.options.tagId;
+								series.remove();
+								dataService.GetIOPSResource("WidgetGraphTags")
+									.filter("TagId", tagId)
+									.filter("WidgetId", vm.widget.Id)
+									.query()
+									.$promise
+									.then(function(data) {
+										data[0].Id = -data[0].Id;
+										data[0].$save();
+
+
+									});
+
+
+							}
+						});
+
+					}
+
+
+					//The function below will determine the data point with the highest density of points.
+					function TemporallyNormalize() {
+						var earliestStartDate = new Date('1/1/2500');
+						//console.log("Data To Analyze = %O", data);
+						vm.GraphTagsData.forEach(function (tagSet) {
+							console.log("tagSet = %O", tagSet);
+							tagSet.Observations.forEach(function(obs) {
+								if (obs.Date < earliestStartDate) {
+									earliestStartDate = obs.Date;
+								}
+							});
+						});
+
+						console.log("Earliest Start Date = %O", earliestStartDate);
+					}
 
 
 
@@ -116,24 +210,25 @@
 												//Check the data to see if it is digital and set the property.
 												graphTag.isDigital = IsDataDigital(data);
 												vm.GraphTagsData.first(function (td) { return td.TagId == gt.TagId }).Observations = data;
-
+												
 											});
 									})
 								).then(function () {
 
 
 									var digitalStepValue = 0;
+									TemporallyNormalize();
 
 
 
-
-									vm.seriesData = vm.GraphTagsData.where(function(gt){ return gt.Observations}).select(function (gt) {
+									vm.seriesData = vm.GraphTagsData.where(function (gt) { return gt.Observations }).select(function (gt) {
 										var seriesObject = {
 											tagId: gt.Tag.Id,
 											digitalStepValue: digitalStepValue,
 											isDigital: gt.isDigital,
 											name: gt.Tag.Asset.Site.Name + ' ' + gt.Tag.Asset.System.Name + ' ' + gt.Tag.Asset.Name + ' ' + gt.Tag.JBTStandardObservationName,
 											data: gt.Observations.orderBy(function (o) { return o.Date }).select(function (o) {
+												vm.pointCount++;
 												return [o.Date.getTime(), gt.isDigital ? o.FloatValue + digitalStepValue : o.FloatValue];
 											})
 										};
@@ -173,8 +268,14 @@
 									console.log("Tag Update from the Dataservice = %O", newTag);
 									var chartSeriesForTag = vm.chart.series.first(function (s) { return s.options.tagId == newTag.TagId });
 									console.log("chartSeriesForTag = %O", chartSeriesForTag);
-									chartSeriesForTag.addPoint([newTag.LastObservationDate.getTime(), chartSeriesForTag.options.isDigital ? +newTag.LastObservationTextValue + chartSeriesForTag.options.digitalStepValue : +newTag.LastObservationTextValue], true, false);
-									vm.chart.redraw();
+
+
+									//The chart series might have been removed by the user. Check for a non null value before proceding.
+									if (chartSeriesForTag) {
+
+										chartSeriesForTag.addPoint([newTag.LastObservationDate.getTime(), chartSeriesForTag.options.isDigital ? +newTag.LastObservationTextValue + chartSeriesForTag.options.digitalStepValue : +newTag.LastObservationTextValue], true, false);
+										vm.chart.redraw();										
+									}
 								}
 
 							}
@@ -185,9 +286,7 @@
 
 					function IsDataDigital(observations) {
 						//This will do a distinct on the data, and see if it consists entirely of 0 and 1
-						console.log("Data = %O", observations);
 						var distinctData = observations.distinct(function (a, b) { return a.FloatValue == b.FloatValue });
-						console.log("Distinct data = %O", distinctData);
 						return distinctData.length == 2;
 					}
 
@@ -197,7 +296,7 @@
 						var highValue = 0;
 						var lowValue = 9999999999999;
 
-						vm.GraphTagsData.where(function(gt){ return gt.Observations }).forEach(function (gt) {
+						vm.GraphTagsData.where(function (gt) { return gt.Observations }).forEach(function (gt) {
 							gt.Observations.forEach(function (o) {
 
 								if (o.FloatValue > highValue) {
@@ -224,6 +323,15 @@
 
 						var chartOptions = {
 
+							chart: {
+								zoomType: 'x'
+							},
+							title: {
+								text: '',
+								style: {
+									fontSize: '.8em'
+								}
+							},
 							rangeSelector: {
 								selected: 4,
 								inputEnabled: false,
@@ -241,7 +349,10 @@
 
 							legend: {
 								enabled: true,
-								//layout: 'vertical'
+								layout: 'vertical',
+								labelFormatter: function () {
+									return this.name;
+								}
 
 							},
 							credits: { enabled: false },
@@ -261,6 +372,7 @@
 							},
 
 							xAxis: {
+								type: 'datetime',
 								visible: !vm.allDataIsDigital
 							},
 
@@ -270,6 +382,20 @@
 									marker: {
 										enabled: false
 									}
+
+								},
+								line: {
+
+									events: {
+										legendItemClick: function () {
+											console.log('%O', this);
+											if (this.visible) {
+												vm.AskUserCheckForDeleteSeries(this);
+											}
+											
+										}
+									},
+									showInLegend: true
 								}
 							},
 
@@ -299,10 +425,12 @@
 
 						//console.log("chartOptions = %O", chartOptions);
 
-						vm.chart = Highcharts.stockChart('tagGraph' + vm.widget.Id, chartOptions);
+						vm.chart = Highcharts.chart('tagGraph' + vm.widget.Id, chartOptions);
 						//console.log("vm.chart = %O", vm.chart);
 					}
 				};
+
+
 
 
 

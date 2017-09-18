@@ -308,7 +308,7 @@
 		function LoadDataCollections() {
 
 			//Get an instance of the localDB and proceed from there.
-			indexedDBService.getDBInstance("iOPS", 18, [
+			indexedDBService.getDBInstance("iOPS", 20, [
 							{
 								dataStoreName: "Companies",
 								keyName: "Id"
@@ -336,7 +336,18 @@
 							{
 								dataStoreName: "BHSJamAlarms",
 								keyName: "Id"
+							},
+{
+								dataStoreName: "Observations",
+								keyName: "Id",
+								indices: [
+									{
+										name: 'TagDateRange', 
+										fieldName: 'Testing'
+									}
+								]
 							}
+
 
 
 
@@ -1796,6 +1807,7 @@
 
 
 							schema.forEach(function (ds) {
+								console.log("schema = %O", ds);
 								console.log("Creating objectStore " + ds.dataStoreName);
 								var objectStore = db.createObjectStore(ds.dataStoreName, { keyPath: ds.keyName });
 								if (ds.indices) {

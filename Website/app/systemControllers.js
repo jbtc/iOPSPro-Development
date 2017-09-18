@@ -356,12 +356,32 @@
 
 					//Delete all Widgets that are on the dashboard.
 					dataService.GetIOPSCollection("Widgets", "ParentDashboardId", dashboard.Id).then(function (widgets) {
-
+						//Get rid of all of the widgets on the dashboard
 						$q.all(
-							widgets.select(function (widget) {
-								widget.Id = -widget.Id;
-								return widget.$save();
-							})
+							widgets.select(function(widget) {
+									
+									//Get rid of any WidgetGraphTags on the widget
+									return dataService.GetIOPSCollection("WidgetGraphTags", "WidgetId", widget.Id).then(function(wgts) {
+
+										if (wgts && wgts.length > 0) {
+											return $q.all(
+												wgts.select(function(wgt) {
+													wgt.Id = -wgt.Id;
+													return wgt.$save();
+												})
+											).then(function() {
+												console.log("Deleting graph widget");
+												widget.Id = -widget.Id;
+												return widget.$save();
+
+											});
+										} else {
+											widget.Id = -widget.Id;
+											return widget.$save();
+										}
+									});
+								}
+							)
 						).then(function () {
 
 							//Delete the dashboard
@@ -472,7 +492,7 @@
 				if (!dashboardsForUser) {
 					vm.noDashboardsMessage = "You do not yet have any dashboards created. To create a dashboard, please click on the New button above.";
 				}
-				vm.dashboards = dashboardsForUser.where(function(d){return !d.ParentDashboardId}).orderBy(function (db) { return db.Ordinal });;
+				vm.dashboards = dashboardsForUser.where(function (d) { return !d.ParentDashboardId }).orderBy(function (db) { return db.Ordinal });;
 				vm.showMenu = true;
 
 				//If there are dashboards defined for the user, transition to the first one.
@@ -2069,9 +2089,9 @@
 
 		function GetData() {
 
-			dataService.GetSites().then(function(sites) {
+			dataService.GetSites().then(function (sites) {
 				sites.select(function (site) {
-					
+
 					if (site.Assets) {
 						site.Tags = site.Assets.selectMany(function (a) { return a.Tags });
 					}
@@ -2255,7 +2275,7 @@
 			signalR.SignalSpecificClient(login.ClientId, "System.InformationalMessage", message);
 		}
 
-		vm.ackAlert = function(login) {
+		vm.ackAlert = function (login) {
 			var message = prompt("Message to Send:");
 			signalR.SignalSpecificClient(login.ClientId, "System.AlertMessage", message);
 		}
@@ -2265,7 +2285,7 @@
 
 				u.SitesList = u.SiteDataReaders.select(function (sdr) { return sdr.Site.Name }).join(", ");
 				u.PrivilegesList = u.UserAuthorizedActivities.select(function (uaa) { return uaa.AuthorizableActivity.Description }).join(", ");
-				
+
 
 				u.accountStatus = [];
 				if (u.Active) {
@@ -2278,7 +2298,7 @@
 					u.accountStatus.push("Pending Password Set Via Email");
 				}
 
-				u.connectedClients = signalR.connectedClients.where(function(client){return client.User.User.Username == u.Username});
+				u.connectedClients = signalR.connectedClients.where(function (client) { return client.User.User.Username == u.Username });
 
 
 			});
@@ -2907,7 +2927,7 @@
 			console.log("Asset Model to save = %O", vm.assetModel);
 
 			(vm.assetModel.Id > 0
-				? dataService.GetEntityById("AssetModels", vm.assetModel.Id).then(function(odataAssetModel) {
+				? dataService.GetEntityById("AssetModels", vm.assetModel.Id).then(function (odataAssetModel) {
 					odataAssetModel.Name = vm.assetModel.Name;
 					odataAssetModel.Size = vm.assetModel.Size;
 					odataAssetModel.Description = vm.assetModel.Description;
@@ -2917,18 +2937,18 @@
 
 
 				})
-				: dataService.AddEntity("AssetModels", vm.assetModel)).then(function(assetModel) {
+				: dataService.AddEntity("AssetModels", vm.assetModel)).then(function (assetModel) {
 
 					//At this point we have either added or updated an AssetModel entity
 
 					signalR.SignalAllClientsInGroup("Admin", "AssetModel", assetModel);
 					$state.go("^");
 
-			});
+				});
 		}
 
 
-		
+
 
 	}
 
@@ -4053,14 +4073,14 @@
 					Name: wt.Name,
 					WidgetTypeId: wt.Id,
 					ParentDashboardId: $stateParams.DashboardId,
-					EmbeddedDashboardId: newDashboard ?  newDashboard.Id : null,
+					EmbeddedDashboardId: newDashboard ? newDashboard.Id : null,
 					Width: wt.InitialWidth,
 					Height: wt.InitialHeight,
 					Row: 0,
 					Col: 0
 				}).then(function (widget) {
 
-					signalR.SignalAllClients("Widget", widget);
+					signalR.SignalAllClients("WidgetAdded", widget);
 
 				});
 
@@ -4073,16 +4093,14 @@
 		vm.Close = function () {
 
 			$state.go("^");
-			$timeout(function () {
-				$state.go("^");
-				$timeout(function () {
-					$state.go("home.app.dashboard", { DashboardId: $stateParams.DashboardId });
+			//$timeout(function () {
+			//	$state.go("^");
+			//	$timeout(function () {
+			//		$state.go("home.app.dashboard", { DashboardId: $stateParams.DashboardId });
 
-				},
-					10);
+			//	},10);
 
-			},
-				10);
+			//},10);
 
 
 		}
