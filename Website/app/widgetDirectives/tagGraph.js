@@ -46,7 +46,7 @@
 					});
 
 
-					
+
 
 
 					$scope.$on("$destroy", function () {
@@ -133,9 +133,11 @@
 									.filter("WidgetId", vm.widget.Id)
 									.query()
 									.$promise
-									.then(function(data) {
+									.then(function (data) {
 										data[0].Id = -data[0].Id;
-										data[0].$save();
+										data[0].$save().then(function () {
+											//GetChartData();
+										});
 
 
 									});
@@ -149,18 +151,45 @@
 
 					//The function below will determine the data point with the highest density of points.
 					function TemporallyNormalize() {
-						var earliestStartDate = new Date('1/1/2500');
-						//console.log("Data To Analyze = %O", data);
+
+
+						var time0 = performance.now();
+						var obsCount = 0;
+						var tagSetWithEarliestValue;
+
+
+						var earliestDate = new Date('1/1/2500');
+						var latestDate = new Date('1/1/1971');
+
 						vm.GraphTagsData.forEach(function (tagSet) {
 							console.log("tagSet = %O", tagSet);
-							tagSet.Observations.forEach(function(obs) {
-								if (obs.Date < earliestStartDate) {
-									earliestStartDate = obs.Date;
-								}
-							});
+							if (tagSet.Observations) {
+
+
+
+								tagSet.Observations.forEach(function (obs) {
+									obsCount++;
+									if (obs.Date < earliestDate) {
+										earliestDate = obs.Date;
+										tagSetWithEarliestValue = tagSet;
+									}
+									if (obs.Date > latestDate) {
+										latestDate = obs.Date;
+									}
+								});
+
+							}
 						});
 
-						console.log("Earliest Start Date = %O", earliestStartDate);
+						var time1 = performance.now();
+
+
+						console.log("Date Range = %O", { First: earliestDate, Last: latestDate });
+						console.log("tagSetWithEarliestValue = %O", tagSetWithEarliestValue);
+						console.log("bsCount = " + (time1 - time0));
+						console.log("Time = " + (time1 - time0));
+
+
 					}
 
 
@@ -189,6 +218,29 @@
 							.$promise
 							.then(function (graphTagsData) {
 
+
+								//var time0 = performance.now();
+								//dataService.GetEntityById("ObservationAggregatedHighChartValues", 1).then(function(agData) {
+								//	var time1 = performance.now();
+								//	var agData = agData
+								//		.TagValues
+								//		.split('\r\n')
+								//		.where(function(v) { return v.length > 5 })
+								//		.select(function(valuePair) {
+								//			var numericValuePair = valuePair.split(',');
+								//			return [+numericValuePair[0], +numericValuePair[1]]
+								//		});
+								//	var time2 = performance.now();
+
+
+								//	console.log("Time to retreive = " + (time1 - time0));
+								//	console.log("Time to process = " + (time2 - time1));
+
+
+
+
+								//});
+
 								vm.GraphTagsData = graphTagsData;
 								console.log("Raw WidgetGraphTags Data = %O", graphTagsData);
 								$q.all(
@@ -197,6 +249,7 @@
 											.filter("TagId", gt.Tag.Id)
 											.filter("Date", ">", utilityService.GetUTCQueryDate(vm.dashboard.derivedStartDate))
 											.filter("Date", "<", utilityService.GetUTCQueryDate(vm.dashboard.derivedEndDate))
+											.select(["Date","FloatValue"])
 											.query()
 											.$promise
 											.then(function (data) {
@@ -209,33 +262,48 @@
 
 												//Check the data to see if it is digital and set the property.
 												graphTag.isDigital = IsDataDigital(data);
-												vm.GraphTagsData.first(function (td) { return td.TagId == gt.TagId }).Observations = data;
-												
+												vm.GraphTagsData
+													.first(function (td) { return td.TagId == gt.TagId })
+													.Observations = data.select(
+													function (obs) {
+														return {
+															MillisecondsDate: obs.Date.getTime(),
+															FloatValue: obs.FloatValue
+
+														}
+
+													}).orderBy(function (o) { return o.MillisecondsDate });
+
 											});
 									})
 								).then(function () {
 
 
-									var digitalStepValue = 0;
-									TemporallyNormalize();
+									var digitalStepValue = 0.2;
+									var digitalStepIncrement = 1.5;
+									//TemporallyNormalize();
 
 
 
 									vm.seriesData = vm.GraphTagsData.where(function (gt) { return gt.Observations }).select(function (gt) {
+
+
 										var seriesObject = {
+											connectNulls: true,
 											tagId: gt.Tag.Id,
 											digitalStepValue: digitalStepValue,
 											isDigital: gt.isDigital,
+											//groupPixelWidth: 5,
 											name: gt.Tag.Asset.Site.Name + ' ' + gt.Tag.Asset.System.Name + ' ' + gt.Tag.Asset.Name + ' ' + gt.Tag.JBTStandardObservationName,
-											data: gt.Observations.orderBy(function (o) { return o.Date }).select(function (o) {
+											data: gt.Observations.select(function (o) {
 												vm.pointCount++;
-												return [o.Date.getTime(), gt.isDigital ? o.FloatValue + digitalStepValue : o.FloatValue];
+												return [o.MillisecondsDate, gt.isDigital ? o.FloatValue + digitalStepValue : o.FloatValue];
 											})
 										};
 
 										if (gt.isDigital) {
 											seriesObject.step = 'left';
-											digitalStepValue += 1.5;
+											digitalStepValue = digitalStepValue += digitalStepIncrement;
 										}
 
 										return seriesObject;
@@ -274,7 +342,7 @@
 									if (chartSeriesForTag) {
 
 										chartSeriesForTag.addPoint([newTag.LastObservationDate.getTime(), chartSeriesForTag.options.isDigital ? +newTag.LastObservationTextValue + chartSeriesForTag.options.digitalStepValue : +newTag.LastObservationTextValue], true, false);
-										vm.chart.redraw();										
+										vm.chart.redraw();
 									}
 								}
 
@@ -326,30 +394,63 @@
 							chart: {
 								zoomType: 'x'
 							},
+
+							rangeSelector: {
+								allButtonsEnabled: true,
+								buttons: [
+									{
+										type: 'minute',
+										count: 1,
+										text: 'Min'
+									},
+									{
+										type: 'hour',
+										count: 1,
+										text: 'Hour'
+									},
+									{
+										type: 'day',
+										count: 1,
+										text: 'Day'
+									},
+									{
+										type: 'week',
+										count: 1,
+										text: 'Week'
+									},
+									{
+										type: 'month',
+										count: 1,
+										text: 'Month'
+									},
+									{
+										type: 'all',
+										text: 'All'
+									}
+								],
+								buttonTheme: {
+									width: 60
+								},
+								selected: 1
+							},
 							title: {
 								text: '',
 								style: {
 									fontSize: '.8em'
 								}
 							},
-							rangeSelector: {
-								selected: 4,
-								inputEnabled: false,
-								buttonTheme: {
-									visibility: 'hidden'
-								},
-								labelStyle: {
-									visibility: 'hidden'
-								}
 
-							},
 							navigator: {
+								handles: {
+									backgroundColor: 'yellow',
+									borderColor: 'red'
+								},
 								adaptToUpdatedData: false
 							},
 
 							legend: {
 								enabled: true,
-								layout: 'vertical',
+								//layout: 'vertical',
 								labelFormatter: function () {
 									return this.name;
 								}
@@ -378,9 +479,15 @@
 
 							plotOptions: {
 								series: {
+									turboThreshold: 1000,
 									showInNavigator: true,
 									marker: {
 										enabled: false
+									},
+									states: {
+										hover: {
+											enabled: false
+										}
 									}
 
 								},
@@ -392,10 +499,11 @@
 											if (this.visible) {
 												vm.AskUserCheckForDeleteSeries(this);
 											}
-											
+
 										}
 									},
-									showInLegend: true
+									showInLegend: true,
+									lineWidth: 1
 								}
 							},
 
@@ -425,7 +533,7 @@
 
 						//console.log("chartOptions = %O", chartOptions);
 
-						vm.chart = Highcharts.chart('tagGraph' + vm.widget.Id, chartOptions);
+						vm.chart = Highcharts.stockChart('tagGraph' + vm.widget.Id, chartOptions);
 						//console.log("vm.chart = %O", vm.chart);
 					}
 				};

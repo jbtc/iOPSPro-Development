@@ -1,0 +1,106 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Data;
+using System.Data.Entity;
+using System.Data.Entity.Infrastructure;
+using System.Linq;
+using System.Net;
+using System.Net.Http;
+using System.Threading.Tasks;
+using System.Web.Http;
+using System.Web.ModelBinding;
+using System.Web.OData;
+using System.Web.OData.Query;
+using System.Web.OData.Routing;
+using iOPS_ODataV4.Models;
+
+namespace iOPS_ODataV4.Controllers.OdataV4
+{
+    /*
+    The WebApiConfig class may require additional changes to add a route for this controller. Merge these statements into the Register method of the WebApiConfig class as applicable. Note that OData URLs are case sensitive.
+
+    using System.Web.OData.Builder;
+    using System.Web.OData.Extensions;
+    using iOPS_ODataV4.Models;
+    ODataConventionModelBuilder builder = new ODataConventionModelBuilder();
+    builder.EntitySet<SystemGraphicVisibleValue>("SystemGraphicVisibleValues");
+    builder.EntitySet<SystemGraphic>("SystemGraphics"); 
+    config.MapODataServiceRoute("odata", "odata", builder.GetEdmModel());
+    */
+    public class SystemGraphicVisibleValuesController : ODataController
+    {
+        private iOPS_NormalizedEntities db = new iOPS_NormalizedEntities();
+
+        // GET: odata/SystemGraphicVisibleValues
+        [EnableQuery]
+        public IQueryable<SystemGraphicVisibleValue> GetSystemGraphicVisibleValues()
+        {
+            return db.SystemGraphicVisibleValues;
+        }
+
+        // GET: odata/SystemGraphicVisibleValues(5)
+        [EnableQuery]
+        public SingleResult<SystemGraphicVisibleValue> GetSystemGraphicVisibleValue([FromODataUri] long key)
+        {
+            return SingleResult.Create(db.SystemGraphicVisibleValues.Where(systemGraphicVisibleValue => systemGraphicVisibleValue.Id == key));
+        }
+
+        // POST: odata/SystemGraphics
+        public async Task<IHttpActionResult> Post(SystemGraphicVisibleValue entity)
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+
+
+            if (entity.Id < 0)
+            {
+                var delEntity = new SystemGraphicVisibleValue { Id = -entity.Id };
+                db.SystemGraphicVisibleValues.Attach(delEntity);
+                db.SystemGraphicVisibleValues.Remove(delEntity);
+                await db.SaveChangesAsync();
+                return StatusCode(HttpStatusCode.NoContent);
+            }
+
+            var modifiedEntity = await db.SystemGraphicVisibleValues.FindAsync(entity.Id);
+
+            if (modifiedEntity != null)
+            {
+                db.Entry(modifiedEntity).State = EntityState.Detached;
+                db.SystemGraphicVisibleValues.Attach(entity);
+                db.Entry(entity).State = EntityState.Modified;
+                await db.SaveChangesAsync();
+                return Updated(entity);
+
+            }
+            modifiedEntity = db.SystemGraphicVisibleValues.Add(entity);
+
+            await db.SaveChangesAsync();
+
+            return Created(modifiedEntity);
+        }
+
+
+        // GET: odata/SystemGraphicVisibleValues(5)/SystemGraphic
+        [EnableQuery]
+        public SingleResult<SystemGraphic> GetSystemGraphic([FromODataUri] long key)
+        {
+            return SingleResult.Create(db.SystemGraphicVisibleValues.Where(m => m.Id == key).Select(m => m.SystemGraphic));
+        }
+
+        protected override void Dispose(bool disposing)
+        {
+            if (disposing)
+            {
+                db.Dispose();
+            }
+            base.Dispose(disposing);
+        }
+
+        private bool SystemGraphicVisibleValueExists(long key)
+        {
+            return db.SystemGraphicVisibleValues.Count(e => e.Id == key) > 0;
+        }
+    }
+}

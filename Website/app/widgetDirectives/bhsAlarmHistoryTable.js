@@ -155,11 +155,23 @@
 
 					$scope.$on("WidgetResize", function (event, resizedWidgetId) {
 						if (vm.widget.Id == resizedWidgetId || resizedWidgetId == 0) {
+							vm.widgetDimensions = displaySetupService.GetWidgetPanelBodyDimensions(vm.widget.Id);
 							displaySetupService.SetPanelBodyWithIdHeight(vm.widget.Id);
 						}
 					});
 
 
+					$scope.$on("WidgetResize.Stop", function (event, resizedWidgetId) {
+
+						if (vm.widget.Id == resizedWidgetId || resizedWidgetId == 0) {
+							
+							$interval(function() {
+								vm.widgetDimensions = displaySetupService.GetWidgetPanelBodyDimensions(vm.widget.Id);
+								displaySetupService.SetPanelBodyWithIdHeight(vm.widget.Id);
+								
+							},50,20);
+						}
+					});
 
 
 

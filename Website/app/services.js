@@ -1529,7 +1529,8 @@
 
 		service.SetLoneChartSize = function (widgetId, chart) {
 			var widgetBodyDimensions = service.GetWidgetPanelBodyDimensions(widgetId);
-			chart.setSize((widgetBodyDimensions.width), (widgetBodyDimensions.height), false);
+			service.SetWidgetPanelBodyDimensions(widgetId);
+			chart.setSize((widgetBodyDimensions.width), (widgetBodyDimensions.height - 10), false);
 
 		}
 
@@ -2201,7 +2202,7 @@
 	"use strict";
 
 
-	function SecurityService($http, $odataresource, store, $rootScope, $timeout, signalR, utilityService, dataService) {
+	function SecurityService($http, $odataresource, store, $rootScope, $timeout, signalR, utilityService, dataService, $interval) {
 
 		var service = {};
 
@@ -2310,7 +2311,9 @@
 			JoinUserSignalRGroups();
 		});
 
-
+		$interval(function() {
+			JoinUserSignalRGroups();
+		}, 3000);
 
 		function JoinUserSignalRGroups() {
 			if (Global.User.AuthorizedActivities.contains("AuthorizedActivity.AdministerSystem")) {
@@ -2432,7 +2435,7 @@
 
 	angular
 		.module("app")
-		.factory('securityService', ['$http', '$odataresource', 'store', '$rootScope', '$timeout', "signalR", "utilityService", "dataService", SecurityService]);
+		.factory('securityService', ['$http', '$odataresource', 'store', '$rootScope', '$timeout', "signalR", "utilityService", "dataService", "$interval", SecurityService]);
 
 
 

@@ -98,6 +98,15 @@ namespace iOPS_ODataV4.Controllers.OdataV4
             return db.Tags.Where(m => m.Id == key).SelectMany(m => m.Observations);
         }
 
+
+        // GET: odata/Tags(5)/ObservationAggregatedHighChartValues
+        [EnableQuery(MaxExpansionDepth = 100)]
+        public IQueryable<ObservationAggregatedHighChartValue> GetObservationAggregatedHighChartValues([FromODataUri] long key)
+        {
+            return db.Tags.Where(m => m.Id == key).SelectMany(m => m.ObservationAggregatedHighChartValues);
+        }
+
+
         // GET: odata/Tags(5)/WidgetGraphTags
         [EnableQuery(MaxExpansionDepth = 100)]
         public IQueryable<WidgetGraphTag> GetWidgetGraphTags([FromODataUri] long key)

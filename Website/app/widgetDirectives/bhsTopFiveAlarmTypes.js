@@ -22,6 +22,17 @@
 						}
 					});
 
+
+					$scope.$on("WidgetResize.Stop", function (event, resizedWidgetId) {
+						if (vm.widget.Id == resizedWidgetId || resizedWidgetId == 0) {
+							$interval(function () {
+								displaySetupService.SetLoneChartSize(vm.widget.Id, vm.chart);
+
+							}, 50, 20);
+						}
+					});
+
+
 					$scope.$on("Dashboard", function (event, modifiedExpandedDashboard) {
 						console.log("bhsTopFiveAlarmTypes Dashboard event. Modified Dashboard = %O", modifiedExpandedDashboard);
 						if (modifiedExpandedDashboard.Id == vm.dashboard.Id) {
@@ -192,11 +203,11 @@
 																											"<th>Location</th>" +
 																											"<th>Acknowledge Time</th>" +
 																										"</thead>" +
-																										"<tbody>" + 
-																										data.select(function(d) {
+																										"<tbody>" +
+																										data.select(function (d) {
 																											return "<tr>" +
 																												"<td>" +
-																												utilityService.GetFormattedLocalDisplayDateFromUTCDate(d.ActiveDateTime) + 
+																												utilityService.GetFormattedLocalDisplayDateFromUTCDate(d.ActiveDateTime) +
 																												"</td>" +
 																												"<td>" +
 																												d.Location +
@@ -207,7 +218,7 @@
 																												"</tr>";
 
 																										}).join("") +
-																										"</tbody>" + 
+																										"</tbody>" +
 																						"</table>",
 																					width: 800,
 																					height: window.outerHeight * .6

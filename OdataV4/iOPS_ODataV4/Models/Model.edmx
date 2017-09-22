@@ -438,6 +438,15 @@
           <Property Name="DateIsUTC" Type="int" />
           <Property Name="Quality" Type="int" />
         </EntityType>
+        <EntityType Name="ObservationAggregatedHighChartValue">
+          <Key>
+            <PropertyRef Name="Id" />
+          </Key>
+          <Property Name="Id" Type="bigint" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="TagId" Type="bigint" />
+          <Property Name="Day" Type="datetime" />
+          <Property Name="TagValues" Type="varchar(max)" />
+        </EntityType>
         <EntityType Name="Person">
           <Key>
             <PropertyRef Name="Id" />
@@ -508,6 +517,24 @@
           <Property Name="OriginalEntityId" Type="bigint" />
           <Property Name="DateLastModified" Type="datetime" />
           <Property Name="CreateDate" Type="datetime" />
+          <Property Name="BaseUnitImageURL" Type="varchar" MaxLength="500" />
+        </EntityType>
+        <EntityType Name="SystemGraphic">
+          <Key>
+            <PropertyRef Name="Id" />
+          </Key>
+          <Property Name="Id" Type="bigint" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="SystemId" Type="bigint" />
+          <Property Name="ImageURL" Type="varchar" MaxLength="500" />
+        </EntityType>
+        <EntityType Name="SystemGraphicVisibleValue">
+          <Key>
+            <PropertyRef Name="Id" />
+          </Key>
+          <Property Name="Id" Type="bigint" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="SystemGraphicId" Type="bigint" />
+          <Property Name="JBTStandardObservationId" Type="bigint" />
+          <Property Name="ValueWhenVisible" Type="varchar" MaxLength="100" />
         </EntityType>
         <EntityType Name="SystemType">
           <Key>
@@ -1008,6 +1035,18 @@
             </Dependent>
           </ReferentialConstraint>
         </Association>
+        <Association Name="FK_ObservationAggregatedHighChartValue_Tag">
+          <End Role="Tag" Type="Self.Tag" Multiplicity="0..1" />
+          <End Role="ObservationAggregatedHighChartValue" Type="Self.ObservationAggregatedHighChartValue" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Tag">
+              <PropertyRef Name="Id" />
+            </Principal>
+            <Dependent Role="ObservationAggregatedHighChartValue">
+              <PropertyRef Name="TagId" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
         <Association Name="FK_Person_Country">
           <End Role="Country" Type="Self.Country" Multiplicity="0..1" />
           <End Role="Person" Type="Self.Person" Multiplicity="*" />
@@ -1125,6 +1164,30 @@
             </Principal>
             <Dependent Role="System">
               <PropertyRef Name="TypeId" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_SystemGraphic_System">
+          <End Role="System" Type="Self.System" Multiplicity="0..1" />
+          <End Role="SystemGraphic" Type="Self.SystemGraphic" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="System">
+              <PropertyRef Name="Id" />
+            </Principal>
+            <Dependent Role="SystemGraphic">
+              <PropertyRef Name="SystemId" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_SystemGraphicVisibleValue_SystemGraphic">
+          <End Role="SystemGraphic" Type="Self.SystemGraphic" Multiplicity="0..1" />
+          <End Role="SystemGraphicVisibleValue" Type="Self.SystemGraphicVisibleValue" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="SystemGraphic">
+              <PropertyRef Name="Id" />
+            </Principal>
+            <Dependent Role="SystemGraphicVisibleValue">
+              <PropertyRef Name="SystemGraphicId" />
             </Dependent>
           </ReferentialConstraint>
         </Association>
@@ -1465,12 +1528,15 @@
           <EntitySet Name="DatabaseMailQueue" EntityType="Self.DatabaseMailQueue" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="JBTStandardObservation" EntityType="Self.JBTStandardObservation" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="Observation" EntityType="Self.Observation" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="ObservationAggregatedHighChartValue" EntityType="Self.ObservationAggregatedHighChartValue" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="Person" EntityType="Self.Person" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="Site" EntityType="Self.Site" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="SiteCompany" EntityType="Self.SiteCompany" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="SiteDataReader" EntityType="Self.SiteDataReader" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="StateAbbreviation" EntityType="Self.StateAbbreviation" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="System" EntityType="Self.System" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="SystemGraphic" EntityType="Self.SystemGraphic" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="SystemGraphicVisibleValue" EntityType="Self.SystemGraphicVisibleValue" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="SystemType" EntityType="Self.SystemType" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="Tag" EntityType="Self.Tag" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="Unit" EntityType="Self.Unit" Schema="dbo" store:Type="Tables" />
@@ -1591,6 +1657,10 @@
             <End Role="Tag" EntitySet="Tag" />
             <End Role="Observation" EntitySet="Observation" />
           </AssociationSet>
+          <AssociationSet Name="FK_ObservationAggregatedHighChartValue_Tag" Association="Self.FK_ObservationAggregatedHighChartValue_Tag">
+            <End Role="Tag" EntitySet="Tag" />
+            <End Role="ObservationAggregatedHighChartValue" EntitySet="ObservationAggregatedHighChartValue" />
+          </AssociationSet>
           <AssociationSet Name="FK_Person_Country" Association="Self.FK_Person_Country">
             <End Role="Country" EntitySet="Country" />
             <End Role="Person" EntitySet="Person" />
@@ -1630,6 +1700,14 @@
           <AssociationSet Name="FK_System_SystemType" Association="Self.FK_System_SystemType">
             <End Role="SystemType" EntitySet="SystemType" />
             <End Role="System" EntitySet="System" />
+          </AssociationSet>
+          <AssociationSet Name="FK_SystemGraphic_System" Association="Self.FK_SystemGraphic_System">
+            <End Role="System" EntitySet="System" />
+            <End Role="SystemGraphic" EntitySet="SystemGraphic" />
+          </AssociationSet>
+          <AssociationSet Name="FK_SystemGraphicVisibleValue_SystemGraphic" Association="Self.FK_SystemGraphicVisibleValue_SystemGraphic">
+            <End Role="SystemGraphic" EntitySet="SystemGraphic" />
+            <End Role="SystemGraphicVisibleValue" EntitySet="SystemGraphicVisibleValue" />
           </AssociationSet>
           <AssociationSet Name="FK_Tag_Asset" Association="Self.FK_Tag_Asset">
             <End Role="Asset" EntitySet="Asset" />
@@ -2105,6 +2183,21 @@
             <End Role="Widget" EntitySet="Widgets" />
             <End Role="WidgetGraphTag" EntitySet="WidgetGraphTags" />
           </AssociationSet>
+          <EntitySet Name="SystemGraphics" EntityType="iOPS_NormalizedModel.SystemGraphic" />
+          <EntitySet Name="SystemGraphicVisibleValues" EntityType="iOPS_NormalizedModel.SystemGraphicVisibleValue" />
+          <AssociationSet Name="FK_SystemGraphic_System" Association="iOPS_NormalizedModel.FK_SystemGraphic_System">
+            <End Role="SystemGroup" EntitySet="SystemGroups" />
+            <End Role="SystemGraphic" EntitySet="SystemGraphics" />
+          </AssociationSet>
+          <AssociationSet Name="FK_SystemGraphicVisibleValue_SystemGraphic" Association="iOPS_NormalizedModel.FK_SystemGraphicVisibleValue_SystemGraphic">
+            <End Role="SystemGraphic" EntitySet="SystemGraphics" />
+            <End Role="SystemGraphicVisibleValue" EntitySet="SystemGraphicVisibleValues" />
+          </AssociationSet>
+          <EntitySet Name="ObservationAggregatedHighChartValues" EntityType="iOPS_NormalizedModel.ObservationAggregatedHighChartValue" />
+          <AssociationSet Name="FK_ObservationAggregatedHighChartValue_Tag" Association="iOPS_NormalizedModel.FK_ObservationAggregatedHighChartValue_Tag">
+            <End Role="Tag" EntitySet="Tags" />
+            <End Role="ObservationAggregatedHighChartValue" EntitySet="ObservationAggregatedHighChartValues" />
+          </AssociationSet>
           </EntityContainer>
         <EntityType Name="AuthorizableActivity">
           <Key>
@@ -2558,6 +2651,7 @@
           <NavigationProperty Name="Asset" Relationship="iOPS_NormalizedModel.FK_Tag_Asset" FromRole="Tag" ToRole="Asset" />
           <Property Name="LastReportedDate" Type="DateTime" Precision="3" />
           <NavigationProperty Name="WidgetGraphTags" Relationship="iOPS_NormalizedModel.FK_WidgetGraphTag_Tag" FromRole="Tag" ToRole="WidgetGraphTag" />
+          <NavigationProperty Name="ObservationAggregatedHighChartValues" Relationship="iOPS_NormalizedModel.FK_ObservationAggregatedHighChartValue_Tag" FromRole="Tag" ToRole="ObservationAggregatedHighChartValue" />
         </EntityType>
         <Association Name="FK_Observation_Tag">
           <End Type="iOPS_NormalizedModel.Tag" Role="Tag" Multiplicity="0..1" />
@@ -2590,6 +2684,8 @@
           <NavigationProperty Name="Parent" Relationship="iOPS_NormalizedModel.FK_System_System" FromRole="System1" ToRole="System" />
           <NavigationProperty Name="SystemType" Relationship="iOPS_NormalizedModel.FK_System_SystemType" FromRole="System" ToRole="SystemType" />
           <NavigationProperty Name="Assets" Relationship="iOPS_NormalizedModel.FK_Asset_System" FromRole="SystemGroup" ToRole="Asset" />
+          <Property Name="BaseUnitImageURL" Type="String" MaxLength="500" FixedLength="false" Unicode="false" />
+          <NavigationProperty Name="SystemGraphics" Relationship="iOPS_NormalizedModel.FK_SystemGraphic_System" FromRole="SystemGroup" ToRole="SystemGraphic" />
         </EntityType>
         <Association Name="FK_System_Company">
           <End Type="iOPS_NormalizedModel.Company" Role="Company" Multiplicity="0..1" />
@@ -3876,6 +3972,72 @@
             </Dependent>
           </ReferentialConstraint>
         </Association>
+        <EntityType Name="SystemGraphic">
+          <Key>
+            <PropertyRef Name="Id" />
+          </Key>
+          <Property Name="Id" Type="Int64" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="SystemId" Type="Int64" />
+          <Property Name="ImageURL" Type="String" MaxLength="500" FixedLength="false" Unicode="false" />
+          <NavigationProperty Name="System" Relationship="iOPS_NormalizedModel.FK_SystemGraphic_System" FromRole="SystemGraphic" ToRole="SystemGroup" />
+          <NavigationProperty Name="SystemGraphicVisibleValues" Relationship="iOPS_NormalizedModel.FK_SystemGraphicVisibleValue_SystemGraphic" FromRole="SystemGraphic" ToRole="SystemGraphicVisibleValue" />
+        </EntityType>
+        <EntityType Name="SystemGraphicVisibleValue">
+          <Key>
+            <PropertyRef Name="Id" />
+          </Key>
+          <Property Name="Id" Type="Int64" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="SystemGraphicId" Type="Int64" />
+          <Property Name="JBTStandardObservationId" Type="Int64" />
+          <Property Name="ValueWhenVisible" Type="String" MaxLength="100" FixedLength="false" Unicode="false" />
+          <NavigationProperty Name="SystemGraphic" Relationship="iOPS_NormalizedModel.FK_SystemGraphicVisibleValue_SystemGraphic" FromRole="SystemGraphicVisibleValue" ToRole="SystemGraphic" />
+        </EntityType>
+        <Association Name="FK_SystemGraphic_System">
+          <End Type="iOPS_NormalizedModel.SystemGroup" Role="SystemGroup" Multiplicity="0..1" />
+          <End Type="iOPS_NormalizedModel.SystemGraphic" Role="SystemGraphic" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="SystemGroup">
+              <PropertyRef Name="Id" />
+            </Principal>
+            <Dependent Role="SystemGraphic">
+              <PropertyRef Name="SystemId" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_SystemGraphicVisibleValue_SystemGraphic">
+          <End Type="iOPS_NormalizedModel.SystemGraphic" Role="SystemGraphic" Multiplicity="0..1" />
+          <End Type="iOPS_NormalizedModel.SystemGraphicVisibleValue" Role="SystemGraphicVisibleValue" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="SystemGraphic">
+              <PropertyRef Name="Id" />
+            </Principal>
+            <Dependent Role="SystemGraphicVisibleValue">
+              <PropertyRef Name="SystemGraphicId" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <EntityType Name="ObservationAggregatedHighChartValue">
+          <Key>
+            <PropertyRef Name="Id" />
+          </Key>
+          <Property Name="Id" Type="Int64" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="TagId" Type="Int64" />
+          <Property Name="Day" Type="DateTime" Precision="3" />
+          <Property Name="TagValues" Type="String" MaxLength="Max" FixedLength="false" Unicode="false" />
+          <NavigationProperty Name="Tag" Relationship="iOPS_NormalizedModel.FK_ObservationAggregatedHighChartValue_Tag" FromRole="ObservationAggregatedHighChartValue" ToRole="Tag" />
+        </EntityType>
+        <Association Name="FK_ObservationAggregatedHighChartValue_Tag">
+          <End Type="iOPS_NormalizedModel.Tag" Role="Tag" Multiplicity="0..1" />
+          <End Type="iOPS_NormalizedModel.ObservationAggregatedHighChartValue" Role="ObservationAggregatedHighChartValue" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Tag">
+              <PropertyRef Name="Id" />
+            </Principal>
+            <Dependent Role="ObservationAggregatedHighChartValue">
+              <PropertyRef Name="TagId" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
         </Schema>
     </edmx:ConceptualModels>
     <!-- C-S mapping content -->
@@ -4135,6 +4297,7 @@
           <EntitySetMapping Name="SystemGroups">
             <EntityTypeMapping TypeName="iOPS_NormalizedModel.SystemGroup">
               <MappingFragment StoreEntitySet="System">
+                <ScalarProperty Name="BaseUnitImageURL" ColumnName="BaseUnitImageURL" />
                 <ScalarProperty Name="CreateDate" ColumnName="CreateDate" />
                 <ScalarProperty Name="DateLastModified" ColumnName="DateLastModified" />
                 <ScalarProperty Name="OriginalEntityId" ColumnName="OriginalEntityId" />
@@ -4900,6 +5063,35 @@
               <MappingFragment StoreEntitySet="WidgetGraphTag">
                 <ScalarProperty Name="TagId" ColumnName="TagId" />
                 <ScalarProperty Name="WidgetId" ColumnName="WidgetId" />
+                <ScalarProperty Name="Id" ColumnName="Id" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="SystemGraphics">
+            <EntityTypeMapping TypeName="iOPS_NormalizedModel.SystemGraphic">
+              <MappingFragment StoreEntitySet="SystemGraphic">
+                <ScalarProperty Name="ImageURL" ColumnName="ImageURL" />
+                <ScalarProperty Name="SystemId" ColumnName="SystemId" />
+                <ScalarProperty Name="Id" ColumnName="Id" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="SystemGraphicVisibleValues">
+            <EntityTypeMapping TypeName="iOPS_NormalizedModel.SystemGraphicVisibleValue">
+              <MappingFragment StoreEntitySet="SystemGraphicVisibleValue">
+                <ScalarProperty Name="ValueWhenVisible" ColumnName="ValueWhenVisible" />
+                <ScalarProperty Name="JBTStandardObservationId" ColumnName="JBTStandardObservationId" />
+                <ScalarProperty Name="SystemGraphicId" ColumnName="SystemGraphicId" />
+                <ScalarProperty Name="Id" ColumnName="Id" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="ObservationAggregatedHighChartValues">
+            <EntityTypeMapping TypeName="iOPS_NormalizedModel.ObservationAggregatedHighChartValue">
+              <MappingFragment StoreEntitySet="ObservationAggregatedHighChartValue">
+                <ScalarProperty Name="TagValues" ColumnName="TagValues" />
+                <ScalarProperty Name="Day" ColumnName="Day" />
+                <ScalarProperty Name="TagId" ColumnName="TagId" />
                 <ScalarProperty Name="Id" ColumnName="Id" />
               </MappingFragment>
             </EntityTypeMapping>

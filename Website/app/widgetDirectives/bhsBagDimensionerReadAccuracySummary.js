@@ -95,6 +95,23 @@
 						}
 					});
 
+					$scope.$on("WidgetResize.Stop", function (event, resizedWidgetId) {
+
+						if (vm.widget.Id == resizedWidgetId || resizedWidgetId == 0) {
+							
+							$interval(function() {
+								displaySetupService.SetPanelBodyWithIdHeight(vm.widget.Id);
+								vm.widgetDimensions = displaySetupService.GetWidgetPanelBodyDimensions(vm.widget.Id);
+								vm.largeTextSize = vm.widgetDimensions.width * fontFactor;
+								if (vm.largeTextSize > fontMax) {
+									vm.largeTextSize = fontMax;
+								}
+							},50,20);
+						}
+					});
+
+
+
 				};
 
 

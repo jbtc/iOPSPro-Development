@@ -254,12 +254,15 @@
     <Compile Include="Controllers\OdataV4\iOPSUsersController.cs" />
     <Compile Include="Controllers\OdataV4\BHSJamAlarmsController.cs" />
     <Compile Include="Controllers\OdataV4\JBTStandardObservationsController.cs" />
+    <Compile Include="Controllers\OdataV4\ObservationAggregatedHighChartValuesController.cs" />
     <Compile Include="Controllers\OdataV4\ObservationsController.cs" />
     <Compile Include="Controllers\OdataV4\PeopleController.cs" />
     <Compile Include="Controllers\OdataV4\SiteCompaniesController.cs" />
     <Compile Include="Controllers\OdataV4\SiteDataReadersController.cs" />
     <Compile Include="Controllers\OdataV4\SitesController.cs" />
     <Compile Include="Controllers\OdataV4\StateAbbreviationsController.cs" />
+    <Compile Include="Controllers\OdataV4\SystemGraphicsController.cs" />
+    <Compile Include="Controllers\OdataV4\SystemGraphicVisibleValuesController.cs" />
     <Compile Include="Controllers\OdataV4\SystemGroupsController.cs" />
     <Compile Include="Controllers\OdataV4\SystemTypesController.cs" />
     <Compile Include="Controllers\OdataV4\TagsController.cs" />
@@ -524,6 +527,9 @@
     <Compile Include="Models\Observation.cs">
       <DependentUpon>Model1.tt</DependentUpon>
     </Compile>
+    <Compile Include="Models\ObservationAggregatedHighChartValue.cs">
+      <DependentUpon>Model1.tt</DependentUpon>
+    </Compile>
     <Compile Include="Models\Person.cs">
       <DependentUpon>Model1.tt</DependentUpon>
     </Compile>
@@ -537,6 +543,12 @@
       <DependentUpon>Model1.tt</DependentUpon>
     </Compile>
     <Compile Include="Models\StateAbbreviation.cs">
+      <DependentUpon>Model1.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Models\SystemGraphic.cs">
+      <DependentUpon>Model1.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Models\SystemGraphicVisibleValue.cs">
       <DependentUpon>Model1.tt</DependentUpon>
     </Compile>
     <Compile Include="Models\SystemGroup.cs">

@@ -27,6 +27,17 @@
 						}
 					});
 
+					//$scope.$on("WidgetResize.Stop", function (event, resizedWidgetId) {
+
+					//	if (vm.widget.Id == resizedWidgetId || resizedWidgetId == 0) {
+							
+					//		$interval(function() {
+					//			SetChartSizeLine(vm.widget.Id, vm.chart);
+								
+					//		},50,20);
+					//	}
+					//});
+
 					$scope.$on("Dashboard", function (event, modifiedExpandedDashboard) {
 						console.log("bhsActiveAlarms Dashboard event. Modified Dashboard = %O", modifiedExpandedDashboard);
 						if (modifiedExpandedDashboard.Id == vm.dashboard.Id) {
@@ -215,6 +226,13 @@
 													vm.alarms = data.where(function (a) { return a.TransactionType != 'Inactive' });
 
 													displaySetupService.SetPanelBodyWithIdHeight(vm.widget.Id);
+
+
+													$interval(function() {
+														SetChartSizeLine(vm.widget.Id, vm.chart);
+														
+													},50,20);
+
 												});
 					}
 

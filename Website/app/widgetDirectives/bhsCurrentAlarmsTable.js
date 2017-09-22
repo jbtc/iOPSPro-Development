@@ -131,6 +131,17 @@
 						}
 					});
 
+					$scope.$on("WidgetResize.Stop", function (event, resizedWidgetId) {
+
+						if (vm.widget.Id == resizedWidgetId || resizedWidgetId == 0) {
+							
+							$interval(function() {
+								displaySetupService.SetPanelBodyWithIdHeight(vm.widget.Id);
+								
+							},50,20);
+						}
+					});
+
 
 
 

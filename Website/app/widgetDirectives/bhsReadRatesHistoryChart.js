@@ -45,6 +45,19 @@
 						}
 					});
 
+					$scope.$on("WidgetResize.Stop", function (event, resizedWidgetId) {
+
+						if (vm.widget.Id == resizedWidgetId || resizedWidgetId == 0) {
+							
+							$interval(function() {
+								vm.data.forEach(function (item) {
+									SetChartSize(item);
+								});
+								
+							},50,20);
+						}
+					});
+
 					vm.state = $state;
 
 

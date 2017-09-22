@@ -64,6 +64,9 @@ namespace iOPS_ODataV4
             builder.EntitySet<BHSCurrentAlarm>("BHSCurrentAlarms");
             builder.EntitySet<DashboardTimeScope>("DashboardTimeScopes");
             builder.EntitySet<BHSAlarmHistory>("BHSAlarmHistories");
+            builder.EntitySet<SystemGraphic>("SystemGraphics");
+            builder.EntitySet<SystemGraphicVisibleValue>("SystemGraphicVisibleValues");
+            builder.EntitySet<ObservationAggregatedHighChartValue>("ObservationAggregatedHighChartValues");
 
 
 

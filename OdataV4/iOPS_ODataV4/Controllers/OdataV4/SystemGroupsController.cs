@@ -115,6 +115,13 @@ namespace iOPS_ODataV4.Controllers.OdataV4
             return db.SystemGroups.Where(m => m.Id == key).SelectMany(m => m.Children);
         }
 
+        // GET: odata/SystemGroups(5)/SystemGraphics
+        [EnableQuery(MaxExpansionDepth = 100)]
+        public IQueryable<SystemGraphic> GetSystemGraphics([FromODataUri] long key)
+        {
+            return db.SystemGroups.Where(m => m.Id == key).SelectMany(m => m.SystemGraphics);
+        }
+
         // GET: odata/SystemGroups(5)/Parent
         [EnableQuery(MaxExpansionDepth = 100)]
         public SingleResult<SystemGroup> GetParent([FromODataUri] long key)
