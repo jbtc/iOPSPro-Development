@@ -841,8 +841,7 @@
 													]
 												}
 											]
-										},
-										{ id: "dmBHS", label: "Baggage Handling Systems", description: "", state: "", children: siteBHSMenuItems }
+										}
 									]
 								}
 							]
@@ -1839,7 +1838,7 @@
 			//Set up interval that re-loads the vm tags. They will update that often.
 			vm.updateInterval = $interval(function () {
 				GetFormattedTags();
-			}, 100);
+			}, 1000);
 
 			$scope.$on("$destroy",
                 function () {
@@ -1859,15 +1858,16 @@
 			dataService.GetTags().then(function (data) {
 				vm.totalChangeCount = 0;
 
-				//data.select(function(t) {
-				//    vm.totalChangeCount += t.Statistics.ChangeCount;
-				//});
-
+				
 
 				vm.tags = data
                     .where(function (t) {
                     	return (t.Metadata.UpdateCountDowns.TenSecond > 0 && !$stateParams.NoDropOff) || $stateParams.NoDropOff;
                     });
+
+
+				console.log("vm.tags = %O", vm.tags);
+
 
 			});
 		}
@@ -1953,16 +1953,17 @@
 
 				//Only include tags whewre there is an observation in the last ten days.
 				var cutoffDateTime = new Date();
-				cutoffDateTime = cutoffDateTime.setDate(cutoffDateTime.getDate() - 10);
+				cutoffDateTime = cutoffDateTime.setDate(cutoffDateTime.getDate() - 10000000);
 
-				var recentTags = data.Tags.where(function (tag) {
-					return tag.LastObservationDate > cutoffDateTime;
-				});
+				//var recentTags = data.Tags;
+				//	.where(function (tag) {
+				//	return tag.LastObservationDate > cutoffDateTime;
+				//});
 
 
-				data.Assets.forEach(function (asset) {
-					asset.recentTags = recentTags.where(function (tag) { return tag.AssetId == asset.Id });
-				});
+				//data.Assets.forEach(function (asset) {
+				//	asset.recentTags = recentTags.where(function (tag) { return tag.AssetId == asset.Id });
+				//});
 
 
 
@@ -2009,6 +2010,8 @@
 
 
 
+				
+				console.log("vm.sites = %O", vm.sites);
 				console.log("Data Formatting time = " + (performance.now() - time0));
 
 
@@ -3073,7 +3076,7 @@
 			//Set up interval that re-loads the vm tags. They will update that often.
 			vm.updateInterval = $interval(function () {
 				GetFormattedTags();
-			}, 100);
+			}, 1000);
 
 			$scope.$on("$destroy",
                 function () {
@@ -3095,6 +3098,7 @@
 				vm.tags = data
                     .where(function (t) { return t.Metadata.UpdateCountDowns.FiveMinute > 0 })
                     .orderBy(function (t) { return t.Name });
+
 			});
 		}
 	}

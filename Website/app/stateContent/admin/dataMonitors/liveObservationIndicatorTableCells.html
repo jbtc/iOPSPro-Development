@@ -24,8 +24,8 @@
                     </div>
 
                 </div>
-                <div ng-repeat="tag in site.Tags"
-                     style="display:inline; margin-top:0; border: .2px solid gray; border-collapse: collapse; background-color: {{tag.Metadata.Status.LastValueWasHistorical ? 'rgba(173, 173, 173,' : 'rgba(0, 255, 0,'}} .{{tag.Metadata.UpdateCountDowns.OneSecond}}); margin: 0; max-height: 5px; height:5px;">
+                <div ng-repeat="tag in site.Tags" title="{{tag.TagName}}"
+                     style="display:inline; margin-top:0; border: .2px solid gray; border-collapse: collapse; cursor: pointer; background-color: {{tag.Metadata.Status.LastValueWasHistorical ? 'rgba(173, 173, 173,' : 'rgba(0, 255, 0,'}} .{{tag.Metadata.UpdateCountDowns.OneSecond}}); margin: 0; max-height: 5px; height:5px;">
                     &nbsp;
                 </div>
             </div>

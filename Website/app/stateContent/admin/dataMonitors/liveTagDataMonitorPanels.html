@@ -23,10 +23,10 @@
         <div class="panel-body repeater-container" style="overflow: hidden; width: 100%">
 
             <div vs-repeatxxx="120" vs-scroll-parent=".repeater-container" vs-scrolled-to-end="vm.scrolledToEnd()">
-                <div class="panel panel-default" ng-repeat="tag in vm.tags" style="margin-top: 0; margin-right: 3px; width:460px; float: left;">
+                <div class="panel panel-info" ng-repeat="tag in vm.tags" style="margin-top: 0; margin-right: 3px; width:460px; float: left;">
                     <div class="panel-heading">
                         <div class="panel-heading-title-dark">
-                            {{tag.Name.replace('Airport_', '')}}
+                            {{tag.TagName.replace('Airport_', '')}}
                         </div>
 
                     </div>

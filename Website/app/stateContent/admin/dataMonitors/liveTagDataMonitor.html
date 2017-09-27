@@ -38,9 +38,7 @@
                         <th style="width: {{vm.columnWidths.gate}}%">
                             Gate
                         </th>
-                        <th style="width: {{vm.columnWidths.equipment}}%">
-                            Equipment
-                        </th>
+                       
                         <th style="width: {{vm.columnWidths.tagName}}%">
                             TagName
                         </th>
@@ -66,19 +64,17 @@
                             {{tag.Asset.Company.Name}}
                         </td>
                         <td>
-                            {{tag.Asset.Building.Name}}
+                            {{tag.Asset.ParentSystem.ParentSystem.ParentSystem.Name}}
                         </td>
                         <td>
-                            {{tag.Asset.Area.Name}}
+                            {{tag.Asset.ParentSystem.ParentSystem.Name}}
                         </td>
                         <td>
-                            {{tag.Asset.Gate.Name}}
+                            {{tag.Asset.ParentSystem.Name}}
                         </td>
-                        <td>
-                            {{tag.Asset.Name}}
-                        </td>
+                        
                         <td nowrap>
-                            {{tag.Name}}
+                            {{tag.TagName}}
                         </td>
                         <td nowrap>
                             {{tag.JBTStandardObservation.Name}}

@@ -12,7 +12,7 @@
 					var vm = this;
 
 					function GetHeadingExtraTitle() {
-						if (vm.GateSystem) {						
+						if (vm.GateSystem) {
 							return ' - Gate ' + vm.GateSystem.Name + ' - ' + vm.pca.ModelGenericName;
 						}
 					}
@@ -61,6 +61,27 @@
 						}
 					}
 
+					vm.OpenSettingsIfNoAssetAndCloseIfAssetIsPresent = function () {
+
+						console.log("Opening settings vm.Asset = %O", vm.Asset);
+
+
+						if (!vm.pca) {
+
+							var element = $("#widget-settings-" + vm.widget.WidgetResource.Id)[0].parentNode.parentNode.offsetParent;
+							var position = $(element).offset();
+							position.width = $(element).width();
+
+							$("#gridster" + vm.widget.Id).css('z-index', '35');
+							$("#widget-settings-" + vm.widget.WidgetResource.Id)
+								.css({ left: position.left + 20, top: position.top + 35, width: 500, 'z-index': 35 });
+							$("#widget-settings-" + vm.widget.WidgetResource.Id).slideDown();
+						} else {
+
+							$("#gridster" + vm.widget.Id).css('z-index', '2');
+							$("#widget-settings-" + vm.widget.WidgetResource.Id).slideUp();
+						}
+					}
 
 
 
@@ -133,26 +154,29 @@
 
 
 
+					vm.CloseSettings = function () {
+						$("#widget-settings-" + vm.widget.WidgetResource.Id).slideUp();
+					}
 
 
 					vm.ProcessTagsToGraph = function (tag) {
 
 						//$timeout(function() {
-							vm.tagsToGraphObjects = [];
-							vm.tagsToGraph.forEach(function (enabled, tagId) {
-								vm.tagsToGraphObjects.push({ TagId: tagId, Enabled: enabled });
-							});
+						vm.tagsToGraphObjects = [];
+						vm.tagsToGraph.forEach(function (enabled, tagId) {
+							vm.tagsToGraphObjects.push({ TagId: tagId, Enabled: enabled });
+						});
 
-							//console.log("vm.tagsToGraphObjects = %O", vm.tagsToGraphObjects);
+						//console.log("vm.tagsToGraphObjects = %O", vm.tagsToGraphObjects);
 
 
 
-							//Call the function that the dashboard provided with the collection of tags to add to the possible new widget
-							vm.addTagsToGraphFunction()(vm.tagsToGraphObjects);
+						//Call the function that the dashboard provided with the collection of tags to add to the possible new widget
+						vm.addTagsToGraphFunction()(vm.tagsToGraphObjects);
 
 						//});
 
-						
+
 
 						return;
 						var element = $("#widget-linegraph-" + vm.widget.WidgetResource.Id)[0].parentNode.parentNode.offsetParent;
@@ -564,18 +588,18 @@
 					});
 
 					$scope.$on("WidgetResize.Stop", function (event, resizedWidgetId) {
-						if (vm.widget.Id == resizedWidgetId || resizedWidgetId == 0) {							
-							$interval(function() {
+						if (vm.widget.Id == resizedWidgetId || resizedWidgetId == 0) {
+							$interval(function () {
 								displaySetupService.SetPanelBodyWithIdHeight(vm.widget.Id);
-								
-							},50,20);
+
+							}, 50, 20);
 						}
 					});
 
 					$scope.$on("GraphWidgetAdded", function (event, graphWidget) {
 
 
-						if(vm.dashboard.Id == graphWidget.ParentDashboardId) {
+						if (vm.dashboard.Id == graphWidget.ParentDashboardId) {
 
 							//Clear the add tag checkbox buttons
 							vm.tagsToGraphObjects = [];
@@ -587,12 +611,12 @@
 
 						console.log("Widget.AddTagsToGraph event at PCA Summary");
 
-							//Clear the add tag checkbox buttons
-							vm.tagsToGraphObjects = [];
-							vm.tagsToGraph = [];
+						//Clear the add tag checkbox buttons
+						vm.tagsToGraphObjects = [];
+						vm.tagsToGraph = [];
 					});
 
-					
+
 
 
 					//***G

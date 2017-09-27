@@ -20,7 +20,7 @@
 					});
 
 					var fontFactor = .003;
-					var fontMax = 3;
+					var fontMax = 8;
 
 					$scope.$on("Dashboard", function (event, modifiedExpandedDashboard) {
 						//console.log("readRatesSummary Dashboard event. Modified Dashboard = %O", modifiedExpandedDashboard);

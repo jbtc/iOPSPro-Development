@@ -541,6 +541,8 @@
 									return tag;
 								});
 
+							asset.ParentSystem = cache.systems.first(function(s) { return s.Id == asset.ParentSystemId });
+
 
 							return asset;
 
@@ -1032,6 +1034,9 @@
 
 							var site = cache.sites.first(function (s) { return s.Id == tag.SiteId });
 
+
+							
+
 							var signalRData = {
 								Date: new Date(tag.LastObservationDate),
 								AssetId: tag.AssetId,
@@ -1046,6 +1051,9 @@
 								JBTStandardObservation: cache.jbtStandardObservations.first(function (s) { return s.Id == tag.JBTStandardObservationId }),
 								NumericValue: +tag.LastObservationTextValue
 							}
+
+							AttachShortTagNameToTagData(signalRData);
+
 
 							LoadSignalRObservationToInventory(signalRData);
 							var asset = cache.assets.first(function (a) { return a.Id == assetId });
@@ -1069,6 +1077,23 @@
 
 		}
 
+
+		function AttachShortTagNameToTagData(tag) {
+			
+			var tagNameSplit = tag.TagName.split('|');
+			if (tagNameSplit.length > 4) {
+				tag.ShortTagName = tagNameSplit.last().replace('.PCA.','').replace('.GPU.','').replace('.PBB.','');
+			} else {
+				tag.ShortTagName = tag.TagName.replace('Airport_','');
+			}
+
+
+
+
+		}
+
+
+
 		//===================================================================================================================
 		//++SignalR Observation Update - push messages in real-time.
 		//This function is run whenever each signalR message arrives.
@@ -1089,6 +1114,8 @@
 			signalRData.JBTStandardObservationId = +signalRData.JBTStandardObservationId;
 			signalRData.JBTStandardObservation = cache.jbtStandardObservations.first(function (s) { return s.Id == signalRData.JBTStandardObservationId });
 			signalRData.NumericValue = +signalRData.Value;
+
+			AttachShortTagNameToTagData(signalRData);
 
 			LoadSignalRObservationToInventory(signalRData);
 
@@ -1164,6 +1191,7 @@
 					AttachBlankMetadataObject(obs);
 					obs.LastObservationDate = utilityService.GetLocalDateFromUTCDate(obs.Date);
 					obs.LastObservationTextValue = obs.Value;
+
 					obs.LastObservationNumericValue = +obs.Value;
 					//Attach the asset to the tag, and attach the tags collection to the asset - IF the asset is found
 					var asset = cache.assets.first(function (asset) { return asset.Id == +obs.AssetId });
@@ -1188,6 +1216,10 @@
 
 
 				}
+			}
+			if (!isFinite(obs.Value) && obs.Value.indexOf('oken:') != 1 && obs.Value.indexOf('rue') != 1 && obs.Value.indexOf('alse') != 1) {
+
+				console.log("Text Observation data Arrived. TagName "+ tag.TagName + " --- " + tag.Value);
 			}
 
 			$rootScope.$broadcast("dataService.TagUpdate", tag);
@@ -2609,7 +2641,7 @@
 
 				case "System.SignalR.ClientDisconnected":
 
-					console.log("ngEvent: System.ClientLogout Data:%O", dataObject);
+					//console.log("ngEvent: System.ClientLogout Data:%O", dataObject);
 					//The dataObject IS the clientID in this case.
 					RemoveUserByClientId(dataObject.ClientId);
 					ConsoleLogAllConnectedClients();
@@ -2939,7 +2971,7 @@
 
 		function ConsoleLogAllConnectedClients() {
 			console.log("Clients Connected: %O", service.connectedClients);
-			//console.log("hub = %O", $.connection.hub);
+			console.log("hub = %O", $.connection.hub);
 		}
 
 

@@ -50,7 +50,14 @@
 							var position = $(element).offset();
 							position.width = $(element).width();
 
-							$("#gridster" + widget.Id).css('z-index', '35');
+							vm.settingsZIndex = $("#gridster" + widget.Id).css('z-index');
+
+							if (vm.settingsZIndex < 10) {
+								$("#gridster" + widget.Id).css('z-index', '35');
+							} else {
+								$("#gridster" + widget.Id).css('z-index', '2');
+
+							}
 							$("#widget-settings-" + widget.Id).css({ left: position.left + 20, top: position.top + 35, width: 500, 'z-index': 3500 });
 							$("#widget-settings-" + widget.Id).slideToggle();
 

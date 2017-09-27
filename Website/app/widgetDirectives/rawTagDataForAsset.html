@@ -1,0 +1,215 @@
+﻿<div class="panel-body" style="overflow-x: hidden; overflow-y: auto; width: 100%; height: {{vm.widgetDimensions.height - 10}}px;" ng-click="vm.OpenSettingsIfNoAssetAndCloseIfAssetIsPresent()">
+    <table class="table table-hover table-responsive table-condensed">
+        <thead style="font-size: .8em;">
+            <tr>
+
+
+                <th style="cursor: pointer;">
+                    <div>
+                        &nbsp;
+                    </div>
+                </th>
+                <th ng-hide="vm.widgetDimensions.width < vm.columnHideWidth1" style="cursor: pointer;"
+                    ng-click="vm.SetSortField('TagId')">
+                    <div>
+                        Tag Id
+                        <span ng-show="vm.widget.displaySettings.tagDataSortField=='-TagId'">
+                            <i class="fa fa-sort-alpha-desc" title="Click to sort in ascending order"></i>
+                        </span>
+                        <span ng-show="vm.widget.displaySettings.tagDataSortField=='TagId'">
+                            <i class="fa fa-sort-alpha-asc" title="Click to sort in ascending order"></i>
+                        </span>
+                    </div>
+                </th>
+
+                <th style="cursor: pointer;" ng-click="vm.SetSortField('TagName')">
+                    <div>
+                        Name
+                        <span ng-show="vm.widget.displaySettings.tagDataSortField=='-TagName'">
+                            <i class="fa fa-sort-alpha-desc" title="Click to sort in ascending order"></i>
+                        </span>
+                        <span ng-show="vm.widget.displaySettings.tagDataSortField=='TagName'">
+                            <i class="fa fa-sort-alpha-asc" title="Click to sort in ascending order"></i>
+                        </span>
+                    </div>
+                </th>
+
+                <th style="cursor: pointer;"
+                    ng-click="vm.SetSortField('LastObservationTextValue')">
+                    <div>
+                        Value
+                        <span ng-show="vm.widget.displaySettings.tagDataSortField=='-LastObservationTextValue'">
+                            <i class="fa fa-sort-numeric-desc" title="Click to sort in ascending order"></i>
+                        </span>
+                        <span ng-show="vm.widget.displaySettings.tagDataSortField=='LastObservationTextValue'">
+                            <i class="fa fa-sort-numeric-asc" title="Click to sort in ascending order"></i>
+                        </span>
+                    </div>
+                </th>
+
+                <th style="cursor: pointer;"
+                    ng-click="vm.SetSortField('LastObservationDate')">
+                    <div>
+                        UTC
+                        <span ng-show="vm.widget.displaySettings.tagDataSortField=='-LastObservationDate'">
+                            <i class="fa fa-sort-numeric-desc" title="Click to sort in ascending order"></i>
+                        </span>
+                        <span ng-show="vm.widget.displaySettings.tagDataSortField=='LastObservationDate'">
+                            <i class="fa fa-sort-numeric-asc" title="Click to sort in ascending order"></i>
+                        </span>
+                    </div>
+                </th>
+
+
+                <th style="cursor: pointer;" ng-hide="vm.widgetDimensions.width < vm.columnHideWidth1"
+                    ng-click="vm.SetSortField('JBTStandardObservationId')">
+                    <div>
+                        JBT Std Obs Id
+                        <span ng-show="vm.widget.displaySettings.tagDataSortField=='-JBTStandardObservationId'">
+                            <i class="fa fa-sort-numeric-desc" title="Click to sort in ascending order"></i>
+                        </span>
+                        <span ng-show="vm.widget.displaySettings.tagDataSortField=='JBTStandardObservationId'">
+                            <i class="fa fa-sort-numeric-asc" title="Click to sort in ascending order"></i>
+                        </span>
+                    </div>
+                </th>
+
+                <th style="cursor: pointer;"  ng-hide="vm.widgetDimensions.width < vm.columnHideWidth1"
+                    ng-click="vm.SetSortField('JBTStandardObservation.Name')">
+                    <div>
+                        JBT Std Obs Name
+                        <span ng-show="vm.widget.displaySettings.tagDataSortField=='-JBTStandardObservation.Name'">
+                            <i class="fa fa-sort-numeric-desc" title="Click to sort in ascending order"></i>
+                        </span>
+                        <span ng-show="vm.widget.displaySettings.tagDataSortField=='JBTStandardObservation.Name'">
+                            <i class="fa fa-sort-numeric-asc" title="Click to sort in ascending order"></i>
+                        </span>
+                    </div>
+                </th>
+
+                <th style="cursor: pointer;" ng-hide="vm.widgetDimensions.width < vm.columnHideWidth1"
+                    ng-click="vm.SetSortField('LastObservationId')">
+                    <div>
+                        Last Obs Id
+                        <span ng-show="vm.widget.displaySettings.tagDataSortField=='-LastObservationId'">
+                            <i class="fa fa-sort-numeric-desc" title="Click to sort in ascending order"></i>
+                        </span>
+                        <span ng-show="vm.widget.displaySettings.tagDataSortField=='LastObservationId'">
+                            <i class="fa fa-sort-numeric-asc" title="Click to sort in ascending order"></i>
+                        </span>
+                    </div>
+                </th>
+
+
+
+
+                <th style="cursor: pointer;"
+                    ng-click="vm.SetSortField('Quality')">
+                    <div>
+                        Qual
+                        <span ng-show="vm.widget.displaySettings.tagDataSortField=='-Quality'">
+                            <i class="fa fa-sort-numeric-desc" title="Click to sort in ascending order"></i>
+                        </span>
+                        <span ng-show="vm.widget.displaySettings.tagDataSortField=='Quality'">
+                            <i class="fa fa-sort-numeric-asc" title="Click to sort in ascending order"></i>
+                        </span>
+                    </div>
+                </th>
+
+
+
+            </tr>
+        </thead>
+        <tbody style="font-size: .75em; overflow-y: scroll;">
+        <tr ng-repeat="tag in vm.Asset.Tags | orderBy: vm.widget.displaySettings.tagDataSortField" class="no-select" style="background-color: {{tag.Metadata.Status.LastValueWasHistorical ? 'rgba(173, 173, 173,' : 'rgba(0, 255, 0,'}} .{{tag.Metadata.UpdateCountDowns.OneSecond}});">
+            <td nowrap>
+                <label ng-click="vm.ProcessTagsToGraph()" class="btn btn-default" style="height: 15px; max-height: 15px; font-size: .7em; width: 15px; max-width: 15px; padding: 0; padding-top: 2px; margin-top: -2px;" ng-model="vm.tagsToGraph[tag.TagId]" uib-btn-checkbox="{{tag.TagId}}">
+                    <i class="fa fa-line-chart" aria-hidden="true" title="Add to graph widget" style="cursor: pointer;"></i>
+                </label>
+            </td>
+            <td ng-hide="vm.widgetDimensions.width < vm.columnHideWidth1">
+                {{tag.TagId}}
+            </td>
+            <td>{{tag.ShortTagName}}</td>
+            <td>{{tag.LastObservationTextValue}}</td>
+            <td nowrap>{{tag.LastObservationDate | date:'MM/dd HH:mm:ss'}}</td>
+            <td ng-hide="vm.widgetDimensions.width < vm.columnHideWidth1">{{tag.JBTStandardObservationId}}</td>
+            <td ng-hide="vm.widgetDimensions.width < vm.columnHideWidth1">{{tag.JBTStandardObservation.Name}}</td>
+            <td ng-hide="vm.widgetDimensions.width < vm.columnHideWidth1">{{tag.ObservationId}}</td>
+            <td>{{tag.Quality}}</td>
+            <td></td>
+        </tr>
+        </tbody>
+    </table>
+
+</div>
+
+
+
+
+<!--Settings Form Below-->
+
+
+<div class="panel panel-info" style="display: none; position: fixed; z-index: 30; left: 20px; top: 0; width: 90%; border: 3px solid darkcyan;" id="widget-settings-{{vm.widget.WidgetResource.Id}}">
+
+    <div class="panel-heading" style="min-height: 20px;">
+        Asset Settings for {{vm.widget.Name}}
+    </div>
+    <div class="panel-body" style="overflow-x: hidden; background: linear-gradient(to bottom,#bebebe, #eeeeee); padding-top: 0;">
+        <form class="form-horizontal" role="form" name="userForm" id="userForm" novalidate>
+            <div class="row" style="padding: 20px;">
+
+                <!-- Site - If the user has access to more than one -->
+                <div class="form-group">
+                    <label class="col-sm-{{vm.bootstrapLabelColumns}} control-label innovation-right-aligned">
+                        Site
+                    </label>
+                    <div class="col-sm-{{vm.bootstrapInputColumns}}">
+                        <label ng-repeat="site in vm.userSites" style="margin: 1px;" class="btn btn-default" ng-model="vm.widget.WidgetResource.SiteId" uib-btn-radio="{{site.Id}}">{{site.Name}}</label>
+                    </div>
+                </div>
+
+                <!-- Site Terminals (if more than one) -->
+                <div class="form-group" ng-show="vm.terminals.length > 0">
+                    <label class="col-sm-{{vm.bootstrapLabelColumns}} control-label innovation-right-aligned">
+                        Terminal
+                    </label>
+                    <div class="col-sm-{{vm.bootstrapInputColumns}}">
+                        <label ng-repeat="terminalSystem in vm.terminals" style="margin: 1px;" class="btn btn-default" ng-model="vm.widget.WidgetResource.TerminalSystemId" uib-btn-radio="{{terminalSystem.Id}}">{{terminalSystem.Name}}</label>
+                    </div>
+                </div>
+
+                <!-- Terminal Zones (if more than one) -->
+                <div class="form-group" ng-show="vm.zones && vm.zones.length > 0">
+                    <label class="col-sm-{{vm.bootstrapLabelColumns}} control-label innovation-right-aligned">
+                        Zone
+                    </label>
+                    <div class="col-sm-{{vm.bootstrapInputColumns}}">
+                        <label ng-repeat="zoneSystem in vm.zones" style="margin: 1px;" class="btn btn-default" ng-model="vm.widget.WidgetResource.ZoneSystemId" uib-btn-radio="{{zoneSystem.Id}}">{{zoneSystem.Name}}</label>
+                    </div>
+                </div>
+
+                <!-- Zone Gates (if more than one) -->
+                <div class="form-group" ng-show="vm.gates && vm.gates.length > 0">
+                    <label class="col-sm-{{vm.bootstrapLabelColumns}} control-label innovation-right-aligned">
+                        Gate
+                    </label>
+                    <div class="col-sm-{{vm.bootstrapInputColumns}}">
+                        <label ng-repeat="gateSystem in vm.gates" style="margin: 1px;" class="btn btn-default" ng-model="vm.widget.WidgetResource.GateSystemId" uib-btn-radio="{{gateSystem.Id}}">{{gateSystem.Name}}</label>
+                    </div>
+                </div>
+
+                <!-- Gate Asset (if more than one) -->
+                <div class="form-group" ng-show="vm.assets && vm.assets.length > 0">
+                    <label class="col-sm-{{vm.bootstrapLabelColumns}} control-label innovation-right-aligned">
+                        Asset
+                    </label>
+                    <div class="col-sm-{{vm.bootstrapInputColumns}}">
+                        <label ng-repeat="asset in vm.assets" style="margin: 1px;" class="btn btn-default" ng-model="vm.widget.WidgetResource.AssetId" uib-btn-radio="{{asset.Id}}">{{asset.Name}}</label>
+                    </div>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+

@@ -431,7 +431,7 @@
 								buttonTheme: {
 									width: 60
 								},
-								selected: 1
+								selected: 5
 							},
 							title: {
 								text: '',

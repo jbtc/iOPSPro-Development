@@ -1,9 +1,7 @@
 ﻿<div class="chart-wrapper" style="width:100%; height: 100%">
     <div class="chart-inner" style="width: 100%; height: 100%">
-        
-
         <div style="display: flex; width: 100%; height: 40%;">
-            <div style="flex-basis: 20%; width: 20%; height: 40%; font-size: 3.75vw; font-weight: bold; text-align: center;">
+            <div style="flex-basis: 20%; width: 20%; height: 40%; font-size: {{vm.largeTextSize}}em; font-weight: bold; text-align: center;">
                 {{vm.alarms.length}}
             </div>
             <div id="containerBhsActiveAlarms{{vm.widget.Id}}" style="flex-basis: 80%; width: 80%; height: 10%;">
@@ -15,50 +13,50 @@
             <div ng-show="vm.alarms" style="width: 100%;" id="lower-table-{{vm.widget.Id}}">
                 <table class="table table-hover table-condensed">
                     <thead style="font-size: .8em;">
-                    <tr>
+                        <tr>
 
 
 
-                        <th style="cursor: pointer;"
-                            nowrap
-                            ng-click="vm.SetSortField('ActiveDateTime')">
-                            <div>
-                                Date
-                                <span ng-show="vm.sortField=='-ActiveDateTime'">
-                                    <i class="fa fa-sort-numeric-desc" title="Click to sort in ascending order"></i>
-                                </span>
-                                <span ng-show="vm.sortField=='ActiveDateTime'">
-                                    <i class="fa fa-sort-numeric-asc" title="Click to sort in ascending order"></i>
-                                </span>
-                            </div>
-                        </th>
+                            <th style="cursor: pointer;"
+                                nowrap
+                                ng-click="vm.SetSortField('ActiveDateTime')">
+                                <div>
+                                    Date
+                                    <span ng-show="vm.sortField=='-ActiveDateTime'">
+                                        <i class="fa fa-sort-numeric-desc" title="Click to sort in ascending order"></i>
+                                    </span>
+                                    <span ng-show="vm.sortField=='ActiveDateTime'">
+                                        <i class="fa fa-sort-numeric-asc" title="Click to sort in ascending order"></i>
+                                    </span>
+                                </div>
+                            </th>
 
-                        <th style="cursor: pointer;"
-                            nowrap
-                            ng-click="vm.SetSortField('DeviceName')">
-                            <div>
-                                Device
-                                <span ng-show="vm.sortField=='-DeviceName'">
-                                    <i class="fa fa-sort-alpha-desc" title="Click to sort in ascending order"></i>
-                                </span>
-                                <span ng-show="vm.sortField=='DeviceName'">
-                                    <i class="fa fa-sort-alpha-asc" title="Click to sort in ascending order"></i>
-                                </span>
-                            </div>
-                        </th>
+                            <th style="cursor: pointer;"
+                                nowrap
+                                ng-click="vm.SetSortField('DeviceName')">
+                                <div>
+                                    Device
+                                    <span ng-show="vm.sortField=='-DeviceName'">
+                                        <i class="fa fa-sort-alpha-desc" title="Click to sort in ascending order"></i>
+                                    </span>
+                                    <span ng-show="vm.sortField=='DeviceName'">
+                                        <i class="fa fa-sort-alpha-asc" title="Click to sort in ascending order"></i>
+                                    </span>
+                                </div>
+                            </th>
 
-                        <th style="cursor: pointer;"
-                            nowrap
-                            ng-click="vm.SetSortField('Location')">
-                            <div>
-                                Location
-                                <span ng-show="vm.sortField=='-Location'">
-                                    <i class="fa fa-sort-alpha-desc" title="Click to sort in ascending order"></i>
-                                </span>
-                                <span ng-show="vm.sortField=='Location'">
-                                    <i class="fa fa-sort-alpha-asc" title="Click to sort in ascending order"></i>
-                                </span>
-                            </div>
+                            <th style="cursor: pointer;"
+                                nowrap
+                                ng-click="vm.SetSortField('Location')">
+                                <div>
+                                    Location
+                                    <span ng-show="vm.sortField=='-Location'">
+                                        <i class="fa fa-sort-alpha-desc" title="Click to sort in ascending order"></i>
+                                    </span>
+                                    <span ng-show="vm.sortField=='Location'">
+                                        <i class="fa fa-sort-alpha-asc" title="Click to sort in ascending order"></i>
+                                    </span>
+                                </div>
 
                             <th style="cursor: pointer;"
                                 nowrap
@@ -88,53 +86,52 @@
                                 </div>
                             </th>
 
-                        </th>
-                        <th style="cursor: pointer;"
-                            nowrap
-                            ng-click="vm.SetSortField('TransactionType')">
-                            <div>
-                                Status
-                                <span ng-show="vm.sortField=='-TransactionType'">
-                                    <i class="fa fa-sort-alpha-desc" title="Click to sort in ascending order"></i>
-                                </span>
-                                <span ng-show="vm.sortField=='TransactionType'">
-                                    <i class="fa fa-sort-alpha-asc" title="Click to sort in ascending order"></i>
-                                </span>
-                            </div>
-                        </th>
+                            <th style="cursor: pointer;"
+                                nowrap
+                                ng-click="vm.SetSortField('TransactionType')">
+                                <div>
+                                    Status
+                                    <span ng-show="vm.sortField=='-TransactionType'">
+                                        <i class="fa fa-sort-alpha-desc" title="Click to sort in ascending order"></i>
+                                    </span>
+                                    <span ng-show="vm.sortField=='TransactionType'">
+                                        <i class="fa fa-sort-alpha-asc" title="Click to sort in ascending order"></i>
+                                    </span>
+                                </div>
+                            </th>
 
-                        <th style="cursor: pointer;"
-                            nowrap
-                            ng-click="vm.SetSortField('Duration')">
-                            <div>
-                                Duration
-                                <span ng-show="vm.sortField=='-Duration'">
-                                    <i class="fa fa-sort-numeric-desc" title="Click to sort in ascending order"></i>
-                                </span>
-                                <span ng-show="vm.sortField=='Duration'">
-                                    <i class="fa fa-sort-numeric-asc" title="Click to sort in ascending order"></i>
-                                </span>
-                            </div>
-                        </th>
+                            <th style="cursor: pointer;"
+                                nowrap
+                                ng-click="vm.SetSortField('Duration')">
+                                <div>
+                                    Duration
+                                    <span ng-show="vm.sortField=='-Duration'">
+                                        <i class="fa fa-sort-numeric-desc" title="Click to sort in ascending order"></i>
+                                    </span>
+                                    <span ng-show="vm.sortField=='Duration'">
+                                        <i class="fa fa-sort-numeric-asc" title="Click to sort in ascending order"></i>
+                                    </span>
+                                </div>
+                            </th>
 
 
-                    </tr>
+                        </tr>
                     </thead>
                     <tbody style="font-size: .75em; overflow-y: scroll;">
-                    <tr ng-repeat="alarm in vm.alarms | orderBy: vm.sortField track by $index" title="{{alarm.BHSName}}" class="no-select">
-                        <td nowrap>{{alarm.ActiveDateTime | date:'MM/dd HH:mm:ss'}}</td>
-                        <td nowrap>{{alarm.DeviceName}}</td>
-                        <td nowrap>{{alarm.Location}}</td>
-                        <td>{{alarm.Description}}</td>
-                        <td nowrap>{{alarm.AcknowledgeTime | date:'MM/dd HH:mm:ss'}}</td>
-                        <td nowrap>{{alarm.TransactionType}}</td>
-                        <td nowrap ng-if="!alarm.ReturnToNormalTime && (alarm.TransactionType == 'Alarm Active' || alarm.TransactionType == 'Alarm Acknowledged')">
-                            <span style="color: red; font-size: 1.5em; font-weight: bold;">{{alarm.Duration}}</span>
-                        </td>
-                        <td nowrap ng-if="!(!alarm.ReturnToNormalTime && (alarm.TransactionType == 'Alarm Active' || alarm.TransactionType == 'Alarm Acknowledged'))">
-                            {{alarm.Duration}}
-                        </td>
-                    </tr>
+                        <tr ng-repeat="alarm in vm.alarms | orderBy: vm.sortField track by $index" title="{{alarm.BHSName}}" class="no-select">
+                            <td nowrap>{{alarm.ActiveDateTime | date:'MM/dd HH:mm:ss'}}</td>
+                            <td nowrap>{{alarm.DeviceName}}</td>
+                            <td nowrap>{{alarm.Location}}</td>
+                            <td>{{alarm.Description}}</td>
+                            <td nowrap>{{alarm.AcknowledgeTime | date:'MM/dd HH:mm:ss'}}</td>
+                            <td nowrap>{{alarm.TransactionType}}</td>
+                            <td nowrap ng-if="!alarm.ReturnToNormalTime && (alarm.TransactionType == 'Alarm Active' || alarm.TransactionType == 'Alarm Acknowledged')">
+                                <span style="color: red; font-size: 1.5em; font-weight: bold;">{{alarm.Duration}}</span>
+                            </td>
+                            <td nowrap ng-if="!(!alarm.ReturnToNormalTime && (alarm.TransactionType == 'Alarm Active' || alarm.TransactionType == 'Alarm Acknowledged'))">
+                                {{alarm.Duration}}
+                            </td>
+                        </tr>
                     </tbody>
                 </table>
 
