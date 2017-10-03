@@ -32,14 +32,14 @@ namespace iOPS_ODataV4.Controllers.OdataV4
         private iOPS_NormalizedEntities db = new iOPS_NormalizedEntities();
 
         // GET: odata/BHSCurrentAlarms
-        [EnableQuery]
+        [EnableQuery(MaxExpansionDepth = 100)]
         public IQueryable<BHSCurrentAlarm> GetBHSCurrentAlarms()
         {
             return db.BHSCurrentAlarms;
         }
 
         // GET: odata/BHSCurrentAlarms(5)
-        [EnableQuery]
+        [EnableQuery(MaxExpansionDepth = 100)]
         public SingleResult<BHSCurrentAlarm> GetBHSCurrentAlarm([FromODataUri] long key)
         {
             return SingleResult.Create(db.BHSCurrentAlarms.Where(bHSCurrentAlarm => bHSCurrentAlarm.Id == key));

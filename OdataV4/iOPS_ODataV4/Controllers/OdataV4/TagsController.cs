@@ -34,14 +34,14 @@ namespace iOPS_ODataV4.Controllers.OdataV4
         private iOPS_NormalizedEntities db = new iOPS_NormalizedEntities();
 
         // GET: odata/Tags
-        [EnableQuery]
+        [EnableQuery(MaxExpansionDepth = 100)]
         public IQueryable<Tag> GetTags()
         {
             return db.Tags;
         }
 
         // GET: odata/Tags(5)
-        [EnableQuery]
+        [EnableQuery(MaxExpansionDepth = 100)]
         public SingleResult<Tag> GetTag([FromODataUri] long key)
         {
             return SingleResult.Create(db.Tags.Where(tag => tag.Id == key));
@@ -84,22 +84,45 @@ namespace iOPS_ODataV4.Controllers.OdataV4
             return Created(modifiedEntity);
         }
 
+        // GET: odata/Tags(5)/LastObservation
+        [EnableQuery(MaxExpansionDepth = 100)]
+        public SingleResult<Observation> GetLastObservation([FromODataUri] long key)
+        {
+            return SingleResult.Create(db.Tags.Where(m => m.Id == key).Select(m => m.LastObservation));
+        }
+
         // GET: odata/Tags(5)/Asset
-        [EnableQuery]
+        [EnableQuery(MaxExpansionDepth = 100)]
         public SingleResult<Asset> GetAsset([FromODataUri] long key)
         {
             return SingleResult.Create(db.Tags.Where(m => m.Id == key).Select(m => m.Asset));
         }
 
         // GET: odata/Tags(5)/Observations
-        [EnableQuery]
+        [EnableQuery(MaxExpansionDepth = 100)]
         public IQueryable<Observation> GetObservations([FromODataUri] long key)
         {
             return db.Tags.Where(m => m.Id == key).SelectMany(m => m.Observations);
         }
 
+
+        // GET: odata/Tags(5)/ObservationAggregatedHighChartValues
+        [EnableQuery(MaxExpansionDepth = 100)]
+        public IQueryable<ObservationAggregatedHighChartValue> GetObservationAggregatedHighChartValues([FromODataUri] long key)
+        {
+            return db.Tags.Where(m => m.Id == key).SelectMany(m => m.ObservationAggregatedHighChartValues);
+        }
+
+
+        // GET: odata/Tags(5)/WidgetGraphTags
+        [EnableQuery(MaxExpansionDepth = 100)]
+        public IQueryable<WidgetGraphTag> GetWidgetGraphTags([FromODataUri] long key)
+        {
+            return db.Tags.Where(m => m.Id == key).SelectMany(m => m.WidgetGraphTags);
+        }
+
         // GET: odata/Tags(5)/JBTStandardObservation
-        [EnableQuery]
+        [EnableQuery(MaxExpansionDepth = 100)]
         public SingleResult<JBTStandardObservation> GetJBTStandardObservation([FromODataUri] long key)
         {
             return SingleResult.Create(db.Tags.Where(m => m.Id == key).Select(m => m.JBTStandardObservation));

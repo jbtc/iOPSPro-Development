@@ -34,14 +34,14 @@ namespace iOPS_ODataV4.Controllers.OdataV4
         private iOPS_NormalizedEntities db = new iOPS_NormalizedEntities();
 
         // GET: odata/JBTStandardObservations
-        [EnableQuery]
+        [EnableQuery(MaxExpansionDepth = 100)]
         public IQueryable<JBTStandardObservation> GetJBTStandardObservations()
         {
             return db.JBTStandardObservations;
         }
 
         // GET: odata/JBTStandardObservations(5)
-        [EnableQuery]
+        [EnableQuery(MaxExpansionDepth = 100)]
         public SingleResult<JBTStandardObservation> GetJBTStandardObservation([FromODataUri] long key)
         {
             return SingleResult.Create(db.JBTStandardObservations.Where(jBTStandardObservation => jBTStandardObservation.Id == key));
@@ -85,31 +85,38 @@ namespace iOPS_ODataV4.Controllers.OdataV4
         }
 
         // GET: odata/JBTStandardObservations(5)/CustomJBTStandardObservations
-        [EnableQuery]
+        [EnableQuery(MaxExpansionDepth = 100)]
         public IQueryable<CustomJBTStandardObservation> GetCustomJBTStandardObservations([FromODataUri] long key)
         {
             return db.JBTStandardObservations.Where(m => m.Id == key).SelectMany(m => m.CustomJBTStandardObservations);
         }
 
-        // GET: odata/JBTStandardObservations(5)/WidgetCustonTagDisplayOrders
-        [EnableQuery]
+        // GET: odata/JBTStandardObservations(5)/WidgetCustomTagDisplayOrders
+        [EnableQuery(MaxExpansionDepth = 100)]
         public IQueryable<WidgetCustomTagDisplayOrder> GetWidgetCustomTagDisplayOrders([FromODataUri] long key)
         {
             return db.JBTStandardObservations.Where(m => m.Id == key).SelectMany(m => m.WidgetCustomTagDisplayOrders);
         }
 
         // GET: odata/JBTStandardObservations(5)/Unit
-        [EnableQuery]
+        [EnableQuery(MaxExpansionDepth = 100)]
         public SingleResult<Unit> GetUnit([FromODataUri] long key)
         {
             return SingleResult.Create(db.JBTStandardObservations.Where(m => m.Id == key).Select(m => m.Unit));
         }
 
         // GET: odata/JBTStandardObservations(5)/Tags
-        [EnableQuery]
+        [EnableQuery(MaxExpansionDepth = 100)]
         public IQueryable<Tag> GetTags([FromODataUri] long key)
         {
             return db.JBTStandardObservations.Where(m => m.Id == key).SelectMany(m => m.Tags);
+        }
+
+        // GET: odata/JBTStandardObservations(5)/SystemGraphicVisibleValues
+        [EnableQuery(MaxExpansionDepth = 100)]
+        public IQueryable<SystemGraphicVisibleValue> GetSystemGraphicVisibleValues([FromODataUri] long key)
+        {
+            return db.JBTStandardObservations.Where(m => m.Id == key).SelectMany(m => m.SystemGraphicVisibleValues);
         }
 
         protected override void Dispose(bool disposing)

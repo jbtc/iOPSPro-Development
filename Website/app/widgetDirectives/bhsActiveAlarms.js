@@ -11,6 +11,8 @@
 				var controller = function ($scope) {
 					var vm = this;
 
+					var fontFactor = .01;
+					var fontMax = 20;
 
 					//console.log("vm.dashboard = %O", vm.dashboard);
 
@@ -21,11 +23,39 @@
 
 
 					$scope.$on("WidgetResize", function (event, resizedWidgetId) {
-
 						if (vm.widget.Id == resizedWidgetId || resizedWidgetId == 0) {
+							displaySetupService.SetPanelBodyWithIdHeight(vm.widget.Id);
 							SetChartSizeLine(vm.widget.Id, vm.chart);
+							SetLargeFontSize();
 						}
 					});
+
+					$scope.$on("WidgetResize.Stop", function (event, resizedWidgetId) {
+						if (vm.widget.Id == resizedWidgetId || resizedWidgetId == 0) {
+
+							$interval(function() {
+								displaySetupService.SetPanelBodyWithIdHeight(vm.widget.Id);
+								SetChartSizeLine(vm.widget.Id, vm.chart);
+								SetLargeFontSize();
+
+							},50,20);
+
+						}
+					});
+
+
+					function SetLargeFontSize() {
+						vm.widgetDimensions = displaySetupService.GetWidgetPanelBodyDimensions(vm.widget.Id);
+						var hFontSize = vm.widgetDimensions.width * fontFactor;
+						var vFontSize = vm.widgetDimensions.height * fontFactor * 1.5;
+
+						var textSize = hFontSize > vFontSize ? vFontSize : hFontSize;
+						vm.largeTextSize = textSize;
+						if (vm.largeTextSize > fontMax) {
+							vm.largeTextSize = fontMax;
+						}
+						
+					}
 
 					$scope.$on("Dashboard", function (event, modifiedExpandedDashboard) {
 						console.log("bhsActiveAlarms Dashboard event. Modified Dashboard = %O", modifiedExpandedDashboard);
@@ -73,6 +103,9 @@
 									RenderChartLine();
 
 								}
+								SetChartSizeLine(vm.widget.Id, vm.chart);
+								SetLargeFontSize();
+
 							});
 					}
 
@@ -82,7 +115,9 @@
 					function SetChartSizeLine(widgetId, chart) {
 						//Set the bar chart to be 40% high, 60% wide
 						var widgetBodyDimensions = displaySetupService.GetWidgetPanelBodyDimensions(widgetId);
-						chart.setSize((widgetBodyDimensions.width * .80), (widgetBodyDimensions.height * .40) - 5, false);
+						if (chart) {
+							chart.setSize((widgetBodyDimensions.width * .80), (widgetBodyDimensions.height * .40) - 10, false);
+						}
 					}
 
 					function RenderChartLine() {
@@ -215,6 +250,13 @@
 													vm.alarms = data.where(function (a) { return a.TransactionType != 'Inactive' });
 
 													displaySetupService.SetPanelBodyWithIdHeight(vm.widget.Id);
+
+
+													$interval(function () {
+														SetChartSizeLine(vm.widget.Id, vm.chart);
+
+													}, 50, 20);
+
 												});
 					}
 
@@ -288,11 +330,6 @@
 
 					});
 
-					$scope.$on("WidgetResize", function (event, resizedWidgetId) {
-						if (vm.widget.Id == resizedWidgetId || resizedWidgetId == 0) {
-							displaySetupService.SetPanelBodyWithIdHeight(vm.widget.Id);
-						}
-					});
 
 
 

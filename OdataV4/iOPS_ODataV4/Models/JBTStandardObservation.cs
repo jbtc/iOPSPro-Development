@@ -20,6 +20,7 @@ namespace iOPS_ODataV4.Models
             this.CustomJBTStandardObservations = new HashSet<CustomJBTStandardObservation>();
             this.Tags = new HashSet<Tag>();
             this.WidgetCustomTagDisplayOrders = new HashSet<WidgetCustomTagDisplayOrder>();
+            this.SystemGraphicVisibleValues = new HashSet<SystemGraphicVisibleValue>();
         }
     
         public long Id { get; set; }
@@ -35,5 +36,7 @@ namespace iOPS_ODataV4.Models
         public virtual ICollection<Tag> Tags { get; set; }
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<WidgetCustomTagDisplayOrder> WidgetCustomTagDisplayOrders { get; set; }
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
+        public virtual ICollection<SystemGraphicVisibleValue> SystemGraphicVisibleValues { get; set; }
     }
 }

@@ -68,8 +68,13 @@ namespace iOPS_ODataV4.Models
         public virtual DbSet<BHSCarrier> BHSCarriers { get; set; }
         public virtual DbSet<BHSDeviceLocationCarrierMap> BHSDeviceLocationCarrierMaps { get; set; }
         public virtual DbSet<Asset> Assets { get; set; }
-        public virtual DbSet<AssetGraphic> AssetGraphics { get; set; }
         public virtual DbSet<WidgetCustomTagDisplayOrder> WidgetCustomTagDisplayOrders { get; set; }
+        public virtual DbSet<AssetGraphic> AssetGraphics { get; set; }
+        public virtual DbSet<AssetGraphicVisibleValue> AssetGraphicVisibleValues { get; set; }
+        public virtual DbSet<WidgetGraphTag> WidgetGraphTags { get; set; }
+        public virtual DbSet<SystemGraphic> SystemGraphics { get; set; }
+        public virtual DbSet<SystemGraphicVisibleValue> SystemGraphicVisibleValues { get; set; }
+        public virtual DbSet<ObservationAggregatedHighChartValue> ObservationAggregatedHighChartValues { get; set; }
     
         public virtual ObjectResult<BHSLocationThroughput_Result1> BHSLocationThroughput(Nullable<System.DateTime> beginDate, Nullable<System.DateTime> endDate, string location)
         {
@@ -471,6 +476,15 @@ namespace iOPS_ODataV4.Models
                 new ObjectParameter("SiteId", typeof(long));
     
             return ((IObjectContextAdapter)this).ObjectContext.ExecuteFunction<BHSPercentOfFailSafePerHour_Result1>("BHSPercentOfFailSafePerHour", beginDateTimeParameter, endDateTimeParameter, siteIdParameter);
+        }
+    
+        public virtual ObjectResult<spTerminalOverviewGraphicsAndTags_Result> spTerminalOverviewGraphicsAndTags(Nullable<long> terminalSystemId)
+        {
+            var terminalSystemIdParameter = terminalSystemId.HasValue ?
+                new ObjectParameter("terminalSystemId", terminalSystemId) :
+                new ObjectParameter("terminalSystemId", typeof(long));
+    
+            return ((IObjectContextAdapter)this).ObjectContext.ExecuteFunction<spTerminalOverviewGraphicsAndTags_Result>("spTerminalOverviewGraphicsAndTags", terminalSystemIdParameter);
         }
     }
 }

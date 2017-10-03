@@ -111,10 +111,11 @@
 }
 .handle-e {
   cursor: e-resize;
-  width: 12px;
+  width: 8px;
   bottom: 0;
-  right: 1px;
+  right: -8px;
   top: 0;
+
 }
 .handle-s {
   cursor: s-resize;

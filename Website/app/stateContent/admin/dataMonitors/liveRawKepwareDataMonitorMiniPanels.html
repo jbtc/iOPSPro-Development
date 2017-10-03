@@ -26,10 +26,10 @@
             <div class="panel panel-primary " ng-repeat="tag in vm.tags" style="float:left; width:290px; background-color: rgba(100, 255, 100, .{{tag.LastUpdateCountDown}}); margin-bottom:5px; margin-right:5px;">
                 <div class="panel-heading">
                     <div class="panel-heading-title">
-                        {{tag.Name.substring(0,3)}}
+                        {{tag.TagName.substring(0,3)}}
                     </div>
                     <div class="panel-heading-subtitle">
-                        {{tag.Name.substring(8)}}
+                        {{tag.TagName.substring(8)}}
                     </div>
 
                 </div>
@@ -40,7 +40,7 @@
                             Date and Time <i class="glyphicon glyphicon-arrow-right"></i>
                         </td>
                         <td class="record-display-field-value">
-                            {{tag.ObservationDate | date:'MM/dd HH:mm:ss.ss'}}
+                            {{tag.PLCLocalDate | date:'MM/dd HH:mm:ss.ss'}}
                         </td>
 
                     </tr>

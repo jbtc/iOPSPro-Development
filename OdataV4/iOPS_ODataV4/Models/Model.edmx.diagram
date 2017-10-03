@@ -19,7 +19,7 @@
         <AssociationConnector Association="iOPS_NormalizedModel.FK_Person_Country" />
         <AssociationConnector Association="iOPS_NormalizedModel.FK_iOPSUser_Person" />
         <AssociationConnector Association="iOPS_NormalizedModel.FK_Person_Person" />
-        <EntityTypeShape EntityType="iOPS_NormalizedModel.Company" Width="3.5" PointX="19.75" PointY="13.25" />
+        <EntityTypeShape EntityType="iOPS_NormalizedModel.Company" Width="3.5" PointX="19.875" PointY="13.625" />
         <EntityTypeShape EntityType="iOPS_NormalizedModel.CompanyContact" Width="2.125" PointX="24.75" PointY="15" />
         <EntityTypeShape EntityType="iOPS_NormalizedModel.CompanyDataReader" Width="2.125" PointX="21" PointY="18.625" />
         <AssociationConnector Association="iOPS_NormalizedModel.FK_CompanyContact_Company1" />
@@ -37,7 +37,7 @@
         <EntityTypeShape EntityType="iOPS_NormalizedModel.AssetType" Width="1.5" PointX="10.125" PointY="1.75" />
         <EntityTypeShape EntityType="iOPS_NormalizedModel.CompanyType" Width="1.5" PointX="16" PointY="16.625" />
         <AssociationConnector Association="iOPS_NormalizedModel.FK_Client_ClientType" />
-        <EntityTypeShape EntityType="iOPS_NormalizedModel.SystemType" Width="1.5" PointX="18.375" PointY="10" />
+        <EntityTypeShape EntityType="iOPS_NormalizedModel.SystemType" Width="1.5" PointX="18.5" PointY="9.5" />
         <EntityTypeShape EntityType="iOPS_NormalizedModel.Observation" Width="1.5" PointX="35.5" PointY="3.25" />
         <EntityTypeShape EntityType="iOPS_NormalizedModel.Tag" Width="3.375" PointX="31.125" PointY="0.875" />
         <AssociationConnector Association="iOPS_NormalizedModel.FK_Observation_Tag" />
@@ -93,12 +93,25 @@
         <AssociationConnector Association="iOPS_NormalizedModel.FK_Asset_Site" />
         <AssociationConnector Association="iOPS_NormalizedModel.FK_Asset_System" />
         <AssociationConnector Association="iOPS_NormalizedModel.FK_Tag_Asset" />
-        <EntityTypeShape EntityType="iOPS_NormalizedModel.AssetGraphic" Width="2.25" PointX="9.375" PointY="6.75" />
-        <AssociationConnector Association="iOPS_NormalizedModel.FK_AssetModelImage_Asset" />
         <EntityTypeShape EntityType="iOPS_NormalizedModel.WidgetCustomTagDisplayOrder" Width="2.375" PointX="26.5" PointY="23.875" />
         <AssociationConnector Association="iOPS_NormalizedModel.FK_WidgetCustomTagDisplayOrder_Widget" />
         <AssociationConnector Association="iOPS_NormalizedModel.FK_WidgetCustomTagDisplayOrder_iOPSUser" />
         <AssociationConnector Association="iOPS_NormalizedModel.FK_WidgetCustomTagDisplayOrder_JBTStandardObservation" />
+        <EntityTypeShape EntityType="iOPS_NormalizedModel.AssetGraphic" Width="2" PointX="10.25" PointY="6.75" />
+        <EntityTypeShape EntityType="iOPS_NormalizedModel.AssetGraphicVisibleValue" Width="2.25" PointX="7.375" PointY="6.75" />
+        <AssociationConnector Association="iOPS_NormalizedModel.FK_AssetModelImage_Asset" />
+        <AssociationConnector Association="iOPS_NormalizedModel.FK_AssetGraphicVisibleValue_AssetGraphic" />
+        <EntityTypeShape EntityType="iOPS_NormalizedModel.WidgetGraphTag" Width="2" PointX="35.25" PointY="14" />
+        <AssociationConnector Association="iOPS_NormalizedModel.FK_WidgetGraphTag_Tag" />
+        <AssociationConnector Association="iOPS_NormalizedModel.FK_WidgetGraphTag_Widget" />
+        <EntityTypeShape EntityType="iOPS_NormalizedModel.SystemGraphic" Width="2.25" PointX="15.875" PointY="11.25" />
+        <EntityTypeShape EntityType="iOPS_NormalizedModel.SystemGraphicVisibleValue" Width="2.375" PointX="18.625" PointY="11.5" />
+        <AssociationConnector Association="iOPS_NormalizedModel.FK_SystemGraphic_System" />
+        <AssociationConnector Association="iOPS_NormalizedModel.FK_SystemGraphicVisibleValue_SystemGraphic" />
+        <EntityTypeShape EntityType="iOPS_NormalizedModel.ObservationAggregatedHighChartValue" Width="4.125" PointX="35.25" PointY="0.75" />
+        <AssociationConnector Association="iOPS_NormalizedModel.FK_ObservationAggregatedHighChartValue_Tag" />
+        <AssociationConnector Association="iOPS_NormalizedModel.FK_Tag_Observation" />
+        <AssociationConnector Association="iOPS_NormalizedModel.FK_SystemGraphicVisibleValue_JBTStandardObservation" />
         </Diagram>
     </edmx:Diagrams>
   </edmx:Designer>

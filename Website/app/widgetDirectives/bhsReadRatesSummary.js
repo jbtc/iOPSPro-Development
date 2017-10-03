@@ -20,7 +20,7 @@
 					});
 
 					var fontFactor = .003;
-					var fontMax = 3;
+					var fontMax = 8;
 
 					$scope.$on("Dashboard", function (event, modifiedExpandedDashboard) {
 						//console.log("readRatesSummary Dashboard event. Modified Dashboard = %O", modifiedExpandedDashboard);
@@ -83,6 +83,24 @@
 							if (vm.largeTextSize > fontMax) {
 								vm.largeTextSize = fontMax;
 							}
+						}
+					});
+
+					$scope.$on("WidgetResize.Stop", function (event, resizedWidgetId) {
+
+						if (vm.widget.Id == resizedWidgetId || resizedWidgetId == 0) {
+							
+							$interval(function() {
+								vm.data.forEach(function (item) {
+									displaySetupService.SetPanelBodyWithIdHeight(vm.widget.Id);
+									vm.widgetDimensions = displaySetupService.GetWidgetPanelBodyDimensions(vm.widget.Id);
+									vm.largeTextSize = vm.widgetDimensions.width * fontFactor;
+									if (vm.largeTextSize > fontMax) {
+										vm.largeTextSize = fontMax;
+									}
+								});
+								
+							},50,20);
 						}
 					});
 

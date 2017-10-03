@@ -32,14 +32,14 @@ namespace iOPS_ODataV4.Controllers.OdataV4
         private iOPS_NormalizedEntities db = new iOPS_NormalizedEntities();
 
         // GET: odata/BHSDeviceLocations
-        [EnableQuery]
+        [EnableQuery(MaxExpansionDepth = 100)]
         public IQueryable<BHSDeviceLocation> GetBHSDeviceLocations()
         {
             return db.BHSDeviceLocations;
         }
 
         // GET: odata/BHSDeviceLocations(5)
-        [EnableQuery]
+        [EnableQuery(MaxExpansionDepth = 100)]
         public SingleResult<BHSDeviceLocation> GetBHSDeviceLocation([FromODataUri] long key)
         {
             return SingleResult.Create(db.BHSDeviceLocations.Where(bHSDeviceLocation => bHSDeviceLocation.Id == key));
@@ -47,14 +47,14 @@ namespace iOPS_ODataV4.Controllers.OdataV4
 
        
         // GET: odata/BHSDeviceLocations(5)/Site
-        [EnableQuery]
+        [EnableQuery(MaxExpansionDepth = 100)]
         public SingleResult<Site> GetSite([FromODataUri] long key)
         {
             return SingleResult.Create(db.BHSDeviceLocations.Where(m => m.Id == key).Select(m => m.Site));
         }
 
         //// GET: odata/BHSDeviceLocations(5)/Observations
-        //[EnableQuery]
+        //[EnableQuery(MaxExpansionDepth = 100)]
         //public IQueryable<Observation> GetObservations([FromODataUri] long key)
         //{
         //    return db.Tags.Where(m => m.Id == key).SelectMany(m => m.Observations);

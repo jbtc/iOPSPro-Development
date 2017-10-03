@@ -33,14 +33,14 @@ namespace iOPS_ODataV4.Controllers.OdataV4
         private iOPS_NormalizedEntities db = new iOPS_NormalizedEntities();
 
         // GET: odata/UserAuthorizedActivities
-        [EnableQuery]
+        [EnableQuery(MaxExpansionDepth = 100)]
         public IQueryable<UserAuthorizedActivity> GetUserAuthorizedActivities()
         {
             return db.UserAuthorizedActivities;
         }
 
         // GET: odata/UserAuthorizedActivities(5)
-        [EnableQuery]
+        [EnableQuery(MaxExpansionDepth = 100)]
         public SingleResult<UserAuthorizedActivity> GetUserAuthorizedActivity([FromODataUri] long key)
         {
             return SingleResult.Create(db.UserAuthorizedActivities.Where(userAuthorizedActivity => userAuthorizedActivity.Id == key));
@@ -84,14 +84,14 @@ namespace iOPS_ODataV4.Controllers.OdataV4
         }
 
         // GET: odata/UserAuthorizedActivities(5)/AuthorizableActivity
-        [EnableQuery]
+        [EnableQuery(MaxExpansionDepth = 100)]
         public SingleResult<AuthorizableActivity> GetAuthorizableActivity([FromODataUri] long key)
         {
             return SingleResult.Create(db.UserAuthorizedActivities.Where(m => m.Id == key).Select(m => m.AuthorizableActivity));
         }
 
         // GET: odata/UserAuthorizedActivities(5)/iOPSUser
-        [EnableQuery]
+        [EnableQuery(MaxExpansionDepth = 100)]
         public SingleResult<iOPSUser> GetiOPSUser([FromODataUri] long key)
         {
             return SingleResult.Create(db.UserAuthorizedActivities.Where(m => m.Id == key).Select(m => m.iOPSUser));

@@ -19,6 +19,7 @@ namespace iOPS_ODataV4.Models
         {
             this.Children = new HashSet<SystemGroup>();
             this.Assets = new HashSet<Asset>();
+            this.SystemGraphics = new HashSet<SystemGraphic>();
         }
     
         public long Id { get; set; }
@@ -30,6 +31,7 @@ namespace iOPS_ODataV4.Models
         public Nullable<long> OriginalEntityId { get; set; }
         public Nullable<System.DateTime> DateLastModified { get; set; }
         public Nullable<System.DateTime> CreateDate { get; set; }
+        public string BaseUnitImageURL { get; set; }
     
         public virtual Company Company { get; set; }
         public virtual Site Site { get; set; }
@@ -39,5 +41,7 @@ namespace iOPS_ODataV4.Models
         public virtual SystemType SystemType { get; set; }
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<Asset> Assets { get; set; }
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
+        public virtual ICollection<SystemGraphic> SystemGraphics { get; set; }
     }
 }

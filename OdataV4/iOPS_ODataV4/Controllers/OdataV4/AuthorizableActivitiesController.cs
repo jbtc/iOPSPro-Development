@@ -32,14 +32,14 @@ namespace iOPS_ODataV4.Controllers.OdataV4
         private iOPS_NormalizedEntities db = new iOPS_NormalizedEntities();
 
         // GET: odata/AuthorizableActivities
-        [EnableQuery]
+        [EnableQuery(MaxExpansionDepth = 100)]
         public IQueryable<AuthorizableActivity> GetAuthorizableActivities()
         {
             return db.AuthorizableActivities;
         }
 
         // GET: odata/AuthorizableActivities(5)
-        [EnableQuery]
+        [EnableQuery(MaxExpansionDepth = 100)]
         public SingleResult<AuthorizableActivity> GetAuthorizableActivity([FromODataUri] long key)
         {
             return SingleResult.Create(db.AuthorizableActivities.Where(authorizableActivity => authorizableActivity.Id == key));
@@ -89,7 +89,7 @@ namespace iOPS_ODataV4.Controllers.OdataV4
 
 
         // GET: odata/AuthorizableActivities(5)/UserAuthorizedActivities
-        [EnableQuery]
+        [EnableQuery(MaxExpansionDepth = 100)]
         public IQueryable<UserAuthorizedActivity> GetUserAuthorizedActivities([FromODataUri] long key)
         {
             return db.AuthorizableActivities.Where(m => m.Id == key).SelectMany(m => m.UserAuthorizedActivities);

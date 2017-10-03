@@ -32,14 +32,14 @@ namespace iOPS_ODataV4.Controllers.OdataV4
         private iOPS_NormalizedEntities db = new iOPS_NormalizedEntities();
 
         // GET: odata/BagTagScans
-        [EnableQuery]
+        [EnableQuery(MaxExpansionDepth = 100)]
         public IQueryable<BHSBagTagScan> GetBHSBagTagScans()
         {
             return db.BHSBagTagScans;
         }
 
         // GET: odata/BagTagScans(5)
-        [EnableQuery]
+        [EnableQuery(MaxExpansionDepth = 100)]
         public SingleResult<BHSBagTagScan> GetBHSBagTagScan([FromODataUri] long key)
         {
             return SingleResult.Create(db.BHSBagTagScans.Where(BHSbagTagScan => BHSbagTagScan.Id == key));
@@ -48,7 +48,7 @@ namespace iOPS_ODataV4.Controllers.OdataV4
         
 
         // GET: odata/BHSBagTagScans(5)/Site
-        [EnableQuery]
+        [EnableQuery(MaxExpansionDepth = 100)]
         public SingleResult<Site> GetSite([FromODataUri] long key)
         {
             return SingleResult.Create(db.BHSBagTagScans.Where(m => m.Id == key).Select(m => m.Site));

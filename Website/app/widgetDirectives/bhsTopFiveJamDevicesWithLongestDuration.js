@@ -22,6 +22,17 @@
 						}
 					});
 
+
+					$scope.$on("WidgetResize.Stop", function (event, resizedWidgetId) {
+						if (vm.widget.Id == resizedWidgetId || resizedWidgetId == 0) {							
+							$interval(function() {
+								displaySetupService.SetLoneChartSize(vm.widget.Id, vm.chart);
+								
+							},50,20);
+						}
+					});
+
+
 					$scope.$on("Dashboard", function (event, modifiedExpandedDashboard) {
 						console.log("bhsTopFiveJamDevicesWithLongestDuration Dashboard event. Modified Dashboard = %O", modifiedExpandedDashboard);
 						if (modifiedExpandedDashboard.Id == vm.dashboard.Id) {

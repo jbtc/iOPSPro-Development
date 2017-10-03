@@ -32,14 +32,14 @@ namespace iOPS_ODataV4.Controllers.OdataV4
         private iOPS_NormalizedEntities db = new iOPS_NormalizedEntities();
 
         // GET: odata/Countries
-        [EnableQuery]
+        [EnableQuery(MaxExpansionDepth = 100)]
         public IQueryable<Country> GetCountries()
         {
             return db.Countries;
         }
 
         // GET: odata/Countries(5)
-        [EnableQuery]
+        [EnableQuery(MaxExpansionDepth = 100)]
         public SingleResult<Country> GetCountry([FromODataUri] long key)
         {
             return SingleResult.Create(db.Countries.Where(country => country.Id == key));
@@ -84,7 +84,7 @@ namespace iOPS_ODataV4.Controllers.OdataV4
 
 
         // GET: odata/Countries(5)/People
-        [EnableQuery]
+        [EnableQuery(MaxExpansionDepth = 100)]
         public IQueryable<Person> GetPeople([FromODataUri] long key)
         {
             return db.Countries.Where(m => m.Id == key).SelectMany(m => m.People);

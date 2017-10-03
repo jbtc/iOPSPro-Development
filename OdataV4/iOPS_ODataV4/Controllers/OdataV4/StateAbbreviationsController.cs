@@ -31,14 +31,14 @@ namespace iOPS_ODataV4.Controllers.OdataV4
         private iOPS_NormalizedEntities db = new iOPS_NormalizedEntities();
 
         // GET: odata/StateAbbreviations
-        [EnableQuery]
+        [EnableQuery(MaxExpansionDepth = 100)]
         public IQueryable<StateAbbreviation> GetStateAbbreviations()
         {
             return db.StateAbbreviations;
         }
 
         // GET: odata/StateAbbreviations(5)
-        [EnableQuery]
+        [EnableQuery(MaxExpansionDepth = 100)]
         public SingleResult<StateAbbreviation> GetStateAbbreviation([FromODataUri] long key)
         {
             return SingleResult.Create(db.StateAbbreviations.Where(stateAbbreviation => stateAbbreviation.Id == key));

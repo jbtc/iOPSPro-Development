@@ -32,14 +32,14 @@ namespace iOPS_ODataV4.Controllers.OdataV4
         private iOPS_NormalizedEntities db = new iOPS_NormalizedEntities();
 
         // GET: odata/DashboardTimeScopes
-        [EnableQuery]
+        [EnableQuery(MaxExpansionDepth = 100)]
         public IQueryable<DashboardTimeScope> GetDashboardTimeScopes()
         {
             return db.DashboardTimeScopes;
         }
 
         // GET: odata/DashboardTimeScopes(5)
-        [EnableQuery]
+        [EnableQuery(MaxExpansionDepth = 100)]
         public SingleResult<DashboardTimeScope> GetDashboardTimeScope([FromODataUri] long key)
         {
             return SingleResult.Create(db.DashboardTimeScopes.Where(dashboardTimeScope => dashboardTimeScope.Id == key));
@@ -86,7 +86,7 @@ namespace iOPS_ODataV4.Controllers.OdataV4
         }
 
         // GET: odata/DashboardTimeScopes(5)/Dashboards
-        [EnableQuery]
+        [EnableQuery(MaxExpansionDepth = 100)]
         public IQueryable<Dashboard> GetDashboards([FromODataUri] long key)
         {
             return db.DashboardTimeScopes.Where(m => m.Id == key).SelectMany(m => m.Dashboards);

@@ -40,7 +40,7 @@
                                 <div class="panel-body" style="background-color:rgb(255, 232, 189);">
                                     <div class="grid">
                                         <div ng-repeat="gate in terminal.gateSystems" class="grid-item">
-                                            <div class="panel panel-default" style="margin-top: 0; margin-right: 8px; width:575px;">
+                                            <div class="panel panel-default" style="margin-top: 10px; margin-right: 8px; width:575px;">
                                                 <div class="panel-heading">
                                                     <div class="panel-heading-title-dark">
                                                         Gate <span style="font-size: 2.3em; font-weight: bolder;">{{::gate.Name}}</span>
@@ -58,7 +58,7 @@
                                                             </div>
 
                                                             <table class="table table-condensed">
-                                                                <tr ng-repeat="tag in asset.recentTags" style="background-color:  {{tag.Metadata.Status.LastValueWasHistorical ? 'rgba(173, 173, 173,' : 'rgba(0, 255, 0,'}} .{{tag.Metadata.UpdateCountDowns.OneSecond}});">
+                                                                <tr ng-repeat="tag in asset.Tags" style="background-color:  {{tag.Metadata.Status.LastValueWasHistorical ? 'rgba(173, 173, 173,' : 'rgba(0, 255, 0,'}} .{{tag.Metadata.UpdateCountDowns.OneSecond}});">
                                                                     <!--------------------------------------------------------------------------->
                                                                     <td class="record-display-field-label" style="min-width: 280px;">
                                                                         {{::tag.JBTStandardObservation.Name}} <i class="glyphicon glyphicon-arrow-right"></i>

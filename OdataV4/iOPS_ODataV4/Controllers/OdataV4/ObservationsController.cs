@@ -32,14 +32,14 @@ namespace iOPS_ODataV4.Controllers.OdataV4
         private iOPS_NormalizedEntities db = new iOPS_NormalizedEntities();
 
         // GET: odata/Observations
-        [EnableQuery]
+        [EnableQuery(MaxExpansionDepth = 100)]
         public IQueryable<Observation> GetObservations()
         {
             return db.Observations;
         }
 
         // GET: odata/Observations(5)
-        [EnableQuery]
+        [EnableQuery(MaxExpansionDepth = 100)]
         public SingleResult<Observation> GetObservation([FromODataUri] long key)
         {
             return SingleResult.Create(db.Observations.Where(observation => observation.Id == key));
@@ -47,7 +47,7 @@ namespace iOPS_ODataV4.Controllers.OdataV4
 
         
         // GET: odata/Observations(5)/Tag
-        [EnableQuery]
+        [EnableQuery(MaxExpansionDepth = 100)]
         public SingleResult<Tag> GetTag([FromODataUri] long key)
         {
             return SingleResult.Create(db.Observations.Where(m => m.Id == key).Select(m => m.Tag));

@@ -32,21 +32,20 @@ namespace iOPS_ODataV4.Controllers.OdataV4
         private iOPS_NormalizedEntities db = new iOPS_NormalizedEntities();
 
         // GET: odata/AssetGraphics
-        [EnableQuery]
+        [EnableQuery(MaxExpansionDepth = 100)]
         public IQueryable<AssetGraphic> GetAssetGraphics()
         {
             return db.AssetGraphics;
         }
 
         // GET: odata/AssetGraphics(5)
-        [EnableQuery]
+        [EnableQuery(MaxExpansionDepth = 100)]
         public SingleResult<AssetGraphic> GetAssetGraphic([FromODataUri] long key)
         {
             return SingleResult.Create(db.AssetGraphics.Where(assetGraphic => assetGraphic.Id == key));
         }
 
         // POST: odata/AssetGraphic
-
         public async Task<IHttpActionResult> Post(AssetGraphic entity)
         {
             if (!ModelState.IsValid)
@@ -84,10 +83,18 @@ namespace iOPS_ODataV4.Controllers.OdataV4
 
 
         // GET: odata/AssetGraphics(5)/Asset
-        [EnableQuery]
+        [EnableQuery(MaxExpansionDepth = 100)]
         public SingleResult<Asset> GetAsset([FromODataUri] long key)
         {
             return SingleResult.Create(db.AssetGraphics.Where(m => m.Id == key).Select(m => m.Asset));
+        }
+
+
+        // GET: odata/Assets(5)/AssetGraphicVisibleValues
+        [EnableQuery(MaxExpansionDepth = 100)]
+        public IQueryable<AssetGraphicVisibleValue> GetAssetGraphicVisibleValues([FromODataUri] long key)
+        {
+            return db.AssetGraphics.Where(m => m.Id == key).SelectMany(m => m.AssetGraphicVisibleValues);
         }
 
         protected override void Dispose(bool disposing)

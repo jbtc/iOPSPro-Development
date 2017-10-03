@@ -32,14 +32,14 @@ namespace iOPS_ODataV4.Controllers.OdataV4
         private iOPS_NormalizedEntities db = new iOPS_NormalizedEntities();
 
         // GET: odata/AssetConditions
-        [EnableQuery]
+        [EnableQuery(MaxExpansionDepth = 100)]
         public IQueryable<AssetCondition> GetAssetConditions()
         {
             return db.AssetConditions;
         }
 
         // GET: odata/AssetConditions(5)
-        [EnableQuery]
+        [EnableQuery(MaxExpansionDepth = 100)]
         public SingleResult<AssetCondition> GetAssetCondition([FromODataUri] long key)
         {
             return SingleResult.Create(db.AssetConditions.Where(assetCondition => assetCondition.Id == key));
@@ -150,7 +150,7 @@ namespace iOPS_ODataV4.Controllers.OdataV4
         }
 
         // GET: odata/AssetConditions(5)/Assets
-        [EnableQuery]
+        [EnableQuery(MaxExpansionDepth = 100)]
         public IQueryable<Asset> GetAssets([FromODataUri] long key)
         {
             return db.AssetConditions.Where(m => m.Id == key).SelectMany(m => m.Assets);

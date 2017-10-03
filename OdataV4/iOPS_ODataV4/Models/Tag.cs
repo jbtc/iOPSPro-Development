@@ -18,6 +18,8 @@ namespace iOPS_ODataV4.Models
         public Tag()
         {
             this.Observations = new HashSet<Observation>();
+            this.WidgetGraphTags = new HashSet<WidgetGraphTag>();
+            this.ObservationAggregatedHighChartValues = new HashSet<ObservationAggregatedHighChartValue>();
         }
     
         public long Id { get; set; }
@@ -62,5 +64,10 @@ namespace iOPS_ODataV4.Models
         public virtual ICollection<Observation> Observations { get; set; }
         public virtual JBTStandardObservation JBTStandardObservation { get; set; }
         public virtual Asset Asset { get; set; }
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
+        public virtual ICollection<WidgetGraphTag> WidgetGraphTags { get; set; }
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
+        public virtual ICollection<ObservationAggregatedHighChartValue> ObservationAggregatedHighChartValues { get; set; }
+        public virtual Observation LastObservation { get; set; }
     }
 }

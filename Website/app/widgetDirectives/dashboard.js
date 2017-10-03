@@ -27,6 +27,12 @@
 					console.log("vm = %O", vm);
 					console.log("$scope = %O", $scope);
 
+					function ReportStep(stepNumber) {
+
+						console.log("Step = " + stepNumber);
+
+					}
+
 					if (!vm.widget) {
 						//console.log("No Widget Present");
 						displaySetupService.SetPanelDimensions();
@@ -35,16 +41,99 @@
 						displaySetupService.SetWidgetPanelBodyDimensions(vm.widget.Id);
 					}
 
+					ReportStep(1);
+
 
 					vm.openSettingsDash = function ($event, widget) {
-						var element = $("#widget-settings-" + widget.Id)[0].parentNode.parentNode.offsetParent;
-						var position = $(element).offset();
-						position.width = $(element).width();
+						try {
+							var element = $("#widget-settings-" + widget.Id)[0].parentNode.parentNode.offsetParent;
+							var position = $(element).offset();
+							position.width = $(element).width();
 
-						$("#widget-settings-" + widget.Id).css({left: position.left + 20, top: position.top + 35, width: 500 });
-						$("#widget-settings-" + widget.Id).slideToggle();
+							vm.settingsZIndex = $("#gridster" + widget.Id).css('z-index');
+
+							if (vm.settingsZIndex < 10) {
+								$("#gridster" + widget.Id).css('z-index', '35');
+							} else {
+								$("#gridster" + widget.Id).css('z-index', '2');
+
+							}
+							$("#widget-settings-" + widget.Id).css({ left: position.left + 20, top: position.top + 35, width: 500, 'z-index': 3500 });
+							$("#widget-settings-" + widget.Id).slideToggle();
+
+
+						} catch (e) {
+
+						}
 
 					}
+
+					ReportStep(2);
+
+					vm.AddTagsToSpecificWidgetGraph = function (widget) {
+						$rootScope.$broadcast("Widget.AddTagsToGraph", widget);
+					}
+
+
+					vm.AddTagsToGraph = function (tagObjectCollectionFromWidget) {
+						vm.dashboard.tagsToGraph = tagObjectCollectionFromWidget.concat(vm.dashboard.tagsToGraph).distinct(function (a, b) { return a.TagId == b.TagId }).where(function (t) { return t.Enabled });
+						console.log("Dashboard vm.dashboard.tagsToGraph = %O", vm.dashboard.tagsToGraph);
+						if (vm.dashboard.tagsToGraph.length > 0) {
+							$rootScope.$broadcast("Dashboard.TagsToGraph", vm.dashboard.tagsToGraph);
+						} else {
+							$rootScope.$broadcast("Dashboard.TagsToGraph", null);
+						}
+					}
+
+					ReportStep(3);
+
+					vm.AddGraphWidgetToDashboard = function () {
+
+
+
+
+						//Find the hidden system type called tagGraph and add one to this dashboard.
+						dataService.GetIOPSCollection("WidgetTypes", "AngularDirectiveName", "tagGraph").then(function (data) {
+							var tagGraphWidgetType = data[0];
+
+							dataService.AddEntity("Widgets", {
+								Name: 'Tag History',
+								WidgetTypeId: tagGraphWidgetType.Id,
+								ParentDashboardId: vm.dashboard.Id,
+								EmbeddedDashboardId: null,
+								Width: tagGraphWidgetType.InitialWidth,
+								Height: tagGraphWidgetType.InitialHeight,
+								Row: 0,
+								Col: 0
+							}).then(function (newWidget) {
+
+								//Save all of the tag ids to the WidgetGraphTag table
+								$q.all(vm.dashboard.tagsToGraph.select(function (t) {
+									return dataService.AddEntity("WidgetGraphTags", { WidgetId: newWidget.Id, TagId: t.TagId });
+
+								})).then(function () {
+
+									//This will cause all graph selecting widgets to clear their local collection of tags to graph, causing all of the buttons depressed to reset.
+									$rootScope.$broadcast("GraphWidgetAdded", newWidget);
+
+									//Clear out the selection of tag to graph
+									vm.dashboard.tagsToGraph = [];
+								});
+
+
+							});
+
+
+						});
+
+
+
+
+					}
+
+
+
+					ReportStep(4);
 
 
 					uibButtonConfig.activeClass = 'radio-active';
@@ -84,10 +173,14 @@
 					}
 
 
+					ReportStep(5);
+
 					function GetDashboardData() {
 						dataService.GetExpandedDashboardById(vm.dashboardId)
 						.then(function (data) {
 							vm.dashboard = data;
+							vm.dashboard.tagsToGraph = [];
+
 							SetSubTitleBasedOnDashboardTimeScope();
 							//console.log("vm.dashboard = %O", vm.dashboard);
 						})
@@ -99,6 +192,11 @@
 								.query()
 								.$promise
 								.then(function (widgets) {
+
+									ReportStep(6);
+
+
+
 									vm.widgets = widgets.select(function (w) {
 										return {
 											sizeX: w.Width,
@@ -113,6 +211,12 @@
 											HasChanged: false
 										}
 									});
+
+									console.log("Dashboard widgets = %O", vm.widgets);
+
+									ReportStep(7);
+
+
 									if (!vm.widget) {
 										console.log("No widget this invokation");
 										displaySetupService.SetPanelDimensions();
@@ -228,31 +332,54 @@
 
 
 
-					$scope.$on("Widget", function (event, widget) {
-
+					$scope.$on("WidgetAdded", function (event, widget) {
+						console.log("Widget Event - widget passed = %O", widget);
 						if (widget.ParentDashboardId == vm.dashboardId) {
-							vm.widgets = [widget].select(function (w) {
-								return {
-									sizeX: w.Width,
-									sizeY: w.Height,
-									row: w.Row,
-									col: w.Col,
-									prevRow: w.Row,
-									prevCol: w.Col,
-									Id: w.Id,
-									Name: w.Name,
-									WidgetResource: w,
-									HasChanged: false
-
-								}
-
-							})
-							.concat(vm.widgets)
-								.distinct(function (a, b) { return a.Id == b.Id });
-
+							AddWidgetStructureToTheList(widget);
 						}
 
 					});
+
+
+
+
+					$scope.$on("GraphWidgetAdded",
+						function (event, widget) {
+							console.log("Widget Event");
+							if (widget.ParentDashboardId == vm.dashboardId) {
+								AddWidgetStructureToTheList(widget);
+							}
+						});
+
+
+
+					function AddWidgetStructureToTheList(widget) {
+
+						dataService.GetJBTData().then(function (jbtData) {
+
+							widget.WidgetType = jbtData.WidgetTypes.first(function (wt) { return wt.Id == widget.WidgetTypeId });
+							var newWidgetStructure = {
+								sizeX: widget.Width,
+								sizeY: widget.Height,
+								row: widget.Row,
+								col: widget.Col,
+								prevRow: widget.Row,
+								prevCol: widget,
+								Id: widget.Id,
+								Name: widget.Name,
+								WidgetResource: widget,
+								HasChanged: false
+
+							};
+
+
+							vm.widgets.push(newWidgetStructure);
+
+
+						});
+
+					}
+
 
 					$scope.$on("Widget.Deleted", function (event, deletedWidget) {
 
@@ -304,13 +431,27 @@
 
 								dataService.GetIOPSResource("Widgets").filter("Id", widget.Id).query().$promise.then(function (widgetToDeleteArray) {
 									var widgetToDelete = widgetToDeleteArray[0];
-									//console.log("Widget to delete = %O", widgetToDelete);
-									widgetToDelete.Id = -widgetToDelete.Id;
-									widgetToDelete.$save().then(function () {
-										console.log("Widget Deleted");
-										widgetToDelete.Id = -widgetToDelete.Id;
-										signalR.SignalAllClients("Widget.Deleted", widgetToDelete);
+
+									//Delete any WidgetGraphTag rows that might be associated with this widget
+									dataService.GetIOPSCollection("WidgetGraphTags", "WidgetId", widget.Id).then(function (gts) {
+										$q.all(
+											gts.select(function (gt) {
+												gt.Id = -gt.Id;
+												return gt.$save();
+											})
+										).then(function () {
+											//console.log("Widget to delete = %O", widgetToDelete);
+											widgetToDelete.Id = -widgetToDelete.Id;
+											widgetToDelete.$save().then(function () {
+												console.log("Widget Deleted");
+												widgetToDelete.Id = -widgetToDelete.Id;
+												signalR.SignalAllClients("Widget.Deleted", widgetToDelete);
+											});
+
+										});
 									});
+
+
 								});
 
 
@@ -341,7 +482,7 @@
 						mobileModeEnabled: true, // whether or not to toggle mobile mode when screen width is less than mobileBreakPoint
 						minColumns: 1, // the minimum columns the grid must have
 						minRows: 2, // the minimum height of the grid, in rows
-						maxRows: 100,
+						maxRows: 5000,
 						defaultSizeX: 2, // the default width of a gridster item, if not specifed
 						defaultSizeY: 1, // the default height of a gridster item, if not specified
 						minSizeX: 1, // minimum column width of an item
@@ -353,7 +494,8 @@
 							handles: ['n', 'e', 's', 'w', 'ne', 'se', 'sw', 'nw'],
 							start: function (event, $element, widget) { }, // optional callback fired when resize is started,
 							resize: function (event, $element, widget) {
-								//console.log("resize:  event= %O", event);
+								//console.log("widget resize = %O", widget);
+								//console.log("resize:  widget x = %O", widget.sizeX);
 								//console.log("resize:  $element= %O", $element);
 								widget.HasChanged = true;
 								displaySetupService.SetPanelBodyWithIdHeight(widget.Id);
@@ -363,7 +505,7 @@
 							},
 							// optional callback fired when item is finished resizing
 							stop: function (event, $element, widget) {
-								$rootScope.$broadcast("WidgetResize", widget.Id);
+								$rootScope.$broadcast("WidgetResize.Stop", widget.Id);
 								SaveWidget(widget);
 							}
 						},
@@ -382,9 +524,13 @@
 					}
 
 
+
+
+
 					function SaveWidget(widget) {
 
 						//If for some reason the widget resource is not a real one, then go get a real one.
+						//console.log("Widget to be saved = %O", widget);
 						(widget.WidgetResource.$save && !widget.WidgetResource.EmbeddedDashboard
 							? $q.when(widget.WidgetResource)
 							: dataService.GetIOPSResource("Widgets").filter("Id", widget.Id).expand("WidgetType").query().$promise.then(function (data) {
@@ -452,7 +598,7 @@
 							widget1.WidgetResource.Height = widget1.sizeY;
 
 							widget1.WidgetResource.$save().then(function (widget2) {
-								signalR.SignalAllClients("Widget", widget2);
+								signalR.SignalAllClients("Widget.Updated", widget2);
 							});
 						});
 

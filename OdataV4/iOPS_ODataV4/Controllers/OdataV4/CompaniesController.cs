@@ -38,14 +38,14 @@ namespace iOPS_ODataV4.Controllers.OdataV4
         private iOPS_NormalizedEntities db = new iOPS_NormalizedEntities();
 
         // GET: odata/Companies
-        [EnableQuery]
+        [EnableQuery(MaxExpansionDepth = 100)]
         public IQueryable<Company> GetCompanies()
         {
             return db.Companies;
         }
 
         // GET: odata/Companies(5)
-        [EnableQuery]
+        [EnableQuery(MaxExpansionDepth = 100)]
         public SingleResult<Company> GetCompany([FromODataUri] long key)
         {
             return SingleResult.Create(db.Companies.Where(company => company.Id == key));
@@ -92,49 +92,49 @@ namespace iOPS_ODataV4.Controllers.OdataV4
 
 
         // GET: odata/Companies(5)/Assets
-        [EnableQuery]
+        [EnableQuery(MaxExpansionDepth = 100)]
         public IQueryable<Asset> GetAssets([FromODataUri] long key)
         {
             return db.Companies.Where(m => m.Id == key).SelectMany(m => m.Assets);
         }
 
         // GET: odata/Companies(5)/CompanyContacts
-        [EnableQuery]
+        [EnableQuery(MaxExpansionDepth = 100)]
         public IQueryable<CompanyContact> GetCompanyContacts([FromODataUri] long key)
         {
             return db.Companies.Where(m => m.Id == key).SelectMany(m => m.CompanyContacts);
         }
 
         // GET: odata/Companies(5)/CompanyDataReaders
-        [EnableQuery]
+        [EnableQuery(MaxExpansionDepth = 100)]
         public IQueryable<CompanyDataReader> GetCompanyDataReaders([FromODataUri] long key)
         {
             return db.Companies.Where(m => m.Id == key).SelectMany(m => m.CompanyDataReaders);
         }
 
         // GET: odata/Companies(5)/SiteCompanies
-        [EnableQuery]
+        [EnableQuery(MaxExpansionDepth = 100)]
         public IQueryable<SiteCompany> GetSiteCompanies([FromODataUri] long key)
         {
             return db.Companies.Where(m => m.Id == key).SelectMany(m => m.SiteCompanies);
         }
 
         // GET: odata/Companies(5)/CompanyType
-        [EnableQuery]
+        [EnableQuery(MaxExpansionDepth = 100)]
         public SingleResult<CompanyType> GetCompanyType([FromODataUri] long key)
         {
             return SingleResult.Create(db.Companies.Where(m => m.Id == key).Select(m => m.CompanyType));
         }
 
         // GET: odata/Companies(5)/Systems
-        [EnableQuery]
+        [EnableQuery(MaxExpansionDepth = 100)]
         public IQueryable<SystemGroup> GetSystems([FromODataUri] long key)
         {
             return db.Companies.Where(m => m.Id == key).SelectMany(m => m.Systems);
         }
 
         // GET: odata/Companies(5)/CustomJBTStandardObservations
-        [EnableQuery]
+        [EnableQuery(MaxExpansionDepth = 100)]
         public IQueryable<CustomJBTStandardObservation> GetCustomJBTStandardObservations([FromODataUri] long key)
         {
             return db.Companies.Where(m => m.Id == key).SelectMany(m => m.CustomJBTStandardObservations);

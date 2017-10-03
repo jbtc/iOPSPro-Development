@@ -355,27 +355,59 @@
 
 
 					//Delete all Widgets that are on the dashboard.
-					dataService.GetIOPSCollection("Widgets", "ParentDashboardId", dashboard.Id).then(function (widgets) {
+					if (dashboard.Id) {
+						dataService.GetIOPSCollection("Widgets", "ParentDashboardId", dashboard.Id).then(function (widgets) {
 
-						$q.all(
-							widgets.select(function (widget) {
-								widget.Id = -widget.Id;
-								return widget.$save();
-							})
-						).then(function () {
 
-							//Delete the dashboard
-							dashboard.Id = -dashboard.Id;
-							dashboard.$save().then(function () {
-								dashboard.Id = -dashboard.Id;
-								signalR.SignalAllClients("Dashboard.Deleted", dashboard);
+							console.log("Widgets to delete = %O", widgets);
+
+							//Get rid of all of the widgets on the dashboard
+							$q.all(
+								widgets.select(function (widget) {
+
+									//Get rid of any WidgetGraphTags on the widget
+									return dataService.GetIOPSCollection("WidgetGraphTags", "WidgetId", widget.Id).then(function (wgts) {
+
+										if (wgts && wgts.length > 0) {
+											return $q.all(
+												wgts.select(function (wgt) {
+													wgt.Id = -wgt.Id;
+													return wgt.$save();
+												})
+											).then(function () {
+												console.log("Delete widget");
+												widget.Id = -widget.Id;
+												return widget.$save();
+
+											});
+										} else {
+											widget.Id = -widget.Id;
+											return widget.$save();
+										}
+									});
+								}
+								)
+							).then(function () {
+
+								//Delete the dashboard
+								//Need to go get the dashboard firsdt. We have already polluted it at this point. It has extra properties that are not compatible with deleting it.
+								dataService.GetEntityById("Dashboards", dashboard.Id).then(function(pureDashboardResourceObject) {
+									pureDashboardResourceObject.Id = -pureDashboardResourceObject.Id;
+									pureDashboardResourceObject.$save().then(function() {
+										signalR.SignalAllClients("Dashboard.Deleted", dashboard);
+										toastr.success(dashboard.Name, "Dashboard was deleted!");
+									});
+
+
+								});
+
+
 							});
-							toastr.success(dashboard.Name, "Dashboard was deleted!");
+
 
 						});
 
-
-					});
+					}
 
 
 				} else {
@@ -472,7 +504,7 @@
 				if (!dashboardsForUser) {
 					vm.noDashboardsMessage = "You do not yet have any dashboards created. To create a dashboard, please click on the New button above.";
 				}
-				vm.dashboards = dashboardsForUser.where(function(d){return !d.ParentDashboardId}).orderBy(function (db) { return db.Ordinal });;
+				vm.dashboards = dashboardsForUser.where(function (d) { return !d.ParentDashboardId }).orderBy(function (db) { return db.Ordinal });;
 				vm.showMenu = true;
 
 				//If there are dashboards defined for the user, transition to the first one.
@@ -793,7 +825,8 @@
 													description: "",
 													state: "home.app.liveTagDataMonitorPanels"
 												},
-												{ id: "liveTagDataMonitor", label: "All Tags - As Table", description: "", state: "home.app.liveTagDataMonitor" },
+												{ id: "liveTagDataMonitorNDO", label: "All Tags - As Table - No Drop Off", description: "", state: "home.app.liveTagDataMonitor", stateParams: { NoDropOff: true } },
+												{ id: "liveTagDataMonitor", label: "All Tags - As Table - Drop Off 10 Sec", description: "", state: "home.app.liveTagDataMonitor"},
 												{
 													id: "liveAssetDataMonitorPanels",
 													label: "All Gate Assets - Panels by Site and Gate",
@@ -809,8 +842,7 @@
 													]
 												}
 											]
-										},
-										{ id: "dmBHS", label: "Baggage Handling Systems", description: "", state: "", children: siteBHSMenuItems }
+										}
 									]
 								}
 							]
@@ -1807,7 +1839,7 @@
 			//Set up interval that re-loads the vm tags. They will update that often.
 			vm.updateInterval = $interval(function () {
 				GetFormattedTags();
-			}, 100);
+			}, 1000);
 
 			$scope.$on("$destroy",
                 function () {
@@ -1827,15 +1859,16 @@
 			dataService.GetTags().then(function (data) {
 				vm.totalChangeCount = 0;
 
-				//data.select(function(t) {
-				//    vm.totalChangeCount += t.Statistics.ChangeCount;
-				//});
-
+				
 
 				vm.tags = data
                     .where(function (t) {
                     	return (t.Metadata.UpdateCountDowns.TenSecond > 0 && !$stateParams.NoDropOff) || $stateParams.NoDropOff;
                     });
+
+
+				console.log("vm.tags = %O", vm.tags);
+
 
 			});
 		}
@@ -1921,16 +1954,17 @@
 
 				//Only include tags whewre there is an observation in the last ten days.
 				var cutoffDateTime = new Date();
-				cutoffDateTime = cutoffDateTime.setDate(cutoffDateTime.getDate() - 10);
+				cutoffDateTime = cutoffDateTime.setDate(cutoffDateTime.getDate() - 10000000);
 
-				var recentTags = data.Tags.where(function (tag) {
-					return tag.LastObservationDate > cutoffDateTime;
-				});
+				//var recentTags = data.Tags;
+				//	.where(function (tag) {
+				//	return tag.LastObservationDate > cutoffDateTime;
+				//});
 
 
-				data.Assets.forEach(function (asset) {
-					asset.recentTags = recentTags.where(function (tag) { return tag.AssetId == asset.Id });
-				});
+				//data.Assets.forEach(function (asset) {
+				//	asset.recentTags = recentTags.where(function (tag) { return tag.AssetId == asset.Id });
+				//});
 
 
 
@@ -1977,6 +2011,8 @@
 
 
 
+				
+				console.log("vm.sites = %O", vm.sites);
 				console.log("Data Formatting time = " + (performance.now() - time0));
 
 
@@ -2069,9 +2105,9 @@
 
 		function GetData() {
 
-			dataService.GetSites().then(function(sites) {
+			dataService.GetSites().then(function (sites) {
 				sites.select(function (site) {
-					
+
 					if (site.Assets) {
 						site.Tags = site.Assets.selectMany(function (a) { return a.Tags });
 					}
@@ -2255,7 +2291,7 @@
 			signalR.SignalSpecificClient(login.ClientId, "System.InformationalMessage", message);
 		}
 
-		vm.ackAlert = function(login) {
+		vm.ackAlert = function (login) {
 			var message = prompt("Message to Send:");
 			signalR.SignalSpecificClient(login.ClientId, "System.AlertMessage", message);
 		}
@@ -2265,7 +2301,7 @@
 
 				u.SitesList = u.SiteDataReaders.select(function (sdr) { return sdr.Site.Name }).join(", ");
 				u.PrivilegesList = u.UserAuthorizedActivities.select(function (uaa) { return uaa.AuthorizableActivity.Description }).join(", ");
-				
+
 
 				u.accountStatus = [];
 				if (u.Active) {
@@ -2278,7 +2314,7 @@
 					u.accountStatus.push("Pending Password Set Via Email");
 				}
 
-				u.connectedClients = signalR.connectedClients.where(function(client){return client.User.User.Username == u.Username});
+				u.connectedClients = signalR.connectedClients.where(function (client) { return client.User.User.Username == u.Username });
 
 
 			});
@@ -2907,7 +2943,7 @@
 			console.log("Asset Model to save = %O", vm.assetModel);
 
 			(vm.assetModel.Id > 0
-				? dataService.GetEntityById("AssetModels", vm.assetModel.Id).then(function(odataAssetModel) {
+				? dataService.GetEntityById("AssetModels", vm.assetModel.Id).then(function (odataAssetModel) {
 					odataAssetModel.Name = vm.assetModel.Name;
 					odataAssetModel.Size = vm.assetModel.Size;
 					odataAssetModel.Description = vm.assetModel.Description;
@@ -2917,18 +2953,18 @@
 
 
 				})
-				: dataService.AddEntity("AssetModels", vm.assetModel)).then(function(assetModel) {
+				: dataService.AddEntity("AssetModels", vm.assetModel)).then(function (assetModel) {
 
 					//At this point we have either added or updated an AssetModel entity
 
 					signalR.SignalAllClientsInGroup("Admin", "AssetModel", assetModel);
 					$state.go("^");
 
-			});
+				});
 		}
 
 
-		
+
 
 	}
 
@@ -3041,7 +3077,7 @@
 			//Set up interval that re-loads the vm tags. They will update that often.
 			vm.updateInterval = $interval(function () {
 				GetFormattedTags();
-			}, 100);
+			}, 1000);
 
 			$scope.$on("$destroy",
                 function () {
@@ -3063,6 +3099,7 @@
 				vm.tags = data
                     .where(function (t) { return t.Metadata.UpdateCountDowns.FiveMinute > 0 })
                     .orderBy(function (t) { return t.Name });
+
 			});
 		}
 	}
@@ -3154,6 +3191,7 @@
 		vm.Save = function () {
 			vm.widgetType.IsAvailableToAdmin = vm.isAvailableToAdmin == 1 ? true : false;
 			vm.widgetType.IsAvailableToAll = vm.isAvailableToAll == 1 ? true : false;
+			vm.widgetType.IsHiddenSystemType = vm.isHiddenSystemType == 1 ? true : false;
 			(vm.widgetType.Id > 0 ? vm.widgetType.$save() : dataService.AddEntity("WidgetTypes", vm.widgetType)).then(function (data) {
 				signalR.SignalAllClientsInGroup("Admin", "WidgetType", data);
 				$state.go("^");
@@ -3196,13 +3234,16 @@
 
 
 		vm.columnWidths = {
-			id: 5,
-			priority: 5,
+
 			name: 15,
 			description: 25,
 			initialHeight: 8,
 			initialWidth: 8,
-			creationDate: 25
+			creationDate: 25,
+			angularDirectiveName: 20,
+			adminStatus: 10,
+			allStatus: 10,
+			hiddenStatus: 10
 		};
 
 		vm.buttonPanelWidth = 20;
@@ -4049,14 +4090,14 @@
 					Name: wt.Name,
 					WidgetTypeId: wt.Id,
 					ParentDashboardId: $stateParams.DashboardId,
-					EmbeddedDashboardId: newDashboard ?  newDashboard.Id : null,
+					EmbeddedDashboardId: newDashboard ? newDashboard.Id : null,
 					Width: wt.InitialWidth,
 					Height: wt.InitialHeight,
 					Row: 0,
 					Col: 0
 				}).then(function (widget) {
 
-					signalR.SignalAllClients("Widget", widget);
+					signalR.SignalAllClients("WidgetAdded", widget);
 
 				});
 
@@ -4069,16 +4110,14 @@
 		vm.Close = function () {
 
 			$state.go("^");
-			$timeout(function () {
-				$state.go("^");
-				$timeout(function () {
-					$state.go("home.app.dashboard", { DashboardId: $stateParams.DashboardId });
+			//$timeout(function () {
+			//	$state.go("^");
+			//	$timeout(function () {
+			//		$state.go("home.app.dashboard", { DashboardId: $stateParams.DashboardId });
 
-				},
-					10);
+			//	},10);
 
-			},
-				10);
+			//},10);
 
 
 		}
@@ -4237,6 +4276,89 @@ angular.module('app').controller('AppCtrl',
         	};
         }
     ]);
+
+
+//++GraphicsCatalog Controller
+(function () {
+    "use strict";
+
+
+    function GraphicsCatalogCtrl($scope, $state, displaySetupService, dataService, signalR, $interval, $timeout) {
+        console.log("GraphicsCatalogCtrl conroller invoked.");
+        var vm = this;
+
+
+        vm.columnWidths = {
+
+            company: 10,
+            equipment: 10,
+            tagId: 5,
+            tagName: 50,
+            observationName: 25,
+            date: 20,
+            value: 80,
+            dataChangeCount: 15
+        };
+
+
+
+        vm.buttonPanelWidth = 20;
+
+        vm.state = $state;
+        displaySetupService.SetPanelDimensions();
+
+        console.log("Load Data");
+
+
+        dataService.GetIOPSResource("Sites")
+			.expandPredicate("SystemGroups")
+				.expand()
+			.finish()
+
+
+        $scope.$$postDigest(function () {
+            displaySetupService.SetPanelDimensions();
+        });
+
+
+
+
+        vm.searchText = "";
+
+        function GetFormattedTags() {
+            dataService.GetTags().then(function (data) {
+                vm.totalChangeCount = 0;
+                vm.tags = data
+					.where(function(d) { return (vm.searchText == "" || d.Name.toUpperCase().indexOf(vm.searchText.toUpperCase()) > -1)})
+            		.orderBy(function(tag){return tag.Name});
+            });
+            
+        }
+
+
+        vm.scrolledToEnd = function () {
+            console.log("scrolled to end");
+        }
+
+    }
+
+    angular
+			.module("app")
+			.controller("GraphicsCatalogCtrl", [
+				"$scope",
+				"$state",
+				"displaySetupService",
+				"dataService",
+				"signalR",
+                "$interval",
+                "$timeout",
+				GraphicsCatalogCtrl
+			]);
+
+
+
+})();
+
 
 
 

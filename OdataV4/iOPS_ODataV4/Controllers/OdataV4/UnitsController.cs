@@ -32,14 +32,14 @@ namespace iOPS_ODataV4.Controllers.OdataV4
         private iOPS_NormalizedEntities db = new iOPS_NormalizedEntities();
 
         // GET: odata/Units
-        [EnableQuery]
+        [EnableQuery(MaxExpansionDepth = 100)]
         public IQueryable<Unit> GetUnits()
         {
             return db.Units;
         }
 
         // GET: odata/Units(5)
-        [EnableQuery]
+        [EnableQuery(MaxExpansionDepth = 100)]
         public SingleResult<Unit> GetUnit([FromODataUri] long key)
         {
             return SingleResult.Create(db.Units.Where(unit => unit.Id == key));
@@ -83,7 +83,7 @@ namespace iOPS_ODataV4.Controllers.OdataV4
         }
 
         // GET: odata/Units(5)/JBTStandardObservations
-        [EnableQuery]
+        [EnableQuery(MaxExpansionDepth = 100)]
         public IQueryable<JBTStandardObservation> GetJBTStandardObservations([FromODataUri] long key)
         {
             return db.Units.Where(m => m.Id == key).SelectMany(m => m.JBTStandardObservations);

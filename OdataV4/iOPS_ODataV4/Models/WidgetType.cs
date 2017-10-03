@@ -36,6 +36,7 @@ namespace iOPS_ODataV4.Models
         public Nullable<int> Ordinal { get; set; }
         public Nullable<bool> IsAvailableToAdmin { get; set; }
         public Nullable<bool> IsAvailableToAll { get; set; }
+        public Nullable<bool> IsHiddenSystemType { get; set; }
     
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<Widget> Widgets { get; set; }
