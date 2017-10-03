@@ -91,7 +91,7 @@ namespace iOPS_ODataV4.Controllers.OdataV4
             return db.JBTStandardObservations.Where(m => m.Id == key).SelectMany(m => m.CustomJBTStandardObservations);
         }
 
-        // GET: odata/JBTStandardObservations(5)/WidgetCustonTagDisplayOrders
+        // GET: odata/JBTStandardObservations(5)/WidgetCustomTagDisplayOrders
         [EnableQuery(MaxExpansionDepth = 100)]
         public IQueryable<WidgetCustomTagDisplayOrder> GetWidgetCustomTagDisplayOrders([FromODataUri] long key)
         {
@@ -110,6 +110,13 @@ namespace iOPS_ODataV4.Controllers.OdataV4
         public IQueryable<Tag> GetTags([FromODataUri] long key)
         {
             return db.JBTStandardObservations.Where(m => m.Id == key).SelectMany(m => m.Tags);
+        }
+
+        // GET: odata/JBTStandardObservations(5)/SystemGraphicVisibleValues
+        [EnableQuery(MaxExpansionDepth = 100)]
+        public IQueryable<SystemGraphicVisibleValue> GetSystemGraphicVisibleValues([FromODataUri] long key)
+        {
+            return db.JBTStandardObservations.Where(m => m.Id == key).SelectMany(m => m.SystemGraphicVisibleValues);
         }
 
         protected override void Dispose(bool disposing)

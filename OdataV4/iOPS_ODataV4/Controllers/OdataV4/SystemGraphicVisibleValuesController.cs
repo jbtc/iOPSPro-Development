@@ -32,14 +32,14 @@ namespace iOPS_ODataV4.Controllers.OdataV4
         private iOPS_NormalizedEntities db = new iOPS_NormalizedEntities();
 
         // GET: odata/SystemGraphicVisibleValues
-        [EnableQuery]
+        [EnableQuery(MaxExpansionDepth = 100)]
         public IQueryable<SystemGraphicVisibleValue> GetSystemGraphicVisibleValues()
         {
             return db.SystemGraphicVisibleValues;
         }
 
         // GET: odata/SystemGraphicVisibleValues(5)
-        [EnableQuery]
+        [EnableQuery(MaxExpansionDepth = 100)]
         public SingleResult<SystemGraphicVisibleValue> GetSystemGraphicVisibleValue([FromODataUri] long key)
         {
             return SingleResult.Create(db.SystemGraphicVisibleValues.Where(systemGraphicVisibleValue => systemGraphicVisibleValue.Id == key));
@@ -83,10 +83,17 @@ namespace iOPS_ODataV4.Controllers.OdataV4
 
 
         // GET: odata/SystemGraphicVisibleValues(5)/SystemGraphic
-        [EnableQuery]
+        [EnableQuery(MaxExpansionDepth = 100)]
         public SingleResult<SystemGraphic> GetSystemGraphic([FromODataUri] long key)
         {
             return SingleResult.Create(db.SystemGraphicVisibleValues.Where(m => m.Id == key).Select(m => m.SystemGraphic));
+        }
+
+        // GET: odata/SystemGraphicVisibleValues(5)/JBTSTandardObservation
+        [EnableQuery(MaxExpansionDepth = 100)]
+        public SingleResult<JBTStandardObservation> GetJBTStandardObservation([FromODataUri] long key)
+        {
+            return SingleResult.Create(db.SystemGraphicVisibleValues.Where(m => m.Id == key).Select(m => m.JBTStandardObservation));
         }
 
         protected override void Dispose(bool disposing)

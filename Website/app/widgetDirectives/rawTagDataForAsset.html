@@ -35,26 +35,26 @@
                 </th>
 
                 <th style="cursor: pointer;"
-                    ng-click="vm.SetSortField('LastObservationTextValue')">
+                    ng-click="vm.SetSortField('Value')">
                     <div>
                         Value
-                        <span ng-show="vm.widget.displaySettings.tagDataSortField=='-LastObservationTextValue'">
+                        <span ng-show="vm.widget.displaySettings.tagDataSortField=='-Value'">
                             <i class="fa fa-sort-numeric-desc" title="Click to sort in ascending order"></i>
                         </span>
-                        <span ng-show="vm.widget.displaySettings.tagDataSortField=='LastObservationTextValue'">
+                        <span ng-show="vm.widget.displaySettings.tagDataSortField=='Value'">
                             <i class="fa fa-sort-numeric-asc" title="Click to sort in ascending order"></i>
                         </span>
                     </div>
                 </th>
 
                 <th style="cursor: pointer;"
-                    ng-click="vm.SetSortField('LastObservationDate')">
+                    ng-click="vm.SetSortField('ObservationUTCDate')">
                     <div>
                         UTC
-                        <span ng-show="vm.widget.displaySettings.tagDataSortField=='-LastObservationDate'">
+                        <span ng-show="vm.widget.displaySettings.tagDataSortField=='-ObservationUTCDate'">
                             <i class="fa fa-sort-numeric-desc" title="Click to sort in ascending order"></i>
                         </span>
-                        <span ng-show="vm.widget.displaySettings.tagDataSortField=='LastObservationDate'">
+                        <span ng-show="vm.widget.displaySettings.tagDataSortField=='ObservationUTCDate'">
                             <i class="fa fa-sort-numeric-asc" title="Click to sort in ascending order"></i>
                         </span>
                     </div>
@@ -74,7 +74,7 @@
                     </div>
                 </th>
 
-                <th style="cursor: pointer;"  ng-hide="vm.widgetDimensions.width < vm.columnHideWidth1"
+                <th style="cursor: pointer;" ng-hide="vm.widgetDimensions.width < vm.columnHideWidth1"
                     ng-click="vm.SetSortField('JBTStandardObservation.Name')">
                     <div>
                         JBT Std Obs Name
@@ -88,13 +88,13 @@
                 </th>
 
                 <th style="cursor: pointer;" ng-hide="vm.widgetDimensions.width < vm.columnHideWidth1"
-                    ng-click="vm.SetSortField('LastObservationId')">
+                    ng-click="vm.SetSortField('ObservationId')">
                     <div>
                         Last Obs Id
-                        <span ng-show="vm.widget.displaySettings.tagDataSortField=='-LastObservationId'">
+                        <span ng-show="vm.widget.displaySettings.tagDataSortField=='-ObservationId'">
                             <i class="fa fa-sort-numeric-desc" title="Click to sort in ascending order"></i>
                         </span>
-                        <span ng-show="vm.widget.displaySettings.tagDataSortField=='LastObservationId'">
+                        <span ng-show="vm.widget.displaySettings.tagDataSortField=='ObservationId'">
                             <i class="fa fa-sort-numeric-asc" title="Click to sort in ascending order"></i>
                         </span>
                     </div>
@@ -116,29 +116,41 @@
                     </div>
                 </th>
 
+                <th>
+                    K -> DB
+                </th>
+                <th>
+                    DB -> Br
+                </th>
+                <th>
+                    K -> Br
+                </th>
+
 
 
             </tr>
         </thead>
         <tbody style="font-size: .75em; overflow-y: scroll;">
-        <tr ng-repeat="tag in vm.Asset.Tags | orderBy: vm.widget.displaySettings.tagDataSortField" class="no-select" style="background-color: {{tag.Metadata.Status.LastValueWasHistorical ? 'rgba(173, 173, 173,' : 'rgba(0, 255, 0,'}} .{{tag.Metadata.UpdateCountDowns.OneSecond}});">
-            <td nowrap>
-                <label ng-click="vm.ProcessTagsToGraph()" class="btn btn-default" style="height: 15px; max-height: 15px; font-size: .7em; width: 15px; max-width: 15px; padding: 0; padding-top: 2px; margin-top: -2px;" ng-model="vm.tagsToGraph[tag.TagId]" uib-btn-checkbox="{{tag.TagId}}">
-                    <i class="fa fa-line-chart" aria-hidden="true" title="Add to graph widget" style="cursor: pointer;"></i>
-                </label>
-            </td>
-            <td ng-hide="vm.widgetDimensions.width < vm.columnHideWidth1">
-                {{tag.TagId}}
-            </td>
-            <td>{{tag.ShortTagName}}</td>
-            <td>{{tag.LastObservationTextValue}}</td>
-            <td nowrap>{{tag.LastObservationDate | date:'MM/dd HH:mm:ss'}}</td>
-            <td ng-hide="vm.widgetDimensions.width < vm.columnHideWidth1">{{tag.JBTStandardObservationId}}</td>
-            <td ng-hide="vm.widgetDimensions.width < vm.columnHideWidth1">{{tag.JBTStandardObservation.Name}}</td>
-            <td ng-hide="vm.widgetDimensions.width < vm.columnHideWidth1">{{tag.ObservationId}}</td>
-            <td>{{tag.Quality}}</td>
-            <td></td>
-        </tr>
+            <tr ng-repeat="tag in vm.Asset.Tags | orderBy: vm.widget.displaySettings.tagDataSortField" class="no-select" style="background-color: {{tag.Metadata.Status.LastValueWasHistorical ? 'rgba(173, 173, 173,' : 'rgba(0, 255, 0,'}} .{{tag.Metadata.UpdateCountDowns.OneSecond}});">
+                <td nowrap>
+                    <label ng-click="vm.ProcessTagsToGraph()" class="btn btn-default" style="height: 15px; max-height: 15px; font-size: .7em; width: 15px; max-width: 15px; padding: 0; padding-top: 2px; margin-top: -2px;" ng-model="vm.tagsToGraph[tag.TagId]" uib-btn-checkbox="{{tag.TagId}}">
+                        <i class="fa fa-line-chart" aria-hidden="true" title="Add to graph widget" style="cursor: pointer;"></i>
+                    </label>
+                </td>
+                <td ng-hide="vm.widgetDimensions.width < vm.columnHideWidth1">
+                    {{tag.TagId}}
+                </td>
+                <td>{{tag.ShortTagName}}</td>
+                <td>{{tag.Value}}</td>
+                <td nowrap>{{tag.ObservationUTCDate | date:'MM/dd HH:mm:ss'}}</td>
+                <td ng-hide="vm.widgetDimensions.width < vm.columnHideWidth1">{{tag.JBTStandardObservationId}}</td>
+                <td ng-hide="vm.widgetDimensions.width < vm.columnHideWidth1">{{tag.JBTStandardObservation.Name}}</td>
+                <td ng-hide="vm.widgetDimensions.width < vm.columnHideWidth1">{{tag.ObservationId}}</td>
+                <td>{{tag.Quality}}</td>
+                <td>{{tag.Metadata.Statistics.KepwareToMainDatabaseTimeMS}}</td>
+                <td>{{tag.Metadata.Statistics.MainDatabaseToBrowserTimeMS}}</td>
+                <td>{{tag.Metadata.Statistics.KepwareToBrowserTimeMS}}</td>
+            </tr>
         </tbody>
     </table>
 

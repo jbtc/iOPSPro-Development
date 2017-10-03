@@ -84,6 +84,13 @@ namespace iOPS_ODataV4.Controllers.OdataV4
             return Created(modifiedEntity);
         }
 
+        // GET: odata/Tags(5)/LastObservation
+        [EnableQuery(MaxExpansionDepth = 100)]
+        public SingleResult<Observation> GetLastObservation([FromODataUri] long key)
+        {
+            return SingleResult.Create(db.Tags.Where(m => m.Id == key).Select(m => m.LastObservation));
+        }
+
         // GET: odata/Tags(5)/Asset
         [EnableQuery(MaxExpansionDepth = 100)]
         public SingleResult<Asset> GetAsset([FromODataUri] long key)

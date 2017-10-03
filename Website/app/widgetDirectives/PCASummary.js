@@ -27,6 +27,8 @@
 						obscureGraphics: true
 					}
 
+
+
 					vm.tagsToGraph = [];
 
 					vm.bootstrapLabelColumns = 2;
@@ -85,60 +87,6 @@
 
 
 
-					var gaugeOptions = {
-
-						chart: {
-							type: 'solidgauge'
-						},
-
-						title: null,
-
-						pane: {
-							center: ['50%', '85%'],
-							size: '140%',
-							startAngle: -90,
-							endAngle: 90,
-							background: {
-								backgroundColor: (Highcharts.theme && Highcharts.theme.background2) || '#EEE',
-								innerRadius: '60%',
-								outerRadius: '100%',
-								shape: 'arc'
-							}
-						},
-
-						tooltip: {
-							enabled: false
-						},
-
-						// the value axis
-						yAxis: {
-							stops: [
-								[0.1, '#55BF3B'], // green
-								[0.5, '#DDDF0D'], // yellow
-								[0.9, '#DF5353'] // red
-							],
-							lineWidth: 0,
-							minorTickInterval: null,
-							tickAmount: 2,
-							title: {
-								y: -70
-							},
-							labels: {
-								y: 16
-							}
-						},
-
-						plotOptions: {
-							solidgauge: {
-								dataLabels: {
-									y: 5,
-									borderWidth: 0,
-									useHTML: true
-								}
-							}
-						}
-					};
-
 					//$timeout(function () {
 					//	if (!vm.pca) {
 
@@ -158,7 +106,6 @@
 						$("#widget-settings-" + vm.widget.WidgetResource.Id).slideUp();
 					}
 
-
 					vm.ProcessTagsToGraph = function (tag) {
 
 						//$timeout(function() {
@@ -167,29 +114,11 @@
 							vm.tagsToGraphObjects.push({ TagId: tagId, Enabled: enabled });
 						});
 
-						//console.log("vm.tagsToGraphObjects = %O", vm.tagsToGraphObjects);
-
-
-
 						//Call the function that the dashboard provided with the collection of tags to add to the possible new widget
 						vm.addTagsToGraphFunction()(vm.tagsToGraphObjects);
 
-						//});
-
-
-
 						return;
-						var element = $("#widget-linegraph-" + vm.widget.WidgetResource.Id)[0].parentNode.parentNode.offsetParent;
-						var position = $(element).offset();
-						position.width = $(element).width();
 
-
-						$("#gridster" + vm.widget.Id).css('z-index', '35');
-
-
-
-						$("#widget-linegraph-" + vm.widget.WidgetResource.Id).css({ left: window.outerHeight * .6, top: position.top + 35, width: 1000, height: 1000 });
-						$("#widget-linegraph-" + vm.widget.WidgetResource.Id).slideToggle();
 					}
 
 
@@ -378,6 +307,41 @@
 						}
 					});
 
+					vm.GenerateTemperatureCharts = function () {
+						//console.log("Generating...");
+						GenerateAmbientTemperatureChart();
+						GenerateDischargeTemperatureChart();
+						GenerateCabinTemperatureChart();
+						DestroyChartIfItExists(vm.primary1CompressorChart);
+						vm.primary1CompressorChart = null;
+						DestroyChartIfItExists(vm.primary2CompressorChart);
+						vm.primary2CompressorChart = null;
+						DestroyChartIfItExists(vm.secondary1CompressorChart);
+						vm.secondary1CompressorChart = null;
+						DestroyChartIfItExists(vm.secondary2CompressorChart);
+						vm.secondary2CompressorChart = null;
+					}
+
+					vm.GeneratePressureCharts = function () {
+						//console.log("Generating...");
+						GeneratePrimary1CompressorPressureChart();
+						GeneratePrimary2CompressorPressureChart();
+						GenerateSecondary1CompressorPressureChart();
+						GenerateSecondary2CompressorPressureChart();
+						DestroyChartIfItExists(vm.ambientChart);
+						vm.ambientChart = null;
+						DestroyChartIfItExists(vm.dischargeChart);
+						vm.dischargeChart = null;
+						DestroyChartIfItExists(vm.cabinChart);
+						vm.cabinChart = null;
+					}
+
+					function DestroyChartIfItExists(chart) {
+						if (chart) {
+							chart.destroy();
+						}
+					}
+
 
 
 					function GetAssetsForGate() {
@@ -407,6 +371,9 @@
 							vm.widget.WidgetResource.$save();
 							dataService.GetAllSignalRObservationFormattedTagsForAssetIdIntoInventory(vm.pca.Id).then(function () {
 
+
+
+
 								dataService.GetIOPSResource("AssetGraphics")
 									.filter("AssetId", vm.pca.Id)
 									.expandPredicate("AssetGraphicVisibleValues")
@@ -415,7 +382,6 @@
 									.query()
 									.$promise
 									.then(function (data) {
-
 
 										//Add a boolean on or off flag to each image. The view will use this to show the image or not.
 										data.select(function (i) {
@@ -430,8 +396,8 @@
 										//}
 
 										$timeout(function () {
-											SetupAccordion();
-
+											SetupSplitter();
+											SetTabBodyHeight();
 										}, 50);
 
 										console.log("Asset Graphics = %O", data);
@@ -445,16 +411,22 @@
 										vm.widget.displaySettings.headingExtraTitle = GetHeadingExtraTitle();
 										vm.showWidget = true;
 
-
 									});
 							});
-
-
-
 						});
+					}
 
+
+
+					function SetTabBodyHeight() {
+						var widgetDimensions = displaySetupService.GetWidgetPanelBodyDimensions(vm.widget.Id);
+						var tabDimensions = displaySetupService.GetDivDimensionsById("nav-pills" + vm.widget.Id);
+						var heightToSet = widgetDimensions.height - tabDimensions.height - 9;
+						//console.log("Height to set = " + heightToSet);
+						$("#tab-content" + vm.widget.Id).css('height', heightToSet);
 
 					}
+
 
 					function SetHeadingBackground() {
 						if (AtLeastOneGraphicIsVisible()) {
@@ -462,89 +434,63 @@
 						} else {
 							vm.widget.displaySettings.headingBackground = 'linear-gradient(to bottom,#dedede, #fefefe)';
 						}
-
 					}
-
-
-
 
 					function AtLeastOneGraphicIsVisible() {
 						if (vm.AssetGraphics) {
 							return vm.AssetGraphics.any(function (ag) { return ag.showImage });
-
 						}
 						return false;
 					}
 
-
-					function SetupAccordion() {
+					function SetupSplitter() {
 						$scope.$$postDigest(function () {
 							displaySetupService.SetPanelBodyWithIdHeight(vm.widget.Id);
 							$scope.$$postDigest(function () {
-								$(function () {
-									$("#accordion" + vm.widget.Id)
-									  .accordion({
-									  	header: "> div > h3",
-									  	collapsible: true,
-									  	heightStyle: "fill"
 
-									  })
-									  .sortable({
-									  	axis: "y",
-									  	handle: "h3",
-									  	stop: function (event, ui) {
-									  		// IE doesn't register the blur when sorting
-									  		// so trigger focusout handlers to remove .ui-state-focus
-									  		console.log("Stop Drag event = %O", event);
-									  		console.log("Stop Drag ui = %O", ui);
-									  		ui.item.children("h3").triggerHandler("focusout");
+								vm.widget.WidgetResource.SplitLeftPercentage = vm.widget.WidgetResource.SplitLeftPercentage || 50;
+								vm.widget.WidgetResource.SplitRightPercentage = vm.widget.WidgetResource.SplitRightPercentage || 50;
 
-									  		// Refresh accordion to handle new order
-									  		$(this).accordion("refresh");
-									  	}
-									  });
-
-
-
-
-
-								});
-
-								$scope.$$postDigest(function () {
-
-									vm.widget.WidgetResource.SplitLeftPercentage = vm.widget.WidgetResource.SplitLeftPercentage || 50;
-									vm.widget.WidgetResource.SplitRightPercentage = vm.widget.WidgetResource.SplitRightPercentage || 50;
-
-									vm.splitter = Split(['#containerData' + vm.widget.Id, '#containerGraphics' + vm.widget.Id],
-										{
-											elementStyle: function (dimension, size, gutterSize) {
-												return {
-													'flex-basis': 'calc(' + size + '% - ' + gutterSize + 'px)'
-												}
-											},
-											gutterStyle: function (dimension, gutterSize) {
-												return {
-													'flex-basis': gutterSize + 'px',
-													'background-image': "url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAUAAAAeCAYAAADkftS9AAAAIklEQVQoU2M4c+bMfxAGAgYYmwGrIIiDjrELjpo5aiZeMwF+yNnOs5KSvgAAAABJRU5ErkJggg==')",
-													'background-repeat': 'no-repeat',
-													'background-position': '50%',
-													'background-color': 'transparent',
-													'cursor': 'col-resize'
-												}
-											},
-											sizes: [vm.widget.WidgetResource.SplitLeftPercentage, vm.widget.WidgetResource.SplitRightPercentage],
-											minSize: 200,
-											onDragEnd: function () {
-												var sizes = vm.splitter.getSizes();
-												vm.widget.WidgetResource.SplitLeftPercentage = sizes[0];
-												vm.widget.WidgetResource.SplitRightPercentage = sizes[1];
-												vm.widget.WidgetResource.$save();
-												console.log("Split Sizes = %O", sizes);
+								vm.splitter = Split(['#containerData' + vm.widget.Id, '#containerGraphics' + vm.widget.Id],
+									{
+										elementStyle: function (dimension, size, gutterSize) {
+											return {
+												'flex-basis': 'calc(' + size + '% - ' + gutterSize + 'px)'
 											}
-										});
+										},
+										gutterStyle: function (dimension, gutterSize) {
+											return {
+												'flex-basis': gutterSize + 'px',
+												'background-image': "url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAUAAAAeCAYAAADkftS9AAAAIklEQVQoU2M4c+bMfxAGAgYYmwGrIIiDjrELjpo5aiZeMwF+yNnOs5KSvgAAAABJRU5ErkJggg==')",
+												'background-repeat': 'no-repeat',
+												'background-position': '50%',
+												'background-color': 'transparent',
+												'cursor': 'col-resize'
+											}
+										},
+										sizes: [vm.widget.WidgetResource.SplitLeftPercentage, vm.widget.WidgetResource.SplitRightPercentage],
+										minSize: 200,
+										onDragEnd: function () {
 
-								});
+											var sizes = vm.splitter.getSizes();
+											vm.widget.WidgetResource.SplitLeftPercentage = sizes[0];
+											vm.widget.WidgetResource.SplitRightPercentage = sizes[1];
+											vm.widget.WidgetResource.$save();
+											$interval(function() {
 
+												SetTemperatureChartsToContainerSize();
+												SetPressureChartsToContainerSize();
+											},25, 20);
+										},
+										onDrag: function () {
+											$timeout(function() {
+												
+												SetTemperatureChartsToContainerSize();
+												SetPressureChartsToContainerSize();
+											})
+										}
+
+									});
 
 							});
 
@@ -583,7 +529,9 @@
 
 						if (vm.widget.Id == resizedWidgetId || resizedWidgetId == 0) {
 							displaySetupService.SetPanelBodyWithIdHeight(vm.widget.Id);
-
+							SetTabBodyHeight();
+							SetTemperatureChartsToContainerSize();
+							SetPressureChartsToContainerSize();
 						}
 					});
 
@@ -591,6 +539,9 @@
 						if (vm.widget.Id == resizedWidgetId || resizedWidgetId == 0) {
 							$interval(function () {
 								displaySetupService.SetPanelBodyWithIdHeight(vm.widget.Id);
+								SetTabBodyHeight();
+								SetTemperatureChartsToContainerSize();
+								SetPressureChartsToContainerSize();
 
 							}, 50, 20);
 						}
@@ -627,8 +578,16 @@
 					//When the data service is finished updating it's local inventory of tag data, it will retransmit "dataService.TagUpdate" to the rest of the application locally.
 					//We will watch for it here and set the appropriate graphics flag.
 					$scope.$on("dataService.TagUpdate", function (event, updatedTag) {
-						//console.log("tag update");
+
+						//console.log("tag update updatedTag = %O", updatedTag);
 						UpdateGraphicsVisibilityForSingleTag(updatedTag);
+						UpdateAmbientChart(updatedTag);
+						UpdateDischargeChart(updatedTag);
+						UpdateCabinChart(updatedTag);
+						UpdatePrimary1CompressorChart(updatedTag);
+						UpdatePrimary2CompressorChart(updatedTag);
+						UpdateSecondary1CompressorChart(updatedTag);
+						UpdateSecondary2CompressorChart(updatedTag);
 					});
 
 
@@ -661,6 +620,7 @@
 										});
 
 
+
 									});
 
 
@@ -676,6 +636,80 @@
 
 
 					}
+
+					function UpdateAmbientChart(updatedTag) {
+
+						//If we have not yet built the ambient chart the ignore it
+						if (vm.ambientDataTag && updatedTag.TagId == vm.ambientDataTag.TagId && vm.ambientChart) {
+							//console.log("Updating ambient value - ambient data tag = %O", vm.ambientDataTag);
+							//console.log("Updating ambient value - updated tag = %O", updatedTag);
+							if (vm.ambientChart) {							
+								vm.ambientChart.series[0].data.first().update(+vm.ambientDataTag.Value);
+							}
+						}
+					}
+
+					function UpdateDischargeChart(updatedTag) {
+						//If we have not yet built the discharge chart the ignore it
+						if (vm.dischargeDataTag && updatedTag.TagId == vm.dischargeDataTag.TagId && vm.dischargeChart) {
+							//console.log("Updating discharge value");
+							if (vm.dischargeChart) {							
+								vm.dischargeChart.series[0].data.first().update(+vm.dischargeDataTag.Value);
+							}
+						}
+					}
+
+					function UpdateCabinChart(updatedTag) {
+						//If we have not yet built the cabin chart the ignore it
+						if (vm.cabinDataTag && updatedTag.TagId == vm.cabinDataTag.TagId && vm.cabinChart) {
+							//console.log("Updating cabin value");
+							if (vm.cabinChart) {							
+								vm.cabinChart.series[0].data.first().update(+vm.cabinDataTag.Value);
+							}
+						}
+					}
+
+					function UpdatePrimary1CompressorChart(updatedTag) {
+						//If we have not yet built the cabin chart the ignore it
+						if (vm.primary1CompressorDataTag && updatedTag.TagId == vm.primary1CompressorDataTag.TagId && vm.primary1CompressorChart) {
+							//console.log("Updating pri comp 1 value");
+							if (vm.primary1CompressorChart) {							
+								vm.primary1CompressorChart.series[0].data.first().update(+vm.primary1CompressorDataTag.Value);
+							}
+						}
+					}
+
+					function UpdatePrimary2CompressorChart(updatedTag) {
+						//If we have not yet built the cabin chart the ignore it
+						if (vm.primary2CompressorDataTag && updatedTag.TagId == vm.primary2CompressorDataTag.TagId && vm.primary2CompressorChart) {
+							//console.log("Updating pri comp 2 value");
+							if (vm.primary2CompressorChart) {							
+								vm.primary2CompressorChart.series[0].data.first().update(+vm.primary2CompressorDataTag.Value);
+							}
+						}
+					}
+
+					function UpdateSecondary1CompressorChart(updatedTag) {
+						//If we have not yet built the cabin chart the ignore it
+						if (vm.secondary1CompressorDataTag && updatedTag.TagId == vm.secondary1CompressorDataTag.TagId && vm.secondary1CompressorChart) {
+							//console.log("Updating sec comp 1 value");
+							if (vm.secondary1CompressorChart) {							
+								vm.secondary1CompressorChart.series[0].data.first().update(+vm.secondary1CompressorDataTag.Value);
+							}
+						}
+					}
+
+					function UpdateSecondary2CompressorChart(updatedTag) {
+						//If we have not yet built the cabin chart the ignore it
+						if (vm.secondary2CompressorDataTag && updatedTag.TagId == vm.secondary2CompressorDataTag.TagId && vm.secondary2CompressorChart) {
+							//console.log("Updating sec comp 2 value");
+							if (vm.secondary2CompressorChart) {							
+								vm.secondary2CompressorChart.series[0].data.first().update(+vm.secondary2CompressorDataTag.Value);
+							}
+						}
+					}
+
+
 					//***G
 
 					vm.tagOrderByLastChange = true;
@@ -714,39 +748,432 @@
 					});
 
 
+					//+Generate the Ambient Temperature chart
+					function GenerateAmbientTemperatureChart() {
 
+						$scope.$$postDigest(function () {
+							var plotBands = [
+								{ from: 0, to: 32, color: 'rgba(103,103,255,.35)' },
+								{ from: 32, to: 42, color: 'rgba(50,255,50,.35)' },
+								{ from: 42, to: 100, color: 'rgba(255,103,103,.35)' }
+							];
 
+							vm.ambientDataTag = vm.pca.Tags.where(function (tag) {
+								return [3771, 4084, 4335, 4717].any(function (soId) { return soId == tag.JBTStandardObservationId });
 
-					//vm.widgetDimensions = displaySetupService.GetWidgetPanelBodyDimensions(vm.widget.Id);
-
-					//var oneDay = 24 * 60 * 60 * 1000; // hours*minutes*seconds*milliseconds
-					//vm.diffDays = Math.round(Math.abs((vm.dashboard.derivedStartDate.getTime() - new Date().getTime()) / (oneDay)));
-
-					//console.log("vm.diffDays = " + vm.diffDays);
-
-
-					//console.log("pcaSummary widget = %O", vm.widget);
-					//console.log("pcaSummary dashboard = %O", vm.dashboard);
-					//console.log("pcaSummary widgetId = %O", vm.widget.Id);
-
-					//$scope.$on("BHS.CurrentAlarm", function (event, a) {
-					//	a = dataService.GetJsonFromSignalR(a);
-
-
-					//});
-
-
-
-					//$scope.$on("WidgetResize", function (event, resizedWidgetId) {
-					//	if (vm.widget.Id == resizedWidgetId || resizedWidgetId == 0) {
-					//		displaySetupService.SetPanelBodyWithIdHeight(vm.widget.Id);
-					//	}
-					//});
+							}).first();
 
 
 
 
 
+
+
+							console.log("Ambient Data Tag = %O", vm.ambientDataTag);
+							if (!vm.ambientDataTag) {
+								console.log("Ambient not found for pca = %O", vm.pca);
+							}
+
+							if (vm.ambientDataTag) {
+								var options = GetChartOptions('ambient-container' + vm.widget.Id,
+									'Ambient',
+									0,
+									120,
+									'deg',
+									null,
+									+vm.ambientDataTag.Value,
+									null);
+
+								console.log("chart options = %O", options);
+
+								vm.ambientChart = new Highcharts.Chart(options);
+							}
+						});
+					}
+
+
+					//+Generate the Discharge Temperature chart
+					function GenerateDischargeTemperatureChart() {
+
+							$scope.$$postDigest(function () {
+								var plotBands = [
+									{ from: 0, to: 32, color: 'rgba(103,103,255,.35)' },
+									{ from: 32, to: 42, color: 'rgba(50,255,50,.35)' },
+									{ from: 42, to: 100, color: 'rgba(255,103,103,.35)' }
+								];
+
+								vm.dischargeDataTag = vm.pca.Tags.where(function (tag) {
+									return [4086, 4064, 3826].any(function (soId) { return soId == tag.JBTStandardObservationId });
+
+								})
+									.orderByDescending(function (t) { return t.PLCLocalDate })
+									.first();
+
+
+
+
+
+								console.log("Discharge Data Tag = %O", vm.dischargeDataTag);
+								if (!vm.dischargeDataTag) {
+									console.log("Discharge tag not found for pca = %O", vm.pca);
+								}
+
+								if (vm.dischargeDataTag) {
+									var options = GetChartOptions('discharge-container' + vm.widget.Id,
+										'Discharge',
+										0,
+										120,
+										'deg',
+										null,
+										+vm.dischargeDataTag.Value,
+										null);
+
+									console.log("chart options = %O", options);
+
+									vm.dischargeChart = new Highcharts.Chart(options);
+								}
+							});
+					}
+
+					//+Generate the Cabin Temperature chart
+					function GenerateCabinTemperatureChart() {
+
+							$scope.$$postDigest(function () {
+								var plotBands = [
+									{ from: 0, to: 32, color: 'rgba(103,103,255,.35)' },
+									{ from: 32, to: 42, color: 'rgba(50,255,50,.35)' },
+									{ from: 42, to: 100, color: 'rgba(255,103,103,.35)' }
+								];
+
+								vm.cabinDataTag = vm.pca.Tags.where(function (tag) {
+									return [4063, 3920].any(function (soId) { return soId == tag.JBTStandardObservationId });
+								})
+									.orderByDescending(function (t) { return t.PLCLocalDate })
+									.first();
+
+
+
+
+
+								console.log("Cabin Data Tag = %O", vm.cabinDataTag);
+								if (!vm.cabinDataTag) {
+									console.log("Cabin tag not found for pca = %O", vm.pca);
+								}
+
+								if (vm.cabinDataTag) {
+									var options = GetChartOptions('cabin-container' + vm.widget.Id,
+										'Cabin',
+										0,
+										120,
+										'deg',
+										null,
+										+vm.cabinDataTag.Value,
+										null);
+
+									console.log("chart options = %O", options);
+
+									vm.cabinChart = new Highcharts.Chart(options);
+								}
+							});
+					}
+
+					//+Generate the Primary 1 Compressor chart
+					function GeneratePrimary1CompressorPressureChart() {
+
+							$scope.$$postDigest(function () {
+								var plotBands = [
+									{ from: 50, to: 100, color: 'rgba(103,103,255,.35)' },
+									{ from: 100, to: 400, color: 'rgba(50,255,50,.35)' },
+									{ from: 400, to: 600, color: 'rgba(255,103,103,.35)' }
+								];
+
+								vm.primary1CompressorDataTag = vm.pca.Tags.where(function (tag) {
+									return [4076, 3908, 4053, 3848].any(function (soId) { return soId == tag.JBTStandardObservationId });
+
+								})
+									.orderByDescending(function (t) { return t.PLCLocalDate })
+									.first();
+
+
+								console.log("Primary 1 Compressor Data Tag = %O", vm.primary1CompressorDataTag);
+								if (!vm.primary1CompressorDataTag) {
+									console.log("Primary 1 Compressor tag not found for pca = %O", vm.pca);
+								}
+
+								if (vm.primary1CompressorDataTag) {
+									var options = GetChartOptions('primary-1-compressor-container' + vm.widget.Id,
+										'Pri 1 Comp',
+										50,
+										600,
+										'psi',
+										plotBands,
+										+vm.primary1CompressorDataTag.Value,
+										null);
+
+									console.log("chart options = %O", options);
+
+									vm.primary1CompressorChart = new Highcharts.Chart(options);
+								}
+							});
+					}
+
+					//+Generate the Primary 2 Compressor chart
+					function GeneratePrimary2CompressorPressureChart() {
+
+							$scope.$$postDigest(function () {
+								var plotBands = [
+									{ from: 50, to: 100, color: 'rgba(103,103,255,.35)' },
+									{ from: 100, to: 400, color: 'rgba(50,255,50,.35)' },
+									{ from: 400, to: 600, color: 'rgba(255,103,103,.35)' }
+								];
+
+								vm.primary2CompressorDataTag = vm.pca.Tags.where(function (tag) {
+									return [4077, 3909, 4079, 4054].any(function (soId) { return soId == tag.JBTStandardObservationId });
+								})
+									.orderByDescending(function (t) { return t.PLCLocalDate })
+									.first();
+
+
+								console.log("Primary 2 Compressor Data Tag = %O", vm.primary2CompressorDataTag);
+								if (!vm.primary2CompressorDataTag) {
+									console.log("Primary 2 Compressor tag not found for pca = %O", vm.pca);
+								}
+
+								if (vm.primary2CompressorDataTag) {
+									var options = GetChartOptions('primary-2-compressor-container' + vm.widget.Id,
+										'Pri 2 Comp',
+										50,
+										600,
+										'psi',
+										plotBands,
+										+vm.primary2CompressorDataTag.Value,
+										null);
+
+									console.log("chart options = %O", options);
+
+									vm.primary2CompressorChart = new Highcharts.Chart(options);
+								}
+							});
+					}
+
+					//+Generate the Secondary 1 Compressor chart
+					function GenerateSecondary1CompressorPressureChart() {
+
+							$scope.$$postDigest(function () {
+								var plotBands = [
+									{ from: 50, to: 100, color: 'rgba(103,103,255,.35)' },
+									{ from: 100, to: 400, color: 'rgba(50,255,50,.35)' },
+									{ from: 400, to: 600, color: 'rgba(255,103,103,.35)' }
+								];
+
+								vm.secondary1CompressorDataTag = vm.pca.Tags.where(function (tag) {
+									return [4078, 3910, 4664].any(function (soId) { return soId == tag.JBTStandardObservationId });
+								})
+									.orderByDescending(function (t) { return t.PLCLocalDate })
+									.first();
+
+
+								console.log("Secondary 1 Compressor Data Tag = %O", vm.secondary1CompressorDataTag);
+								if (!vm.secondary1CompressorDataTag) {
+									console.log("Secondary 1 Compressor tag not found for pca = %O", vm.pca);
+								}
+
+								if (vm.secondary1CompressorDataTag) {
+									var options = GetChartOptions('secondary-1-compressor-container' + vm.widget.Id,
+										'Sec 1 Comp',
+										50,
+										600,
+										'psi',
+										plotBands,
+										+vm.secondary1CompressorDataTag.Value,
+										null);
+
+									console.log("chart options = %O", options);
+
+									vm.secondary1CompressorChart = new Highcharts.Chart(options);
+								}
+							});
+					}
+
+					//+Generate the Secondary 2 Compressor chart
+					function GenerateSecondary2CompressorPressureChart() {
+
+							$scope.$$postDigest(function () {
+								var plotBands = [
+									{ from: 50, to: 100, color: 'rgba(103,103,255,.35)' },
+									{ from: 100, to: 400, color: 'rgba(50,255,50,.35)' },
+									{ from: 400, to: 600, color: 'rgba(255,103,103,.35)' }
+								];
+
+								vm.secondary2CompressorDataTag = vm.pca.Tags.where(function (tag) {
+									return [3911].any(function (soId) { return soId == tag.JBTStandardObservationId });
+								})
+									.orderByDescending(function (t) { return t.PLCLocalDate })
+									.first();
+
+
+								console.log("Secondary 2 Compressor Data Tag = %O", vm.secondary2CompressorDataTag);
+								if (!vm.secondary2CompressorDataTag) {
+									console.log("Secondary 2 Compressor tag not found for pca = %O", vm.pca);
+								}
+
+								if (vm.secondary2CompressorDataTag) {
+									var options = GetChartOptions('secondary-2-compressor-container' + vm.widget.Id,
+										'Sec 2 Comp',
+										50,
+										600,
+										'psi',
+										plotBands,
+										+vm.secondary2CompressorDataTag.Value,
+										null);
+
+									console.log("chart options = %O", options);
+
+									vm.secondary2CompressorChart = new Highcharts.Chart(options);
+								}
+							});
+					}
+
+
+					function SetTemperatureChartsToContainerSize() {
+						SetChartSizeToContainer(vm.ambientChart, 'ambient-container' + vm.widget.Id);
+						SetChartSizeToContainer(vm.dischargeChart, 'discharge-container' + vm.widget.Id);
+						SetChartSizeToContainer(vm.cabinChart, 'cabin-container' + vm.widget.Id);
+					}
+					function SetPressureChartsToContainerSize() {
+						//console.log("Setting pressure chart size");
+						SetChartSizeToContainer(vm.primary1CompressorChart, 'primary-1-compressor-container' + vm.widget.Id);
+						SetChartSizeToContainer(vm.primary2CompressorChart, 'primary-2-compressor-container' + vm.widget.Id);
+						SetChartSizeToContainer(vm.secondary1CompressorChart, 'secondary-1-compressor-container' + vm.widget.Id);
+						SetChartSizeToContainer(vm.secondary2CompressorChart, 'secondary-2-compressor-container' + vm.widget.Id);
+					}
+
+					vm.graphContainerAdjustmentWidth = -7;
+					vm.graphContainerAdjustmentHeight = 0;
+
+					function SetChartSizeToContainer(chart, container) {
+						if (chart) {
+							//console.log("Container dimensions = %O",containerDimensions );
+							$interval(function() {
+								var containerDimensions = displaySetupService.GetDivDimensionsById(container);							
+								chart.setSize((containerDimensions.width) + vm.graphContainerAdjustmentWidth, (containerDimensions.height + vm.graphContainerAdjustmentHeight), false);
+							},50,3);
+
+						}
+					}
+
+
+					function GetChartOptions(container, category, min, max, units, plotBandsArray, initialDataValue, targetDataValue) {
+						var options = {
+							chart: {
+								renderTo: container,
+								type: 'column',
+								inverted: false,
+								events: {
+									load: function (event) {
+										var chart = this;
+										$interval(function () {
+											var containerDimensions = displaySetupService.GetDivDimensionsById(container);
+											if (chart) {
+												try {
+													chart.setSize((containerDimensions.width) + vm.graphContainerAdjustmentWidth, (containerDimensions.height + vm.graphContainerAdjustmentHeight), false);
+	
+												} catch (e) {
+
+												}
+											}
+
+										}, 20, 30);
+									}
+								},
+								backgroundColor: '#F5F5F5'
+							},
+							credits: { enabled: false },
+							exporting: { enabled: false },
+							legend: { enabled: false },
+							title: { text: '' },
+							xAxis: {
+								tickLength: 0,
+								lineColor: '#999',
+								lineWidth: 1,
+								labels: {
+									style: {
+										fontWeight: 'bold',
+										fontSize: '.8em',
+										fontFamily: 'Segoe UI'
+									}
+								},
+								categories: [category]
+							},
+							yAxis: {
+								min: min,
+								max: max,
+								minPadding: 0,
+								maxPadding: 0,
+								tickColor: '#ccc',
+								tickWidth: 1,
+								tickLength: 3,
+								gridLineWidth: 0,
+								endOnTick: true,
+								title: { text: '' },
+								labels: {
+									y: 10,
+									style: {
+										fontSize: '8px'
+									},
+									formatter: function () {
+										if (this.isLast) {
+											return this.value + '';
+										} else {
+											return this.value + '';
+										}
+									}
+								}
+							},
+							tooltip: {
+								enabled: true,
+								backgroundColor: 'rgba(255, 255, 255, .85)',
+								borderWidth: 0,
+								shadow: true,
+								style: { fontSize: '10px', padding: 2 },
+								formatter: function () {
+									return "<strong>" + Highcharts.numberFormat(this.y, 2) + "</strong> " + this.series.name;
+								}
+							},
+							series: [{ name: units, pointWidth: 15, data: [initialDataValue] }],
+							plotOptions: {
+								column: {
+									color: '#000',
+									shadow: false,
+									borderWidth: 0
+								},
+								line: {
+									animation: false
+								},
+								scatter: {
+									marker: {
+										symbol: 'line',
+										lineWidth: 3,
+										radius: 15,
+										lineColor: '#000'
+									}
+								},
+								series: {
+									animation: false
+								}
+							}
+						};
+
+						if (targetDataValue) {
+							options.series.push({ name: 'Target', type: 'scatter', data: [targetDataValue] });
+						}
+
+						if (plotBandsArray) {
+							options.yAxis.plotBands = plotBandsArray;
+						}
+
+						return options;
+					}
 				};
 
 

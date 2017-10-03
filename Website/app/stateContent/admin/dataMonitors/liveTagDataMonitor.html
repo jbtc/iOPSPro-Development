@@ -51,13 +51,13 @@
                         <th style="width: {{vm.columnWidths.value}}%">
                             Value
                         </th>
-                        <th style="width: {{vm.columnWidths.dataChangeCount}}%">
-                            Change Count
+                        <th style="width: {{vm.columnWidths.value}}%">
+                            Obs Id
                         </th>
                     </tr>
                 </thead>
 
-                <tbody vs-repeat vs-scroll-parent=".repeater-container" vs-scrolled-to-end="vm.scrolledToEnd()">
+                <tbody vs-repeatzzzzz vs-scroll-parent=".repeater-container" vs-scrolled-to-end="vm.scrolledToEnd()">
                     <tr ng-repeat="tag in vm.tags" style="background-color:  {{tag.Metadata.Status.LastValueWasHistorical ? 'rgba(173, 173, 173,' : 'rgba(0, 255, 0,'}} .{{tag.Metadata.UpdateCountDowns.OneSecond}});">
 
                         <td>
@@ -80,13 +80,13 @@
                             {{tag.JBTStandardObservation.Name}}
                         </td>
                         <td nowrap>
-                            {{tag.LastObservationDate |  date:'MM/dd HH:mm:ss.ss'}}
+                            {{tag.ObservationLocalDate |  date:'MM/dd HH:mm:ss.ss'}}
                         </td>
                         <td>
-                            {{tag.LastObservationTextValue}}
+                            {{tag.Value}}
                         </td>
                         <td>
-                            {{tag.Statistics.ChangeCount}}
+                            {{tag.ObservationId}}
                         </td>
                     </tr>
 

@@ -10,16 +10,19 @@
 namespace iOPS_ODataV4.Models
 {
     using System;
-    using System.Collections.Generic;
     
-    public partial class SystemGraphicVisibleValue
+    public partial class spTerminalOverviewGraphicsAndTags_Result
     {
-        public long Id { get; set; }
-        public Nullable<long> SystemGraphicId { get; set; }
+        public string BaseUnitImageURL { get; set; }
+        public string ImageURL { get; set; }
         public Nullable<long> JBTStandardObservationId { get; set; }
+        public long TagId { get; set; }
+        public long AssetId { get; set; }
+        public Nullable<long> SiteId { get; set; }
+        public Nullable<long> LastObservationId { get; set; }
+        public string TagName { get; set; }
+        public Nullable<System.DateTime> LastObservationDate { get; set; }
+        public string LastObservationTextValue { get; set; }
         public string ValueWhenVisible { get; set; }
-    
-        public virtual SystemGraphic SystemGraphic { get; set; }
-        public virtual JBTStandardObservation JBTStandardObservation { get; set; }
     }
 }

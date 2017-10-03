@@ -373,7 +373,10 @@
 
 							
 
-							vm.widgetDimensions = displaySetupService.GetWidgetPanelBodyDimensions(vm.widget.Id);
+							$timeout(function() {
+								vm.widgetDimensions = displaySetupService.GetWidgetPanelBodyDimensions(vm.widget.Id);
+								displaySetupService.SetPanelBodyWithIdHeight(vm.widget.Id);
+							},50);
 
 
 							console.log("Monitoring asset = %O", vm.Asset);

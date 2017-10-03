@@ -294,6 +294,7 @@
     <Compile Include="Controllers\WebAPI\BHSTop5JamDeviceswithCountController.cs" />
     <Compile Include="Controllers\WebAPI\BHSTop5JamDeviceswithLongestDurationController.cs" />
     <Compile Include="Controllers\WebAPI\BHSTotalSystemThroughputController.cs" />
+    <Compile Include="Controllers\WebAPI\TerminalOverviewGraphicsAndTagsController.cs" />
     <Compile Include="Filters\ClaimsAuthorize.cs" />
     <Compile Include="Filters\iOPSAuthorizeAttribute.cs" />
     <Compile Include="Global.asax.cs">
@@ -540,6 +541,9 @@
       <DependentUpon>Model1.tt</DependentUpon>
     </Compile>
     <Compile Include="Models\SiteDataReader.cs">
+      <DependentUpon>Model1.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Models\spTerminalOverviewGraphicsAndTags_Result.cs">
       <DependentUpon>Model1.tt</DependentUpon>
     </Compile>
     <Compile Include="Models\StateAbbreviation.cs">

@@ -105,6 +105,8 @@
                             <pca-summary ng-if="widget.WidgetResource.WidgetType.AngularDirectiveName == 'pcaSummary'" widget="widget" dashboard="vm.dashboard" add-tags-to-graph-function="vm.AddTagsToGraph"></pca-summary>
                             <tag-graph ng-if="widget.WidgetResource.WidgetType.AngularDirectiveName == 'tagGraph'" widget="widget" dashboard="vm.dashboard"></tag-graph>
                             <raw-tag-data-for-asset ng-if="widget.WidgetResource.WidgetType.AngularDirectiveName == 'rawTagDataForAsset'" widget="widget" dashboard="vm.dashboard" add-tags-to-graph-function="vm.AddTagsToGraph"></raw-tag-data-for-asset>
+                            <iframe-widget ng-if="widget.WidgetResource.WidgetType.AngularDirectiveName == 'iframeWidget'" widget="widget" dashboard="vm.dashboard"></iframe-widget>
+                            <terminal-overview ng-if="widget.WidgetResource.WidgetType.AngularDirectiveName == 'terminalOverview'" widget="widget" dashboard="vm.dashboard"></terminal-overview>
 
                             <!--<dashboard ng-if="widget.WidgetResource.WidgetType.AngularDirectiveName == 'dashboard'" widget="widget" dashboard="widget.WidgetResource.EmbeddedDashboard" dashboard-id="widget.WidgetResource.EmbeddedDashboard.Id"></dashboard>-->
                         </div>

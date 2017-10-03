@@ -68,5 +68,6 @@ namespace iOPS_ODataV4.Models
         public virtual ICollection<WidgetGraphTag> WidgetGraphTags { get; set; }
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<ObservationAggregatedHighChartValue> ObservationAggregatedHighChartValues { get; set; }
+        public virtual Observation LastObservation { get; set; }
     }
 }

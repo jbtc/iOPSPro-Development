@@ -110,6 +110,8 @@
         <AssociationConnector Association="iOPS_NormalizedModel.FK_SystemGraphicVisibleValue_SystemGraphic" />
         <EntityTypeShape EntityType="iOPS_NormalizedModel.ObservationAggregatedHighChartValue" Width="4.125" PointX="35.25" PointY="0.75" />
         <AssociationConnector Association="iOPS_NormalizedModel.FK_ObservationAggregatedHighChartValue_Tag" />
+        <AssociationConnector Association="iOPS_NormalizedModel.FK_Tag_Observation" />
+        <AssociationConnector Association="iOPS_NormalizedModel.FK_SystemGraphicVisibleValue_JBTStandardObservation" />
         </Diagram>
     </edmx:Diagrams>
   </edmx:Designer>

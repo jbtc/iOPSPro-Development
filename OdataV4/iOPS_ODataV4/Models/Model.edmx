@@ -479,6 +479,7 @@
           <Property Name="Address" Type="varchar(max)" />
           <Property Name="GoogleLatitude" Type="float" />
           <Property Name="GoogleLongitude" Type="float" />
+          <Property Name="KepwareSQLTimeDifferenceMSFromCentral" Type="int" />
         </EntityType>
         <EntityType Name="SiteCompany">
           <Key>
@@ -619,6 +620,7 @@
           <Property Name="GateSystemId" Type="bigint" />
           <Property Name="SplitLeftPercentage" Type="float" />
           <Property Name="SplitRightPercentage" Type="float" />
+          <Property Name="TargetURL" Type="varchar" MaxLength="500" />
         </EntityType>
         <EntityType Name="WidgetCustomTagDisplayOrder">
           <Key>
@@ -1179,6 +1181,18 @@
             </Dependent>
           </ReferentialConstraint>
         </Association>
+        <Association Name="FK_SystemGraphicVisibleValue_JBTStandardObservation">
+          <End Role="JBTStandardObservation" Type="Self.JBTStandardObservation" Multiplicity="0..1" />
+          <End Role="SystemGraphicVisibleValue" Type="Self.SystemGraphicVisibleValue" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="JBTStandardObservation">
+              <PropertyRef Name="Id" />
+            </Principal>
+            <Dependent Role="SystemGraphicVisibleValue">
+              <PropertyRef Name="JBTStandardObservationId" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
         <Association Name="FK_SystemGraphicVisibleValue_SystemGraphic">
           <End Role="SystemGraphic" Type="Self.SystemGraphic" Multiplicity="0..1" />
           <End Role="SystemGraphicVisibleValue" Type="Self.SystemGraphicVisibleValue" Multiplicity="*" />
@@ -1212,6 +1226,18 @@
             </Principal>
             <Dependent Role="Tag">
               <PropertyRef Name="JBTStandardObservationId" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_Tag_Observation">
+          <End Role="Observation" Type="Self.Observation" Multiplicity="0..1" />
+          <End Role="Tag" Type="Self.Tag" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Observation">
+              <PropertyRef Name="Id" />
+            </Principal>
+            <Dependent Role="Tag">
+              <PropertyRef Name="LastObservationId" />
             </Dependent>
           </ReferentialConstraint>
         </Association>
@@ -1500,6 +1526,9 @@
           <Parameter Name="SiteId" Type="bigint" Mode="In" />
           <Parameter Name="ODataAccessToken" Type="varchar" Mode="In" />
         </Function>
+        <Function Name="spTerminalOverviewGraphicsAndTags" Aggregate="false" BuiltIn="false" NiladicFunction="false" IsComposable="false" ParameterTypeSemantics="AllowImplicitConversion" Schema="dbo">
+          <Parameter Name="terminalSystemId" Type="bigint" Mode="In" />
+        </Function>
         <EntityContainer Name="iOPS_NormalizedModelStoreContainer">
           <EntitySet Name="AlarmHistory" EntityType="Self.AlarmHistory" Schema="BHS" store:Type="Tables" />
           <EntitySet Name="BagTagScan" EntityType="Self.BagTagScan" Schema="BHS" store:Type="Tables" />
@@ -1705,6 +1734,10 @@
             <End Role="System" EntitySet="System" />
             <End Role="SystemGraphic" EntitySet="SystemGraphic" />
           </AssociationSet>
+          <AssociationSet Name="FK_SystemGraphicVisibleValue_JBTStandardObservation" Association="Self.FK_SystemGraphicVisibleValue_JBTStandardObservation">
+            <End Role="JBTStandardObservation" EntitySet="JBTStandardObservation" />
+            <End Role="SystemGraphicVisibleValue" EntitySet="SystemGraphicVisibleValue" />
+          </AssociationSet>
           <AssociationSet Name="FK_SystemGraphicVisibleValue_SystemGraphic" Association="Self.FK_SystemGraphicVisibleValue_SystemGraphic">
             <End Role="SystemGraphic" EntitySet="SystemGraphic" />
             <End Role="SystemGraphicVisibleValue" EntitySet="SystemGraphicVisibleValue" />
@@ -1715,6 +1748,10 @@
           </AssociationSet>
           <AssociationSet Name="FK_Tag_JBTStandardObservation" Association="Self.FK_Tag_JBTStandardObservation">
             <End Role="JBTStandardObservation" EntitySet="JBTStandardObservation" />
+            <End Role="Tag" EntitySet="Tag" />
+          </AssociationSet>
+          <AssociationSet Name="FK_Tag_Observation" Association="Self.FK_Tag_Observation">
+            <End Role="Observation" EntitySet="Observation" />
             <End Role="Tag" EntitySet="Tag" />
           </AssociationSet>
           <AssociationSet Name="FK_Token_Site" Association="Self.FK_Token_Site">
@@ -2198,6 +2235,17 @@
             <End Role="Tag" EntitySet="Tags" />
             <End Role="ObservationAggregatedHighChartValue" EntitySet="ObservationAggregatedHighChartValues" />
           </AssociationSet>
+          <AssociationSet Name="FK_Tag_Observation" Association="iOPS_NormalizedModel.FK_Tag_Observation">
+            <End Role="Observation" EntitySet="Observations" />
+            <End Role="Tag" EntitySet="Tags" />
+          </AssociationSet>
+          <AssociationSet Name="FK_SystemGraphicVisibleValue_JBTStandardObservation" Association="iOPS_NormalizedModel.FK_SystemGraphicVisibleValue_JBTStandardObservation">
+            <End Role="JBTStandardObservation" EntitySet="JBTStandardObservations" />
+            <End Role="SystemGraphicVisibleValue" EntitySet="SystemGraphicVisibleValues" />
+          </AssociationSet>
+          <FunctionImport Name="spTerminalOverviewGraphicsAndTags" ReturnType="Collection(iOPS_NormalizedModel.spTerminalOverviewGraphicsAndTags_Result)">
+            <Parameter Name="terminalSystemId" Mode="In" Type="Int64" />
+          </FunctionImport>
           </EntityContainer>
         <EntityType Name="AuthorizableActivity">
           <Key>
@@ -2469,6 +2517,7 @@
           <NavigationProperty Name="Tokens" Relationship="iOPS_NormalizedModel.FK_Token_Site" FromRole="Site" ToRole="Token" />
           <NavigationProperty Name="BHSAlarmHistories" Relationship="iOPS_NormalizedModel.FK_AlarmHistory_Site" FromRole="Site" ToRole="AlarmHistory" />
           <NavigationProperty Name="Assets" Relationship="iOPS_NormalizedModel.FK_Asset_Site" FromRole="Site" ToRole="Asset" />
+          <Property Name="KepwareSQLTimeDifferenceMSFromCentral" Type="Int32" />
         </EntityType>
         <EntityType Name="SiteCompany">
           <Key>
@@ -2652,6 +2701,7 @@
           <Property Name="LastReportedDate" Type="DateTime" Precision="3" />
           <NavigationProperty Name="WidgetGraphTags" Relationship="iOPS_NormalizedModel.FK_WidgetGraphTag_Tag" FromRole="Tag" ToRole="WidgetGraphTag" />
           <NavigationProperty Name="ObservationAggregatedHighChartValues" Relationship="iOPS_NormalizedModel.FK_ObservationAggregatedHighChartValue_Tag" FromRole="Tag" ToRole="ObservationAggregatedHighChartValue" />
+          <NavigationProperty Name="LastObservation" Relationship="iOPS_NormalizedModel.FK_Tag_Observation" FromRole="Tag" ToRole="Observation" />
         </EntityType>
         <Association Name="FK_Observation_Tag">
           <End Type="iOPS_NormalizedModel.Tag" Role="Tag" Multiplicity="0..1" />
@@ -2762,6 +2812,7 @@
           <NavigationProperty Name="Unit" Relationship="iOPS_NormalizedModel.FK_JBTStandardObservation_Unit" FromRole="JBTStandardObservation" ToRole="Unit" />
           <NavigationProperty Name="Tags" Relationship="iOPS_NormalizedModel.FK_Tag_JBTStandardObservation" FromRole="JBTStandardObservation" ToRole="Tag" />
           <NavigationProperty Name="WidgetCustomTagDisplayOrders" Relationship="iOPS_NormalizedModel.FK_WidgetCustomTagDisplayOrder_JBTStandardObservation" FromRole="JBTStandardObservation" ToRole="WidgetCustomTagDisplayOrder" />
+          <NavigationProperty Name="SystemGraphicVisibleValues" Relationship="iOPS_NormalizedModel.FK_SystemGraphicVisibleValue_JBTStandardObservation" FromRole="JBTStandardObservation" ToRole="SystemGraphicVisibleValue" />
         </EntityType>
         <EntityType Name="Unit">
           <Key>
@@ -2850,6 +2901,7 @@
           <Property Name="SplitRightPercentage" Type="Double" />
           <NavigationProperty Name="WidgetCustomTagDisplayOrders" Relationship="iOPS_NormalizedModel.FK_WidgetCustomTagDisplayOrder_Widget" FromRole="Widget" ToRole="WidgetCustomTagDisplayOrder" />
           <NavigationProperty Name="WidgetGraphTags" Relationship="iOPS_NormalizedModel.FK_WidgetGraphTag_Widget" FromRole="Widget" ToRole="WidgetGraphTag" />
+          <Property Name="TargetURL" Type="String" MaxLength="500" FixedLength="false" Unicode="false" />
         </EntityType>
         <EntityType Name="WidgetType">
           <Key>
@@ -3991,6 +4043,7 @@
           <Property Name="JBTStandardObservationId" Type="Int64" />
           <Property Name="ValueWhenVisible" Type="String" MaxLength="100" FixedLength="false" Unicode="false" />
           <NavigationProperty Name="SystemGraphic" Relationship="iOPS_NormalizedModel.FK_SystemGraphicVisibleValue_SystemGraphic" FromRole="SystemGraphicVisibleValue" ToRole="SystemGraphic" />
+          <NavigationProperty Name="JBTStandardObservation" Relationship="iOPS_NormalizedModel.FK_SystemGraphicVisibleValue_JBTStandardObservation" FromRole="SystemGraphicVisibleValue" ToRole="JBTStandardObservation" />
         </EntityType>
         <Association Name="FK_SystemGraphic_System">
           <End Type="iOPS_NormalizedModel.SystemGroup" Role="SystemGroup" Multiplicity="0..1" />
@@ -4038,6 +4091,43 @@
             </Dependent>
           </ReferentialConstraint>
         </Association>
+        <Association Name="FK_Tag_Observation">
+          <End Type="iOPS_NormalizedModel.Observation" Role="Observation" Multiplicity="0..1" />
+          <End Type="iOPS_NormalizedModel.Tag" Role="Tag" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Observation">
+              <PropertyRef Name="Id" />
+            </Principal>
+            <Dependent Role="Tag">
+              <PropertyRef Name="LastObservationId" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_SystemGraphicVisibleValue_JBTStandardObservation">
+          <End Type="iOPS_NormalizedModel.JBTStandardObservation" Role="JBTStandardObservation" Multiplicity="0..1" />
+          <End Type="iOPS_NormalizedModel.SystemGraphicVisibleValue" Role="SystemGraphicVisibleValue" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="JBTStandardObservation">
+              <PropertyRef Name="Id" />
+            </Principal>
+            <Dependent Role="SystemGraphicVisibleValue">
+              <PropertyRef Name="JBTStandardObservationId" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <ComplexType Name="spTerminalOverviewGraphicsAndTags_Result">
+          <Property Type="String" Name="BaseUnitImageURL" Nullable="true" MaxLength="500" />
+          <Property Type="String" Name="ImageURL" Nullable="true" MaxLength="500" />
+          <Property Type="Int64" Name="JBTStandardObservationId" Nullable="true" />
+          <Property Type="Int64" Name="TagId" Nullable="false" />
+          <Property Type="Int64" Name="AssetId" Nullable="false" />
+          <Property Type="Int64" Name="SiteId" Nullable="true" />
+          <Property Type="Int64" Name="LastObservationId" Nullable="true" />
+          <Property Type="String" Name="TagName" Nullable="true" MaxLength="200" />
+          <Property Type="DateTime" Name="LastObservationDate" Nullable="true" Precision="23" />
+          <Property Type="String" Name="LastObservationTextValue" Nullable="true" MaxLength="100" />
+          <Property Type="String" Name="ValueWhenVisible" Nullable="true" MaxLength="100" />
+        </ComplexType>
         </Schema>
     </edmx:ConceptualModels>
     <!-- C-S mapping content -->
@@ -4166,6 +4256,7 @@
           <EntitySetMapping Name="Sites">
             <EntityTypeMapping TypeName="iOPS_NormalizedModel.Site">
               <MappingFragment StoreEntitySet="Site">
+                <ScalarProperty Name="KepwareSQLTimeDifferenceMSFromCentral" ColumnName="KepwareSQLTimeDifferenceMSFromCentral" />
                 <ScalarProperty Name="GoogleLongitude" ColumnName="GoogleLongitude" />
                 <ScalarProperty Name="GoogleLatitude" ColumnName="GoogleLatitude" />
                 <ScalarProperty Name="Address" ColumnName="Address" />
@@ -4347,6 +4438,7 @@
           <EntitySetMapping Name="Widgets">
             <EntityTypeMapping TypeName="iOPS_NormalizedModel.Widget">
               <MappingFragment StoreEntitySet="Widget">
+                <ScalarProperty Name="TargetURL" ColumnName="TargetURL" />
                 <ScalarProperty Name="SplitRightPercentage" ColumnName="SplitRightPercentage" />
                 <ScalarProperty Name="SplitLeftPercentage" ColumnName="SplitLeftPercentage" />
                 <ScalarProperty Name="GateSystemId" ColumnName="GateSystemId" />
@@ -5096,6 +5188,23 @@
               </MappingFragment>
             </EntityTypeMapping>
           </EntitySetMapping>
+          <FunctionImportMapping FunctionImportName="spTerminalOverviewGraphicsAndTags" FunctionName="iOPS_NormalizedModel.Store.spTerminalOverviewGraphicsAndTags">
+            <ResultMapping>
+              <ComplexTypeMapping TypeName="iOPS_NormalizedModel.spTerminalOverviewGraphicsAndTags_Result">
+                <ScalarProperty Name="BaseUnitImageURL" ColumnName="BaseUnitImageURL" />
+                <ScalarProperty Name="ImageURL" ColumnName="ImageURL" />
+                <ScalarProperty Name="JBTStandardObservationId" ColumnName="JBTStandardObservationId" />
+                <ScalarProperty Name="TagId" ColumnName="TagId" />
+                <ScalarProperty Name="AssetId" ColumnName="AssetId" />
+                <ScalarProperty Name="SiteId" ColumnName="SiteId" />
+                <ScalarProperty Name="LastObservationId" ColumnName="LastObservationId" />
+                <ScalarProperty Name="TagName" ColumnName="TagName" />
+                <ScalarProperty Name="LastObservationDate" ColumnName="LastObservationDate" />
+                <ScalarProperty Name="LastObservationTextValue" ColumnName="LastObservationTextValue" />
+                <ScalarProperty Name="ValueWhenVisible" ColumnName="ValueWhenVisible" />
+              </ComplexTypeMapping>
+            </ResultMapping>
+          </FunctionImportMapping>
         </EntityContainerMapping>
       </Mapping>
     </edmx:Mappings>

@@ -41,6 +41,7 @@ namespace iOPS_ODataV4.Models
         public Nullable<long> GateSystemId { get; set; }
         public Nullable<double> SplitLeftPercentage { get; set; }
         public Nullable<double> SplitRightPercentage { get; set; }
+        public string TargetURL { get; set; }
     
         public virtual WidgetType WidgetType { get; set; }
         public virtual Dashboard Dashboard { get; set; }

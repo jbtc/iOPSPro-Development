@@ -333,9 +333,9 @@
 								if (vm.GraphTagsData.any(function (t) { return t.TagId == newTag.TagId })) {
 
 									//This is an update to one of our tags.
-									console.log("Tag Update from the Dataservice = %O", newTag);
+									//console.log("Tag Update from the Dataservice = %O", newTag);
 									var chartSeriesForTag = vm.chart.series.first(function (s) { return s.options.tagId == newTag.TagId });
-									console.log("chartSeriesForTag = %O", chartSeriesForTag);
+									//console.log("chartSeriesForTag = %O", chartSeriesForTag);
 
 
 									//The chart series might have been removed by the user. Check for a non null value before proceding.

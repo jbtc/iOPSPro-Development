@@ -33,14 +33,14 @@ namespace iOPS_ODataV4.Controllers.OdataV4
         private iOPS_NormalizedEntities db = new iOPS_NormalizedEntities();
 
         // GET: odata/SystemGraphics
-        [EnableQuery]
+        [EnableQuery(MaxExpansionDepth = 100)]
         public IQueryable<SystemGraphic> GetSystemGraphics()
         {
             return db.SystemGraphics;
         }
 
         // GET: odata/SystemGraphics(5)
-        [EnableQuery]
+        [EnableQuery(MaxExpansionDepth = 100)]
         public SingleResult<SystemGraphic> GetSystemGraphic([FromODataUri] long key)
         {
             return SingleResult.Create(db.SystemGraphics.Where(systemGraphic => systemGraphic.Id == key));
@@ -83,14 +83,14 @@ namespace iOPS_ODataV4.Controllers.OdataV4
         }
 
         // GET: odata/SystemGraphics(5)/System
-        [EnableQuery]
+        [EnableQuery(MaxExpansionDepth = 100)]
         public SingleResult<SystemGroup> GetSystem([FromODataUri] long key)
         {
             return SingleResult.Create(db.SystemGraphics.Where(m => m.Id == key).Select(m => m.System));
         }
 
         // GET: odata/SystemGraphics(5)/SystemGraphicVisibleValues
-        [EnableQuery]
+        [EnableQuery(MaxExpansionDepth = 100)]
         public IQueryable<SystemGraphicVisibleValue> GetSystemGraphicVisibleValues([FromODataUri] long key)
         {
             return db.SystemGraphics.Where(m => m.Id == key).SelectMany(m => m.SystemGraphicVisibleValues);

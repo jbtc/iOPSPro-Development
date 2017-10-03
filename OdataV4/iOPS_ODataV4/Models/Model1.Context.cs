@@ -477,5 +477,14 @@ namespace iOPS_ODataV4.Models
     
             return ((IObjectContextAdapter)this).ObjectContext.ExecuteFunction<BHSPercentOfFailSafePerHour_Result1>("BHSPercentOfFailSafePerHour", beginDateTimeParameter, endDateTimeParameter, siteIdParameter);
         }
+    
+        public virtual ObjectResult<spTerminalOverviewGraphicsAndTags_Result> spTerminalOverviewGraphicsAndTags(Nullable<long> terminalSystemId)
+        {
+            var terminalSystemIdParameter = terminalSystemId.HasValue ?
+                new ObjectParameter("terminalSystemId", terminalSystemId) :
+                new ObjectParameter("terminalSystemId", typeof(long));
+    
+            return ((IObjectContextAdapter)this).ObjectContext.ExecuteFunction<spTerminalOverviewGraphicsAndTags_Result>("spTerminalOverviewGraphicsAndTags", terminalSystemIdParameter);
+        }
     }
 }

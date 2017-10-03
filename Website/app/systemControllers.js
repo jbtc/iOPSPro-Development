@@ -825,7 +825,8 @@
 													description: "",
 													state: "home.app.liveTagDataMonitorPanels"
 												},
-												{ id: "liveTagDataMonitor", label: "All Tags - As Table", description: "", state: "home.app.liveTagDataMonitor" },
+												{ id: "liveTagDataMonitorNDO", label: "All Tags - As Table - No Drop Off", description: "", state: "home.app.liveTagDataMonitor", stateParams: { NoDropOff: true } },
+												{ id: "liveTagDataMonitor", label: "All Tags - As Table - Drop Off 10 Sec", description: "", state: "home.app.liveTagDataMonitor"},
 												{
 													id: "liveAssetDataMonitorPanels",
 													label: "All Gate Assets - Panels by Site and Gate",
