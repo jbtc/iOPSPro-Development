@@ -23,6 +23,7 @@ namespace iOPS_ODataV4.Models
         public long Id { get; set; }
         public Nullable<long> AssetId { get; set; }
         public string ImageURL { get; set; }
+        public Nullable<System.DateTime> LastModifiedDate { get; set; }
     
         public virtual Asset Asset { get; set; }
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]

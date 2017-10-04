@@ -15,7 +15,7 @@
 
 					function GetHeadingExtraTitle() {
 						if (vm.terminalSystem) {
-							return vm.site.Name + ' - Terminal ' + vm.terminalSystem.Name;
+							return ' - ' + vm.terminalSystem.Site.Name + ' Terminal ' + vm.terminalSystem.Name;
 						}
 					}
 
@@ -114,8 +114,8 @@
 					function (newValue, oldValue) {
 						if (vm.widget.WidgetResource.SiteId && vm.userSites) {
 
-							console.log("vm.widget.WidgetResource.SiteId changed. Now = %O", vm.widget);
 							vm.widgetSite = vm.userSites.first(function (s) { return s.Id == vm.widget.SiteId });
+							console.log("vm.widget.WidgetResource.SiteId changed. Now = %O", vm.widget);
 							if (oldValue != newValue) {
 								vm.terminals = null;
 								vm.terminalSystem = null;
@@ -174,8 +174,12 @@
 
 								});
 
+								vm.terminalSystem = vm.JBTData.Systems.first(function(s){return s.Id == vm.widget.WidgetResource.TerminalSystemId});
+								console.log("vm.terminalSystem = %O", vm.terminalSystem);
 								console.log("TerminalOverviewGraphicsAndTags initial data = %O", data);
 								dataService.PlaceTerminalGraphicsTagsIntoInventory(data);
+								vm.widget.displaySettings.headingExtraTitle = GetHeadingExtraTitle();
+
 
 								vm.showWidget = true;
 
@@ -231,6 +235,10 @@
 								//Set the "showImage" flag on each appropriately.
 								if (tg.JBTStandardObservationId == updatedTag.JBTStandardObservationId && updatedTag.TagId == tg.TagId) {
 
+
+									tg.LastObservationTextValue = updatedTag.LastObservationTextValue;
+									tg.LastObservationId = updatedTag.LastObservationId;
+									tg.LastObservationDate = updatedTag.LastObservationDate;
 									if (updatedTag.LastObservationTextValue == tg.ValueWhenVisible) {
 										tg.showImage = true;
 									} else {
@@ -245,12 +253,7 @@
 						}
 					}
 
-
-
 					//***G
-
-
-
 					vm.state = $state;
 
 

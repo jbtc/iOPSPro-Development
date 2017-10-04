@@ -19,7 +19,7 @@
         <AssociationConnector Association="iOPS_NormalizedModel.FK_Person_Country" />
         <AssociationConnector Association="iOPS_NormalizedModel.FK_iOPSUser_Person" />
         <AssociationConnector Association="iOPS_NormalizedModel.FK_Person_Person" />
-        <EntityTypeShape EntityType="iOPS_NormalizedModel.Company" Width="3.5" PointX="19.875" PointY="13.625" />
+        <EntityTypeShape EntityType="iOPS_NormalizedModel.Company" Width="3.5" PointX="19.875" PointY="13.875" />
         <EntityTypeShape EntityType="iOPS_NormalizedModel.CompanyContact" Width="2.125" PointX="24.75" PointY="15" />
         <EntityTypeShape EntityType="iOPS_NormalizedModel.CompanyDataReader" Width="2.125" PointX="21" PointY="18.625" />
         <AssociationConnector Association="iOPS_NormalizedModel.FK_CompanyContact_Company1" />

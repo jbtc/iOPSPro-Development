@@ -27,20 +27,17 @@
 						displaySetupService.SetPanelBodyWithIdHeight(vm.widget.Id);
 
 					});
-
-					
-
 					
 					function GetHeadingExtraTitle() {
-						console.log("Getting the title");
-						console.log("vm = %O", vm);
+						//console.log("Getting the title");
+						//console.log("vm = %O", vm);
 						if (vm.GateSystem && vm.Asset) {
-							return ' - Gate ' + vm.GateSystem.Name + ' - ' + vm.Asset.Name +  (vm.Asset.ModelGenericName ? ' - ' + vm.Asset.ModelGenericName : '');
+							var site = vm.JBTData.Sites.first(function(s) { return s.Id == vm.GateSystem.SiteId });
+							return ' - ' +site.Name +' Gate ' + vm.GateSystem.Name + ' - ' + vm.Asset.Name +  (vm.Asset.ModelGenericName ? ' - ' + vm.Asset.ModelGenericName : '');
 						}
 					}
 
 					vm.widget.headingBackground = 'linear-gradient(to bottom,#7e7e7e, #fefefe)';
-
 
 					vm.widget.displaySettings = {
 						//This defaults to green - headingBackground: 'linear-gradient(to bottom,#7e7e7e, #fefefe)',
@@ -53,9 +50,15 @@
 
 					uibButtonConfig.activeClass = 'radio-active';
 
+					vm.headingUpdateInterval =	$interval(function() {
+						vm.widget.displaySettings.headingExtraTitle = GetHeadingExtraTitle();
+					},500);
 
 
+					$scope.$on("$destroy", function () {
+						$interval.cancel(vm.headingUpdateInterval);
 
+					});
 					//Do not display the widget contents until the accordions have been setup.
 					vm.showWidget = false;
 

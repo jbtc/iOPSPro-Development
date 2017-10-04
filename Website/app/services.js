@@ -73,6 +73,8 @@
 			assets: [],
 			assetTypes: [],
 			tags: [],
+			assetGraphics: [],
+			assetGraphicVisibleValues: [],
 			widgetTypes: [],
 			jbtStandardObservations: [],
 			bhsJamAlarms: [],
@@ -90,7 +92,7 @@
 
 
 		service.ready = false;
-
+		service.cache = cache;
 
 		service.Statistics = {
 			SignalR: {
@@ -308,7 +310,7 @@
 		function LoadDataCollections() {
 
 			//Get an instance of the localDB and proceed from there.
-			indexedDBService.getDBInstance("iOPS", 20, [
+			indexedDBService.getDBInstance("iOPS", 22, [
 							{
 								dataStoreName: "Companies",
 								keyName: "Id"
@@ -337,16 +339,24 @@
 								dataStoreName: "BHSJamAlarms",
 								keyName: "Id"
 							},
-{
-	dataStoreName: "Observations",
-	keyName: "Id",
-	indices: [
-		{
-			name: 'TagDateRange',
-			fieldName: 'Testing'
-		}
-	]
-}
+							{
+								dataStoreName: "AssetGraphics",
+								keyName: "Id"
+							},
+							{
+								dataStoreName: "AssetGraphicVisibleValues",
+								keyName: "Id"
+							},
+							{
+								dataStoreName: "Observations",
+								keyName: "Id",
+								indices: [
+									{
+										name: 'TagDateRange',
+										fieldName: 'Testing'
+									}
+								]
+							}
 
 
 
@@ -414,6 +424,16 @@
 						console.log("Assets Loaded = " + data.length);
 					}),
 
+					GetODataAssetGraphics().then(function (data) {
+						cache.assetGraphics = data;
+						console.log("AssetGraphics Loaded = " + data.length);
+					}),
+
+					GetODataAssetGraphicVisibleValues().then(function (data) {
+						cache.assetGraphicVisibleValues = data;
+						console.log("AssetGraphicVisibleValues Loaded = " + data.length);
+					}),
+
 					service.GetIOPSCollection("SystemTypes").then(function (data) {
 						cache.systemTypes = data;
 
@@ -423,6 +443,9 @@
 						cache.assetTypes = data;
 
 					}),
+
+
+
 
 
 
@@ -806,6 +829,20 @@
 
 		}
 
+		function GetODataAssetGraphics() {
+
+
+			return GetNamedCachedCollection("AssetGraphics");
+
+		}
+		function GetODataAssetGraphicVisibleValues() {
+
+
+			return GetNamedCachedCollection("AssetGraphicVisibleValues");
+
+		}
+
+
 		function GetODataJBTStandardObservations() {
 
 
@@ -845,19 +882,22 @@
 
 
 
-
-
 				maxDate = (new Date(maxDate));
 
+				//maxDate = maxDate.setDate(maxDate.getDate());
 
-				maxDate = maxDate.setDate(maxDate.getDate());
+				
+				console.log(collectionName + " maxDate = %O", maxDate);
+
 				maxDate = utilityService.GetUTCQueryDate(maxDate);
 
 
 
+				
 
 
-				console.log("localdb " + collectionName + " maxdate = %O", maxDate);
+
+				console.log("OData Query Date for " + collectionName + " maxdate = %O", maxDate);
 
 				//Get only changed entities from the odata source
 
@@ -1251,26 +1291,26 @@
 
 
 
-		function LoadSignalRObservationToInventory(obs) {
+		function LoadSignalRObservationToInventory(newObservation) {
 			//+Load the tag represented by the observation into the local inventory of tags.
 			//console.log("Tag = %O", obs);
-			if (obs.TagId || obs.TagName) {
+			if (newObservation.TagId || newObservation.TagName) {
 				//Scan the inventory for it.
 
 
-				if (obs.TagId) {
+				if (newObservation.TagId) {
 					//console.log("Checking for tagid");
-					tag = cache.tags.first(function (et) { return et.TagId == obs.TagId });
+					tag = cache.tags.first(function (et) { return et.TagId == newObservation.TagId });
 				}
 
-				if (!tag && obs.TagName) {
-					tag = cache.tags.first(function (et) { return et.TagName == obs.TagName });
+				if (!tag && newObservation.TagName) {
+					tag = cache.tags.first(function (et) { return et.TagName == newObservation.TagName });
 				}
 				//If we found the tag in the inventory, update it in our cache
 				if (tag) {
 
 					//console.log("Tag found in inventory = %O", tag);
-					if (tag.DataType == 'DB' && obs.DataType == 'signalR') {
+					if (tag.DataType == 'DB' && newObservation.DataType == 'signalR') {
 						tag.DataType = 'signalR';
 					}
 
@@ -1302,18 +1342,18 @@
 					}
 
 
-					if (tag.PLCUTCDateMS <= obs.PLCUTCDateMS) {
+					if (tag.PLCUTCDate <= newObservation.PLCUTCDate) {
 
 
-						tag.PLCUTCDate = obs.PLCUTCDate;
-						tag.PLCUTCDateMS = obs.PLCUTCDateMS;
-						tag.PLCLocalDate = tag.PLCLocalDate;
-						tag.ObservationUTCDate = obs.ObservationUTCDate;
-						tag.ObservationUTCDateMS = obs.ObservationUTCDateMS;
-						tag.ObservationLocalDate = obs.ObservationLocalDate;
-						tag.ObservationId = +obs.ObservationId;
+						tag.PLCUTCDate = newObservation.PLCUTCDate;
+						tag.PLCUTCDateMS = newObservation.PLCUTCDateMS;
+						tag.PLCLocalDate = newObservation.PLCLocalDate;
+						tag.ObservationUTCDate = newObservation.ObservationUTCDate;
+						tag.ObservationUTCDateMS = newObservation.ObservationUTCDateMS;
+						tag.ObservationLocalDate = newObservation.ObservationLocalDate;
+						tag.ObservationId = +newObservation.ObservationId;
 						tag.Metadata.Status.LastValueWasHistorical = false;
-						tag.Value = obs.Value;
+						tag.Value = newObservation.Value;
 					} else {
 						tag.Metadata.Status.LastValueWasHistorical = true;
 					}
@@ -1322,33 +1362,33 @@
 					//We did not find the tag in the inventory.
 					//Add the tag to the cache with an attached metadata object
 					//console.log("Tag NOT found in inventory.....");
-					AttachBlankMetadataObject(obs);
+					AttachBlankMetadataObject(newObservation);
 					//Attach the asset to the tag, and attach the tags collection to the asset - IF the asset is found
-					var asset = cache.assets.first(function (asset) { return asset.Id == +obs.AssetId });
+					var asset = cache.assets.first(function (asset) { return asset.Id == +newObservation.AssetId });
 
 					//console.log("Asset Found = %O", asset);
 					if (asset) {
 						if (!asset.Tags) {
 							asset.Tags = [];
 						}
-						asset.Tags.push(obs);
-						obs.Asset = asset;
+						asset.Tags.push(newObservation);
+						newObservation.Asset = asset;
 					}
-					MetadataCounterUpdate(obs);
+					MetadataCounterUpdate(newObservation);
 
 
 
 
-					cache.tags.push(obs);
-					MetadataCounterUpdate(obs);
+					cache.tags.push(newObservation);
+					MetadataCounterUpdate(newObservation);
 
-					tag = obs;
-					//console.log("New Tag Entry = %)",obs);
+					tag = newObservation;
+					//console.log("New Tag Entry = %)",newObservation);
 
 
 				}
 			}
-			if (!isFinite(obs.Value) && obs.Value.indexOf('oken:') != 1 && obs.Value.indexOf('rue') != 1 && obs.Value.indexOf('alse') != 1) {
+			if (!isFinite(newObservation.Value) && newObservation.Value.indexOf('oken:') != 1 && newObservation.Value.indexOf('rue') != 1 && newObservation.Value.indexOf('alse') != 1) {
 				if (Global.User.Username == 'jim') {
 					console.log("Text Observation data Arrived. TagName " + tag.TagName + " --- " + tag.Value);
 				}
@@ -2733,7 +2773,7 @@
 
 				case "System.ClientConnectionEstablished":
 
-					//console.log("ngEvent: System.ClientConnectionEstablished Data:%O", dataObject);
+					console.log("ngEvent: System.ClientConnectionEstablished Data:%O", dataObject);
 					SaveUserByClientId(callerConnectionId, dataObject);
 
 					//Tell the new user about us in response.
@@ -2745,7 +2785,8 @@
 
 				case "System.ClientLogout":
 
-					//console.log("ngEvent: System.ClientLogout Data:%O", dataObject);
+					console.log("ngEvent: System.ClientLogout Data:%O", dataObject);
+					console.log("Our ClientId = " + $.connection.hub.id);
 					if (dataObject) {
 
 						RemoveUserByClientId(dataObject.ClientId);
@@ -2760,7 +2801,7 @@
 
 				case "System.SignalR.ClientDisconnected":
 
-					//console.log("ngEvent: System.ClientLogout Data:%O", dataObject);
+					console.log("ngEvent: System.ClientDisconnected Data:%O", dataObject);
 					//The dataObject IS the clientID in this case.
 					RemoveUserByClientId(dataObject.ClientId);
 					ConsoleLogAllConnectedClients();
@@ -3382,6 +3423,16 @@
 			var newDate = moment(inputDate).add(timeZoneOffsetHoursFromUTC, 'hours');
 			return translateMomentDateToJavascriptDate(newDate);
 		}
+
+		service.GetODataQueryDateFromUTCDate = function (inputDate) {
+			var newDate = moment(inputDate).subtract(timeZoneOffsetHoursFromUTC, 'hours');
+			return translateMomentDateToJavascriptDate(newDate);
+		}
+
+		
+
+
+
 		service.GetNonUTCQueryDate = function (inputDate) {
 			var newDate = moment(inputDate);
 			return translateMomentDateToJavascriptDate(newDate);

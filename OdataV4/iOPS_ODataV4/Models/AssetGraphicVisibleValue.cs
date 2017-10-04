@@ -18,6 +18,7 @@ namespace iOPS_ODataV4.Models
         public Nullable<long> AssetGraphicId { get; set; }
         public Nullable<long> JBTStandardObservationId { get; set; }
         public string ValueWhenVisible { get; set; }
+        public Nullable<System.DateTime> LastModifiedDate { get; set; }
     
         public virtual AssetGraphic AssetGraphic { get; set; }
     }
