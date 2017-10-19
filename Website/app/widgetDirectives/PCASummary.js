@@ -13,12 +13,12 @@
 
 					function GetHeadingExtraTitle() {
 						if (vm.GateSystem) {
-							return ' - Gate ' + vm.GateSystem.Name + ' - ' + vm.pca.ModelGenericName;
+							var site = vm.JBTData.Sites.first(function(s) { return s.Id == vm.GateSystem.SiteId });
+							return ' - ' + site.Name + ' Gate ' + vm.GateSystem.Name + ' - ' + vm.pca.ModelGenericName;
 						}
 					}
 
 					vm.widget.headingBackground = 'linear-gradient(to bottom,#7e7e7e, #fefefe)';
-
 
 					vm.widget.displaySettings = {
 						headingBackground: 'linear-gradient(to bottom,#7e7e7e, #fefefe)',
@@ -27,6 +27,19 @@
 						obscureGraphics: true
 					}
 
+					vm.originalWidgetResource = angular.copy(vm.widget.WidgetResource);
+
+					function SaveWidgetResourceObjectIfChanged() {
+						var possiblyChangedResource = angular.copy(vm.widget.WidgetResource);
+						if (!angular.equals(vm.originalWidgetResource, possiblyChangedResource)) {
+
+							console.log("Saving widget resource........");
+							console.log("Original WidgetResource = %O",vm.originalWidgetResource);
+							console.log("Changed WidgetResource = %O",possiblyChangedResource);
+							vm.widget.WidgetResource.$save();
+							vm.originalWidgetResource = possiblyChangedResource;
+						}
+					}
 
 
 					vm.tagsToGraph = [];
@@ -37,7 +50,8 @@
 
 					//Get a copy of the user record to determine privs
 					vm.user = Global.User;
-					//console.log("vm.widget = %O", vm.widget);
+					console.log("Initial vm.widget = %O", vm.widget);
+
 
 					//console.log("vm.user = %O", vm.user);
 					displaySetupService.SetWidgetPanelBodyDimensions(vm.widget.Id);
@@ -62,6 +76,11 @@
 							vm.widget.displaySettings.tagDataSortField = fieldName;
 						}
 					}
+
+
+
+
+
 
 					vm.OpenSettingsIfNoAssetAndCloseIfAssetIsPresent = function () {
 
@@ -170,7 +189,8 @@
 								vm.widget.WidgetResource.TerminalSystemId = null;
 								vm.widget.WidgetResource.ZoneSystemId = null;
 								vm.widget.WidgetResource.GateSystemId = null;
-								vm.widget.WidgetResource.$save();
+								
+								SaveWidgetResourceObjectIfChanged();
 								GetTerminalsForWidgetSite();
 							}
 						}
@@ -208,7 +228,8 @@
 								vm.zones = null;
 								vm.gates = null;
 								vm.pca = null;
-								vm.widget.WidgetResource.$save();
+								
+								SaveWidgetResourceObjectIfChanged();
 
 							}
 
@@ -230,7 +251,6 @@
 
 
 							//console.log("vm.zones = %O", vm.zones);
-							vm.widget.WidgetResource.$save();
 							GetGatesForWidgetZone();
 
 						}
@@ -248,7 +268,8 @@
 								vm.gates = null;
 								vm.pca = null;
 								vm.widget.WidgetResource.GateSystemId = null;
-								vm.widget.WidgetResource.$save();
+								
+								SaveWidgetResourceObjectIfChanged();
 
 							}
 							GetGatesForWidgetZone();
@@ -287,7 +308,8 @@
 
 							if (newValue != oldValue) {
 								vm.pca = null;
-								vm.widget.WidgetResource.$save();
+								
+								SaveWidgetResourceObjectIfChanged();
 
 								dataService.GetEntityById("SystemGroups", newValue).then(function (gateSystem) {
 									vm.GateSystem = gateSystem;
@@ -358,9 +380,8 @@
 
 
 							if (vm.widget.WidgetResource.GateSystemId) {
-								dataService.GetEntityById("SystemGroups", vm.widget.WidgetResource.GateSystemId).then(function (gateSystem) {
-									vm.GateSystem = gateSystem;
-								});
+
+								vm.GateSystem = vm.JBTData.Systems.first(function(s) { return s.Id == vm.widget.WidgetResource.GateSystemId });
 
 							}
 
@@ -368,50 +389,35 @@
 
 
 							vm.widget.WidgetResource.AssetId = vm.pca.Id;
-							vm.widget.WidgetResource.$save();
+							
+							SaveWidgetResourceObjectIfChanged();
 							dataService.GetAllSignalRObservationFormattedTagsForAssetIdIntoInventory(vm.pca.Id).then(function () {
 
 
+								vm.AssetGraphics = dataService.cache.assetGraphics.where(function (ag) { return ag.AssetId == vm.pca.Id });
 
 
-								dataService.GetIOPSResource("AssetGraphics")
-									.filter("AssetId", vm.pca.Id)
-									.expandPredicate("AssetGraphicVisibleValues")
-										.filter("JBTStandardObservationId", "!=", null)
-									.finish()
-									.query()
-									.$promise
-									.then(function (data) {
+								vm.AssetGraphics.forEach(function(ag) {
+									ag.AssetGraphicVisibleValues = dataService.cache.assetGraphicVisibleValues.where(function(vv){return vv.AssetGraphicId == ag.Id && vv.JBTStandardObservationId});
+									ag.showImage = false;
+								});
+								$timeout(function () {
+									SetupSplitter();
+									SetTabBodyHeight();
+								}, 50);
 
-										//Add a boolean on or off flag to each image. The view will use this to show the image or not.
-										data.select(function (i) {
-											i.showImage = false;
-										});
-										vm.AssetGraphics = data;
+								console.log("Asset Graphics = %O", vm.AssetGraphics);
+								vm.pca.Tags.forEach(function (tag) {
+									UpdateGraphicsVisibilityForSingleTag(tag);
+								});
 
-										//Just for simulation
-										//if (vm.AssetGraphics && vm.AssetGraphics.length > 0) {
-										//	vm.AssetGraphics[0].showImage = true;
+								vm.atLeastOneGraphicIsVisible = AtLeastOneGraphicIsVisible();
+								vm.widget.displaySettings.obscureGraphics = !AtLeastOneGraphicIsVisible();
+								SetHeadingBackground();
+								vm.widget.displaySettings.headingExtraTitle = GetHeadingExtraTitle();
+								vm.showWidget = true;
 
-										//}
 
-										$timeout(function () {
-											SetupSplitter();
-											SetTabBodyHeight();
-										}, 50);
-
-										console.log("Asset Graphics = %O", data);
-										vm.pca.Tags.forEach(function (tag) {
-											UpdateGraphicsVisibilityForSingleTag(tag);
-										});
-
-										vm.atLeastOneGraphicIsVisible = AtLeastOneGraphicIsVisible();
-										vm.widget.displaySettings.obscureGraphics = !AtLeastOneGraphicIsVisible();
-										SetHeadingBackground();
-										vm.widget.displaySettings.headingExtraTitle = GetHeadingExtraTitle();
-										vm.showWidget = true;
-
-									});
 							});
 						});
 					}
@@ -475,7 +481,8 @@
 											var sizes = vm.splitter.getSizes();
 											vm.widget.WidgetResource.SplitLeftPercentage = sizes[0];
 											vm.widget.WidgetResource.SplitRightPercentage = sizes[1];
-											vm.widget.WidgetResource.$save();
+											
+											SaveWidgetResourceObjectIfChanged();
 											$interval(function() {
 
 												SetTemperatureChartsToContainerSize();
@@ -609,7 +616,7 @@
 										//Set the "showImage" flag on each appropriately.
 										ag.AssetGraphicVisibleValues.forEach(function (vv) {
 											if (vv.JBTStandardObservationId == updatedTag.JBTStandardObservationId) {
-												vv.showImage = updatedTag.LastObservationTextValue == vv.ValueWhenVisible;
+												vv.showImage = updatedTag.Value == vv.ValueWhenVisible;
 											}
 										});
 
@@ -882,7 +889,7 @@
 
 							$scope.$$postDigest(function () {
 								var plotBands = [
-									{ from: 50, to: 100, color: 'rgba(103,103,255,.35)' },
+									{ from: 0, to: 100, color: 'rgba(103,103,255,.35)' },
 									{ from: 100, to: 400, color: 'rgba(50,255,50,.35)' },
 									{ from: 400, to: 600, color: 'rgba(255,103,103,.35)' }
 								];
@@ -922,7 +929,7 @@
 
 							$scope.$$postDigest(function () {
 								var plotBands = [
-									{ from: 50, to: 100, color: 'rgba(103,103,255,.35)' },
+									{ from: 0, to: 100, color: 'rgba(103,103,255,.35)' },
 									{ from: 100, to: 400, color: 'rgba(50,255,50,.35)' },
 									{ from: 400, to: 600, color: 'rgba(255,103,103,.35)' }
 								];
@@ -961,7 +968,7 @@
 
 							$scope.$$postDigest(function () {
 								var plotBands = [
-									{ from: 50, to: 100, color: 'rgba(103,103,255,.35)' },
+									{ from: 0, to: 100, color: 'rgba(103,103,255,.35)' },
 									{ from: 100, to: 400, color: 'rgba(50,255,50,.35)' },
 									{ from: 400, to: 600, color: 'rgba(255,103,103,.35)' }
 								];
@@ -981,7 +988,7 @@
 								if (vm.secondary1CompressorDataTag) {
 									var options = GetChartOptions('secondary-1-compressor-container' + vm.widget.Id,
 										'Sec 1 Comp',
-										50,
+										0,
 										600,
 										'psi',
 										plotBands,
@@ -1000,7 +1007,7 @@
 
 							$scope.$$postDigest(function () {
 								var plotBands = [
-									{ from: 50, to: 100, color: 'rgba(103,103,255,.35)' },
+									{ from: 0, to: 100, color: 'rgba(103,103,255,.35)' },
 									{ from: 100, to: 400, color: 'rgba(50,255,50,.35)' },
 									{ from: 400, to: 600, color: 'rgba(255,103,103,.35)' }
 								];

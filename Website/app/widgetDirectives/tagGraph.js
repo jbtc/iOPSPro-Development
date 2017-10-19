@@ -340,8 +340,7 @@
 
 									//The chart series might have been removed by the user. Check for a non null value before proceding.
 									if (chartSeriesForTag) {
-
-										chartSeriesForTag.addPoint([newTag.LastObservationDate.getTime(), chartSeriesForTag.options.isDigital ? +newTag.LastObservationTextValue + chartSeriesForTag.options.digitalStepValue : +newTag.LastObservationTextValue], true, false);
+										chartSeriesForTag.addPoint([newTag.ObservationLocalDate.getTime(), chartSeriesForTag.options.isDigital ? +newTag.Value + chartSeriesForTag.options.digitalStepValue : +newTag.Value], true, false);
 										vm.chart.redraw();
 									}
 								}

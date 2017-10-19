@@ -4093,7 +4093,7 @@
 					EmbeddedDashboardId: newDashboard ? newDashboard.Id : null,
 					Width: wt.InitialWidth,
 					Height: wt.InitialHeight,
-					Row: 0,
+					Row: 100,
 					Col: 0
 				}).then(function (widget) {
 
