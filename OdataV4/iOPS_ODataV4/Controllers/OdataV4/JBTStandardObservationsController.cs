@@ -112,6 +112,12 @@ namespace iOPS_ODataV4.Controllers.OdataV4
             return db.JBTStandardObservations.Where(m => m.Id == key).SelectMany(m => m.Tags);
         }
 
+        [EnableQuery(MaxExpansionDepth = 100)]
+        public IQueryable<GSJBTStandardObservationIdExclusionListFromCurrentAlarm> GetGsjbtStandardObservationIdExclusionListFromCurrentAlarms([FromODataUri] long key)
+        {
+            return db.JBTStandardObservations.Where(m => m.Id == key).SelectMany(m => m.GSJBTStandardObservationIdExclusionListFromCurrentAlarms);
+        }
+
         // GET: odata/JBTStandardObservations(5)/SystemGraphicVisibleValues
         [EnableQuery(MaxExpansionDepth = 100)]
         public IQueryable<SystemGraphicVisibleValue> GetSystemGraphicVisibleValues([FromODataUri] long key)

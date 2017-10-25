@@ -19,6 +19,7 @@ namespace iOPS_ODataV4.Models
         {
             this.WidgetCustomTagDisplayOrders = new HashSet<WidgetCustomTagDisplayOrder>();
             this.WidgetGraphTags = new HashSet<WidgetGraphTag>();
+            this.ChildWidgets = new HashSet<Widget>();
         }
     
         public long Id { get; set; }
@@ -42,6 +43,9 @@ namespace iOPS_ODataV4.Models
         public Nullable<double> SplitLeftPercentage { get; set; }
         public Nullable<double> SplitRightPercentage { get; set; }
         public string TargetURL { get; set; }
+        public string DefaultNavPill { get; set; }
+        public Nullable<long> ParentWidgetId { get; set; }
+        public Nullable<bool> IsModalPopUp { get; set; }
     
         public virtual WidgetType WidgetType { get; set; }
         public virtual Dashboard Dashboard { get; set; }
@@ -50,5 +54,8 @@ namespace iOPS_ODataV4.Models
         public virtual ICollection<WidgetCustomTagDisplayOrder> WidgetCustomTagDisplayOrders { get; set; }
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<WidgetGraphTag> WidgetGraphTags { get; set; }
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
+        public virtual ICollection<Widget> ChildWidgets { get; set; }
+        public virtual Widget ParentWidget { get; set; }
     }
 }

@@ -19,11 +19,10 @@
 						}
 					}
 
-					vm.widget.headingBackground = 'linear-gradient(to bottom,#7e7e7e, #fefefe)';
-
+					
 
 					vm.widget.displaySettings = {
-						headingBackground: 'linear-gradient(to bottom,#7e7e7e, #fefefe)',
+						headingBackground: 'linear-gradient(to bottom,#dedede, #fefefe)',
 						headingExtraTitle: '',
 						obscureGraphics: true
 					}
@@ -166,17 +165,20 @@
 
 								vm.terminalGraphics = data;
 								data.forEach(function (tag) {
-									if (tag.LastObservationTextValue == tag.ValueWhenVisible) {
+									if (+tag.LastObservationTextValue == +(tag.ValueWhenVisible ? tag.ValueWhenVisible : "99999999")) {
 										tag.showImage = true;
 									} else {
 										tag.showImage = false;
+									}
+									if (tag.showImage) {
+										//console.log("tag graphic set to visible = %O", tag);
 									}
 
 								});
 
 								vm.terminalSystem = vm.JBTData.Systems.first(function(s){return s.Id == vm.widget.WidgetResource.TerminalSystemId});
-								console.log("vm.terminalSystem = %O", vm.terminalSystem);
-								console.log("TerminalOverviewGraphicsAndTags initial data = %O", data);
+								//console.log("vm.terminalSystem = %O", vm.terminalSystem);
+								//console.log("TerminalOverviewGraphicsAndTags initial data = %O", data);
 								dataService.PlaceTerminalGraphicsTagsIntoInventory(data);
 								vm.widget.displaySettings.headingExtraTitle = GetHeadingExtraTitle();
 
@@ -187,6 +189,19 @@
 
 
 					}
+
+
+					//vm.twoSecondInterval = $interval(function () {
+					//	//console.log("Pulse");
+					//	GetTerminalSystemWithGraphics();
+					//},2000);
+
+
+
+					//$scope.$on("$destroy", function () {
+					//	$interval.cancel(vm.twoSecondInterval);
+
+					//});
 
 
 					$scope.$on("WidgetResize", function (event, resizedWidgetId) {
@@ -231,15 +246,19 @@
 
 
 							vm.terminalGraphics.forEach(function (tg) {
-								//console.log("TG = %O", tg);
 								//Set the "showImage" flag on each appropriately.
-								if (tg.JBTStandardObservationId == updatedTag.JBTStandardObservationId && updatedTag.TagId == tg.TagId) {
+								if (+tg.JBTStandardObservationId == +updatedTag.JBTStandardObservationId && +updatedTag.TagId == +tg.TagId) {
 
+									console.log("===========================================================");
+									console.log("Tag Update from SignalR = ", updatedTag.TagName + " StdObsId = " + updatedTag.JBTStandardObservationId + " Val=" + updatedTag.Value);
+									console.log("TG Item identified = %O", tg);
 
-									tg.LastObservationTextValue = updatedTag.LastObservationTextValue;
+								
+									tg.LastObservationTextValue = updatedTag.Value;
 									tg.LastObservationId = updatedTag.LastObservationId;
 									tg.LastObservationDate = updatedTag.LastObservationDate;
-									if (updatedTag.LastObservationTextValue == tg.ValueWhenVisible) {
+
+									if (+updatedTag.Value == +(tg.ValueWhenVisible ? tg.ValueWhenVisible : 99999999)) {
 										tg.showImage = true;
 									} else {
 										tg.showImage = false;
@@ -248,6 +267,11 @@
 									if (tg.showImage) {
 										console.log("Tag set to visible = %O", tg);
 									}
+									if (!tg.showImage) {
+										console.log("Tag set to invisible = %O", tg);
+									}
+									console.log("===========================================================");
+									
 								}
 							});
 						}

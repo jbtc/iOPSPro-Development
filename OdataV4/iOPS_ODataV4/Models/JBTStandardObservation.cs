@@ -21,6 +21,7 @@ namespace iOPS_ODataV4.Models
             this.Tags = new HashSet<Tag>();
             this.WidgetCustomTagDisplayOrders = new HashSet<WidgetCustomTagDisplayOrder>();
             this.SystemGraphicVisibleValues = new HashSet<SystemGraphicVisibleValue>();
+            this.GSJBTStandardObservationIdExclusionListFromCurrentAlarms = new HashSet<GSJBTStandardObservationIdExclusionListFromCurrentAlarm>();
         }
     
         public long Id { get; set; }
@@ -38,5 +39,7 @@ namespace iOPS_ODataV4.Models
         public virtual ICollection<WidgetCustomTagDisplayOrder> WidgetCustomTagDisplayOrders { get; set; }
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<SystemGraphicVisibleValue> SystemGraphicVisibleValues { get; set; }
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
+        public virtual ICollection<GSJBTStandardObservationIdExclusionListFromCurrentAlarm> GSJBTStandardObservationIdExclusionListFromCurrentAlarms { get; set; }
     }
 }

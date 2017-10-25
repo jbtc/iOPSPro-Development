@@ -521,6 +521,9 @@
           <Property Name="DateLastModified" Type="datetime" />
           <Property Name="CreateDate" Type="datetime" />
           <Property Name="BaseUnitImageURL" Type="varchar" MaxLength="500" />
+          <Property Name="GPUPresent" Type="bit" />
+          <Property Name="PBBPresent" Type="bit" />
+          <Property Name="PCAPresent" Type="bit" />
         </EntityType>
         <EntityType Name="SystemGraphic">
           <Key>
@@ -588,6 +591,8 @@
           <Property Name="IsNotified" Type="bit" />
           <Property Name="SiteId" Type="bigint" />
           <Property Name="LastReportedDate" Type="datetime" />
+          <Property Name="ScalingFactor" Type="float" />
+          <Property Name="IsCritical" Type="bit" />
         </EntityType>
         <EntityType Name="Unit">
           <Key>
@@ -623,6 +628,9 @@
           <Property Name="SplitLeftPercentage" Type="float" />
           <Property Name="SplitRightPercentage" Type="float" />
           <Property Name="TargetURL" Type="varchar" MaxLength="500" />
+          <Property Name="DefaultNavPill" Type="varchar" MaxLength="20" />
+          <Property Name="ParentWidgetId" Type="bigint" />
+          <Property Name="IsModalPopUp" Type="bit" />
         </EntityType>
         <EntityType Name="WidgetCustomTagDisplayOrder">
           <Key>
@@ -663,6 +671,26 @@
           <Property Name="IsAvailableToAdmin" Type="bit" />
           <Property Name="IsAvailableToAll" Type="bit" />
           <Property Name="IsHiddenSystemType" Type="bit" />
+        </EntityType>
+        <EntityType Name="ChronologicalRawTagValueLogKepwareReceiver">
+          <Key>
+            <PropertyRef Name="Id" />
+          </Key>
+          <Property Name="Id" Type="bigint" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="ObservationDateTime" Type="datetime" />
+          <Property Name="CreationDate" Type="datetime2" Precision="7" />
+          <Property Name="TagName" Type="varchar" MaxLength="255" />
+          <Property Name="Value" Type="varchar" MaxLength="50" />
+          <Property Name="ETLDate" Type="datetime" />
+          <Property Name="Quality" Type="int" />
+        </EntityType>
+        <EntityType Name="GSJBTStandardObservationIdExclusionListFromCurrentAlarms">
+          <Key>
+            <PropertyRef Name="Id" />
+          </Key>
+          <Property Name="Id" Type="bigint" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="JBTStandardObservationId" Type="bigint" />
+          <Property Name="CreationDate" Type="datetime" />
         </EntityType>
         <EntityType Name="AuthorizableActivity">
           <Key>
@@ -988,6 +1016,18 @@
             </Principal>
             <Dependent Role="DeviceLocations">
               <PropertyRef Name="SiteId" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_GSJBTStandardObservationIdExclusionListFromCurrentAlarms_JBTStandardObservation">
+          <End Role="JBTStandardObservation" Type="Self.JBTStandardObservation" Multiplicity="0..1" />
+          <End Role="GSJBTStandardObservationIdExclusionListFromCurrentAlarms" Type="Self.GSJBTStandardObservationIdExclusionListFromCurrentAlarms" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="JBTStandardObservation">
+              <PropertyRef Name="Id" />
+            </Principal>
+            <Dependent Role="GSJBTStandardObservationIdExclusionListFromCurrentAlarms">
+              <PropertyRef Name="JBTStandardObservationId" />
             </Dependent>
           </ReferentialConstraint>
         </Association>
@@ -1339,6 +1379,18 @@
             </Dependent>
           </ReferentialConstraint>
         </Association>
+        <Association Name="FK_Widget_Widget">
+          <End Role="Widget" Type="Self.Widget" Multiplicity="0..1" />
+          <End Role="Widget1" Type="Self.Widget" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Widget">
+              <PropertyRef Name="Id" />
+            </Principal>
+            <Dependent Role="Widget1">
+              <PropertyRef Name="ParentWidgetId" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
         <Association Name="FK_Widget_WidgetType">
           <End Role="WidgetType" Type="Self.WidgetType" Multiplicity="0..1" />
           <End Role="Widget" Type="Self.Widget" Multiplicity="*" />
@@ -1531,6 +1583,16 @@
         <Function Name="spTerminalOverviewGraphicsAndTags" Aggregate="false" BuiltIn="false" NiladicFunction="false" IsComposable="false" ParameterTypeSemantics="AllowImplicitConversion" Schema="dbo">
           <Parameter Name="terminalSystemId" Type="bigint" Mode="In" />
         </Function>
+        <Function Name="GSAlertCountByDay" Aggregate="false" BuiltIn="false" NiladicFunction="false" IsComposable="false" ParameterTypeSemantics="AllowImplicitConversion" Schema="GateSystem">
+          <Parameter Name="SiteId" Type="bigint" Mode="In" />
+          <Parameter Name="StartDate" Type="datetime" Mode="In" />
+          <Parameter Name="EndDate" Type="datetime" Mode="In" />
+        </Function>
+        <Function Name="GSAlertCountByhour" Aggregate="false" BuiltIn="false" NiladicFunction="false" IsComposable="false" ParameterTypeSemantics="AllowImplicitConversion" Schema="GateSystem">
+          <Parameter Name="SiteId" Type="bigint" Mode="In" />
+          <Parameter Name="StartDate" Type="datetime" Mode="In" />
+          <Parameter Name="EndDate" Type="datetime" Mode="In" />
+        </Function>
         <EntityContainer Name="iOPS_NormalizedModelStoreContainer">
           <EntitySet Name="AlarmHistory" EntityType="Self.AlarmHistory" Schema="BHS" store:Type="Tables" />
           <EntitySet Name="BagTagScan" EntityType="Self.BagTagScan" Schema="BHS" store:Type="Tables" />
@@ -1575,6 +1637,8 @@
           <EntitySet Name="WidgetCustomTagDisplayOrder" EntityType="Self.WidgetCustomTagDisplayOrder" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="WidgetGraphTag" EntityType="Self.WidgetGraphTag" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="WidgetType" EntityType="Self.WidgetType" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="ChronologicalRawTagValueLogKepwareReceiver" EntityType="Self.ChronologicalRawTagValueLogKepwareReceiver" Schema="ETL" store:Type="Tables" />
+          <EntitySet Name="GSJBTStandardObservationIdExclusionListFromCurrentAlarms" EntityType="Self.GSJBTStandardObservationIdExclusionListFromCurrentAlarms" Schema="GateSystem" store:Type="Tables" />
           <EntitySet Name="AuthorizableActivity" EntityType="Self.AuthorizableActivity" Schema="Security" store:Type="Tables" />
           <EntitySet Name="iOPSUser" EntityType="Self.iOPSUser" Schema="Security" store:Type="Tables" />
           <EntitySet Name="UserAuthorizedActivity" EntityType="Self.UserAuthorizedActivity" Schema="Security" store:Type="Tables" />
@@ -1671,6 +1735,10 @@
           <AssociationSet Name="FK_DeviceLocations_Site" Association="Self.FK_DeviceLocations_Site">
             <End Role="Site" EntitySet="Site" />
             <End Role="DeviceLocations" EntitySet="DeviceLocations" />
+          </AssociationSet>
+          <AssociationSet Name="FK_GSJBTStandardObservationIdExclusionListFromCurrentAlarms_JBTStandardObservation" Association="Self.FK_GSJBTStandardObservationIdExclusionListFromCurrentAlarms_JBTStandardObservation">
+            <End Role="JBTStandardObservation" EntitySet="JBTStandardObservation" />
+            <End Role="GSJBTStandardObservationIdExclusionListFromCurrentAlarms" EntitySet="GSJBTStandardObservationIdExclusionListFromCurrentAlarms" />
           </AssociationSet>
           <AssociationSet Name="FK_iOPSUser_Person" Association="Self.FK_iOPSUser_Person">
             <End Role="Person" EntitySet="Person" />
@@ -1787,6 +1855,10 @@
           <AssociationSet Name="FK_Widget_Dashboard1" Association="Self.FK_Widget_Dashboard1">
             <End Role="Dashboard" EntitySet="Dashboard" />
             <End Role="Widget" EntitySet="Widget" />
+          </AssociationSet>
+          <AssociationSet Name="FK_Widget_Widget" Association="Self.FK_Widget_Widget">
+            <End Role="Widget" EntitySet="Widget" />
+            <End Role="Widget1" EntitySet="Widget" />
           </AssociationSet>
           <AssociationSet Name="FK_Widget_WidgetType" Association="Self.FK_Widget_WidgetType">
             <End Role="WidgetType" EntitySet="WidgetType" />
@@ -2248,6 +2320,26 @@
           <FunctionImport Name="spTerminalOverviewGraphicsAndTags" ReturnType="Collection(iOPS_NormalizedModel.spTerminalOverviewGraphicsAndTags_Result)">
           <Parameter Name="terminalSystemId" Mode="In" Type="Int64" />
           </FunctionImport>
+          <FunctionImport Name="GSAlertCountByDay" ReturnType="Collection(iOPS_NormalizedModel.GSAlertCountByDay_Result)">
+            <Parameter Name="SiteId" Mode="In" Type="Int64" />
+            <Parameter Name="StartDate" Mode="In" Type="DateTime" />
+            <Parameter Name="EndDate" Mode="In" Type="DateTime" />
+          </FunctionImport>
+          <FunctionImport Name="GSAlertCountByhour" ReturnType="Collection(iOPS_NormalizedModel.GSAlertCountByhour_Result)">
+            <Parameter Name="SiteId" Mode="In" Type="Int64" />
+            <Parameter Name="StartDate" Mode="In" Type="DateTime" />
+            <Parameter Name="EndDate" Mode="In" Type="DateTime" />
+          </FunctionImport>
+          <EntitySet Name="GSJBTStandardObservationIdExclusionListFromCurrentAlarms" EntityType="iOPS_NormalizedModel.GSJBTStandardObservationIdExclusionListFromCurrentAlarm" />
+          <AssociationSet Name="FK_GSJBTStandardObservationIdExclusionListFromCurrentAlarms_JBTStandardObservation" Association="iOPS_NormalizedModel.FK_GSJBTStandardObservationIdExclusionListFromCurrentAlarms_JBTStandardObservation">
+            <End Role="JBTStandardObservation" EntitySet="JBTStandardObservations" />
+            <End Role="GSJBTStandardObservationIdExclusionListFromCurrentAlarm" EntitySet="GSJBTStandardObservationIdExclusionListFromCurrentAlarms" />
+          </AssociationSet>
+          <EntitySet Name="ChronologicalRawTagValueLogKepwareReceivers" EntityType="iOPS_NormalizedModel.ChronologicalRawTagValueLogKepwareReceiver" />
+          <AssociationSet Name="FK_Widget_Widget" Association="iOPS_NormalizedModel.FK_Widget_Widget">
+            <End Role="Widget" EntitySet="Widgets" />
+            <End Role="Widget1" EntitySet="Widgets" />
+          </AssociationSet>
           </EntityContainer>
         <EntityType Name="AuthorizableActivity">
           <Key>
@@ -2704,6 +2796,8 @@
           <NavigationProperty Name="WidgetGraphTags" Relationship="iOPS_NormalizedModel.FK_WidgetGraphTag_Tag" FromRole="Tag" ToRole="WidgetGraphTag" />
           <NavigationProperty Name="ObservationAggregatedHighChartValues" Relationship="iOPS_NormalizedModel.FK_ObservationAggregatedHighChartValue_Tag" FromRole="Tag" ToRole="ObservationAggregatedHighChartValue" />
           <NavigationProperty Name="LastObservation" Relationship="iOPS_NormalizedModel.FK_Tag_Observation" FromRole="Tag" ToRole="Observation" />
+          <Property Name="ScalingFactor" Type="Double" />
+          <Property Name="IsCritical" Type="Boolean" />
         </EntityType>
         <Association Name="FK_Observation_Tag">
           <End Type="iOPS_NormalizedModel.Tag" Role="Tag" Multiplicity="0..1" />
@@ -2738,6 +2832,9 @@
           <NavigationProperty Name="Assets" Relationship="iOPS_NormalizedModel.FK_Asset_System" FromRole="SystemGroup" ToRole="Asset" />
           <Property Name="BaseUnitImageURL" Type="String" MaxLength="500" FixedLength="false" Unicode="false" />
           <NavigationProperty Name="SystemGraphics" Relationship="iOPS_NormalizedModel.FK_SystemGraphic_System" FromRole="SystemGroup" ToRole="SystemGraphic" />
+          <Property Name="GPUPresent" Type="Boolean" />
+          <Property Name="PBBPresent" Type="Boolean" />
+          <Property Name="PCAPresent" Type="Boolean" />
         </EntityType>
         <Association Name="FK_System_Company">
           <End Type="iOPS_NormalizedModel.Company" Role="Company" Multiplicity="0..1" />
@@ -2815,6 +2912,7 @@
           <NavigationProperty Name="Tags" Relationship="iOPS_NormalizedModel.FK_Tag_JBTStandardObservation" FromRole="JBTStandardObservation" ToRole="Tag" />
           <NavigationProperty Name="WidgetCustomTagDisplayOrders" Relationship="iOPS_NormalizedModel.FK_WidgetCustomTagDisplayOrder_JBTStandardObservation" FromRole="JBTStandardObservation" ToRole="WidgetCustomTagDisplayOrder" />
           <NavigationProperty Name="SystemGraphicVisibleValues" Relationship="iOPS_NormalizedModel.FK_SystemGraphicVisibleValue_JBTStandardObservation" FromRole="JBTStandardObservation" ToRole="SystemGraphicVisibleValue" />
+          <NavigationProperty Name="GSJBTStandardObservationIdExclusionListFromCurrentAlarms" Relationship="iOPS_NormalizedModel.FK_GSJBTStandardObservationIdExclusionListFromCurrentAlarms_JBTStandardObservation" FromRole="JBTStandardObservation" ToRole="GSJBTStandardObservationIdExclusionListFromCurrentAlarm" />
         </EntityType>
         <EntityType Name="Unit">
           <Key>
@@ -2904,6 +3002,11 @@
           <NavigationProperty Name="WidgetCustomTagDisplayOrders" Relationship="iOPS_NormalizedModel.FK_WidgetCustomTagDisplayOrder_Widget" FromRole="Widget" ToRole="WidgetCustomTagDisplayOrder" />
           <NavigationProperty Name="WidgetGraphTags" Relationship="iOPS_NormalizedModel.FK_WidgetGraphTag_Widget" FromRole="Widget" ToRole="WidgetGraphTag" />
           <Property Name="TargetURL" Type="String" MaxLength="500" FixedLength="false" Unicode="false" />
+          <Property Name="DefaultNavPill" Type="String" MaxLength="20" FixedLength="false" Unicode="false" />
+          <Property Name="ParentWidgetId" Type="Int64" />
+          <Property Name="IsModalPopUp" Type="Boolean" />
+          <NavigationProperty Name="ChildWidgets" Relationship="iOPS_NormalizedModel.FK_Widget_Widget" FromRole="Widget" ToRole="Widget1" />
+          <NavigationProperty Name="ParentWidget" Relationship="iOPS_NormalizedModel.FK_Widget_Widget" FromRole="Widget1" ToRole="Widget" />
         </EntityType>
         <EntityType Name="WidgetType">
           <Key>
@@ -4132,6 +4235,65 @@
           <Property Type="String" Name="LastObservationTextValue" Nullable="true" MaxLength="100" />
           <Property Type="String" Name="ValueWhenVisible" Nullable="true" MaxLength="100" />
         </ComplexType>
+        <ComplexType Name="GSAlertCountByDay_Result">
+          <Property Type="Int32" Name="AlarmCount" Nullable="true" />
+          <Property Type="Int32" Name="CriticalCount" Nullable="true" />
+          <Property Type="Int32" Name="WarningCount" Nullable="true" />
+          <Property Type="Int32" Name="AlertCount" Nullable="true" />
+          <Property Type="DateTime" Name="TimeStamp" Nullable="true" Precision="23" />
+        </ComplexType>
+        <ComplexType Name="GSAlertCountByhour_Result">
+          <Property Type="Int32" Name="AlarmCount" Nullable="true" />
+          <Property Type="Int32" Name="CriticalCount" Nullable="true" />
+          <Property Type="Int32" Name="WarningCount" Nullable="true" />
+          <Property Type="Int32" Name="AlertCount" Nullable="true" />
+          <Property Type="DateTime" Name="TimeStamp" Nullable="true" Precision="23" />
+        </ComplexType>
+        <EntityType Name="GSJBTStandardObservationIdExclusionListFromCurrentAlarm">
+          <Key>
+            <PropertyRef Name="Id" />
+          </Key>
+          <Property Name="Id" Type="Int64" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="JBTStandardObservationId" Type="Int64" />
+          <Property Name="CreationDate" Type="DateTime" Precision="3" />
+          <NavigationProperty Name="JBTStandardObservation" Relationship="iOPS_NormalizedModel.FK_GSJBTStandardObservationIdExclusionListFromCurrentAlarms_JBTStandardObservation" FromRole="GSJBTStandardObservationIdExclusionListFromCurrentAlarm" ToRole="JBTStandardObservation" />
+        </EntityType>
+        <Association Name="FK_GSJBTStandardObservationIdExclusionListFromCurrentAlarms_JBTStandardObservation">
+          <End Type="iOPS_NormalizedModel.JBTStandardObservation" Role="JBTStandardObservation" Multiplicity="0..1" />
+          <End Type="iOPS_NormalizedModel.GSJBTStandardObservationIdExclusionListFromCurrentAlarm" Role="GSJBTStandardObservationIdExclusionListFromCurrentAlarm" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="JBTStandardObservation">
+              <PropertyRef Name="Id" />
+            </Principal>
+            <Dependent Role="GSJBTStandardObservationIdExclusionListFromCurrentAlarm">
+              <PropertyRef Name="JBTStandardObservationId" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <EntityType Name="ChronologicalRawTagValueLogKepwareReceiver">
+          <Key>
+            <PropertyRef Name="Id" />
+          </Key>
+          <Property Name="Id" Type="Int64" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="ObservationDateTime" Type="DateTime" Precision="3" />
+          <Property Name="CreationDate" Type="DateTime" Precision="7" />
+          <Property Name="TagName" Type="String" MaxLength="255" FixedLength="false" Unicode="false" />
+          <Property Name="Value" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
+          <Property Name="ETLDate" Type="DateTime" Precision="3" />
+          <Property Name="Quality" Type="Int32" />
+        </EntityType>
+        <Association Name="FK_Widget_Widget">
+          <End Type="iOPS_NormalizedModel.Widget" Role="Widget" Multiplicity="0..1" />
+          <End Type="iOPS_NormalizedModel.Widget" Role="Widget1" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Widget">
+              <PropertyRef Name="Id" />
+            </Principal>
+            <Dependent Role="Widget1">
+              <PropertyRef Name="ParentWidgetId" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
         </Schema>
     </edmx:ConceptualModels>
     <!-- C-S mapping content -->
@@ -4349,6 +4511,8 @@
           <EntitySetMapping Name="Tags">
             <EntityTypeMapping TypeName="iOPS_NormalizedModel.Tag">
               <MappingFragment StoreEntitySet="Tag">
+                <ScalarProperty Name="IsCritical" ColumnName="IsCritical" />
+                <ScalarProperty Name="ScalingFactor" ColumnName="ScalingFactor" />
                 <ScalarProperty Name="LastReportedDate" ColumnName="LastReportedDate" />
                 <ScalarProperty Name="SiteId" ColumnName="SiteId" />
                 <ScalarProperty Name="IsNotified" ColumnName="IsNotified" />
@@ -4392,6 +4556,9 @@
           <EntitySetMapping Name="SystemGroups">
             <EntityTypeMapping TypeName="iOPS_NormalizedModel.SystemGroup">
               <MappingFragment StoreEntitySet="System">
+                <ScalarProperty Name="PCAPresent" ColumnName="PCAPresent" />
+                <ScalarProperty Name="PBBPresent" ColumnName="PBBPresent" />
+                <ScalarProperty Name="GPUPresent" ColumnName="GPUPresent" />
                 <ScalarProperty Name="BaseUnitImageURL" ColumnName="BaseUnitImageURL" />
                 <ScalarProperty Name="CreateDate" ColumnName="CreateDate" />
                 <ScalarProperty Name="DateLastModified" ColumnName="DateLastModified" />
@@ -4442,6 +4609,9 @@
           <EntitySetMapping Name="Widgets">
             <EntityTypeMapping TypeName="iOPS_NormalizedModel.Widget">
               <MappingFragment StoreEntitySet="Widget">
+                <ScalarProperty Name="IsModalPopUp" ColumnName="IsModalPopUp" />
+                <ScalarProperty Name="ParentWidgetId" ColumnName="ParentWidgetId" />
+                <ScalarProperty Name="DefaultNavPill" ColumnName="DefaultNavPill" />
                 <ScalarProperty Name="TargetURL" ColumnName="TargetURL" />
                 <ScalarProperty Name="SplitRightPercentage" ColumnName="SplitRightPercentage" />
                 <ScalarProperty Name="SplitLeftPercentage" ColumnName="SplitLeftPercentage" />
@@ -5211,6 +5381,50 @@
               </ComplexTypeMapping>
             </ResultMapping>
           </FunctionImportMapping>
+          <FunctionImportMapping FunctionImportName="GSAlertCountByDay" FunctionName="iOPS_NormalizedModel.Store.GSAlertCountByDay">
+            <ResultMapping>
+              <ComplexTypeMapping TypeName="iOPS_NormalizedModel.GSAlertCountByDay_Result">
+                <ScalarProperty Name="AlarmCount" ColumnName="AlarmCount" />
+                <ScalarProperty Name="CriticalCount" ColumnName="CriticalCount" />
+                <ScalarProperty Name="WarningCount" ColumnName="WarningCount" />
+                <ScalarProperty Name="AlertCount" ColumnName="AlertCount" />
+                <ScalarProperty Name="TimeStamp" ColumnName="TimeStamp" />
+              </ComplexTypeMapping>
+            </ResultMapping>
+          </FunctionImportMapping>
+          <FunctionImportMapping FunctionImportName="GSAlertCountByhour" FunctionName="iOPS_NormalizedModel.Store.GSAlertCountByhour">
+            <ResultMapping>
+              <ComplexTypeMapping TypeName="iOPS_NormalizedModel.GSAlertCountByhour_Result">
+                <ScalarProperty Name="AlarmCount" ColumnName="AlarmCount" />
+                <ScalarProperty Name="CriticalCount" ColumnName="CriticalCount" />
+                <ScalarProperty Name="WarningCount" ColumnName="WarningCount" />
+                <ScalarProperty Name="AlertCount" ColumnName="AlertCount" />
+                <ScalarProperty Name="TimeStamp" ColumnName="TimeStamp" />
+              </ComplexTypeMapping>
+            </ResultMapping>
+          </FunctionImportMapping>
+          <EntitySetMapping Name="GSJBTStandardObservationIdExclusionListFromCurrentAlarms">
+            <EntityTypeMapping TypeName="iOPS_NormalizedModel.GSJBTStandardObservationIdExclusionListFromCurrentAlarm">
+              <MappingFragment StoreEntitySet="GSJBTStandardObservationIdExclusionListFromCurrentAlarms">
+                <ScalarProperty Name="CreationDate" ColumnName="CreationDate" />
+                <ScalarProperty Name="JBTStandardObservationId" ColumnName="JBTStandardObservationId" />
+                <ScalarProperty Name="Id" ColumnName="Id" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="ChronologicalRawTagValueLogKepwareReceivers">
+            <EntityTypeMapping TypeName="iOPS_NormalizedModel.ChronologicalRawTagValueLogKepwareReceiver">
+              <MappingFragment StoreEntitySet="ChronologicalRawTagValueLogKepwareReceiver">
+                <ScalarProperty Name="Quality" ColumnName="Quality" />
+                <ScalarProperty Name="ETLDate" ColumnName="ETLDate" />
+                <ScalarProperty Name="Value" ColumnName="Value" />
+                <ScalarProperty Name="TagName" ColumnName="TagName" />
+                <ScalarProperty Name="CreationDate" ColumnName="CreationDate" />
+                <ScalarProperty Name="ObservationDateTime" ColumnName="ObservationDateTime" />
+                <ScalarProperty Name="Id" ColumnName="Id" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
         </EntityContainerMapping>
       </Mapping>
     </edmx:Mappings>

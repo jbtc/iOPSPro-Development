@@ -45,7 +45,41 @@ namespace iOPS_ODataV4.Controllers.OdataV4
             return SingleResult.Create(db.Observations.Where(observation => observation.Id == key));
         }
 
-        
+        // POST: odata/Observation
+        public async Task<IHttpActionResult> Post(Observation entity)
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+
+
+            if (entity.Id < 0)
+            {
+                var delEntity = new Observation { Id = -entity.Id };
+                db.Observations.Attach(delEntity);
+                db.Observations.Remove(delEntity);
+                await db.SaveChangesAsync();
+                return StatusCode(HttpStatusCode.NoContent);
+            }
+
+            var modifiedEntity = await db.Observations.FindAsync(entity.Id);
+
+            if (modifiedEntity != null)
+            {
+                db.Entry(modifiedEntity).State = EntityState.Detached;
+                db.Observations.Attach(entity);
+                db.Entry(entity).State = EntityState.Modified;
+                await db.SaveChangesAsync();
+                return Updated(entity);
+
+            }
+            modifiedEntity = db.Observations.Add(entity);
+
+            await db.SaveChangesAsync();
+
+            return Created(modifiedEntity);
+        }
         // GET: odata/Observations(5)/Tag
         [EnableQuery(MaxExpansionDepth = 100)]
         public SingleResult<Tag> GetTag([FromODataUri] long key)

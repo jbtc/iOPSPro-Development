@@ -29,7 +29,7 @@
 
 					function ReportStep(stepNumber) {
 
-						console.log("Step = " + stepNumber);
+						//console.log("Step = " + stepNumber);
 
 					}
 

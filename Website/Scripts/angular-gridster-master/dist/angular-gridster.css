@@ -134,7 +134,7 @@
 .handle-w {
   cursor: w-resize;
   width: 12px;
-  left: 1px;
+  left: -4px;
   top: 0;
   bottom: 0;
 }

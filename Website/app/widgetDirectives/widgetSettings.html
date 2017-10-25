@@ -1,0 +1,50 @@
+﻿<div>
+    <div class="modal-backdrop"></div>
+    <div class="modal-holder" autoscroll="false">
+        <div>
+            <div ng-show="vm.showScreen" class="panel panel-primary panel-centered-modal-floating" style="width: 600px;">
+
+
+                <div class="panel-heading">
+                    <div class='btn-toolbar pull-right' style="display: inline-block;">
+                        <button ng-click="vm.Save()" class="btn btn-default responsive-button">Save and Close</button>
+                        <button ui-sref="^" class="btn btn-default responsive-button">Cancel</button>
+                    </div>
+                    <div class="panel-heading-title">
+                        {{vm.panelTitle}}
+                    </div>
+                    <div class="panel-heading-subtitle">
+                        {{vm.panelSubtitle}}
+                    </div>
+
+                </div>
+
+
+                <div ng-if="vm.Widget.WidgetType.AngularDirectiveName == 'siteGateSummary'" class="panel-body" style="overflow-x: hidden; background: linear-gradient(to bottom,#bebebe, #eeeeee);">
+                    <form class="form-horizontal" role="form" name="userForm" id="userForm" novalidate>
+                        <div class="row" style="padding: 20px;">
+
+
+                            <!-- Site - If the user has access to more than one -->
+                            <div class="form-group">
+                                <label class="col-sm-{{vm.bootstrapLabelColumns}} control-label innovation-right-aligned">
+                                    Site
+                                </label>
+                                <div class="col-sm-{{vm.bootstrapInputColumns}}">
+                                    <label ng-repeat="site in vm.userSites" style="margin: 1px;" class="btn btn-default" ng-model="vm.Widget.SiteId" uib-btn-radio="{{site.Id}}">{{site.Name}}</label>
+                                </div>
+                            </div>
+
+
+
+
+
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+

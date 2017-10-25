@@ -142,7 +142,7 @@
                 </td>
                 <td>{{tag.ShortTagName}}</td>
                 <td>{{tag.Value}}</td>
-                <td nowrap>{{tag.ObservationUTCDate | date:'MM/dd HH:mm:ss'}}</td>
+                <td nowrap>{{tag.PLCUTCDate | date:'MM/dd HH:mm:ss'}}</td>
                 <td ng-hide="vm.widgetDimensions.width < vm.columnHideWidth1">{{tag.JBTStandardObservationId}}</td>
                 <td ng-hide="vm.widgetDimensions.width < vm.columnHideWidth1">{{tag.JBTStandardObservation.Name}}</td>
                 <td ng-hide="vm.widgetDimensions.width < vm.columnHideWidth1">{{tag.ObservationId}}</td>

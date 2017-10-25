@@ -39,7 +39,7 @@
                 </thead>
 
                 <tbody vs-repeat vs-scroll-parent=".repeater-container" vs-scrolled-to-end="vm.scrolledToEnd()">
-                    <tr ng-repeat="tag in vm.tags" style="background-color: rgba(100, 255, 100, .{{tag.Metadata.UpdateCountDowns.OneSecond}});">
+                    <tr ng-repeat="tag in vm.tags | filter: vm.searchTerm" style="background-color: rgba(100, 255, 100, .{{tag.Metadata.UpdateCountDowns.OneSecond}});">
 
                         <td nowrap>
                             {{tag.Name}}
