@@ -1,16 +1,186 @@
 ﻿<div class="chart-wrapper" style="width:100%; height: 100%" ng-click="vm.OpenSettingsIfNoAssetAndCloseIfAssetIsPresent()">
     <div class="chart-inner" style="width:100%; height: 100%">
-        <div style="display: flex; width: 100%; height: 100%;">
+        <div ng-show="vm.showWidget" style="display: flex; width: 100%; height: 100%;">
             <div class="container" id="containerData{{vm.widget.Id}}" style="font-size .8em; height 100%; width:{{vm.widget.WidgetResource.SplitLeftPercentage}}%; padding-left: 0; padding-right: 0;">
 
                 <ul class="nav nav-pills" id="nav-pills{{vm.widget.Id}}" style="font-size: .7em; padding-bottom: 5px; border-bottom: 1px solid lightgray;">
-                    <li class="active" style="min-height: 20px;"><a data-toggle="pill" href="#home{{vm.widget.Id}}">Data</a></li>
-                    <li><a ng-click="vm.GenerateTemperatureCharts()" data-toggle="pill" href="#temperature{{vm.widget.Id}}">Temp</a></li>
-                    <li><a ng-click="vm.GeneratePressureCharts()" data-toggle="pill" href="#pressure{{vm.widget.Id}}">Press</a></li>
+                    <li class="{{(!vm.widget.WidgetResource.DefaultNavPill || vm.widget.WidgetResource.DefaultNavPill == 'Temp') ? 'active' : 'xxx'}}"><a data-toggle="pill" ng-click="vm.SetDefaultNavPillTemp()" href="#temp{{vm.widget.Id}}">Temp</a></li>
+                    <li class="{{vm.widget.WidgetResource.DefaultNavPill == 'Press' ? 'active' : 'xxx'}}"><a data-toggle="pill" ng-click="vm.SetDefaultNavPillPress()" href="#press{{vm.widget.Id}}">Press</a></li>
+                    <li class="{{vm.widget.WidgetResource.DefaultNavPill == 'Data' ? 'active' : 'xxx'}}"><a data-toggle="pill"  ng-click="vm.SetDefaultNavPillData()" href="#data{{vm.widget.Id}}">Data</a></li>
                 </ul>
 
                 <div class="tab-content" id="tab-content{{vm.widget.Id}}" style="font-family: Segoe UI; font-size: .8em; overflow-y: auto; height: 100px;">
-                    <div id="home{{vm.widget.Id}}" class="tab-pane fade in active" style="overflow: auto;">
+                    <div id="temp{{vm.widget.Id}}" class="tab-pane fade{{(!vm.widget.WidgetResource.DefaultNavPill || vm.widget.WidgetResource.DefaultNavPill == 'Temp') ? ' in active' : ''}}" style="height: 100%; padding-bottom: 5px; overflow: hidden;">
+                        <div class="flex-container" id="temperature-flex-container{{vm.widget.Id}}">
+                            <div id="temperature-meters{{vm.widget.Id}}" style="flex-basis: 100%; height: 100%; border: 3px solid white; overflow-x: hidden; overflow-y: auto;">
+                                <linear-meter ng-if="vm.ambientDataTag" 
+                                              min-scale="-30"
+                                              max-scale="120"
+                                              low-range-start-value="-30"
+                                              low-range-end-value="32"
+                                              low-range-active-color="blue"
+                                              high-range-active-color="red"
+                                              normal-range-active-color="lightGreen"
+                                              high-range-start-value="95"
+                                              high-range-end-value="120"
+                                              id="amb{{vm.widget.Id}}"
+                                              label="Ambient Air Temperature"
+                                              units='deg F'
+                                              current-value="vm.ambientAirTemperature"></linear-meter>
+                                <linear-meter ng-if="vm.dischargeDataTag" 
+                                              min-scale="-30"
+                                              max-scale="120"
+                                              low-range-start-value="-30"
+                                              low-range-end-value="32"
+                                              low-range-active-color="blue"
+                                              high-range-active-color="red"
+                                              normal-range-active-color="lightGreen"
+                                              high-range-start-value="95"
+                                              high-range-end-value="120"
+                                              id="dis{{vm.widget.Id}}"
+                                              label="Discharge Air Temperature"
+                                              units='deg F'
+                                              current-value="vm.dischargeAirTemperature"></linear-meter>
+                                <linear-meter ng-if="vm.cabinDataTag" 
+                                              min-scale="-30"
+                                              max-scale="120"
+                                              low-range-start-value="-30"
+                                              low-range-end-value="32"
+                                              low-range-active-color="blue"
+                                              high-range-active-color="red"
+                                              normal-range-active-color="lightGreen"
+                                              high-range-start-value="95"
+                                              high-range-end-value="120"
+                                              id="cab{{vm.widget.Id}}"
+                                              label="Cabin Air Temperature"
+                                              units='deg F'
+                                              current-value="vm.cabinAirTemperature"></linear-meter>
+                            </div>
+
+                        </div>
+
+                    </div>
+                    <div id="press{{vm.widget.Id}}" class="tab-pane fade{{vm.widget.WidgetResource.DefaultNavPill == 'Press' ? ' in active' : ''}}" style="height: 100%; padding-bottom: 5px; overflow: hidden;">
+                        <div class="flex-container">
+                            <div id="pressure-meters{{vm.widget.Id}}" style="flex-basis: 100%; height: 100%; border: 3px solid white; overflow-x: hidden; overflow-y: auto;">
+                                <linear-meter ng-if="vm.primary1CompressorDataTag"
+                                              min-scale="50"
+                                              max-scale="500"
+                                              low-range-start-value="50"
+                                              low-range-end-value="115"
+                                              low-range-active-color="blue"
+                                              high-range-active-color="red"
+                                              normal-range-active-color="lightGreen"
+                                              high-range-start-value="400"
+                                              high-range-end-value="500"
+                                              id="p1c{{vm.widget.Id}}"
+                                              label="Primary Compressor 1 Pressure"
+                                              units='ppsi'
+                                              current-value="vm.primary1CompressorPressure"></linear-meter>
+                                <linear-meter ng-if="vm.primary1CompressorSuctionDataTag"
+                                              min-scale="0"
+                                              max-scale="220"
+                                              low-range-start-value="0"
+                                              low-range-end-value="20"
+                                              low-range-active-color="blue"
+                                              high-range-active-color="red"
+                                              normal-range-active-color="lightGreen"
+                                              high-range-start-value="180"
+                                              high-range-end-value="220"
+                                              id="p1s{{vm.widget.Id}}"
+                                              label="Primary Compressor 1 Suction"
+                                              units='ppsi'
+                                              current-value="vm.primary1CompressorSuction"></linear-meter>
+                                <linear-meter ng-if="vm.primary2CompressorDataTag"
+                                              min-scale="50"
+                                              max-scale="500"
+                                              low-range-start-value="50"
+                                              low-range-end-value="115"
+                                              low-range-active-color="blue"
+                                              high-range-active-color="red"
+                                              normal-range-active-color="lightGreen"
+                                              high-range-start-value="400"
+                                              high-range-end-value="500"
+                                              id="p2c{{vm.widget.Id}}"
+                                              label="Primary Compressor 2 Pressure"
+                                              units='ppsi'
+                                              current-value="vm.primary2CompressorPressure"></linear-meter>
+                                <linear-meter ng-if="vm.primary2CompressorSuctionDataTag"
+                                              min-scale="0"
+                                              max-scale="220"
+                                              low-range-start-value="0"
+                                              low-range-end-value="20"
+                                              low-range-active-color="blue"
+                                              high-range-active-color="red"
+                                              normal-range-active-color="lightGreen"
+                                              high-range-start-value="180"
+                                              high-range-end-value="220"
+                                              id="p2s{{vm.widget.Id}}"
+                                              label="Primary Compressor 2 Suction"
+                                              units='ppsi'
+                                              current-value="vm.primary2CompressorSuction"></linear-meter>
+                                <linear-meter ng-if="vm.secondary1CompressorDataTag"
+                                              min-scale="50"
+                                              max-scale="500"
+                                              low-range-start-value="50"
+                                              low-range-end-value="115"
+                                              low-range-active-color="blue"
+                                              high-range-active-color="red"
+                                              normal-range-active-color="lightGreen"
+                                              high-range-start-value="400"
+                                              high-range-end-value="500"
+                                              id="s1c{{vm.widget.Id}}"
+                                              label="Secondary Compressor 1 Pressure"
+                                              units='ppsi'
+                                              current-value="vm.secondary1CompressorPressure"></linear-meter>
+                                <linear-meter ng-if="vm.secondary1CompressorSuctionDataTag"
+                                              min-scale="0"
+                                              max-scale="220"
+                                              low-range-start-value="0"
+                                              low-range-end-value="20"
+                                              low-range-active-color="blue"
+                                              high-range-active-color="red"
+                                              normal-range-active-color="lightGreen"
+                                              high-range-start-value="180"
+                                              high-range-end-value="220"
+                                              id="s1s{{vm.widget.Id}}"
+                                              label="Secondary Compressor 1 Suction"
+                                              units='ppsi'
+                                              current-value="vm.secondary1CompressorSuction"></linear-meter>
+                                <linear-meter ng-if="vm.secondary2CompressorDataTag"
+                                              min-scale="50"
+                                              max-scale="500"
+                                              low-range-start-value="50"
+                                              low-range-end-value="115"
+                                              low-range-active-color="blue"
+                                              high-range-active-color="red"
+                                              normal-range-active-color="lightGreen"
+                                              high-range-start-value="400"
+                                              high-range-end-value="500"
+                                              id="s2c{{vm.widget.Id}}"
+                                              label="Secondary Compressor 2 Pressure"
+                                              units='ppsi'
+                                              current-value="vm.secondary2CompressorPressure"></linear-meter>
+                                <linear-meter ng-if="vm.secondary2CompressorSuctionDataTag"
+                                              min-scale="0"
+                                              max-scale="220"
+                                              low-range-start-value="0"
+                                              low-range-end-value="20"
+                                              low-range-active-color="blue"
+                                              high-range-active-color="red"
+                                              normal-range-active-color="lightGreen"
+                                              high-range-start-value="180"
+                                              high-range-end-value="220"
+                                              id="s2s{{vm.widget.Id}}"
+                                              label="Secondary Compressor 2 Suction"
+                                              units='ppsi'
+                                              current-value="vm.secondary2CompressorSuction"></linear-meter>
+                            </div>
+
+                        </div>
+                    </div>
+                    <div id="data{{vm.widget.Id}}" class="tab-pane fade{{vm.widget.WidgetResource.DefaultNavPill == 'Data' ? ' in active' : ''}}" style="overflow: auto;">
+                        
                         <table class="table table-condensed table-striped" style="font-family: Segoe UI; font-size: .8em;">
                             <thead>
                                 <tr>
@@ -52,44 +222,21 @@
                                         <label ng-click="vm.ProcessTagsToGraph()" class="btn btn-default" style="height: 15px; max-height: 15px; font-size: .7em; width: 15px; max-width: 15px; padding: 0; padding-top: 2px; margin-top: -2px;" ng-model="vm.tagsToGraph[tag.TagId]" uib-btn-checkbox="{{tag.TagId}}">
                                             <i class="fa fa-line-chart" aria-hidden="true" title="Add to graph widget" style="cursor: pointer;"></i>
                                         </label>
-                                        {{tag.JBTStandardObservation.Name}}
+                                        <span title="{{tag.JBTStandardObservation.Id}}">{{tag.JBTStandardObservation.Name}}</span>
                                     </td>
                                     <td nowrap>
                                         {{tag.PLCLocalDate | date:'MM/dd HH:mm:ss'}}
                                     </td>
                                     <td>
                                         {{tag.Value}}
+
                                     </td>
                                 </tr>
                             </tbody>
 
                         </table>
                     </div>
-                    <div id="temperature{{vm.widget.Id}}" class="tab-pane" style="height: 100%; padding-bottom: 5px; overflow: hidden;">
-                        <div class="flex-container" id="temperature-flex-container{{vm.widget.Id}}">
-                            <div id="ambient-container{{vm.widget.Id}}" style="flex-basis: 33%; height: 100%; border: 3px solid white; overflow: hidden;">
-                            </div>
-                            <div id="discharge-container{{vm.widget.Id}}" style="flex-basis: 33%; height: 100%; border: 3px solid white; overflow: hidden;">
-                            </div>
-                            <div id="cabin-container{{vm.widget.Id}}" style="flex-basis: 33%; height: 100%; border: 3px solid white; overflow: hidden;">
-                            </div>
 
-                        </div>
-
-                    </div>
-                    <div id="pressure{{vm.widget.Id}}" class="tab-pane fade" style="height: 100%; padding-bottom: 5px; overflow: hidden;">
-                        <div class="flex-container">
-                            <div id="primary-1-compressor-container{{vm.widget.Id}}" style="flex-basis: 33.3%; height: 100%; border: 3px solid white; overflow: hidden;">
-                            </div>                                                            
-                            <div id="primary-2-compressor-container{{vm.widget.Id}}" style="flex-basis: 33.3%; height: 100%; border: 3px solid white; overflow: hidden;">
-                            </div>                                                            
-                            <div id="secondary-1-compressor-container{{vm.widget.Id}}" style="flex-basis: 33.3%; height: 100%; border: 3px solid white; overflow: hidden;">
-                            </div>                                                            
-                            <div id="secondary-2-compressor-container{{vm.widget.Id}}" style="flex-basis: 33.3%; height: 100%; border: 3px solid white; overflow: hidden;">
-                            </div>
-
-                        </div>
-                    </div>
                 </div>
             </div>
 

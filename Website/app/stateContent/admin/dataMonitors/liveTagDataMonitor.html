@@ -58,7 +58,7 @@
                 </thead>
 
                 <tbody vs-repeatzzzzz vs-scroll-parent=".repeater-container" vs-scrolled-to-end="vm.scrolledToEnd()">
-                    <tr ng-repeat="tag in vm.tags" style="background-color:  {{tag.Metadata.Status.LastValueWasHistorical ? 'rgba(173, 173, 173,' : 'rgba(0, 255, 0,'}} .{{tag.Metadata.UpdateCountDowns.OneSecond}});">
+                    <tr ng-repeat="tag in vm.tags | orderBy: '-ObservationLocalDate'" style="background-color:  {{tag.Metadata.Status.LastValueWasHistorical ? 'rgba(173, 173, 173,' : 'rgba(0, 255, 0,'}} .{{tag.Metadata.UpdateCountDowns.OneSecond}});">
 
                         <td>
                             {{tag.Asset.Company.Name}}

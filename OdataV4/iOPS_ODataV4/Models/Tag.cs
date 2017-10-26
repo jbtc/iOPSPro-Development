@@ -59,6 +59,8 @@ namespace iOPS_ODataV4.Models
         public Nullable<bool> IsNotified { get; set; }
         public Nullable<long> SiteId { get; set; }
         public Nullable<System.DateTime> LastReportedDate { get; set; }
+        public Nullable<double> ScalingFactor { get; set; }
+        public Nullable<bool> IsCritical { get; set; }
     
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<Observation> Observations { get; set; }

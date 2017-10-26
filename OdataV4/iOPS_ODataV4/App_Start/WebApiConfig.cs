@@ -67,6 +67,9 @@ namespace iOPS_ODataV4
             builder.EntitySet<SystemGraphic>("SystemGraphics");
             builder.EntitySet<SystemGraphicVisibleValue>("SystemGraphicVisibleValues");
             builder.EntitySet<ObservationAggregatedHighChartValue>("ObservationAggregatedHighChartValues");
+            builder.EntitySet<GSJBTStandardObservationIdExclusionListFromCurrentAlarm>("GSJBTStandardObservationIdExclusionListFromCurrentAlarms");
+            builder.EntitySet<ChronologicalRawTagValueLogKepwareReceiver>("ChronologicalRawTagValueLogKepwareReceivers");
+
 
 
 

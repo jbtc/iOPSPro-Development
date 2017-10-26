@@ -23,8 +23,21 @@ body {
     height: 100px;
 }
 
+.linear-meter-inactive-range {
+    border: none; 
+    overflow: hidden; 
+    background-image: linear-gradient(-45deg, black 25%, transparent 25%, transparent 50%, black 50%, black 75%, transparent 75%, transparent);
+    background-size: 4px 4px;
+    opacity: .15;
+}
+
+.linear-meter-normal-active-range {
+    border: 1px solid green; 
+    overflow: hidden; 
+}
 
 
+.diagonal-stripe-3 { background-image: url("data:image/svg+xml;base64,PHN2ZyB4bWxucz0naHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmcnIHdpZHRoPScxMCcgaGVpZ2h0PScxMCc+CiAgPHJlY3Qgd2lkdGg9JzEwJyBoZWlnaHQ9JzEwJyBmaWxsPSd3aGl0ZScvPgogIDxwYXRoIGQ9J00tMSwxIGwyLC0yCiAgICAgICAgICAgTTAsMTAgbDEwLC0xMAogICAgICAgICAgIE05LDExIGwyLC0yJyBzdHJva2U9J2JsYWNrJyBzdHJva2Utd2lkdGg9JzMnLz4KPC9zdmc+"); background-repeat: repeat; }
 
 .container-fluid {
     padding: 0;

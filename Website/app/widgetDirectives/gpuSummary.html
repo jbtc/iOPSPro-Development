@@ -1,0 +1,317 @@
+﻿<div class="chart-wrapper" style="width:100%; height: 100%" ng-click="vm.OpenSettingsIfNoAssetAndCloseIfAssetIsPresent()">
+    <div class="chart-inner" style="width:100%; height: 100%">
+        <div style="display: flex; width: 100%; height: 100%;" ng-show="vm.gpu">
+            <div class="container" id="containerData{{vm.widget.Id}}" style="font-size .8em; height 100%; width:{{vm.widget.WidgetResource.SplitLeftPercentage}}%; padding-left: 0; padding-right: 0;">
+
+                <ul class="nav nav-pills" id="nav-pills{{vm.widget.Id}}" style="font-size: .7em; padding-bottom: 5px; border-bottom: 1px solid lightgray;">
+                    <li class="{{(!vm.widget.WidgetResource.DefaultNavPill || vm.widget.WidgetResource.DefaultNavPill == 'Amps') ? 'active' : 'xxx'}}"><a data-toggle="pill" ng-click="vm.SetDefaultNavPill('Amps')" href="#amps{{vm.widget.Id}}">Amps</a></li>
+                    <li class="{{vm.widget.WidgetResource.DefaultNavPill == 'Volts' ? 'active' : 'xxx'}}"><a data-toggle="pill" ng-click="vm.SetDefaultNavPill('Volts')" href="#volts{{vm.widget.Id}}">Volts</a></li>
+                    <li class="{{vm.widget.WidgetResource.DefaultNavPill == 'Data' ? 'active' : 'xxx'}}"><a data-toggle="pill"  ng-click="vm.SetDefaultNavPill('Data')" href="#data{{vm.widget.Id}}">Data</a></li>
+                </ul>
+
+                <div class="tab-content" id="tab-content{{vm.widget.Id}}" style="font-family: Segoe UI; font-size: .8em; overflow-y: auto; height: 100px;">
+                    <div id="amps{{vm.widget.Id}}" class="tab-pane fade{{(!vm.widget.WidgetResource.DefaultNavPill || vm.widget.WidgetResource.DefaultNavPill == 'Amps') ? ' in active' : ''}}" style="height: 100%; padding-bottom: 5px; overflow: hidden;">
+                        <div class="flex-container" id="temperature-flex-container{{vm.widget.Id}}">
+                            <div id="amps-meters{{vm.widget.Id}}" style="flex-basis: 100%; height: 100%; border: 3px solid white; overflow-x: hidden; overflow-y: auto;">
+                                <linear-meter ng-if="vm.ampsInAverageDataTag" 
+                                              min-scale="0"
+                                              max-scale="400"
+                                              low-range-start-value="0"
+                                              low-range-end-value="10"
+                                              low-range-active-color="blue"
+                                              high-range-active-color="red"
+                                              normal-range-active-color="lightGreen"
+                                              high-range-start-value="300"
+                                              high-range-end-value="400"
+                                              id="ampsInAverage{{vm.widget.Id}}"
+                                              label="Amps In Average"
+                                              units='amps'
+                                              current-value="vm.ampsInAverage"></linear-meter>
+                                <linear-meter ng-if="vm.ampsOutAverageDataTag" 
+                                              min-scale="0"
+                                              max-scale="400"
+                                              low-range-start-value="0"
+                                              low-range-end-value="10"
+                                              low-range-active-color="blue"
+                                              high-range-active-color="red"
+                                              normal-range-active-color="lightGreen"
+                                              high-range-start-value="300"
+                                              high-range-end-value="400"
+                                              id="ampsOutAverage{{vm.widget.Id}}"
+                                              label="Amps Out Average"
+                                              units='amps'
+                                              current-value="vm.ampsOutAverage"></linear-meter>
+                                <linear-meter ng-if="vm.phaseAAmpsOutDataTag" 
+                                              min-scale="0"
+                                              max-scale="400"
+                                              low-range-start-value="0"
+                                              low-range-end-value="10"
+                                              low-range-active-color="blue"
+                                              high-range-active-color="red"
+                                              normal-range-active-color="lightGreen"
+                                              high-range-start-value="300"
+                                              high-range-end-value="400"
+                                              id="ampOutA{{vm.widget.Id}}"
+                                              label="Phase A Amps Out"
+                                              units='amps'
+                                              current-value="vm.phaseAAmpsOut"></linear-meter>
+                                <linear-meter ng-if="vm.phaseBAmpsOutDataTag" 
+                                              min-scale="0"
+                                              max-scale="400"
+                                              low-range-start-value="0"
+                                              low-range-end-value="10"
+                                              low-range-active-color="blue"
+                                              high-range-active-color="red"
+                                              normal-range-active-color="lightGreen"
+                                              high-range-start-value="300"
+                                              high-range-end-value="400"
+                                              id="ampOutB{{vm.widget.Id}}"
+                                              label="Phase B Amps Out"
+                                              units='amps'
+                                              current-value="vm.phaseBAmpsOut"></linear-meter>
+                                <linear-meter ng-if="vm.phaseCAmpsOutDataTag" 
+                                              min-scale="0"
+                                              max-scale="400"
+                                              low-range-start-value="0"
+                                              low-range-end-value="10"
+                                              low-range-active-color="blue"
+                                              high-range-active-color="red"
+                                              normal-range-active-color="lightGreen"
+                                              high-range-start-value="300"
+                                              high-range-end-value="400"
+                                              id="ampOutC{{vm.widget.Id}}"
+                                              label="Phase C Amps Out"
+                                              units='amps'
+                                              current-value="vm.phaseCAmpsOut"></linear-meter>
+                            </div>
+
+                        </div>
+
+                    </div>
+                    <div id="volts{{vm.widget.Id}}" class="tab-pane fade{{vm.widget.WidgetResource.DefaultNavPill == 'Volts' ? ' in active' : ''}}" style="height: 100%; padding-bottom: 5px; overflow: hidden;">
+                        <div class="flex-container">
+                            <div id="volts-meters{{vm.widget.Id}}" style="flex-basis: 100%; height: 100%; border: 3px solid white; overflow-x: hidden; overflow-y: auto;">
+                                <linear-meter ng-if="vm.voltsInAverageDataTag" 
+                                              min-scale="0"
+                                              max-scale="600"
+                                              low-range-start-value="0"
+                                              low-range-end-value="10"
+                                              low-range-active-color="blue"
+                                              high-range-active-color="red"
+                                              normal-range-active-color="lightGreen"
+                                              high-range-start-value="500"
+                                              high-range-end-value="600"
+                                              id="voltsInAverage{{vm.widget.Id}}"
+                                              label="Volts In Average"
+                                              units='volts'
+                                              current-value="vm.voltsInAverage"></linear-meter>
+                                <linear-meter ng-if="vm.voltsOutAverageDataTag" 
+                                              min-scale="0"
+                                              max-scale="400"
+                                              low-range-start-value="0"
+                                              low-range-end-value="10"
+                                              low-range-active-color="blue"
+                                              high-range-active-color="red"
+                                              normal-range-active-color="lightGreen"
+                                              high-range-start-value="300"
+                                              high-range-end-value="400"
+                                              id="voltsOutAverage{{vm.widget.Id}}"
+                                              label="Volts Out Average"
+                                              units='volts'
+                                              current-value="vm.voltsOutAverage"></linear-meter>
+                                <linear-meter ng-if="vm.phaseAVoltsOutDataTag" 
+                                              min-scale="0"
+                                              max-scale="400"
+                                              low-range-start-value="0"
+                                              low-range-end-value="10"
+                                              low-range-active-color="blue"
+                                              high-range-active-color="red"
+                                              normal-range-active-color="lightGreen"
+                                              high-range-start-value="300"
+                                              high-range-end-value="400"
+                                              id="voltsOutA{{vm.widget.Id}}"
+                                              label="Phase A Volts Out"
+                                              units='volts'
+                                              current-value="vm.phaseAVoltsOut"></linear-meter>
+                                <linear-meter ng-if="vm.phaseBVoltsOutDataTag" 
+                                              min-scale="0"
+                                              max-scale="400"
+                                              low-range-start-value="0"
+                                              low-range-end-value="10"
+                                              low-range-active-color="blue"
+                                              high-range-active-color="red"
+                                              normal-range-active-color="lightGreen"
+                                              high-range-start-value="300"
+                                              high-range-end-value="400"
+                                              id="voltsOutB{{vm.widget.Id}}"
+                                              label="Phase B Volts Out"
+                                              units='volts'
+                                              current-value="vm.phaseBVoltsOut"></linear-meter>
+                                <linear-meter ng-if="vm.phaseCVoltsOutDataTag" 
+                                              min-scale="0"
+                                              max-scale="400"
+                                              low-range-start-value="0"
+                                              low-range-end-value="10"
+                                              low-range-active-color="blue"
+                                              high-range-active-color="red"
+                                              normal-range-active-color="lightGreen"
+                                              high-range-start-value="300"
+                                              high-range-end-value="400"
+                                              id="voltsOutC{{vm.widget.Id}}"
+                                              label="Phase C Volts Out"
+                                              units='volts'
+                                              current-value="vm.phaseCVoltsOut"></linear-meter>
+                            </div>
+
+                        </div>
+                    </div>
+                    <div id="data{{vm.widget.Id}}" class="tab-pane fade{{vm.widget.WidgetResource.DefaultNavPill == 'Data' ? ' in active' : ''}}" style="overflow: auto;">
+                        
+                        <table class="table table-condensed table-striped" style="font-family: Segoe UI; font-size: .8em;">
+                            <thead>
+                                <tr>
+                                    <th style="cursor: pointer;"
+                                        nowrap
+                                        ng-click="vm.SetSortField('JBTStandardObservation.Name')">
+                                        <div>
+                                            Name
+                                            <span ng-show="vm.widget.displaySettings.tagDataSortField=='-JBTStandardObservation.Name'">
+                                                <i class="fa fa-sort-numeric-desc" title="Click to sort in descending order"></i>
+                                            </span>
+                                            <span ng-show="vm.widget.displaySettings.tagDataSortField=='JBTStandardObservation.Name'">
+                                                <i class="fa fa-sort-numeric-asc" title="Click to sort in ascending order"></i>
+                                            </span>
+                                        </div>
+                                    </th>
+                                    <th style="cursor: pointer;"
+                                        nowrap
+                                        ng-click="vm.SetSortField('PLCLocalDate')">
+                                        <div>
+                                            Date
+                                            <span ng-show="vm.widget.displaySettings.tagDataSortField=='-PLCLocalDate'">
+                                                <i class="fa fa-sort-numeric-desc" title="Click to sort in descending order"></i>
+                                            </span>
+                                            <span ng-show="vm.widget.displaySettings.tagDataSortField=='PLCLocalDate'">
+                                                <i class="fa fa-sort-numeric-asc" title="Click to sort in ascending order"></i>
+                                            </span>
+                                        </div>
+                                    </th>
+                                    <th>
+                                        Value
+                                    </th>
+
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr ng-repeat="tag in vm.gpu.Tags | orderBy: vm.widget.displaySettings.tagDataSortField" style="background-color: {{tag.Metadata.Status.LastValueWasHistorical ? 'rgba(173, 173, 173,' : 'rgba(0, 255, 0,'}} .{{tag.Metadata.UpdateCountDowns.OneSecond}});">
+                                    <td>
+                                        <label ng-click="vm.ProcessTagsToGraph()" class="btn btn-default" style="height: 15px; max-height: 15px; font-size: .7em; width: 15px; max-width: 15px; padding: 0; padding-top: 2px; margin-top: -2px;" ng-model="vm.tagsToGraph[tag.TagId]" uib-btn-checkbox="{{tag.TagId}}">
+                                            <i class="fa fa-line-chart" aria-hidden="true" title="Add to graph widget" style="cursor: pointer;"></i>
+                                        </label>
+                                        <span title="{{tag.JBTStandardObservation.Id}}">{{tag.JBTStandardObservation.Name}}</span>
+                                    </td>
+                                    <td nowrap>
+                                        {{tag.PLCLocalDate | date:'MM/dd HH:mm:ss'}}
+                                    </td>
+                                    <td>
+                                        {{tag.Value}}
+
+                                    </td>
+                                </tr>
+                            </tbody>
+
+                        </table>
+                    </div>
+
+                </div>
+            </div>
+
+
+            <div id="containerGraphics{{vm.widget.Id}}" style="height: 100%;">
+                <div style="position: relative; height: 100%; width: 100%;">
+
+
+                    <img src="images/Blank-Placeholder.png" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%;" />
+                    <img ng-src="{{vm.gpu.BaseUnitImageURL}}" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%;" />
+                    <div ng-repeat="image in vm.AssetGraphics">
+                        <img ng-if="image.showImage" ng-src="{{image.ImageURL}}" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%;" />
+                    </div>
+                    <div ng-if="vm.widget.displaySettings.obscureGraphics" style="position: absolute;top: 0px;left: 0px;height:100%;width:100%;background: #FFF;z-index: 3;opacity: 0.80;"></div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+<!--Settings Form Below-->
+
+
+<div class="panel panel-info" style="display: none; position: fixed; z-index: 30; left: 20px; top: 0; width: 90%; border: 3px solid darkcyan;" id="widget-settings-{{vm.widget.WidgetResource.Id}}">
+
+    <div class="panel-heading" style="min-height: 20px;">
+        Asset Settings for {{vm.widget.Name}}
+    </div>
+    <div class="panel-body" style="overflow-x: hidden; background: linear-gradient(to bottom,#bebebe, #eeeeee);">
+        <form class="form-horizontal" role="form" name="userForm" id="userForm" novalidate>
+            <div class="row" style="padding: 20px;">
+
+
+                <!-- Site - If the user has access to more than one -->
+                <div class="form-group">
+                    <label class="col-sm-{{vm.bootstrapLabelColumns}} control-label innovation-right-aligned">
+                        Site
+                    </label>
+                    <div class="col-sm-{{vm.bootstrapInputColumns}}">
+                        <label ng-repeat="site in vm.userSites" style="margin: 1px;" class="btn btn-default" ng-model="vm.widget.WidgetResource.SiteId" uib-btn-radio="{{site.Id}}">{{site.Name}}</label>
+                    </div>
+                </div>
+
+
+
+
+                <!-- Site Terminals (if more than one) -->
+                <div class="form-group" ng-show="vm.terminals.length > 0">
+                    <label class="col-sm-{{vm.bootstrapLabelColumns}} control-label innovation-right-aligned">
+                        Terminal
+                    </label>
+                    <div class="col-sm-{{vm.bootstrapInputColumns}}">
+                        <label ng-repeat="terminalSystem in vm.terminals" style="margin: 1px;" class="btn btn-default" ng-model="vm.widget.WidgetResource.TerminalSystemId" uib-btn-radio="{{terminalSystem.Id}}">{{terminalSystem.Name}}</label>
+                    </div>
+                </div>
+
+                <!-- Terminal Zones (if more than one) -->
+                <div class="form-group" ng-show="vm.zones && vm.zones.length > 0">
+                    <label class="col-sm-{{vm.bootstrapLabelColumns}} control-label innovation-right-aligned">
+                        Zone
+                    </label>
+                    <div class="col-sm-{{vm.bootstrapInputColumns}}">
+                        <label ng-repeat="zoneSystem in vm.zones" style="margin: 1px;" class="btn btn-default" ng-model="vm.widget.WidgetResource.ZoneSystemId" uib-btn-radio="{{zoneSystem.Id}}">{{zoneSystem.Name}}</label>
+                    </div>
+                </div>
+
+                <!-- Zone Gates (if more than one) -->
+                <div class="form-group" ng-show="vm.gates && vm.gates.length > 0">
+                    <label class="col-sm-{{vm.bootstrapLabelColumns}} control-label innovation-right-aligned">
+                        Gate
+                    </label>
+                    <div class="col-sm-{{vm.bootstrapInputColumns}}">
+                        <label ng-repeat="gateSystem in vm.gates" style="margin: 1px;" class="btn btn-default" ng-model="vm.widget.WidgetResource.GateSystemId" uib-btn-radio="{{gateSystem.Id}}">{{gateSystem.Name}}</label>
+                    </div>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>

@@ -37,10 +37,9 @@
 						}
 					}
 
-					vm.widget.headingBackground = 'linear-gradient(to bottom,#7e7e7e, #fefefe)';
 
 					vm.widget.displaySettings = {
-						//This defaults to green - headingBackground: 'linear-gradient(to bottom,#7e7e7e, #fefefe)',
+						headingBackground: 'linear-gradient(to bottom,#dedede, #fefefe)',
 						tagDataSortField: 'TagName',
 						headingExtraTitle: GetHeadingExtraTitle(),
 						obscureGraphics: true
@@ -316,7 +315,8 @@
 
 							vm.assets = vm.JBTData
 								.Assets
-								.where(function (a) { return a.ParentSystemId == vm.widget.WidgetResource.GateSystemId });
+								.where(function (a) { return a.ParentSystemId == vm.widget.WidgetResource.GateSystemId })
+								.orderBy(function(a){return a.Name});
 
 
 
@@ -379,7 +379,13 @@
 							$timeout(function() {
 								vm.widgetDimensions = displaySetupService.GetWidgetPanelBodyDimensions(vm.widget.Id);
 								displaySetupService.SetPanelBodyWithIdHeight(vm.widget.Id);
-							},50);
+							}, 50);
+
+
+							console.log('======= Aircraft Docked = %O', vm.Asset.Tags.first(function(t){return t.JBTStandardObservationId == 12245}));
+							console.log('======= Audible Warning = %O', vm.Asset.Tags.first(function(t){return t.JBTStandardObservationId == 3792}));
+
+
 
 
 							console.log("Monitoring asset = %O", vm.Asset);

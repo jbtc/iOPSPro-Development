@@ -150,6 +150,20 @@ angular.module('app').config(['$routeProvider', '$urlRouterProvider', '$statePro
 						}
 					}
 				})
+				//***
+				.state('home.app.dashboard.widgetSettings',
+				{
+					params: {
+						Widget: null //Pass the entire widget resource model as the parameter. The widget itself will invoke this state and pass it. It will ALWAYS be valued.
+					},
+					views: {
+						'contentPane@home': {
+							templateUrl: "app/stateContent/dashboards/widgetSettings.html?seq=" + Date.now(),
+							controller: "WidgetSettingsCtrl as vm"
+						}
+					}
+				})
+
 
 				//***
 				.state('home.app.dashboard.editDashboard',
@@ -161,6 +175,19 @@ angular.module('app').config(['$routeProvider', '$urlRouterProvider', '$statePro
 						'contentPane@home.app.dashboard': {
 							templateUrl: "app/stateContent/dashboards/editDashboard.html?seq=" + Date.now(),
 							controller: "EditDashboardCtrl as vm"
+						}
+					}
+				})
+				//***
+				.state('home.app.dashboard.pcaSummaryModal',
+				{
+					params: {
+						assetId: null
+					},
+					views: {
+						'contentPane@home.app.dashboard': {
+							templateUrl: "app/widgetDirectives/pcaSummaryModal.html?seq=" + Date.now(),
+							controller: "PCASummaryModalCtrl as vm"
 						}
 					}
 				})

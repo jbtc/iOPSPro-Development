@@ -75,6 +75,8 @@ namespace iOPS_ODataV4.Models
         public virtual DbSet<SystemGraphic> SystemGraphics { get; set; }
         public virtual DbSet<SystemGraphicVisibleValue> SystemGraphicVisibleValues { get; set; }
         public virtual DbSet<ObservationAggregatedHighChartValue> ObservationAggregatedHighChartValues { get; set; }
+        public virtual DbSet<GSJBTStandardObservationIdExclusionListFromCurrentAlarm> GSJBTStandardObservationIdExclusionListFromCurrentAlarms { get; set; }
+        public virtual DbSet<ChronologicalRawTagValueLogKepwareReceiver> ChronologicalRawTagValueLogKepwareReceivers { get; set; }
     
         public virtual ObjectResult<BHSLocationThroughput_Result1> BHSLocationThroughput(Nullable<System.DateTime> beginDate, Nullable<System.DateTime> endDate, string location)
         {
@@ -485,6 +487,40 @@ namespace iOPS_ODataV4.Models
                 new ObjectParameter("terminalSystemId", typeof(long));
     
             return ((IObjectContextAdapter)this).ObjectContext.ExecuteFunction<spTerminalOverviewGraphicsAndTags_Result>("spTerminalOverviewGraphicsAndTags", terminalSystemIdParameter);
+        }
+    
+        public virtual ObjectResult<GSAlertCountByDay_Result> GSAlertCountByDay(Nullable<long> siteId, Nullable<System.DateTime> startDate, Nullable<System.DateTime> endDate)
+        {
+            var siteIdParameter = siteId.HasValue ?
+                new ObjectParameter("SiteId", siteId) :
+                new ObjectParameter("SiteId", typeof(long));
+    
+            var startDateParameter = startDate.HasValue ?
+                new ObjectParameter("StartDate", startDate) :
+                new ObjectParameter("StartDate", typeof(System.DateTime));
+    
+            var endDateParameter = endDate.HasValue ?
+                new ObjectParameter("EndDate", endDate) :
+                new ObjectParameter("EndDate", typeof(System.DateTime));
+    
+            return ((IObjectContextAdapter)this).ObjectContext.ExecuteFunction<GSAlertCountByDay_Result>("GSAlertCountByDay", siteIdParameter, startDateParameter, endDateParameter);
+        }
+    
+        public virtual ObjectResult<GSAlertCountByhour_Result> GSAlertCountByhour(Nullable<long> siteId, Nullable<System.DateTime> startDate, Nullable<System.DateTime> endDate)
+        {
+            var siteIdParameter = siteId.HasValue ?
+                new ObjectParameter("SiteId", siteId) :
+                new ObjectParameter("SiteId", typeof(long));
+    
+            var startDateParameter = startDate.HasValue ?
+                new ObjectParameter("StartDate", startDate) :
+                new ObjectParameter("StartDate", typeof(System.DateTime));
+    
+            var endDateParameter = endDate.HasValue ?
+                new ObjectParameter("EndDate", endDate) :
+                new ObjectParameter("EndDate", typeof(System.DateTime));
+    
+            return ((IObjectContextAdapter)this).ObjectContext.ExecuteFunction<GSAlertCountByhour_Result>("GSAlertCountByhour", siteIdParameter, startDateParameter, endDateParameter);
         }
     }
 }

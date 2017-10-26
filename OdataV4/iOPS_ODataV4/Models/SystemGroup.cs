@@ -32,6 +32,9 @@ namespace iOPS_ODataV4.Models
         public Nullable<System.DateTime> DateLastModified { get; set; }
         public Nullable<System.DateTime> CreateDate { get; set; }
         public string BaseUnitImageURL { get; set; }
+        public Nullable<bool> GPUPresent { get; set; }
+        public Nullable<bool> PBBPresent { get; set; }
+        public Nullable<bool> PCAPresent { get; set; }
     
         public virtual Company Company { get; set; }
         public virtual Site Site { get; set; }

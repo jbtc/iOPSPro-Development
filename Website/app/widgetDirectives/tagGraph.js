@@ -192,6 +192,11 @@
 
 					}
 
+					function toFixed(number, fractionSize) {
+						if (number) {						
+							return +(Math.round(+(number.toString() + 'e' + fractionSize)).toString() + 'e' + -fractionSize);
+						}
+					}
 
 
 					function GetChartData(updateOnly) {
@@ -268,7 +273,7 @@
 													function (obs) {
 														return {
 															MillisecondsDate: obs.Date.getTime(),
-															FloatValue: obs.FloatValue
+															FloatValue: toFixed(obs.FloatValue,1)
 
 														}
 
@@ -297,7 +302,7 @@
 											name: gt.Tag.Asset.Site.Name + ' ' + gt.Tag.Asset.System.Name + ' ' + gt.Tag.Asset.Name + ' ' + gt.Tag.JBTStandardObservationName,
 											data: gt.Observations.select(function (o) {
 												vm.pointCount++;
-												return [o.MillisecondsDate, gt.isDigital ? o.FloatValue + digitalStepValue : o.FloatValue];
+												return [o.MillisecondsDate, gt.isDigital ? o.FloatValue + digitalStepValue : toFixed(o.FloatValue,1)];
 											})
 										};
 

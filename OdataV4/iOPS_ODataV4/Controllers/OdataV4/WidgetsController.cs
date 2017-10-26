@@ -105,6 +105,13 @@ namespace iOPS_ODataV4.Controllers.OdataV4
             return SingleResult.Create(db.Widgets.Where(m => m.Id == key).Select(m => m.WidgetType));
         }
 
+        // GET: odata/Widgets(5)/ParentWidget
+        [EnableQuery(MaxExpansionDepth = 100)]
+        public SingleResult<Widget> GetParentWidget([FromODataUri] long key)
+        {
+            return SingleResult.Create(db.Widgets.Where(m => m.Id == key).Select(m => m.ParentWidget));
+        }
+
         // GET: odata/Widgets(5)/WidgetCustomTagDisplayOrders
         [EnableQuery(MaxExpansionDepth = 100)]
         public IQueryable<WidgetCustomTagDisplayOrder> GetWidgetCustomTagDisplayOrders([FromODataUri] long key)
@@ -117,6 +124,13 @@ namespace iOPS_ODataV4.Controllers.OdataV4
         public IQueryable<WidgetGraphTag> GetWidgetGraphTags([FromODataUri] long key)
         {
             return db.Widgets.Where(m => m.Id == key).SelectMany(m => m.WidgetGraphTags);
+        }
+
+        // GET: odata/Widgets(5)/ChildWidgets
+        [EnableQuery(MaxExpansionDepth = 100)]
+        public IQueryable<Widget> GetChildWidgets([FromODataUri] long key)
+        {
+            return db.Widgets.Where(m => m.Id == key).SelectMany(m => m.ChildWidgets);
         }
 
         protected override void Dispose(bool disposing)

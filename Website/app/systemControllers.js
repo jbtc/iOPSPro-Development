@@ -1,4 +1,125 @@
-﻿//++blank Controller
+﻿
+//++WidgetSettings Controller
+(function () {
+	"use strict";
+
+
+	function WidgetSettingsCtrl($q, $state, $rootScope, $scope, securityService, dataService, $stateParams, utilityService, $timeout, uibButtonConfig, hotkeys, $interval, displaySetupService, signalR) {
+		var vm = this;
+
+		vm.state = $state;
+
+		//Column proportions for the view
+		vm.bootstrapLabelColumns = 4;
+		vm.bootstrapInputColumns = 8;
+
+		//Do not show a screen until it is all ready.
+		vm.showScreen = false;
+
+		//Makes the uib buttons a nice shade of blue.
+		uibButtonConfig.activeClass = 'radio-active';
+
+		vm.widget = $stateParams.Widget;
+		//Get a copy of the user record to determine privs
+		vm.user = Global.User;
+
+		vm.panelTitle = "Widget Settings for : " + vm.widget.WidgetResource.Name + " - ";
+		vm.panelSubtitle = "esc to cancel and return to dashboard, ctrl-s to save and return to dashboard";
+
+		$scope.$$postDigest(function () {
+			displaySetupService.SetPanelDimensions(10);
+
+			vm.showScreen = true;
+			console.log("vm = %O", vm);
+		});
+
+		//Get the site entities for which the user has access.
+		dataService.GetJBTData().then(function (JBTData) {
+			vm.JBTData = JBTData;
+			var userSiteCodes = vm.user.ReaderOf.where(function (s) { return s.split('.')[0] == 'Site' })
+				.select(function (s) { return s.split('.')[1] });
+
+			console.log("user site codes = %O", userSiteCodes);
+
+			vm.userSites = vm.JBTData.Sites.where(function (site) {
+				return userSiteCodes.any(function (sc) { return sc == site.Name })
+			});
+
+			console.log("vm.userSites = %O", vm.userSites);
+
+			if (vm.userSites.length == 1) {
+				console.log("User only has a single Site");
+				vm.widget.WidgetResource.SiteId = vm.userSites[0].Id;
+			} 
+		});
+
+
+
+
+
+
+		hotkeys.bindTo($scope)
+		.add({
+			combo: 'ctrl+s',
+			description: 'Save and Close any form data input form',
+			allowIn: ['INPUT', 'SELECT', 'TEXTAREA'],
+			callback: function () {
+				event.preventDefault();
+				vm.Save();
+
+			}
+		})
+		.add({
+			combo: 'esc',
+			description: 'Cancel and close any input form',
+			allowIn: ['INPUT', 'SELECT', 'TEXTAREA'],
+			callback: function () {
+				$state.go("^");
+			}
+		});
+
+
+
+
+		vm.Save = function () {
+
+			console.log("Widget Model to save = %O", vm.widget);
+
+			vm.widget.WidgetResource.$save().then(function () {
+				signalR.SignalAllClients("WidgetSettings", vm.widget);
+				$state.go("^");
+
+			});
+		}
+
+	}
+
+	angular
+			.module("app")
+			.controller("WidgetSettingsCtrl", [
+				"$q",
+				"$state",
+				"$rootScope",
+				"$scope",
+				"securityService",
+				"dataService",
+				"$stateParams",
+				"utilityService",
+				"$timeout",
+				"uibButtonConfig",
+				"hotkeys",
+				"$interval",
+				"displaySetupService",
+				"signalR",
+				WidgetSettingsCtrl
+			]);
+
+
+
+})();
+
+
+//++blank Controller
 (function () {
 	"use strict";
 
@@ -391,9 +512,9 @@
 
 								//Delete the dashboard
 								//Need to go get the dashboard firsdt. We have already polluted it at this point. It has extra properties that are not compatible with deleting it.
-								dataService.GetEntityById("Dashboards", dashboard.Id).then(function(pureDashboardResourceObject) {
+								dataService.GetEntityById("Dashboards", dashboard.Id).then(function (pureDashboardResourceObject) {
 									pureDashboardResourceObject.Id = -pureDashboardResourceObject.Id;
-									pureDashboardResourceObject.$save().then(function() {
+									pureDashboardResourceObject.$save().then(function () {
 										signalR.SignalAllClients("Dashboard.Deleted", dashboard);
 										toastr.success(dashboard.Name, "Dashboard was deleted!");
 									});
@@ -814,35 +935,7 @@
 											description: "",
 											state: "home.app.liveObservationIndicatorTableCells"
 										},
-										{
-											id: "dmGates",
-											label: "Gate Systems",
-											description: "",
-											children: [
-												{
-													id: "liveTagDataMonitorPanels",
-													label: "All Tags - As Panels",
-													description: "",
-													state: "home.app.liveTagDataMonitorPanels"
-												},
-												{ id: "liveTagDataMonitorNDO", label: "All Tags - As Table - No Drop Off", description: "", state: "home.app.liveTagDataMonitor", stateParams: { NoDropOff: true } },
-												{ id: "liveTagDataMonitor", label: "All Tags - As Table - Drop Off 10 Sec", description: "", state: "home.app.liveTagDataMonitor"},
-												{
-													id: "liveAssetDataMonitorPanels",
-													label: "All Gate Assets - Panels by Site and Gate",
-													description: "",
-													children: [
-														{
-															id: "liveAssetDataMonitorPanels",
-															label: "All Gate Assets - Panels by Site and Gate",
-															description: "",
-															state: "home.app.liveAssetMonitor"
-														},
-														{ id: "dmGatesBySite", label: "By Site", description: "", state: "", children: siteGateSystemMenuItems }
-													]
-												}
-											]
-										}
+										{ id: "liveTagDataMonitor", label: "Data Update Stream", description: "", state: "home.app.liveTagDataMonitor" },
 									]
 								}
 							]
@@ -1859,15 +1952,26 @@
 			dataService.GetTags().then(function (data) {
 				vm.totalChangeCount = 0;
 
-				
+				var upperSearchText;
+				if (vm.searchText) {
+					upperSearchText = vm.searchText.toUpperCase();
+				}
 
 				vm.tags = data
                     .where(function (t) {
                     	return (t.Metadata.UpdateCountDowns.TenSecond > 0 && !$stateParams.NoDropOff) || $stateParams.NoDropOff;
-                    });
+                    })
+					.where(function (t) {
+						if (vm.searchText == '' || !vm.searchText) {
+							return true;
+						}
 
 
-				console.log("vm.tags = %O", vm.tags);
+						return t.TagName.toUpperCase().indexOf(upperSearchText) >= 0 || t.Asset.ParentSystem.Name.toUpperCase().indexOf(upperSearchText) >= 0 || t.JBTStandardObservation.Name.toUpperCase().indexOf(upperSearchText) >= 0;
+					});
+
+
+				//console.log("vm.tags = %O", vm.tags);
 
 
 			});
@@ -2011,7 +2115,7 @@
 
 
 
-				
+
 				console.log("vm.sites = %O", vm.sites);
 				console.log("Data Formatting time = " + (performance.now() - time0));
 
@@ -4280,69 +4384,69 @@ angular.module('app').controller('AppCtrl',
 
 //++GraphicsCatalog Controller
 (function () {
-    "use strict";
+	"use strict";
 
 
-    function GraphicsCatalogCtrl($scope, $state, displaySetupService, dataService, signalR, $interval, $timeout) {
-        console.log("GraphicsCatalogCtrl conroller invoked.");
-        var vm = this;
+	function GraphicsCatalogCtrl($scope, $state, displaySetupService, dataService, signalR, $interval, $timeout) {
+		console.log("GraphicsCatalogCtrl conroller invoked.");
+		var vm = this;
 
 
-        vm.columnWidths = {
+		vm.columnWidths = {
 
-            company: 10,
-            equipment: 10,
-            tagId: 5,
-            tagName: 50,
-            observationName: 25,
-            date: 20,
-            value: 80,
-            dataChangeCount: 15
-        };
-
-
-
-        vm.buttonPanelWidth = 20;
-
-        vm.state = $state;
-        displaySetupService.SetPanelDimensions();
-
-        console.log("Load Data");
+			company: 10,
+			equipment: 10,
+			tagId: 5,
+			tagName: 50,
+			observationName: 25,
+			date: 20,
+			value: 80,
+			dataChangeCount: 15
+		};
 
 
-        dataService.GetIOPSResource("Sites")
+
+		vm.buttonPanelWidth = 20;
+
+		vm.state = $state;
+		displaySetupService.SetPanelDimensions();
+
+		console.log("Load Data");
+
+
+		dataService.GetIOPSResource("Sites")
 			.expandPredicate("SystemGroups")
 				.expand()
 			.finish()
 
 
-        $scope.$$postDigest(function () {
-            displaySetupService.SetPanelDimensions();
-        });
+		$scope.$$postDigest(function () {
+			displaySetupService.SetPanelDimensions();
+		});
 
 
 
 
-        vm.searchText = "";
+		vm.searchText = "";
 
-        function GetFormattedTags() {
-            dataService.GetTags().then(function (data) {
-                vm.totalChangeCount = 0;
-                vm.tags = data
-					.where(function(d) { return (vm.searchText == "" || d.Name.toUpperCase().indexOf(vm.searchText.toUpperCase()) > -1)})
-            		.orderBy(function(tag){return tag.Name});
-            });
-            
-        }
+		function GetFormattedTags() {
+			dataService.GetTags().then(function (data) {
+				vm.totalChangeCount = 0;
+				vm.tags = data
+					.where(function (d) { return (vm.searchText == "" || d.Name.toUpperCase().indexOf(vm.searchText.toUpperCase()) > -1) })
+            		.orderBy(function (tag) { return tag.Name });
+			});
+
+		}
 
 
-        vm.scrolledToEnd = function () {
-            console.log("scrolled to end");
-        }
+		vm.scrolledToEnd = function () {
+			console.log("scrolled to end");
+		}
 
-    }
+	}
 
-    angular
+	angular
 			.module("app")
 			.controller("GraphicsCatalogCtrl", [
 				"$scope",
