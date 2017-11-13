@@ -2,10 +2,10 @@
 	"use strict";
 
 
-	function PCASummaryModalCtrl($q, $state, $rootScope, $scope, securityService, dataService, $stateParams, utilityService, $timeout, uibButtonConfig, hotkeys, $interval, displaySetupService, signalR) {
+	function GPUSummaryModalCtrl($q, $state, $rootScope, $scope, securityService, dataService, $stateParams, utilityService, $timeout, uibButtonConfig, hotkeys, $interval, displaySetupService, signalR) {
 
 
-		console.log("PCASummaryModalCtrl invoked");
+		console.log("GPUSummaryModalCtrl invoked");
 
 
 		var vm = this;
@@ -17,7 +17,7 @@
 		vm.assetId = $stateParams.assetId;
 		vm.dashboard = $stateParams.dashboard;
 
-		console.log("PCASummaryModalCtrl widget = %O", vm.widget);
+
 
 		//Do not show a screen until it is all ready.
 		vm.showScreen = false;
@@ -28,7 +28,7 @@
 
 		dataService.GetJBTData().then(function(data) {
 			vm.JBTData = data;
-			vm.pca = data.Assets.first(function (a) { return a.Id == vm.assetId });
+			vm.gpu = data.Assets.first(function (a) { return a.Id == vm.assetId });
 			vm.panelTitle = vm.widget.Name;
 			vm.panelSubtitle = 'esc to close';
 
@@ -47,7 +47,7 @@
 
 				return dataService.AddEntity("Widgets",
 					{
-						Name: 'PCA Summary',
+						Name: 'GPU Summary',
 						WidgetTypeId: vm.widget.WidgetResource.WidgetTypeId,
 						ParentDashboardId: vm.dashboard.Id,
 						Width: wt.InitialWidth,
@@ -55,7 +55,7 @@
 						Row: 100,
 						Col: 0,
 						AssetId: vm.widget.WidgetResource.AssetId,
-						DefaultNavPill: "Press",
+						DefaultNavPill: "Amps",
 						GateSystemId: vm.widget.WidgetResource.GateSystemId,
 						SiteId: vm.widget.WidgetResource.SiteId,
 						SplitLeftPercentage: 50,
@@ -73,6 +73,7 @@
 		}
 
 
+
 		hotkeys.bindTo($scope)
 		.add({
 			combo: 'esc',
@@ -88,7 +89,7 @@
 
 	angular
 			.module("app")
-			.controller("PCASummaryModalCtrl", [
+			.controller("GPUSummaryModalCtrl", [
 				"$q",
 				"$state",
 				"$rootScope",
@@ -103,7 +104,7 @@
 				"$interval",
 				"displaySetupService",
 				"signalR",
-				PCASummaryModalCtrl
+				GPUSummaryModalCtrl
 			]);
 
 

@@ -10,13 +10,11 @@
 
 				var controller = function ($scope) {
 					var vm = this;
-
+					console.log("PCA Summary Controller invoked");
 
 					function GetHeadingExtraTitle() {
-						if (vm.GateSystem) {
-							var site = vm.JBTData.Sites.first(function (s) { return s.Id == vm.GateSystem.SiteId });
-							return ' - ' + site.Name + ' Gate ' + vm.GateSystem.Name + (vm.pca.ModelGenericName ? ' - ' + vm.pca.ModelGenericName : '');
-						}
+						console.log("Getting site heading");
+						return ' - ' + vm.Asset.Site.Name + ' Gate ' + vm.Asset.ParentSystem.Name + (vm.Asset.ModelGenericName ? ' - ' + vm.Asset.ModelGenericName : '');
 					}
 
 					vm.widget.displaySettings = {
@@ -50,10 +48,10 @@
 
 					//Get a copy of the user record to determine privs
 					vm.user = Global.User;
-					//console.log("Initial vm.widget = %O", vm.widget);
+					console.log("Initial vm.widget = %O", vm.widget);
 
 
-					//console.log("vm.user = %O", vm.user);
+					console.log("vm.user = %O", vm.user);
 					displaySetupService.SetWidgetPanelBodyDimensions(vm.widget.Id);
 
 
@@ -84,40 +82,8 @@
 
 						if (!vm.pca) {
 
-							var element = $("#widget-settings-" + vm.widget.WidgetResource.Id)[0].parentNode.parentNode.offsetParent;
-							var position = $(element).offset();
-							position.width = $(element).width();
-
-							$("#gridster" + vm.widget.Id).css('z-index', '35');
-							$("#widget-settings-" + vm.widget.WidgetResource.Id)
-								.css({ left: position.left + 20, top: position.top + 35, width: 500, 'z-index': 35 });
-							$("#widget-settings-" + vm.widget.WidgetResource.Id).slideDown();
-						} else {
-
-							$("#gridster" + vm.widget.Id).css('z-index', '2');
-							$("#widget-settings-" + vm.widget.WidgetResource.Id).slideUp();
+							$state.go(".widgetSettings", { widget: vm.widget });
 						}
-					}
-
-
-
-					//$timeout(function () {
-					//	if (!vm.pca) {
-
-					//		var element = $("#widget-settings-" + vm.widget.WidgetResource.Id)[0].parentNode.parentNode.offsetParent;
-					//		var position = $(element).offset();
-					//		position.width = $(element).width();
-
-					//		$("#gridster" + vm.widget.Id).css('z-index', '35');
-					//		$("#widget-settings-" + vm.widget.WidgetResource.Id).css({ left: position.left + 20, top: position.top + 35, width: 500, 'z-index': 35 });
-					//		$("#widget-settings-" + vm.widget.WidgetResource.Id).slideToggle();
-					//	}
-					//}, 200);
-
-
-
-					vm.CloseSettings = function () {
-						$("#widget-settings-" + vm.widget.WidgetResource.Id).slideUp();
 					}
 
 
@@ -139,156 +105,17 @@
 					//Get the site entities for which the user has access.
 					dataService.GetJBTData().then(function (JBTData) {
 						vm.JBTData = JBTData;
-						var userSiteCodes = vm.user.ReaderOf.where(function (s) { return s.split('.')[0] == 'Site' })
-							.select(function (s) { return s.split('.')[1] });
+						vm.Asset = vm.JBTData.Assets.first(function (a) { return a.Id == vm.widget.WidgetResource.AssetId });
+						vm.pca = vm.Asset;
+						console.log("pcaSumary Asset = %O", vm.Asset);
+						GetPCAAssetForGate();
 
-						//console.log("user site codes = %O", userSiteCodes);
-
-						vm.userSites = vm.JBTData.Sites.where(function (site) {
-							return userSiteCodes.any(function (sc) { return sc == site.Name })
-						});
-
-						//console.log("vm.userSites = %O", vm.userSites);
-
-						if (vm.userSites.length == 1) {
-							console.log("User only has a single Site");
-							vm.widget.WidgetResource.SiteId = vm.userSites[0].Id;
-							vm.widgetSite = vm.userSites[0];
-							GetTerminalsForWidgetSite();
-						} else {
-
-							if (vm.widget.WidgetResource.SiteId) {
-								GetTerminalsForWidgetSite();
-							}
-						}
+						vm.widget.displaySettings.headingExtraTitle = GetHeadingExtraTitle();
 					});
 
 
 
 
-					//Start watching for site id changes	
-					$scope.$watch("vm.widget.WidgetResource.SiteId",
-					function (newValue, oldValue) {
-						if (vm.widget.WidgetResource.SiteId && vm.userSites) {
-
-							//console.log("vm.widget.WidgetResource.SiteId changed. Now = %O", vm.widget);
-							vm.widgetSite = vm.userSites.first(function (s) { return s.Id == vm.widget.SiteId });
-							if (oldValue != newValue) {
-								vm.terminals = null;
-								vm.zones = null;
-								vm.gates = null;
-								vm.pca = null;
-								vm.widget.WidgetResource.TerminalSystemId = null;
-								vm.widget.WidgetResource.ZoneSystemId = null;
-								vm.widget.WidgetResource.GateSystemId = null;
-
-								SaveWidgetResourceObjectIfChanged();
-								GetTerminalsForWidgetSite();
-							}
-						}
-					});
-
-					function GetTerminalsForWidgetSite() {
-						if (vm.widget.WidgetResource.SiteId) {
-
-							//console.log("Getting the terminals for the widget site");
-
-							vm.terminals = vm.JBTData
-								.Systems
-								.where(function (s) { return s.SiteId == vm.widget.WidgetResource.SiteId && s.Type == 'Terminal' });
-
-
-							if (vm.terminals.length > 0) {
-								GetZonesForWidgetTerminal();
-							}
-
-
-
-						}
-					}
-
-					//Start watching for terminal id changes	
-					$scope.$watch("vm.widget.WidgetResource.TerminalSystemId",
-					function (newValue, oldValue) {
-						if (vm.widget.WidgetResource.TerminalSystemId) {
-
-							//console.log("vm.widget.WidgetResource.TerminalSystemId changed. Old = %O", oldValue);
-							//console.log("vm.widget.WidgetResource.TerminalSystemId changed. New = %O", newValue);
-							if (newValue != oldValue) {
-								vm.widget.WidgetResource.ZoneSystemId = null;
-								vm.widget.WidgetResource.GateSystemId = null;
-								vm.zones = null;
-								vm.gates = null;
-								vm.pca = null;
-
-								SaveWidgetResourceObjectIfChanged();
-
-							}
-
-							GetZonesForWidgetTerminal();
-						}
-					});
-
-					function GetZonesForWidgetTerminal() {
-						if (vm.terminals && vm.widget.WidgetResource.TerminalSystemId) {
-
-							//console.log("Getting the zone (area system) for the widget terminal");
-
-							vm.zones = vm.JBTData
-								.Systems
-								.where(function (s) { return s.Type == 'Zone' && s.ParentSystemId == vm.widget.WidgetResource.TerminalSystemId }) //children of this terminal
-								.where(function (zoneSystem) { return vm.JBTData.Systems.any(function (s) { return s.Type == 'Gate' && s.ParentSystemId == zoneSystem.Id && s.Assets.any(function (gateSystemAsset) { return gateSystemAsset.Name == "PCA" }) }) }) //that have at least one gate system child
-								.orderBy(function (z) { return z.Name });
-
-
-
-							//console.log("vm.zones = %O", vm.zones);
-							GetGatesForWidgetZone();
-
-						}
-					}
-
-
-
-					//Start watching for zone id changes	
-					$scope.$watch("vm.widget.WidgetResource.ZoneSystemId",
-					function (newValue, oldValue) {
-						if (vm.widget.WidgetResource.ZoneSystemId) {
-
-							//console.log("vm.widget.WidgetResource.ZoneSystemId changed. Now = %O", vm.widget);
-							if (newValue != oldValue) {
-								vm.gates = null;
-								vm.pca = null;
-								vm.widget.WidgetResource.GateSystemId = null;
-
-								SaveWidgetResourceObjectIfChanged();
-
-							}
-							GetGatesForWidgetZone();
-						}
-					});
-
-					function GetGatesForWidgetZone() {
-						if (vm.zones && vm.widget.WidgetResource.ZoneSystemId) {
-
-							//console.log("Getting the gate (gate system) for the widget zone");
-
-
-							vm.gates = vm.JBTData
-								.Systems
-								.where(function (s) { return s.Type == 'Gate' })
-								.where(function (s) { return s.ParentSystemId == vm.widget.WidgetResource.ZoneSystemId })
-								.where(function (s) { return vm.JBTData.Assets.any(function (a) { return a.ParentSystemId == s.Id && a.Name == 'PCA' }) })
-								.orderBy(function (s) { return s.Name });
-
-
-
-							//console.log("vm.gates = %O", vm.gates);
-
-
-
-						}
-					}
 
 
 					//Start watching for gate id changes	
@@ -300,24 +127,9 @@
 
 							if (newValue != oldValue) {
 								vm.pca = null;
-
 								SaveWidgetResourceObjectIfChanged();
-
-								dataService.GetEntityById("SystemGroups", newValue).then(function (gateSystem) {
-									vm.GateSystem = gateSystem;
-									//vm.widget.displaySettings.headingExtraTitle = GetHeadingExtraTitle();
-								});
-
-								$timeout(function () {
-									if (vm.pca) {
-										//Uncomment to cause the settings window to close after a short delay after gate selection
-										if (Global.User.Username != 'markzzzz') {
-											$("#widget-settings-" + vm.widget.WidgetResource.Id).slideToggle();
-										}
-									}
-								}, 400);
 							}
-							GetAssetsForGate();
+							GetPCAAssetForGate();
 						}
 					});
 
@@ -366,79 +178,79 @@
 
 					}
 
-					function GetAssetsForGate() {
-
-						dataService.GetJBTData().then(function (jbtData) {
-							vm.JBTData = jbtData;
+					function GetPCAAssetForGate() {
 
 
+						vm.pca = vm.JBTData
+							.Assets
+							.first(function (a) { return a.ParentSystemId == vm.widget.WidgetResource.GateSystemId && a.Name == 'PCA' });
 
 
-							vm.pca = vm.JBTData
-								.Assets
-								.first(function (a) { return a.ParentSystemId == vm.widget.WidgetResource.GateSystemId && a.Name == 'PCA' });
+						console.log("vm.pca = %O", vm.pca);
 
 
-							if (vm.widget.WidgetResource.GateSystemId) {
+						vm.widget.WidgetResource.AssetId = vm.pca.Id;
 
-								vm.GateSystem = vm.JBTData.Systems.first(function (s) { return s.Id == vm.widget.WidgetResource.GateSystemId });
+						SaveWidgetResourceObjectIfChanged();
+						vm.widget.displaySettings.headingExtraTitle = GetHeadingExtraTitle();
 
-							}
-
-							//console.log("vm.pca = %O", vm.pca);
-
-
-							vm.widget.WidgetResource.AssetId = vm.pca.Id;
-
-							SaveWidgetResourceObjectIfChanged();
-							dataService.GetAllSignalRObservationFormattedTagsForAssetIdIntoInventory(vm.pca.Id).then(function () {
+						dataService.GetAllSignalRObservationFormattedTagsForAssetIdIntoInventory(vm.pca.Id).then(function () {
 
 
-								vm.AssetGraphics = dataService.cache.assetGraphics.where(function (ag) { return ag.AssetId == vm.pca.Id });
+							vm.AssetGraphics = dataService.cache.assetGraphics.where(function (ag) { return ag.AssetId == vm.pca.Id });
 
 
-								vm.AssetGraphics.forEach(function (ag) {
-									ag.AssetGraphicVisibleValues = dataService.cache.assetGraphicVisibleValues.where(function (vv) { return vv.AssetGraphicId == ag.Id && vv.JBTStandardObservationId });
-									ag.showImage = false;
-								});
-								$timeout(function () {
-									SetupSplitter();
-									SetTabBodyHeight();
-								}, 50);
-
-								console.log("Asset Graphics = %O", vm.AssetGraphics);
-								vm.pca.Tags.forEach(function (tag) {
-									UpdateGraphicsVisibilityForSingleTag(tag);
-								});
-
-								vm.atLeastOneGraphicIsVisible = AtLeastOneGraphicIsVisible();
-								vm.widget.displaySettings.obscureGraphics = !AtLeastOneGraphicIsVisible();
-								SetHeadingBackground();
-								vm.widget.displaySettings.headingExtraTitle = GetHeadingExtraTitle();
-								vm.GenerateTemperatureCharts();
-								vm.GeneratePressureCharts();
-								$timeout(function () {
-
-									vm.showWidget = true;
-								}, 100);
-
-
+							vm.AssetGraphics.forEach(function (ag) {
+								ag.AssetGraphicVisibleValues = dataService.cache.assetGraphicVisibleValues.where(function (vv) { return vv.AssetGraphicId == ag.Id && vv.JBTStandardObservationId });
+								ag.showImage = false;
 							});
+							$timeout(function () {
+								SetupSplitter();
+								SetTabBodyHeight();
+							}, 50);
+
+							console.log("Asset Graphics = %O", vm.AssetGraphics);
+							vm.pca.Tags.forEach(function (tag) {
+								UpdateGraphicsVisibilityForSingleTag(tag);
+							});
+
+							vm.atLeastOneGraphicIsVisible = AtLeastOneGraphicIsVisible();
+							vm.widget.displaySettings.obscureGraphics = !AtLeastOneGraphicIsVisible();
+							SetHeadingBackground();
+							vm.widget.displaySettings.headingExtraTitle = GetHeadingExtraTitle();
+							vm.GenerateTemperatureCharts();
+							vm.GeneratePressureCharts();
+							$timeout(function () {
+
+								vm.showWidget = true;
+							}, 100);
+
+
 						});
 					}
 
 
 
 					function SetTabBodyHeight() {
-						$timeout(function () {
+						$interval(function () {
 
+							displaySetupService.SetWidgetPanelBodyDimensions(vm.widget.Id);
 							var widgetDimensions = displaySetupService.GetWidgetPanelBodyDimensions(vm.widget.Id);
 							var tabDimensions = displaySetupService.GetDivDimensionsById("nav-pills" + vm.widget.Id);
-							var heightToSet = widgetDimensions.height - tabDimensions.height - 9;
-							//console.log("Height to set = " + heightToSet);
-							$("#tab-content" + vm.widget.Id).css('height', heightToSet);
+							var heightToSet = 0;
+							if (widgetDimensions) {
 
-						}, 75);
+								if (vm.widget.WidgetResource.IsModalPopUp) {
+									heightToSet = widgetDimensions.height - tabDimensions.height - 20;
+								} else {
+									heightToSet = widgetDimensions.height - tabDimensions.height - 9;
+								}
+
+								//console.log("Height to set = " + heightToSet);
+								$("#tab-content" + vm.widget.Id).css('height', heightToSet);
+							}
+
+						}, 50, 40);
 					}
 
 
@@ -732,10 +544,6 @@
 
 					}
 
-
-
-
-
 					$scope.$on("Dashboard", function (event, modifiedExpandedDashboard) {
 						console.log("pcaSummary Dashboard event. Modified Dashboard = %O", modifiedExpandedDashboard);
 						if (modifiedExpandedDashboard.Id == vm.dashboard.Id) {
@@ -746,7 +554,6 @@
 					});
 
 					vm.state = $state;
-
 
 					$scope.$$postDigest(function () {
 						displaySetupService.SetPanelBodyWithIdHeight(vm.widget.Id);

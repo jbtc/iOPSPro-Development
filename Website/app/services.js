@@ -676,9 +676,9 @@
 				.expandPredicate("UserAuthorizedActivities")
 					.expand("AuthorizableActivity")
 				.finish()
-                .query().$promise.then(function(data) {
-					return data.orderBy(function(p) { return p.Person.FamilyName });
-				});
+                .query().$promise.then(function (data) {
+                	return data.orderBy(function (p) { return p.Person.FamilyName });
+                });
 		}
 
 
@@ -930,7 +930,7 @@
 
 
 			return $q.when([]);
-			
+
 		};
 
 
@@ -1114,8 +1114,8 @@
 
 
 
-						console.log("service.GetAllSignalRObservationFormattedTagsForAssetIdIntoInventory Aircraft Docked data = %O", data.first(function (d) { return d.JBTStandardObservationId == 12245 }));
-						console.log("service.GetAllSignalRObservationFormattedTagsForAssetIdIntoInventory Audible Warning data = %O", data.first(function (d) { return d.JBTStandardObservationId == 3792 }));
+						//console.log("service.GetAllSignalRObservationFormattedTagsForAssetIdIntoInventory Aircraft Docked data = %O", data.first(function (d) { return d.JBTStandardObservationId == 12245 }));
+						//console.log("service.GetAllSignalRObservationFormattedTagsForAssetIdIntoInventory Audible Warning data = %O", data.first(function (d) { return d.JBTStandardObservationId == 3792 }));
 
 
 						data
@@ -1207,9 +1207,9 @@
 			service.Statistics.SignalR.MessageCount++;
 			signalRData = GetJsonFromSignalR(signalRData);
 
-			if (signalRData.TagName.indexOf('B2|B34|') > 0 && signalRData.TagName.indexOf('AIRCRAFT_DOCKED') > 0) {
-				console.log("B34 SignalR data Arrived in dataService Service = %O", signalRData);
-			}
+			//if (signalRData.TagName &&  signalRData.TagName.indexOf('B2|B34|') > 0 && signalRData.TagName.indexOf('AIRCRAFT_DOCKED') > 0) {
+			//	console.log("B34 SignalR data Arrived in dataService Service = %O", signalRData);
+			//}
 
 			signalRData.DataType = 'signalR';
 			signalRData.PLCUTCDate = new Date(signalRData.PLCUTCDate);
@@ -1430,10 +1430,10 @@
 				}
 			}
 			if (tag.DataType == 'signalR') {
-				
-			if (tag.TagName.indexOf('B2|B34|') > 0 && tag.TagName.indexOf('AIRCRAFT_DOCKED') > 0) {
-				console.log("B34 SignalR data Arrived in dataService - before broadcast = %O", tag);
-			}
+
+				//if (tag.TagName.indexOf('B2|B34|') > 0 && tag.TagName.indexOf('AIRCRAFT_DOCKED') > 0) {
+				//	console.log("B34 SignalR data Arrived in dataService - before broadcast = %O", tag);
+				//}
 
 
 				$rootScope.$broadcast("dataService.TagUpdate", tag);
@@ -1562,8 +1562,8 @@
 
 
 		//***G
-		//++Ten Times Per Second Interval
-		//+Ten times per second, update the messages per second on any entity.
+		//++Five Times Per Second Interval
+		//+Five times per second, update the messages per second on any entity.
 		//***G
 
 		$interval(function () {
@@ -1579,7 +1579,7 @@
 			cache.systems.select(function (e) { UpdateCountDownsForEntity(e) });
 			cache.assets.select(function (e) { UpdateCountDownsForEntity(e) });
 
-		}, 100);
+		}, 200);
 
 
 		//***G
@@ -1647,28 +1647,28 @@
 
 			if (entity) {
 				if (entity.Metadata.UpdateCountDowns.OneSecond > 0) {
-					entity.Metadata.UpdateCountDowns.OneSecond -= 1000;
+					entity.Metadata.UpdateCountDowns.OneSecond -= 1000*2;
 				}
 				if (entity.Metadata.UpdateCountDowns.TenSecond > 0) {
-					entity.Metadata.UpdateCountDowns.TenSecond -= 100;
+					entity.Metadata.UpdateCountDowns.TenSecond -= 100*2;
 				}
 				if (entity.Metadata.UpdateCountDowns.ThirtySecond > 0) {
-					entity.Metadata.UpdateCountDowns.ThirtySecond -= 33.33;
+					entity.Metadata.UpdateCountDowns.ThirtySecond -= 33.33*2;
 				}
 				if (entity.Metadata.UpdateCountDowns.OneMinute > 0) {
-					entity.Metadata.UpdateCountDowns.OneMinute -= 16.66;
+					entity.Metadata.UpdateCountDowns.OneMinute -= 16.66*2;
 				}
 				if (entity.Metadata.UpdateCountDowns.FiveMinute > 0) {
-					entity.Metadata.UpdateCountDowns.FiveMinute -= 3.332;
+					entity.Metadata.UpdateCountDowns.FiveMinute -= 3.332*2;
 				}
 				if (entity.Metadata.UpdateCountDowns.FifteenMinute > 0) {
-					entity.Metadata.UpdateCountDowns.FifteenMinute -= 1.111;
+					entity.Metadata.UpdateCountDowns.FifteenMinute -= 1.111*2;
 				}
 				if (entity.Metadata.UpdateCountDowns.ThirtyMinute > 0) {
-					entity.Metadata.UpdateCountDowns.ThirtyMinute -= .5553;
+					entity.Metadata.UpdateCountDowns.ThirtyMinute -= .5553*2;
 				}
 				if (entity.Metadata.UpdateCountDowns.OneHour > 0) {
-					entity.Metadata.UpdateCountDowns.OneHour -= .27766;
+					entity.Metadata.UpdateCountDowns.OneHour -= .27766*2;
 				}
 			}
 
@@ -1824,9 +1824,15 @@
 			var div = $("#" + Id)[0];
 			//console.log("div = %O", div);
 			//Find the panel heading so we can determine its height
-			var divWidth = div.offsetWidth;
-			var divHeight = div.offsetHeight;
-			return { width: divWidth, height: divHeight };
+			if (div) {
+
+				var divWidth = div.offsetWidth;
+				var divHeight = div.offsetHeight;
+				return { width: divWidth, height: divHeight };
+			} else {
+				return { width: 0, height: 0 };
+
+			}
 		}
 
 		service.SetDivHeightById = function (id, height) {
@@ -2530,6 +2536,22 @@
 										Global.User = data;
 									}
 
+									if (data.error) {
+										//There was an error for some reason
+										if (data.error.innererror &&
+											data.error.innererror.internalexception &&
+											data.error.innererror.internalexception.type &&
+											(
+												data.error.innererror.internalexception.type == 'System.Data.Entity.Core.EntityException'
+											||
+											data.error.innererror.internalexception.type == 'System.Data.Entity.Core.EntityException'
+											)) {
+
+											alertify.alert("iOPSPro is experiencing database issues. Try again later.");
+
+										}
+									}
+
 									JoinUserSignalRGroups();
 
 									$rootScope.$broadcast('securityService:authenticated', service.currentUser);
@@ -2551,15 +2573,17 @@
 		}, 3000);
 
 		function JoinUserSignalRGroups() {
-			if (Global.User.AuthorizedActivities.contains("AuthorizedActivity.AdministerSystem")) {
-				signalR.JoinGroup("Admin");
-			}
+			if (Global.User && Global.User.AuthorizedActivities) {
+				if (Global.User.AuthorizedActivities.contains("AuthorizedActivity.AdministerSystem")) {
+					signalR.JoinGroup("Admin");
+				}
 
-			Global.User.ReaderOf.forEach(function (ro) {
-				var site = ro.replace('Site.', '')
-				//console.log("User ReaderOf Sites site = to join = %O", site);
-				signalR.JoinGroup(site);
-			});
+				Global.User.ReaderOf.forEach(function (ro) {
+					var site = ro.replace('Site.', '')
+					//console.log("User ReaderOf Sites site = to join = %O", site);
+					signalR.JoinGroup(site);
+				});
+			}
 		}
 
 
@@ -2746,6 +2770,11 @@
 		}
 
 		function RemoveUserByClientId(clientId) {
+
+			var browser = service.connectedClients.first(function (c) { return c.ClientId == clientId });
+			if (browser) {
+				console.log("SignalR Client Disconnect was a browser for client = %O", browser);
+			}
 			service.connectedClients = service.connectedClients.where(function (c) { return c.ClientId != clientId });
 		}
 
@@ -2769,11 +2798,11 @@
 				groupName = "";
 			}
 
-			if (dataObject.indexOf) {
-				if (dataObject.indexOf('B2|B34|') > 0 && dataObject.indexOf('AIRCRAFT_DOCKED') > 0) {
-				console.log("B34 data Arrived in signalR Service = %O", dataObject);
-			}
-			}
+			//if (dataObject && dataObject.indexOf) {
+			//	if (dataObject.indexOf('TestTagName') > 0) {
+			//		console.log("TestTagName Arrived in signalR Service = %O", dataObject);
+			//	}
+			//}
 
 
 			//if (groupName == "BNA") {
@@ -3177,8 +3206,8 @@
 		}
 
 		function ConsoleLogAllConnectedClients() {
-			//console.log("Clients Connected: %O", service.connectedClients);
-			//console.log("hub = %O", $.connection.hub);
+			console.log("Clients Connected: %O", service.connectedClients);
+			console.log("hub = %O", $.connection.hub);
 		}
 
 		service.SignalClientsForLogout = function () {
@@ -3202,7 +3231,9 @@
 
 			startTime = performance.now();
 			console.log("signalR Client = %O", service.Me);
-			service.SignalSpecificClient(service.Me.ClientId, "signalRPerformanceTest", true);
+			if (service.Me) {			
+				service.SignalSpecificClient(service.Me.ClientId, "signalRPerformanceTest", true);
+			}
 		}
 
 		$rootScope.$on("signalRPerformanceTest", function (event, obj) {
@@ -3225,6 +3256,7 @@
 
 							service.SignalAllClients("System.ClientConnectionEstablished", GetClientDataObject());
 						}
+						//$interval(SignalRPerformanceTest,500);
 						SignalRPerformanceTest();
 					}
 

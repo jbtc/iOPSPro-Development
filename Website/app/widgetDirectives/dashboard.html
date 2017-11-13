@@ -67,7 +67,7 @@
         <div gridster="vm.gridsterOpts">
             <ul ng-if="vm.widgets">
                 <li ng-repeat="widget in vm.widgets track by widget.Id" gridster-item="widget"  style="border: none;" id="gridster{{widget.Id}}">
-                    <div class="panel panel-default" style="height: 100%; overflow-y: hidden;" id="widget-panel-heading{{widget.Id}}">
+                    <div class="panel panel-default" style="height: 100%; overflow-y: hidden;" id="widget-panel-heading{{widget.Id}}" ng-click="vm.LogWidget(widget)">
                         <div class="panel-heading" id="{{vm.dashboard.Id}}" style="cursor: move; font-size:.9em; padding-top:5px; height:30px; background: {{widget.displaySettings.headingBackground ? widget.displaySettings.headingBackground : 'linear-gradient(to bottom,#dedede, #fefefe)'}};">
                             
 
@@ -82,7 +82,7 @@
 
 
                                 <i ui-sref=".editWidget({ WidgetId: widget.Id})" class="fa fa-pencil-square-o" aria-hidden="true" title="Edit widget {{widget.Name}}" style="cursor: pointer; padding: 4px;"></i>
-                                <i ng-click="vm.deleteWidget(widget)" class="fa fa-times" aria-hidden="true" title='Delete "{{widget.Name}}" widget' style="color: red; margin-left: 0; cursor: pointer; padding: 4px;"></i>
+                                <i title="Click = Delete widget from dashboard with confirmation&#13;DblClick = Delete widget from dashboard without confirmation" sglclick="vm.deleteWidget(widget, true)" ng-dblclick="vm.deleteWidget(widget, false)" class="fa fa-times" aria-hidden="true" title='Delete "{{widget.Name}}" widget' style="color: red; margin-left: 0; cursor: pointer; padding: 4px;"></i>
                             </div>
                             {{widget.Name}} {{widget.displaySettings.headingExtraTitle}}
                         </div>
@@ -112,6 +112,7 @@
                             <site-active-alarms ng-if="widget.WidgetResource.WidgetType.AngularDirectiveName == 'siteActiveAlarms'" widget="widget" dashboard="vm.dashboard"></site-active-alarms>
                             <site-active-warnings ng-if="widget.WidgetResource.WidgetType.AngularDirectiveName == 'siteActiveWarnings'" widget="widget" dashboard="vm.dashboard"></site-active-warnings>
                             <site-gate-summary ng-if="widget.WidgetResource.WidgetType.AngularDirectiveName == 'siteGateSummary'" widget="widget" dashboard="vm.dashboard"></site-gate-summary>
+                            <gs-reports ng-if="widget.WidgetResource.WidgetType.AngularDirectiveName == 'gsReports'" widget="widget" dashboard="vm.dashboard"></gs-reports>
 
                             <!--<dashboard ng-if="widget.WidgetResource.WidgetType.AngularDirectiveName == 'dashboard'" widget="widget" dashboard="widget.WidgetResource.EmbeddedDashboard" dashboard-id="widget.WidgetResource.EmbeddedDashboard.Id"></dashboard>-->
                         </div>

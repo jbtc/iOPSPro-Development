@@ -354,6 +354,15 @@ th {
 	margin-bottom: 5px;
 }
 
+.panel-heading-small-title {
+	color: #e5e5e5;
+	font-size: 1.1em;
+    font-weight: bold;
+	margin-bottom: 5px;
+}
+
+
+
 .panel-menu-heading-title {
 	color: #d0d0d0;
 	font-size: 1.1em;
@@ -375,6 +384,13 @@ th {
 .panel-heading-subtitle {
 	color: #fff1c1;
 	font-size: .9em;
+	font-style: italic;
+
+}
+
+.panel-heading-small-subtitle {
+	color: #fff1c1;
+	font-size: .7em;
 	font-style: italic;
 
 }

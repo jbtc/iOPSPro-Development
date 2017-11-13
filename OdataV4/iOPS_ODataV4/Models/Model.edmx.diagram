@@ -28,7 +28,7 @@
         <AssociationConnector Association="iOPS_NormalizedModel.FK_CompanyDataReader_iOPSUser" />
         <EntityTypeShape EntityType="iOPS_NormalizedModel.Site" Width="12.25" PointX="2.375" PointY="15.375" />
         <EntityTypeShape EntityType="iOPS_NormalizedModel.SiteCompany" Width="1.5" PointX="16" PointY="14.5" />
-        <EntityTypeShape EntityType="iOPS_NormalizedModel.SiteDataReader" Width="1.5" PointX="15.875" PointY="19.25" />
+        <EntityTypeShape EntityType="iOPS_NormalizedModel.SiteDataReader" Width="1.5" PointX="14.875" PointY="21.875" />
         <AssociationConnector Association="iOPS_NormalizedModel.FK_SiteCompany_Company" />
         <AssociationConnector Association="iOPS_NormalizedModel.FK_SiteCompany_Site" />
         <AssociationConnector Association="iOPS_NormalizedModel.FK_SiteDataReader_Site" />
@@ -116,6 +116,10 @@
         <AssociationConnector Association="iOPS_NormalizedModel.FK_GSJBTStandardObservationIdExclusionListFromCurrentAlarms_JBTStandardObservation" />
         <EntityTypeShape EntityType="iOPS_NormalizedModel.ChronologicalRawTagValueLogKepwareReceiver" Width="4.125" PointX="2.25" PointY="1.25" />
         <AssociationConnector Association="iOPS_NormalizedModel.FK_Widget_Widget" />
+        <EntityTypeShape EntityType="iOPS_NormalizedModel.GSReport" Width="1.5" PointX="16.375" PointY="18.875" />
+        <AssociationConnector Association="iOPS_NormalizedModel.FK_GSReport_Site" />
+        <EntityTypeShape EntityType="iOPS_NormalizedModel.GSReportRun" Width="1.5" PointX="18.625" PointY="19.125" />
+        <AssociationConnector Association="iOPS_NormalizedModel.FK_GSReportRun_GSReport" />
         </Diagram>
     </edmx:Diagrams>
   </edmx:Designer>

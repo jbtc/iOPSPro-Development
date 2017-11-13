@@ -77,6 +77,8 @@ namespace iOPS_ODataV4.Models
         public virtual DbSet<ObservationAggregatedHighChartValue> ObservationAggregatedHighChartValues { get; set; }
         public virtual DbSet<GSJBTStandardObservationIdExclusionListFromCurrentAlarm> GSJBTStandardObservationIdExclusionListFromCurrentAlarms { get; set; }
         public virtual DbSet<ChronologicalRawTagValueLogKepwareReceiver> ChronologicalRawTagValueLogKepwareReceivers { get; set; }
+        public virtual DbSet<GSReport> GSReports { get; set; }
+        public virtual DbSet<GSReportRun> GSReportRuns { get; set; }
     
         public virtual ObjectResult<BHSLocationThroughput_Result1> BHSLocationThroughput(Nullable<System.DateTime> beginDate, Nullable<System.DateTime> endDate, string location)
         {
