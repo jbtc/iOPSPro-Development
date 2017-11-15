@@ -45,27 +45,7 @@
 
 
 					vm.openSettingsDash = function ($event, widget) {
-						try {
-							var element = $("#widget-settings-" + widget.Id)[0].parentNode.parentNode.offsetParent;
-							var position = $(element).offset();
-							position.width = $(element).width();
-
-							vm.settingsZIndex = $("#gridster" + widget.Id).css('z-index');
-
-							if (vm.settingsZIndex < 10) {
-								$("#gridster" + widget.Id).css('z-index', '35');
-							} else {
-								$("#gridster" + widget.Id).css('z-index', '2');
-
-							}
-							$("#widget-settings-" + widget.Id).css({ left: position.left + 20, top: position.top + 35, width: 500, 'z-index': 3500 });
-							$("#widget-settings-" + widget.Id).slideToggle();
-
-
-						} catch (e) {
-
-						}
-
+						$state.go('.widgetSettings', { widget: widget });
 					}
 
 					ReportStep(2);
@@ -119,11 +99,7 @@
 									//Clear out the selection of tag to graph
 									vm.dashboard.tagsToGraph = [];
 								});
-
-
 							});
-
-
 						});
 
 
@@ -187,6 +163,7 @@
 						.then(function () {
 							dataService.GetIOPSResource("Widgets")
 								.filter("ParentDashboardId", vm.dashboardId)
+								.filter("ParentWidgetId", null)
 								.expand("WidgetType")
 								.expand("EmbeddedDashboard")
 								.query()
@@ -211,6 +188,8 @@
 											HasChanged: false
 										}
 									});
+
+									vm.dashboard.widgets = vm.widgets;
 
 									console.log("Dashboard widgets = %O", vm.widgets);
 
@@ -388,6 +367,7 @@
 
 						if (deletedWidget.ParentDashboardId == vm.dashboard.Id) {
 							vm.widgets = vm.widgets.where(function (w) { return w.Id != deletedWidget.Id });
+							vm.dashboard.widgets = vm.widgets;
 
 							//Set a timer half a second into the future that will save the possible new positions of all of the widgets left on the screen
 							$timeout(function () {
@@ -409,57 +389,87 @@
 						}
 					});
 
-					vm.deleteWidget = function (widget) {
+					
+
+					function DeleteWidgetFromDatabase(widget) {
+						dataService.GetIOPSResource("Widgets").filter("Id", widget.Id).query().$promise.then(function (widgetToDeleteArray) {
+							var widgetToDelete = widgetToDeleteArray[0];
 
 
 
 
-						alertify.set({
-							labels: {
-								ok: 'Yes, Delete the "' + widget.Name + '" Widget',
-								cancel: "Cancel, I don't want to do this"
-							},
-							buttonFocus: "cancel"
-						});
 
-						var message = 'Are you SURE you want to delete the "' + widget.Name + '" widget from this dashboard? ';
+							//Delete any WidgetGraphTag rows that might be associated with this widget
+							$q.all(
+								
+								//Delete any associated graphtags
+								dataService.GetIOPSCollection("WidgetGraphTags", "WidgetId", widget.Id).then(function(graphTags) {
+									return $q.all(
+										graphTags.select(function(graphTag) {
+											graphTag.Id = -graphTag.Id;
+											return graphTag.$save();
+										})
+									);
+								}),
 
-						alertify.confirm(message, function (e) {
-							if (e) {
-								// user clicked "ok"
+								//Delete any child widgets tied to this one. (Pop-up type widgets)
+								dataService.GetIOPSCollection("Widgets", "ParentWidgetId", widget.Id).then(function (childWidgets) {
+									console.log("Child Widgets to delete = %O", childWidgets);
+									return $q.all(
+										childWidgets.select(function(childWidget) {
+											childWidget.Id = -childWidget.Id;
+											return childWidget.$save();
+										})
+									);
+								})
+								
 
 
-								dataService.GetIOPSResource("Widgets").filter("Id", widget.Id).query().$promise.then(function (widgetToDeleteArray) {
-									var widgetToDelete = widgetToDeleteArray[0];
 
-									//Delete any WidgetGraphTag rows that might be associated with this widget
-									dataService.GetIOPSCollection("WidgetGraphTags", "WidgetId", widget.Id).then(function (gts) {
-										$q.all(
-											gts.select(function (gt) {
-												gt.Id = -gt.Id;
-												return gt.$save();
-											})
-										).then(function () {
-											//console.log("Widget to delete = %O", widgetToDelete);
-											widgetToDelete.Id = -widgetToDelete.Id;
-											widgetToDelete.$save().then(function () {
-												console.log("Widget Deleted");
-												widgetToDelete.Id = -widgetToDelete.Id;
-												signalR.SignalAllClients("Widget.Deleted", widgetToDelete);
-											});
 
-										});
+
+							).then(function() {
+								//console.log("Widget to delete = %O", widgetToDelete);
+									widgetToDelete.Id = -widgetToDelete.Id;
+									widgetToDelete.$save().then(function () {
+										console.log("Widget Deleted");
+										widgetToDelete.Id = -widgetToDelete.Id;
+										signalR.SignalAllClients("Widget.Deleted", widgetToDelete);
 									});
+							});
+						});
+					}
 
 
+					vm.deleteWidget = function (widget, confirm) {
+
+
+						if (confirm) {
+							alertify.set({
+								labels: {
+									ok: 'Yes, Delete the "' + widget.Name + '" Widget',
+									cancel: "Cancel, I don't want to do this"
+								},
+								buttonFocus: "cancel"
+							});
+
+							var message = 'Are you SURE you want to delete the "' + widget.Name + '" widget from this dashboard? ';
+
+							alertify.confirm(message,
+								function(e) {
+									if (e) {
+										// user clicked "ok"
+										DeleteWidgetFromDatabase(widget);
+									} else {
+										// user clicked "no"
+										toastr.info(widget.Name, "Widget was NOT deleted!");
+									}
 								});
 
+						} else {
+							DeleteWidgetFromDatabase(widget);
+						}
 
-							} else {
-								// user clicked "no"
-								toastr.info(widget.Name, "Widget was NOT deleted!");
-							}
-						});
 
 					}
 
@@ -573,18 +583,20 @@
 					}
 
 
-					//vm.saveChangeInterval = $interval(function () {
-					//	SaveAllChangedWidgets();
-					//},
-					//	1000);
+					vm.saveChangeInterval = $interval(function () {
+						SaveAllChangedWidgets();
+					},
+						1000);
 
 
-					//$scope.$on("$destroy", function () {
-					//	$interval.cancel(vm.saveChangeInterval);
+					$scope.$on("$destroy", function () {
+						$interval.cancel(vm.saveChangeInterval);
 
-					//});
+					});
 
-
+					vm.LogWidget = function(widget) {
+						console.log("Clicked Widget data = %O", widget);
+					}
 
 					function SaveAllChangedWidgets() {
 

@@ -2,10 +2,10 @@
     <div class="chart-inner" style="width:100%; height: 100%">
         <div ng-show="vm.showWidget" style="display: flex; width: 100%; height: 100%;">
             <div style="position: relative; height: 100%; width: 100%; padding: 15px;">
-                <table class="table table-condensed">
+                <table class="table table-condensed noselect">
                     <tr>
                         <td style="border: none; width:110px; min-width: 110px;"></td>
-                        <td ng-repeat="group in vm.gateTagGroups" style="padding: 0; text-align: center; font-weight: bold; font-size: .9em; background-color: whitesmoke; border: 1px solid gray;  width: 50px; min-width: 50px; max-width: 50px;">{{group.GateName}}</td>
+                        <td ng-repeat="group in vm.gateTagGroups" ng-click="vm.AddWidgetGroupToDashboard(group)" title="Click = Add gate summary widgets to dashboard" style="padding: 0; text-align: center; cursor: pointer; font-weight: bold; font-size: .9em; background-color: whitesmoke; border: 1px solid gray;  width: 50px; min-width: 50px; max-width: 50px;">{{group.GateName}}</td>
                     </tr>
                     <!--<tr>
                         <td>Alerts</td>
@@ -14,15 +14,7 @@
                     <tr>
                         <td>PBB</td>
                         <td ng-repeat="group in vm.gateTagGroups" style="padding-left:5px; padding-right: 5px; padding-top: 3px; padding-bottom: 3px; border: 1px solid gray; width: 50px; min-width: 50px; max-width: 50px;">
-                            <div ng-click="vm.AddSummaryWidgetToDashboard(group.PBBUnitOnTag)" ng-if="group.GateSystem.PBBPresent" style="background-color: {{+group.PBBUnitOnTag.LastObservationTextValue == 1 ? '#00ff00' : 'gray'}}; border: 2px solid lightblue; height: 20px; cursor:pointer;">
-                                &nbsp;
-                            </div>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td>GPU</td>
-                        <td ng-repeat="group in vm.gateTagGroups" style="padding-left:5px; padding-right: 5px; padding-top: 3px; padding-bottom: 3px; border: 1px solid gray; width: 50px; min-width: 50px; max-width: 50px;">
-                            <div ng-click="vm.AddSummaryWidgetToDashboard(group.GPUUnitOnTag)"  ng-if="group.GateSystem.GPUPresent" style="background-color: {{+group.GPUUnitOnTag.LastObservationTextValue == 1 ? '#00ff00' : 'gray'}}; border: 2px solid lightblue; height: 20px; cursor:pointer;">
+                            <div sglclick="vm.OpenSummaryWidget(group.PBBUnitOnTag, $event)" ng-dblclick="vm.AddToDashboard(group.PBBUnitOnTag, $event)" title="Click = PBB Detailed Summary Popup&#13;DblClick = Add PBB Detailed Summary to this dashboard"   ng-if="group.GateSystem.PBBPresent" style="background-color: {{+group.PBBUnitOnTag.LastObservationTextValue == 1 ? '#00ff00' : '#dedede'}}; border: 2px solid lightblue; height: 20px; cursor:pointer;">
                                 &nbsp;
                             </div>
                         </td>
@@ -30,7 +22,15 @@
                     <tr>
                         <td>PCA</td>
                         <td ng-repeat="group in vm.gateTagGroups" style="padding-left:5px; padding-right: 5px; padding-top: 3px; padding-bottom: 3px; border: 1px solid gray; width: 50px; min-width: 50px; max-width: 50px;">
-                            <div ng-click="vm.AddSummaryWidgetToDashboard(group.PCAUnitOnTag)"  ng-if="group.GateSystem.PCAPresent" style="background-color: {{+group.PCAUnitOnTag.LastObservationTextValue == 1 ? '#00ff00' : 'gray'}}; border: 2px solid lightblue; height: 20px; cursor:pointer;">
+                            <div sglclick="vm.OpenSummaryWidget(group.PCAUnitOnTag)" ng-dblclick="vm.AddToDashboard(group.PCAUnitOnTag, $event)" title="Click = PCA Detailed Summary Popup&#13;DblClick = Add PCA Detailed Summary to this dashboard"   ng-if="group.GateSystem.PCAPresent" style="background-color: {{+group.PCAUnitOnTag.LastObservationTextValue == 1 ? '#00ff00' : '#dedede'}}; border: 2px solid lightblue; height: 20px; cursor:pointer;">
+                                &nbsp;
+                            </div>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>GPU</td>
+                        <td ng-repeat="group in vm.gateTagGroups" style="padding-left:5px; padding-right: 5px; padding-top: 3px; padding-bottom: 3px; border: 1px solid gray; width: 50px; min-width: 50px; max-width: 50px;">
+                            <div sglclick="vm.OpenSummaryWidget(group.GPUUnitOnTag, $event)" ng-dblclick="vm.AddToDashboard(group.GPUUnitOnTag, $event)" title="Click = GPU Detailed Summary Popup&#13;DblClick = Add GPU Detailed Summary to this dashboard"   ng-if="group.GateSystem.GPUPresent" style="background-color: {{+group.GPUUnitOnTag.LastObservationTextValue == 1 ? '#00ff00' : '#dedede'}}; border: 2px solid lightblue; height: 20px; cursor:pointer;">
                                 &nbsp;
                             </div>
                         </td>
@@ -55,38 +55,4 @@
 
         </div>
     </div>
-</div>
-
-
-
-
-
-<!--Settings Form Below-->
-<div class="panel panel-info" style="display: none; position: fixed; z-index: 30; left: 20px; top: 0; width: 90%; border: 3px solid darkcyan;" id="widget-settings-{{vm.widget.WidgetResource.Id}}">
-
-    <div class="panel-heading" style="min-height: 20px;">
-        Site Settings for {{vm.widget.Name}}
-    </div>
-    <div class="panel-body" style="overflow-x: hidden; background: linear-gradient(to bottom,#bebebe, #eeeeee);">
-                    <form class="form-horizontal" role="form" name="userForm" id="userForm" novalidate>
-                        <div class="row" style="padding: 20px;">
-
-
-                            <!-- Site - If the user has access to more than one -->
-                            <div class="form-group">
-                                <label class="col-sm-{{vm.bootstrapLabelColumns}} control-label innovation-right-aligned">
-                                    Site
-                                </label>
-                                <div class="col-sm-{{vm.bootstrapInputColumns}}">
-                                    <label ng-repeat="site in vm.userSites" style="margin: 1px;" class="btn btn-default" ng-model="vm.widget.WidgetResource.SiteId" uib-btn-radio="{{site.Id}}">{{site.Name}}</label>
-                                </div>
-                            </div>
-
-
-
-
-
-                        </div>
-                    </form>
-                </div>
 </div>

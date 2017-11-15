@@ -37,6 +37,8 @@ namespace iOPS_ODataV4.Models
         public string City { get; set; }
         public string State { get; set; }
         public string ZipCode { get; set; }
+        public Nullable<long> CellPhoneCarrierId { get; set; }
+        public string MobilePhone { get; set; }
     
         public virtual Country Country { get; set; }
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]

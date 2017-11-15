@@ -45,37 +45,16 @@
 					//Do not display the widget contents until the accordions have been setup.
 					vm.showWidget = false;
 
-
 					vm.OpenSettingsIfNoTerminalAndCloseIfTerminalIsPresent = function () {
 
 						console.log("Opening settings vm.terminalSystem = %O", vm.terminalSystem);
-
-
 						if (!vm.terminalSystem) {
-
-							var element = $("#widget-settings-" + vm.widget.WidgetResource.Id)[0].parentNode.parentNode.offsetParent;
-							var position = $(element).offset();
-							position.width = $(element).width();
-
-							$("#gridster" + vm.widget.Id).css('z-index', '35');
-							$("#widget-settings-" + vm.widget.WidgetResource.Id)
-								.css({ left: position.left + 20, top: position.top + 35, width: 500, 'z-index': 35 });
-							$("#widget-settings-" + vm.widget.WidgetResource.Id).slideDown();
-						} else {
-
-							console.log("Closing settings.....");
-
-							$("#gridster" + vm.widget.Id).css('z-index', '2');
-							$("#widget-settings-" + vm.widget.WidgetResource.Id).slideUp();
+							$state.go(".widgetSettings", { widget: vm.widget});
 						}
 					}
 
 
 
-
-					vm.CloseSettings = function () {
-						$("#widget-settings-" + vm.widget.WidgetResource.Id).slideUp();
-					}
 
 
 					//Get the site entities for which the user has access.
@@ -184,7 +163,7 @@
 
 
 								vm.showWidget = true;
-
+								displaySetupService.SetPanelBodyWithIdHeight(vm.widget.Id);
 							});
 
 
@@ -249,9 +228,9 @@
 								//Set the "showImage" flag on each appropriately.
 								if (+tg.JBTStandardObservationId == +updatedTag.JBTStandardObservationId && +updatedTag.TagId == +tg.TagId) {
 
-									console.log("===========================================================");
-									console.log("Tag Update from SignalR = ", updatedTag.TagName + " StdObsId = " + updatedTag.JBTStandardObservationId + " Val=" + updatedTag.Value);
-									console.log("TG Item identified = %O", tg);
+									//console.log("===========================================================");
+									//console.log("Tag Update from SignalR = ", updatedTag.TagName + " StdObsId = " + updatedTag.JBTStandardObservationId + " Val=" + updatedTag.Value);
+									//console.log("TG Item identified = %O", tg);
 
 								
 									tg.LastObservationTextValue = updatedTag.Value;
@@ -265,12 +244,12 @@
 									}
 
 									if (tg.showImage) {
-										console.log("Tag set to visible = %O", tg);
+										//console.log("Tag set to visible = %O", tg);
 									}
 									if (!tg.showImage) {
-										console.log("Tag set to invisible = %O", tg);
+										//console.log("Tag set to invisible = %O", tg);
 									}
-									console.log("===========================================================");
+									//console.log("===========================================================");
 									
 								}
 							});

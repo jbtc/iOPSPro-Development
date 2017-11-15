@@ -45,9 +45,6 @@
                         <th style="width: {{vm.columnWidths.hiddenStatus}}%">
                             Is Hidden System Type
                         </th>
-                        <th style="width: {{vm.columnWidths.hiddenStatus}}%">
-                            Has Settings
-                        </th>
                         <th style="width: 150px;">
                             Actions
                         </th>
@@ -97,14 +94,6 @@
                                 Yes                            
                             </div>
                             <div ng-if="!wt.IsHiddenSystemType" class="false-td-value">
-                                No
-                            </div>
-                        </td>
-                        <td>
-                            <div ng-if="wt.HasSettings" class="true-td-value">
-                                Yes                            
-                            </div>
-                            <div ng-if="!wt.HasSettings" class="false-td-value">
                                 No
                             </div>
                         </td>

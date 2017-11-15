@@ -12,15 +12,13 @@ namespace iOPS_ODataV4.Models
     using System;
     using System.Collections.Generic;
     
-    public partial class ChronologicalRawTagValueLogKepwareReceiver
+    public partial class GSReportRun
     {
         public long Id { get; set; }
-        public Nullable<System.DateTime> ObservationDateTime { get; set; }
-        public Nullable<System.DateTime> CreationDate { get; set; }
-        public string TagName { get; set; }
-        public string Value { get; set; }
-        public Nullable<System.DateTime> ETLDate { get; set; }
-        public Nullable<int> Quality { get; set; }
-        public Nullable<int> NotificationLevel { get; set; }
+        public Nullable<System.DateTime> Date { get; set; }
+        public Nullable<long> UserId { get; set; }
+        public Nullable<long> GSReportId { get; set; }
+    
+        public virtual GSReport GSReport { get; set; }
     }
 }

@@ -154,11 +154,11 @@ angular.module('app').config(['$routeProvider', '$urlRouterProvider', '$statePro
 				.state('home.app.dashboard.widgetSettings',
 				{
 					params: {
-						Widget: null //Pass the entire widget resource model as the parameter. The widget itself will invoke this state and pass it. It will ALWAYS be valued.
+						widget: null //Pass the entire widget resource model as the parameter. The widget itself will invoke this state and pass it. It will ALWAYS be valued.
 					},
 					views: {
-						'contentPane@home': {
-							templateUrl: "app/stateContent/dashboards/widgetSettings.html?seq=" + Date.now(),
+						'contentPane@home.app.dashboard': {
+							templateUrl: "app/widgetDirectives/widgetSettings.html?seq=" + Date.now(),
 							controller: "WidgetSettingsCtrl as vm"
 						}
 					}
@@ -182,12 +182,44 @@ angular.module('app').config(['$routeProvider', '$urlRouterProvider', '$statePro
 				.state('home.app.dashboard.pcaSummaryModal',
 				{
 					params: {
-						assetId: null
+						widget: null,
+						assetId: null,
+						dashboard: null
 					},
 					views: {
 						'contentPane@home.app.dashboard': {
 							templateUrl: "app/widgetDirectives/pcaSummaryModal.html?seq=" + Date.now(),
 							controller: "PCASummaryModalCtrl as vm"
+						}
+					}
+				})
+				//***
+				.state('home.app.dashboard.gpuSummaryModal',
+				{
+					params: {
+						widget: null,
+						assetId: null,
+						dashboard: null
+					},
+					views: {
+						'contentPane@home.app.dashboard': {
+							templateUrl: "app/widgetDirectives/gpuSummaryModal.html?seq=" + Date.now(),
+							controller: "GPUSummaryModalCtrl as vm"
+						}
+					}
+				})
+				//***
+				.state('home.app.dashboard.pbbSummaryModal',
+				{
+					params: {
+						widget: null,
+						assetId: null,
+						dashboard: null
+					},
+					views: {
+						'contentPane@home.app.dashboard': {
+							templateUrl: "app/widgetDirectives/pbbSummaryModal.html?seq=" + Date.now(),
+							controller: "PBBSummaryModalCtrl as vm"
 						}
 					}
 				})

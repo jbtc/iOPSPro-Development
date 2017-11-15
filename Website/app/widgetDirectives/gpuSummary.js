@@ -12,10 +12,7 @@
 					var vm = this;
 
 					function GetHeadingExtraTitle() {
-						if (vm.GateSystem) {
-							var site = vm.JBTData.Sites.first(function (s) { return s.Id == vm.GateSystem.SiteId });
-							return ' - ' + site.Name + ' Gate ' + vm.GateSystem.Name + (vm.gpu.ModelGenericName ? ' - ' + vm.gpu.ModelGenericName : '');
-						}
+						return ' - ' + vm.Asset.Site.Name + ' Gate ' + vm.Asset.ParentSystem.Name + (vm.Asset.ModelGenericName ? ' - ' + vm.Asset.ModelGenericName : '');
 					}
 
 					vm.widget.headingBackground = 'linear-gradient(to bottom,#dedede, #fefefe)';
@@ -87,42 +84,11 @@
 
 
 						if (!vm.gpu) {
-
-							var element = $("#widget-settings-" + vm.widget.WidgetResource.Id)[0].parentNode.parentNode.offsetParent;
-							var position = $(element).offset();
-							position.width = $(element).width();
-
-							$("#gridster" + vm.widget.Id).css('z-index', '35');
-							$("#widget-settings-" + vm.widget.WidgetResource.Id)
-								.css({ left: position.left + 20, top: position.top + 35, width: 500, 'z-index': 35 });
-							$("#widget-settings-" + vm.widget.WidgetResource.Id).slideDown();
-						} else {
-
-							$("#gridster" + vm.widget.Id).css('z-index', '2');
-							$("#widget-settings-" + vm.widget.WidgetResource.Id).slideUp();
+							$state.go(".widgetSettings", { widget: vm.widget });
 						}
 					}
 
 
-
-					//$timeout(function () {
-					//	if (!vm.gpu) {
-
-					//		var element = $("#widget-settings-" + vm.widget.WidgetResource.Id)[0].parentNode.parentNode.offsetParent;
-					//		var position = $(element).offset();
-					//		position.width = $(element).width();
-
-					//		$("#gridster" + vm.widget.Id).css('z-index', '35');
-					//		$("#widget-settings-" + vm.widget.WidgetResource.Id).css({ left: position.left + 20, top: position.top + 35, width: 500, 'z-index': 35 });
-					//		$("#widget-settings-" + vm.widget.WidgetResource.Id).slideToggle();
-					//	}
-					//}, 200);
-
-
-
-					vm.CloseSettings = function () {
-						$("#widget-settings-" + vm.widget.WidgetResource.Id).slideUp();
-					}
 
 					vm.ProcessTagsToGraph = function (tag) {
 
@@ -146,156 +112,16 @@
 					//Get the site entities for which the user has access.
 					dataService.GetJBTData().then(function (JBTData) {
 						vm.JBTData = JBTData;
-						var userSiteCodes = vm.user.ReaderOf.where(function (s) { return s.split('.')[0] == 'Site' })
-							.select(function (s) { return s.split('.')[1] });
+						vm.Asset = vm.JBTData.Assets.first(function (a) { return a.Id == vm.widget.WidgetResource.AssetId });
+						vm.gpu = vm.Asset;
+						console.log("gpuSummary Asset = %O", vm.Asset);
+						GetGPUAssetForGate();
 
-						//console.log("user site codes = %O", userSiteCodes);
-
-						vm.userSites = vm.JBTData.Sites.where(function (site) {
-							return userSiteCodes.any(function (sc) { return sc == site.Name })
-						});
-
-						//console.log("vm.userSites = %O", vm.userSites);
-
-						if (vm.userSites.length == 1) {
-							console.log("User only has a single Site");
-							vm.widget.WidgetResource.SiteId = vm.userSites[0].Id;
-							vm.widgetSite = vm.userSites[0];
-							GetTerminalsForWidgetSite();
-						} else {
-
-							if (vm.widget.WidgetResource.SiteId) {
-								GetTerminalsForWidgetSite();
-							}
-						}
+						vm.widget.displaySettings.headingExtraTitle = GetHeadingExtraTitle();
 					});
 
 
 
-
-					//Start watching for site id changes	
-					$scope.$watch("vm.widget.WidgetResource.SiteId",
-					function (newValue, oldValue) {
-						if (vm.widget.WidgetResource.SiteId && vm.userSites) {
-
-							//console.log("vm.widget.WidgetResource.SiteId changed. Now = %O", vm.widget);
-							vm.widgetSite = vm.userSites.first(function (s) { return s.Id == vm.widget.SiteId });
-							if (oldValue != newValue) {
-								vm.terminals = null;
-								vm.zones = null;
-								vm.gates = null;
-								vm.gpu = null;
-								vm.widget.WidgetResource.TerminalSystemId = null;
-								vm.widget.WidgetResource.ZoneSystemId = null;
-								vm.widget.WidgetResource.GateSystemId = null;
-
-								SaveWidgetResourceObjectIfChanged();
-								GetTerminalsForWidgetSite();
-							}
-						}
-					});
-
-					function GetTerminalsForWidgetSite() {
-						if (vm.widget.WidgetResource.SiteId) {
-
-							//console.log("Getting the terminals for the widget site");
-
-							vm.terminals = vm.JBTData
-								.Systems
-								.where(function (s) { return s.SiteId == vm.widget.WidgetResource.SiteId && s.Type == 'Terminal' });
-
-
-							if (vm.terminals.length > 0) {
-								GetZonesForWidgetTerminal();
-							}
-
-
-
-						}
-					}
-
-					//Start watching for terminal id changes	
-					$scope.$watch("vm.widget.WidgetResource.TerminalSystemId",
-					function (newValue, oldValue) {
-						if (vm.widget.WidgetResource.TerminalSystemId) {
-
-							//console.log("vm.widget.WidgetResource.TerminalSystemId changed. Old = %O", oldValue);
-							//console.log("vm.widget.WidgetResource.TerminalSystemId changed. New = %O", newValue);
-							if (newValue != oldValue) {
-								vm.widget.WidgetResource.ZoneSystemId = null;
-								vm.widget.WidgetResource.GateSystemId = null;
-								vm.zones = null;
-								vm.gates = null;
-								vm.gpu = null;
-
-								SaveWidgetResourceObjectIfChanged();
-
-							}
-
-							GetZonesForWidgetTerminal();
-						}
-					});
-
-					function GetZonesForWidgetTerminal() {
-						if (vm.terminals && vm.widget.WidgetResource.TerminalSystemId) {
-
-							//console.log("Getting the zone (area system) for the widget terminal");
-
-							vm.zones = vm.JBTData
-								.Systems
-								.where(function (s) { return s.Type == 'Zone' && s.ParentSystemId == vm.widget.WidgetResource.TerminalSystemId }) //children of this terminal
-								.where(function (zoneSystem) { return vm.JBTData.Systems.any(function (s) { return s.Type == 'Gate' && s.ParentSystemId == zoneSystem.Id && s.Assets.any(function (gateSystemAsset) { return gateSystemAsset.Name == "GPU" }) }) }) //that have at least one gate system child
-								.orderBy(function (z) { return z.Name });
-
-
-
-							//console.log("vm.zones = %O", vm.zones);
-							GetGatesForWidgetZone();
-
-						}
-					}
-
-
-
-					//Start watching for zone id changes	
-					$scope.$watch("vm.widget.WidgetResource.ZoneSystemId",
-					function (newValue, oldValue) {
-						if (vm.widget.WidgetResource.ZoneSystemId) {
-
-							//console.log("vm.widget.WidgetResource.ZoneSystemId changed. Now = %O", vm.widget);
-							if (newValue != oldValue) {
-								vm.gates = null;
-								vm.gpu = null;
-								vm.widget.WidgetResource.GateSystemId = null;
-
-								SaveWidgetResourceObjectIfChanged();
-
-							}
-							GetGatesForWidgetZone();
-						}
-					});
-
-					function GetGatesForWidgetZone() {
-						if (vm.zones && vm.widget.WidgetResource.ZoneSystemId) {
-
-							//console.log("Getting the gate (gate system) for the widget zone");
-
-
-							vm.gates = vm.JBTData
-								.Systems
-								.where(function (s) { return s.Type == 'Gate' })
-								.where(function (s) { return s.ParentSystemId == vm.widget.WidgetResource.ZoneSystemId })
-								.where(function (s) { return vm.JBTData.Assets.any(function (a) { return a.ParentSystemId == s.Id && a.Name == 'GPU' }) })
-								.orderBy(function (s) { return s.Name });
-
-
-
-							//console.log("vm.gates = %O", vm.gates);
-
-
-
-						}
-					}
 
 
 					//Start watching for gate id changes	
@@ -309,22 +135,10 @@
 								vm.gpu = null;
 
 								SaveWidgetResourceObjectIfChanged();
+								
 
-								dataService.GetEntityById("SystemGroups", newValue).then(function (gateSystem) {
-									vm.GateSystem = gateSystem;
-									//vm.widget.displaySettings.headingExtraTitle = GetHeadingExtraTitle();
-								});
-
-								$timeout(function () {
-									if (vm.gpu) {
-										//Uncomment to cause the settings window to close after a short delay after gate selection
-										if (Global.User.Username != 'markzzzz') {
-											$("#widget-settings-" + vm.widget.WidgetResource.Id).slideToggle();
-										}
-									}
-								}, 400);
 							}
-							GetAssetsForGate();
+							GetGPUAssetForGate();
 						}
 					});
 
@@ -355,19 +169,17 @@
 						GenerateVoltsOutAverageLinearMeter();
 					}
 
-
-					function GetAssetsForGate() {
+					function GetGPUAssetForGate() {
 
 						dataService.GetJBTData().then(function (jbtData) {
 							vm.JBTData = jbtData;
-
-
-
 
 							vm.gpu = vm.JBTData
 								.Assets
 								.first(function (a) { return a.ParentSystemId == vm.widget.WidgetResource.GateSystemId && a.Name == 'GPU' });
 
+
+							vm.Asset = vm.gpu;
 
 							if (vm.widget.WidgetResource.GateSystemId) {
 
@@ -376,7 +188,6 @@
 							}
 
 							console.log("vm.gpu = %O", vm.gpu);
-
 
 							vm.widget.WidgetResource.AssetId = vm.gpu.Id;
 
@@ -417,13 +228,27 @@
 
 
 					function SetTabBodyHeight() {
-						var widgetDimensions = displaySetupService.GetWidgetPanelBodyDimensions(vm.widget.Id);
-						var tabDimensions = displaySetupService.GetDivDimensionsById("nav-pills" + vm.widget.Id);
-						var heightToSet = widgetDimensions.height - tabDimensions.height - 9;
-						//console.log("Height to set = " + heightToSet);
-						$("#tab-content" + vm.widget.Id).css('height', heightToSet);
+						$interval(function () {
 
+							displaySetupService.SetWidgetPanelBodyDimensions(vm.widget.Id);
+							var widgetDimensions = displaySetupService.GetWidgetPanelBodyDimensions(vm.widget.Id);
+							var tabDimensions = displaySetupService.GetDivDimensionsById("nav-pills" + vm.widget.Id);
+							var heightToSet = 0;
+							if (widgetDimensions) {
+
+								if (vm.widget.WidgetResource.IsModalPopUp) {
+									heightToSet = widgetDimensions.height - tabDimensions.height - 20;
+								} else {
+									heightToSet = widgetDimensions.height - tabDimensions.height - 9;
+								}
+
+								//console.log("Height to set = " + heightToSet);
+								$("#tab-content" + vm.widget.Id).css('height', heightToSet);
+							}
+
+						}, 50, 40);
 					}
+
 
 
 					function SetHeadingBackground() {
@@ -892,7 +717,7 @@
 					function GeneratePhaseCVoltsOutLinearMeter() {
 
 						vm.phaseCVoltsOutDataTag = vm.gpu.Tags.where(function (tag) {
-							return [4444,1862].any(function (soId) { return soId == tag.JBTStandardObservationId });
+							return [4444, 1862].any(function (soId) { return soId == tag.JBTStandardObservationId });
 
 						})
 						.orderByDescending(function (t) { return t.PLCLocalDate })

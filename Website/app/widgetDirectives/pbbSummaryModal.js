@@ -2,10 +2,10 @@
 	"use strict";
 
 
-	function PCASummaryModalCtrl($q, $state, $rootScope, $scope, securityService, dataService, $stateParams, utilityService, $timeout, uibButtonConfig, hotkeys, $interval, displaySetupService, signalR) {
+	function PBBSummaryModalCtrl($q, $state, $rootScope, $scope, securityService, dataService, $stateParams, utilityService, $timeout, uibButtonConfig, hotkeys, $interval, displaySetupService, signalR) {
 
 
-		console.log("PCASummaryModalCtrl invoked");
+		console.log("PBBSummaryModalCtrl invoked");
 
 
 		var vm = this;
@@ -17,7 +17,7 @@
 		vm.assetId = $stateParams.assetId;
 		vm.dashboard = $stateParams.dashboard;
 
-		console.log("PCASummaryModalCtrl widget = %O", vm.widget);
+
 
 		//Do not show a screen until it is all ready.
 		vm.showScreen = false;
@@ -26,28 +26,27 @@
 		uibButtonConfig.activeClass = 'radio-active';
 
 
-		dataService.GetJBTData().then(function(data) {
+		dataService.GetJBTData().then(function (data) {
 			vm.JBTData = data;
-			vm.pca = data.Assets.first(function (a) { return a.Id == vm.assetId });
+			vm.gpu = data.Assets.first(function (a) { return a.Id == vm.assetId });
 			vm.panelTitle = vm.widget.Name;
 			vm.panelSubtitle = 'esc to close';
 
-			dataService.GetAllSignalRObservationFormattedTagsForAssetIdIntoInventory(vm.assetId).then(function() {
+			dataService.GetAllSignalRObservationFormattedTagsForAssetIdIntoInventory(vm.assetId).then(function () {
 				vm.showScreen = true;
 			});
 
 
 		});
 
+		vm.AddToDashboard = function () {
 
-		vm.AddToDashboard = function() {
-
-			dataService.GetEntityById("WidgetTypes", vm.widget.WidgetResource.WidgetTypeId).then(function(wt) {
+			dataService.GetEntityById("WidgetTypes", vm.widget.WidgetResource.WidgetTypeId).then(function (wt) {
 
 
 				return dataService.AddEntity("Widgets",
 					{
-						Name: 'PCA Summary',
+						Name: 'PBB Summary',
 						WidgetTypeId: vm.widget.WidgetResource.WidgetTypeId,
 						ParentDashboardId: vm.dashboard.Id,
 						Width: wt.InitialWidth,
@@ -63,14 +62,16 @@
 						SystemId: vm.widget.WidgetResource.SystemId,
 						TerminalSystemId: vm.widget.WidgetResource.TerminalSystemId,
 						ZoneSystemId: vm.widget.WidgetResource.ZoneSystemId
-					}).then(function(widget) {
+					}).then(function (widget) {
 						signalR.SignalAllClients("WidgetAdded", widget);
-				});
+					});
 
 
 			});
 
 		}
+
+
 
 
 		hotkeys.bindTo($scope)
@@ -88,7 +89,7 @@
 
 	angular
 			.module("app")
-			.controller("PCASummaryModalCtrl", [
+			.controller("PBBSummaryModalCtrl", [
 				"$q",
 				"$state",
 				"$rootScope",
@@ -103,7 +104,7 @@
 				"$interval",
 				"displaySetupService",
 				"signalR",
-				PCASummaryModalCtrl
+				PBBSummaryModalCtrl
 			]);
 
 

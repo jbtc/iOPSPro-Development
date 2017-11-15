@@ -19,19 +19,122 @@
 		//Makes the uib buttons a nice shade of blue.
 		uibButtonConfig.activeClass = 'radio-active';
 
-		vm.widget = $stateParams.Widget;
+		vm.widget = $stateParams.widget;
+
+		console.log("Settings controller widget = %O", vm.widget);
+
+		//determine the type of settings screen
+		switch (vm.widget.WidgetResource.WidgetType.AngularDirectiveName) {
+
+			case 'siteGateSummary':
+			case 'gsReports':
+			case 'siteActiveAlarms':
+			case 'siteActiveWarnings':
+
+				vm.selectSite = true;
+				vm.selectTerminal = vm.selectZone = vm.selectGate = vm.selectAsset = vm.selectBHS = false;
+				break;
+
+			case 'terminalOverview':
+				vm.selectSite = vm.selectTerminal = true;
+				vm.selectZone = vm.selectGate = vm.selectAsset = vm.selectBHS = false;
+				break;
+
+			case 'rawTagDataForAsset':
+				vm.selectSite = vm.selectTerminal = vm.selectZone = vm.selectGate = vm.selectAsset = true;
+				vm.selectBHS = false;
+				break;
+
+			case 'pcaSummary':
+			case 'pbbSummary':
+			case 'gpuSummary':
+				vm.selectSite = vm.selectTerminal = vm.selectZone = vm.selectGate = true;
+				vm.selectAsset = false;
+				break;
+
+			default:
+
+
+		}
+
+
+
+		vm.originalWidgetResource = angular.copy(vm.widget.WidgetResource);
+
+		function SaveWidgetResourceObjectIfChanged() {
+			var possiblyChangedResource = angular.copy(vm.widget.WidgetResource);
+			if (!angular.equals(vm.originalWidgetResource, possiblyChangedResource)) {
+
+				console.log("Saving widget resource........");
+				console.log("Original WidgetResource = %O", vm.originalWidgetResource);
+				console.log("Changed WidgetResource = %O", possiblyChangedResource);
+				vm.widget.WidgetResource.$save();
+				vm.originalWidgetResource = possiblyChangedResource;
+			}
+		}
+
+
+
+
+
 		//Get a copy of the user record to determine privs
 		vm.user = Global.User;
 
-		vm.panelTitle = "Widget Settings for : " + vm.widget.WidgetResource.Name + " - ";
-		vm.panelSubtitle = "esc to cancel and return to dashboard, ctrl-s to save and return to dashboard";
+		vm.panelTitle = "Widget Settings for : " + vm.widget.WidgetResource.Name;
+		vm.panelSubtitle = "esc to return to dashboard";
 
 		$scope.$$postDigest(function () {
-			displaySetupService.SetPanelDimensions(10);
+			//displaySetupService.SetPanelDimensions(10);
 
 			vm.showScreen = true;
 			console.log("vm = %O", vm);
 		});
+
+		if (vm.selectTerminal) {
+
+			//Start watching for site id changes	
+			$scope.$watch("vm.widget.WidgetResource.SiteId",
+			function (newValue, oldValue) {
+				if (vm.widget.WidgetResource.SiteId && vm.userSites) {
+
+					vm.widgetSite = vm.userSites.first(function (s) { return s.Id == vm.widget.SiteId });
+					console.log("vm.widget.WidgetResource.SiteId changed. Now = %O", vm.widget);
+					if (oldValue != newValue) {
+						vm.terminals = null;
+						vm.terminalSystem = null;
+						vm.widget.WidgetResource.$save();
+						GetTerminalsForWidgetSite();
+					}
+				}
+			});
+
+		}
+
+		if (vm.selectZone) {
+			
+			//Start watching for terminal id changes	
+			$scope.$watch("vm.widget.WidgetResource.TerminalSystemId",
+			function (newValue, oldValue) {
+				if (vm.widget.WidgetResource.TerminalSystemId) {
+
+					console.log("vm.widget.WidgetResource.TerminalSystemId changed. Old = %O", oldValue);
+					console.log("vm.widget.WidgetResource.TerminalSystemId changed. New = %O", newValue);
+					if (newValue != oldValue) {
+						vm.widget.WidgetResource.ZoneSystemId = null;
+						vm.widget.WidgetResource.GateSystemId = null;
+						vm.zones = null;
+						vm.gates = null;
+						vm.pbb = null;
+
+						SaveWidgetResourceObjectIfChanged();
+
+					}
+
+					GetZonesForWidgetTerminal();
+				}
+			});
+		}
+
 
 		//Get the site entities for which the user has access.
 		dataService.GetJBTData().then(function (JBTData) {
@@ -41,19 +144,182 @@
 
 			console.log("user site codes = %O", userSiteCodes);
 
-			vm.userSites = vm.JBTData.Sites.where(function (site) {
-				return userSiteCodes.any(function (sc) { return sc == site.Name })
-			});
+			vm.userSites = vm.JBTData.Sites.where(function(site) {
+				return userSiteCodes.any(function(sc) { return sc == site.Name });
+			})
+			.where(function(s){ return !vm.selectTerminal || s.Systems.any(function(sys){ return sys.TypeId == 1})});
 
 			console.log("vm.userSites = %O", vm.userSites);
 
 			if (vm.userSites.length == 1) {
 				console.log("User only has a single Site");
 				vm.widget.WidgetResource.SiteId = vm.userSites[0].Id;
-			} 
+			}
+
+
+			if (vm.selectTerminal) {
+				GetTerminalsForWidgetSite();
+			}
+
+
+
+
+
+
+
 		});
 
+		
+		function GetTerminalsForWidgetSite() {
+			if (vm.widget.WidgetResource.SiteId) {
 
+				console.log("Getting the terminals for the widget site");
+
+				vm.terminals = vm.JBTData
+					.Systems
+					.where(function (s) { return s.SiteId == vm.widget.WidgetResource.SiteId && s.Type == 'Terminal' });
+				if (vm.terminals.length == 1) {
+					vm.terminalSystem = vm.terminals[0];
+					vm.widget.WidgetResource.TerminalSystemId = vm.terminalSystem.Id;
+				}
+
+			}
+		}
+
+
+
+		
+
+		function GetZonesForWidgetTerminal() {
+			if (vm.terminals && vm.widget.WidgetResource.TerminalSystemId) {
+
+				console.log("Getting the zone (area system) for the widget terminal");
+
+				vm.zones = vm.JBTData
+					.Systems
+					.where(function (s) { return s.Type == 'Zone' && s.ParentSystemId == vm.widget.WidgetResource.TerminalSystemId }) //children of this terminal
+					.where(function (zoneSystem) { return vm.JBTData.Systems.any(function (s) { return s.Type == 'Gate' && s.ParentSystemId == zoneSystem.Id && s.Assets.any(function (gateSystemAsset) { return gateSystemAsset.Name == "PBB" }) }) }) //that have at least one gate system child
+					.orderBy(function (z) { return z.Name });
+
+				if (vm.zones.length == 1) {
+					vm.zoneSystem = vm.zones[0];
+					vm.widget.WidgetResource.ZoneSystemId = vm.zoneSystem.Id;
+				}
+
+				//console.log("vm.zones = %O", vm.zones);
+				GetGatesForWidgetZone();
+
+			}
+		}
+
+
+		if (vm.selectGate) {			
+			//Start watching for zone id changes	
+			$scope.$watch("vm.widget.WidgetResource.ZoneSystemId",
+			function (newValue, oldValue) {
+				if (vm.widget.WidgetResource.ZoneSystemId) {
+
+					//console.log("vm.widget.WidgetResource.ZoneSystemId changed. Now = %O", vm.widget);
+					if (newValue != oldValue) {
+						vm.widget.WidgetResource.GateSystemId = null;
+						SaveWidgetResourceObjectIfChanged();
+
+					}
+					GetGatesForWidgetZone();
+				}
+			});
+		}
+
+		function GetGatesForWidgetZone() {
+			if (vm.zones && vm.widget.WidgetResource.ZoneSystemId) {
+
+				console.log("Getting the gate (gate system) for the widget zone");
+
+
+				vm.gates = vm.JBTData
+					.Systems
+					.where(function (s) { return s.Type == 'Gate' })
+					.where(function (s) { return s.ParentSystemId == vm.widget.WidgetResource.ZoneSystemId })
+					.where(function (s) { return vm.JBTData.Assets.any(function (a) { return a.ParentSystemId == s.Id && a.Name == 'PBB' }) })
+					.orderBy(function (s) { return s.Name });
+
+
+				if (vm.gates.length == 0) {
+					vm.gateSystem = vm.gates[0];
+					vm.widget.WidgetResource.GateSystemId = vm.gateSystem.Id;
+				}
+				SaveWidgetResourceObjectIfChanged();
+
+			}
+		}
+
+
+		if (vm.selectAsset) {			
+			//Start watching for gate id changes	
+			$scope.$watch("vm.widget.WidgetResource.GateSystemId",
+			function (newValue, oldValue) {
+				if (vm.widget.WidgetResource.GateSystemId) {
+
+					//console.log("vm.widget.WidgetResource.GateSystemId changed. Now = %O", vm.widget);
+
+					if (newValue != oldValue) {
+						vm.asset = null;
+						SaveWidgetResourceObjectIfChanged();
+					}
+					GetAllAssetsForGate();
+				}
+			});
+
+			//Start watching for gate id changes	
+			$scope.$watch("vm.widget.WidgetResource.AssetId",
+			function (newValue, oldValue) {
+				if (vm.widget.WidgetResource.AssetId) {
+
+					console.log("vm.widget.WidgetResource.AssetId changed. Now = %O", vm.widget);
+
+					if (newValue != oldValue) {
+						vm.previousAssetId = newValue;
+						vm.asset = vm.JBTData.Assets.first(function(a){ return a.Id == newValue});
+						SaveWidgetResourceObjectIfChanged();
+					}
+				}
+			});
+		}
+
+
+		function GetAllAssetsForGate() {
+
+			console.log("GetAllAssetsForGate() for the gate.");
+			dataService.GetJBTData().then(function (jbtData) {
+				vm.JBTData = jbtData;
+				vm.previousAssetId = vm.widget.WidgetResource.AssetId;
+				console.log("Previous AssetId = " + vm.previousAssetId);
+				if (vm.widget.WidgetResource.GateSystemId) {
+					dataService.GetEntityById("SystemGroups", vm.widget.WidgetResource.GateSystemId).then(function (gateSystem) {
+						vm.GateSystem = gateSystem;
+					});
+
+				}
+
+				vm.assets = vm.JBTData
+					.Assets
+					.where(function (a) { return a.ParentSystemId == vm.widget.WidgetResource.GateSystemId })
+					.orderBy(function(a){return a.Name});
+
+
+				if (vm.previousAssetId) {
+					vm.previousAsset = vm.JBTData.Assets.first(function(a) { return a.Id == vm.previousAssetId });
+					console.log("Previous asset present = %O", vm.previousAsset);
+					vm.asset = vm.assets.first(function (a) { return a.Name == vm.previousAsset.Name });
+					vm.widget.WidgetResource.AssetId = vm.asset.Id;
+				}
+
+				SaveWidgetResourceObjectIfChanged();
+
+			});
+
+
+		}
 
 
 
@@ -1587,7 +1853,6 @@
 
 })();
 
-
 //++Assets Controller
 (function () {
 	"use strict";
@@ -1752,134 +2017,6 @@
 
 })();
 
-//++LiveAssetMonitor Controller
-(function () {
-	"use strict";
-
-
-	function LiveAssetMonitorCtrl($scope, $state, displaySetupService, dataService, signalR, $interval, $timeout, utilityService, $window, $stateParams) {
-		console.log("LiveAssetMonitorCtrl conroller invoked.");
-		var vm = this;
-
-		$scope.$on("dataService.ready", function (event, course) {
-			Init();
-
-		});
-
-		if (dataService.IsReady()) {
-			Init();
-		}
-
-		vm.state = $state;
-		vm.dataService = dataService;
-		displaySetupService.SetPanelDimensions();
-
-		function Init() {
-			console.log("Load Data");
-
-			GetData();
-
-			$scope.$$postDigest(function () {
-				displaySetupService.SetPanelDimensions();
-				$(window).bind('resize', function () {
-					$('.grid').masonry({
-						// options...
-						itemSelector: '.grid-item',
-						columnWidth: 615
-					});
-				});
-				$window.dispatchEvent(new Event("resize"));
-			});
-		}
-
-
-		vm.searchTerm = "";
-		vm.iterationCount = 0;
-
-		function GetData() {
-			console.log("GetData() started");
-			var time0 = performance.now();
-			dataService.GetJBTData().then(function (data) {
-
-
-				vm.data = data;
-				vm.totalChangeCount = 0;
-
-				//Only include tags whewre there is an observation in the last ten days.
-				var cutoffDateTime = new Date();
-				cutoffDateTime = cutoffDateTime.setDate(cutoffDateTime.getDate() - 10);
-
-				var recentTags = data.Tags.where(function (tag) {
-					return tag.LastObservationDate > cutoffDateTime;
-				});
-
-
-				data.Assets.forEach(function (asset) {
-					asset.recentTags = recentTags.where(function (tag) { return tag.AssetId == asset.Id });
-				});
-
-
-
-				//Filter out the terminal systems
-				var terminalSystems = data.Systems.where(function (s) { return s.Type == 'Terminal' })
-					.select(function (t) {
-
-						//attach gate references to the terminals even if they are buried one zone level down.
-						t.gateSystems = t.Systems.where(function (s) { return s.Type == 'Gate' && s.ParentSystemId == t.Id })
-							.concat(
-								t.Systems.where(function (s2) { return s2.Type == 'Zone' && s2.ParentSystemId == t.Id })
-								.selectMany(function (s2) {
-									return s2.Systems;
-								})
-							);
-
-						t.gateSystems.forEach(function (gs) {
-
-							gs.assets = data.Assets.where(function (asset) { return asset.ParentSystemId == gs.Id });
-						});
-
-						return t;
-
-
-
-					});
-
-
-
-
-
-				//Knit the data collection together under sites.
-				vm.sites = data.Sites
-					.where(function (site) { return !$stateParams.SiteId || ($stateParams.SiteId == site.Id) })
-					.select(function (site) {
-
-						site.terminalSystems = terminalSystems.where(function (ts) { return ts.SiteId == site.Id });
-
-						return site;
-					})
-				.where(function (site) { return site.terminalSystems.length > 0 })
-				.where(function (site) { return site.Name != "BNA" });
-
-
-
-
-				console.log("Data Formatting time = " + (performance.now() - time0));
-
-
-			});
-		}
-
-	}
-
-	angular
-            .module("app")
-            .controller("LiveAssetMonitorCtrl", ["$scope", "$state", "displaySetupService", "dataService", "signalR", "$interval", "$timeout", "utilityService", "$window", "$stateParams", LiveAssetMonitorCtrl
-            ]);
-
-
-
-})();
-
 //++LiveTagDataMonitor Controller
 (function () {
 	"use strict";
@@ -1997,137 +2134,6 @@
                 "$timeout",
                 "utilityService",
                 LiveTagDataMonitorCtrl
-            ]);
-
-
-
-})();
-
-//++LiveAssetMonitor Controller
-(function () {
-	"use strict";
-
-
-	function LiveAssetMonitorCtrl($scope, $state, displaySetupService, dataService, signalR, $interval, $timeout, utilityService, $window, $stateParams) {
-		console.log("LiveAssetMonitorCtrl conroller invoked.");
-		var vm = this;
-
-		$scope.$on("dataService.ready", function (event, course) {
-			Init();
-
-		});
-
-		if (dataService.IsReady()) {
-			Init();
-		}
-
-		vm.state = $state;
-		vm.dataService = dataService;
-		displaySetupService.SetPanelDimensions();
-
-		function Init() {
-			console.log("Load Data");
-
-			GetData();
-
-			$scope.$$postDigest(function () {
-				displaySetupService.SetPanelDimensions();
-				$(window).bind('resize', function () {
-					$('.grid').masonry({
-						// options...
-						itemSelector: '.grid-item',
-						columnWidth: 615
-					});
-				});
-				$window.dispatchEvent(new Event("resize"));
-			});
-		}
-
-
-		vm.searchTerm = "";
-		vm.iterationCount = 0;
-
-		function GetData() {
-			console.log("GetData() started");
-			var time0 = performance.now();
-			dataService.GetJBTData().then(function (data) {
-
-
-				vm.data = data;
-				vm.totalChangeCount = 0;
-
-				//Only include tags whewre there is an observation in the last ten days.
-				var cutoffDateTime = new Date();
-				cutoffDateTime = cutoffDateTime.setDate(cutoffDateTime.getDate() - 10000000);
-
-				//var recentTags = data.Tags;
-				//	.where(function (tag) {
-				//	return tag.LastObservationDate > cutoffDateTime;
-				//});
-
-
-				//data.Assets.forEach(function (asset) {
-				//	asset.recentTags = recentTags.where(function (tag) { return tag.AssetId == asset.Id });
-				//});
-
-
-
-				//Filter out the terminal systems
-				var terminalSystems = data.Systems.where(function (s) { return s.Type == 'Terminal' })
-					.select(function (t) {
-
-						//attach gate references to the terminals even if they are buried one zone level down.
-						t.gateSystems = t.Systems.where(function (s) { return s.Type == 'Gate' && s.ParentSystemId == t.Id })
-							.concat(
-								t.Systems.where(function (s2) { return s2.Type == 'Zone' && s2.ParentSystemId == t.Id })
-								.selectMany(function (s2) {
-									return s2.Systems;
-								})
-							);
-
-						t.gateSystems.forEach(function (gs) {
-
-							gs.assets = data.Assets.where(function (asset) { return asset.ParentSystemId == gs.Id });
-						});
-
-						return t;
-
-
-
-					});
-
-
-
-
-
-				//Knit the data collection together under sites.
-				vm.sites = data.Sites
-					.where(function (site) { return !$stateParams.SiteId || ($stateParams.SiteId == site.Id) })
-					.select(function (site) {
-
-						site.terminalSystems = terminalSystems.where(function (ts) { return ts.SiteId == site.Id });
-
-						return site;
-					})
-				.where(function (site) { return site.terminalSystems.length > 0 })
-				.where(function (site) { return site.Name != "BNA" });
-
-
-
-
-
-				console.log("vm.sites = %O", vm.sites);
-				console.log("Data Formatting time = " + (performance.now() - time0));
-
-
-			});
-		}
-
-	}
-
-	angular
-            .module("app")
-            .controller("LiveAssetMonitorCtrl", ["$scope", "$state", "displaySetupService", "dataService", "signalR", "$interval", "$timeout", "utilityService", "$window", "$stateParams", LiveAssetMonitorCtrl
             ]);
 
 
@@ -2285,7 +2291,7 @@
 						time = (new Date()).getTime(),
 						i;
 
-					for (i = -99; i <= 0; i += 1) {
+					for (i = -250; i <= 0; i += 1) {
 						data.push({
 							x: time + i * 1000,
 							y: 0
@@ -2476,7 +2482,7 @@
 
 
 		vm.scrolledToEnd = function () {
-			console.log("scrolled to end");
+			//console.log("scrolled to end");
 		}
 
 
@@ -2532,8 +2538,6 @@
 
 
 })();
-
-
 
 //++UserEdit Controller
 (function () {
@@ -3153,70 +3157,6 @@
 
 })();
 
-//++LiveTagDataMonitorPanels Controller
-(function () {
-	"use strict";
-
-
-	function LiveTagDataMonitorPanelsCtrl($scope, $state, $stateParams, displaySetupService, dataService, signalR, $interval, $timeout, utilityService) {
-		console.log("LiveTagDataMonitorPanelsCtrl conroller invoked.");
-		var vm = this;
-
-		vm.dataService = dataService;
-
-		$scope.$on("dataService.ready", function (event, course) {
-			LoadData();
-		});
-
-		if (dataService.IsReady) {
-			LoadData();
-		}
-
-		vm.buttonPanelWidth = 20;
-
-		vm.state = $state;
-		displaySetupService.SetPanelDimensions();
-
-		function LoadData() {
-			//Set up interval that re-loads the vm tags. They will update that often.
-			vm.updateInterval = $interval(function () {
-				GetFormattedTags();
-			}, 1000);
-
-			$scope.$on("$destroy",
-                function () {
-                	$interval.cancel(vm.updateInterval);
-                });
-
-			//Load the first time for responsiveness.
-			GetFormattedTags();
-
-			$scope.$$postDigest(function () {
-				displaySetupService.SetPanelDimensions();
-			});
-		}
-
-		function GetFormattedTags() {
-			dataService.GetTags().then(function (data) {
-
-				vm.totalChangeCount = 0;
-				vm.tags = data
-                    .where(function (t) { return t.Metadata.UpdateCountDowns.FiveMinute > 0 })
-                    .orderBy(function (t) { return t.Name });
-
-			});
-		}
-	}
-
-	angular
-            .module("app")
-            .controller("LiveTagDataMonitorPanelsCtrl", ["$scope", "$state", "$stateParams", "displaySetupService", "dataService", "signalR", "$interval", "$timeout", "utilityService", LiveTagDataMonitorPanelsCtrl
-            ]);
-
-
-
-})();
-
 //++WidgetTypeEdit Controller
 (function () {
 	"use strict";
@@ -3249,6 +3189,7 @@
 
 				vm.isAvailableToAdmin = vm.widgetType.IsAvailableToAdmin ? 1 : 0;
 				vm.isAvailableToAll = vm.widgetType.IsAvailableToAll ? 1 : 0;
+				vm.hasSettings = vm.widgetType.HasSettings ? 1 : 0;
 				vm.showScreen = true;
 				console.log("vm.widgetType = %O", vm.widgetType);
 
@@ -3296,6 +3237,8 @@
 			vm.widgetType.IsAvailableToAdmin = vm.isAvailableToAdmin == 1 ? true : false;
 			vm.widgetType.IsAvailableToAll = vm.isAvailableToAll == 1 ? true : false;
 			vm.widgetType.IsHiddenSystemType = vm.isHiddenSystemType == 1 ? true : false;
+			vm.widgetType.HasSettings = vm.hasSettings == 1 ? true : false;
+
 			(vm.widgetType.Id > 0 ? vm.widgetType.$save() : dataService.AddEntity("WidgetTypes", vm.widgetType)).then(function (data) {
 				signalR.SignalAllClientsInGroup("Admin", "WidgetType", data);
 				$state.go("^");
@@ -3572,7 +3515,6 @@
 
 
 })();
-
 
 //++People Controller
 (function () {
@@ -4380,7 +4322,6 @@ angular.module('app').controller('AppCtrl',
         	};
         }
     ]);
-
 
 //++GraphicsCatalog Controller
 (function () {

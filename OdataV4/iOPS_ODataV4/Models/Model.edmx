@@ -412,6 +412,25 @@
           <Property Name="SentStatus" Type="varchar" MaxLength="10" />
           <Property Name="Result" Type="int" />
         </EntityType>
+        <EntityType Name="GSReport">
+          <Key>
+            <PropertyRef Name="Id" />
+          </Key>
+          <Property Name="Id" Type="bigint" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="SiteId" Type="bigint" />
+          <Property Name="Name" Type="varchar" MaxLength="100" />
+          <Property Name="Description" Type="nvarchar(max)" />
+          <Property Name="RSURL" Type="varchar" MaxLength="500" />
+        </EntityType>
+        <EntityType Name="GSReportRun">
+          <Key>
+            <PropertyRef Name="Id" />
+          </Key>
+          <Property Name="Id" Type="bigint" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="Date" Type="datetime" />
+          <Property Name="UserId" Type="bigint" />
+          <Property Name="GSReportId" Type="bigint" />
+        </EntityType>
         <EntityType Name="JBTStandardObservation">
           <Key>
             <PropertyRef Name="Id" />
@@ -468,6 +487,8 @@
           <Property Name="City" Type="nvarchar" MaxLength="100" />
           <Property Name="State" Type="nvarchar" MaxLength="20" />
           <Property Name="ZipCode" Type="nvarchar" MaxLength="10" />
+          <Property Name="CellPhoneCarrierId" Type="bigint" />
+          <Property Name="MobilePhone" Type="nvarchar" MaxLength="50" />
         </EntityType>
         <EntityType Name="Site">
           <Key>
@@ -593,6 +614,12 @@
           <Property Name="LastReportedDate" Type="datetime" />
           <Property Name="ScalingFactor" Type="float" />
           <Property Name="IsCritical" Type="bit" />
+          <Property Name="IsInformational" Type="bit" />
+          <Property Name="NotificationLevelId" Type="bigint" />
+          <Property Name="YIntercept" Type="float" />
+          <Property Name="ValueWhenActive" Type="varchar" MaxLength="50" />
+          <Property Name="MarkedForDelete" Type="bit" />
+          <Property Name="MergeToTagId" Type="bigint" />
         </EntityType>
         <EntityType Name="Unit">
           <Key>
@@ -671,6 +698,7 @@
           <Property Name="IsAvailableToAdmin" Type="bit" />
           <Property Name="IsAvailableToAll" Type="bit" />
           <Property Name="IsHiddenSystemType" Type="bit" />
+          <Property Name="HasSettings" Type="bit" />
         </EntityType>
         <EntityType Name="ChronologicalRawTagValueLogKepwareReceiver">
           <Key>
@@ -683,6 +711,7 @@
           <Property Name="Value" Type="varchar" MaxLength="50" />
           <Property Name="ETLDate" Type="datetime" />
           <Property Name="Quality" Type="int" />
+          <Property Name="NotificationLevel" Type="int" />
         </EntityType>
         <EntityType Name="GSJBTStandardObservationIdExclusionListFromCurrentAlarms">
           <Key>
@@ -1028,6 +1057,30 @@
             </Principal>
             <Dependent Role="GSJBTStandardObservationIdExclusionListFromCurrentAlarms">
               <PropertyRef Name="JBTStandardObservationId" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_GSReport_Site">
+          <End Role="Site" Type="Self.Site" Multiplicity="0..1" />
+          <End Role="GSReport" Type="Self.GSReport" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Site">
+              <PropertyRef Name="Id" />
+            </Principal>
+            <Dependent Role="GSReport">
+              <PropertyRef Name="SiteId" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_GSReportRun_GSReport">
+          <End Role="GSReport" Type="Self.GSReport" Multiplicity="0..1" />
+          <End Role="GSReportRun" Type="Self.GSReportRun" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="GSReport">
+              <PropertyRef Name="Id" />
+            </Principal>
+            <Dependent Role="GSReportRun">
+              <PropertyRef Name="GSReportId" />
             </Dependent>
           </ReferentialConstraint>
         </Association>
@@ -1619,6 +1672,8 @@
           <EntitySet Name="Dashboard" EntityType="Self.Dashboard" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="DashboardTimeScope" EntityType="Self.DashboardTimeScope" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="DatabaseMailQueue" EntityType="Self.DatabaseMailQueue" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="GSReport" EntityType="Self.GSReport" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="GSReportRun" EntityType="Self.GSReportRun" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="JBTStandardObservation" EntityType="Self.JBTStandardObservation" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="Observation" EntityType="Self.Observation" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="ObservationAggregatedHighChartValue" EntityType="Self.ObservationAggregatedHighChartValue" Schema="dbo" store:Type="Tables" />
@@ -1739,6 +1794,14 @@
           <AssociationSet Name="FK_GSJBTStandardObservationIdExclusionListFromCurrentAlarms_JBTStandardObservation" Association="Self.FK_GSJBTStandardObservationIdExclusionListFromCurrentAlarms_JBTStandardObservation">
             <End Role="JBTStandardObservation" EntitySet="JBTStandardObservation" />
             <End Role="GSJBTStandardObservationIdExclusionListFromCurrentAlarms" EntitySet="GSJBTStandardObservationIdExclusionListFromCurrentAlarms" />
+          </AssociationSet>
+          <AssociationSet Name="FK_GSReport_Site" Association="Self.FK_GSReport_Site">
+            <End Role="Site" EntitySet="Site" />
+            <End Role="GSReport" EntitySet="GSReport" />
+          </AssociationSet>
+          <AssociationSet Name="FK_GSReportRun_GSReport" Association="Self.FK_GSReportRun_GSReport">
+            <End Role="GSReport" EntitySet="GSReport" />
+            <End Role="GSReportRun" EntitySet="GSReportRun" />
           </AssociationSet>
           <AssociationSet Name="FK_iOPSUser_Person" Association="Self.FK_iOPSUser_Person">
             <End Role="Person" EntitySet="Person" />
@@ -2340,6 +2403,16 @@
             <End Role="Widget" EntitySet="Widgets" />
             <End Role="Widget1" EntitySet="Widgets" />
           </AssociationSet>
+          <EntitySet Name="GSReports" EntityType="iOPS_NormalizedModel.GSReport" />
+          <AssociationSet Name="FK_GSReport_Site" Association="iOPS_NormalizedModel.FK_GSReport_Site">
+            <End Role="Site" EntitySet="Sites" />
+            <End Role="GSReport" EntitySet="GSReports" />
+          </AssociationSet>
+          <EntitySet Name="GSReportRuns" EntityType="iOPS_NormalizedModel.GSReportRun" />
+          <AssociationSet Name="FK_GSReportRun_GSReport" Association="iOPS_NormalizedModel.FK_GSReportRun_GSReport">
+            <End Role="GSReport" EntitySet="GSReports" />
+            <End Role="GSReportRun" EntitySet="GSReportRuns" />
+          </AssociationSet>
           </EntityContainer>
         <EntityType Name="AuthorizableActivity">
           <Key>
@@ -2459,6 +2532,8 @@
           <NavigationProperty Name="Subordinates" Relationship="iOPS_NormalizedModel.FK_Person_Person" FromRole="Person" ToRole="Person1" />
           <NavigationProperty Name="Supervisor" Relationship="iOPS_NormalizedModel.FK_Person_Person" FromRole="Person1" ToRole="Person" />
           <NavigationProperty Name="CompanyContacts" Relationship="iOPS_NormalizedModel.FK_CompanyContact_Person" FromRole="Person" ToRole="CompanyContact" />
+          <Property Name="CellPhoneCarrierId" Type="Int64" />
+          <Property Name="MobilePhone" Type="String" MaxLength="50" FixedLength="false" Unicode="true" />
         </EntityType>
         <Association Name="FK_Person_Country">
           <End Type="iOPS_NormalizedModel.Country" Role="Country" Multiplicity="0..1" />
@@ -2612,6 +2687,7 @@
           <NavigationProperty Name="BHSAlarmHistories" Relationship="iOPS_NormalizedModel.FK_AlarmHistory_Site" FromRole="Site" ToRole="AlarmHistory" />
           <NavigationProperty Name="Assets" Relationship="iOPS_NormalizedModel.FK_Asset_Site" FromRole="Site" ToRole="Asset" />
           <Property Name="KepwareSQLTimeDifferenceMSFromCentral" Type="Int32" />
+          <NavigationProperty Name="GSReports" Relationship="iOPS_NormalizedModel.FK_GSReport_Site" FromRole="Site" ToRole="GSReport" />
         </EntityType>
         <EntityType Name="SiteCompany">
           <Key>
@@ -2798,6 +2874,12 @@
           <NavigationProperty Name="LastObservation" Relationship="iOPS_NormalizedModel.FK_Tag_Observation" FromRole="Tag" ToRole="Observation" />
           <Property Name="ScalingFactor" Type="Double" />
           <Property Name="IsCritical" Type="Boolean" />
+          <Property Name="IsInformational" Type="Boolean" />
+          <Property Name="NotificationLevelId" Type="Int64" />
+          <Property Name="YIntercept" Type="Double" />
+          <Property Name="ValueWhenActive" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
+          <Property Name="MarkedForDelete" Type="Boolean" />
+          <Property Name="MergeToTagId" Type="Int64" />
         </EntityType>
         <Association Name="FK_Observation_Tag">
           <End Type="iOPS_NormalizedModel.Tag" Role="Tag" Multiplicity="0..1" />
@@ -3030,6 +3112,7 @@
           <Property Name="IsAvailableToAdmin" Type="Boolean" />
           <Property Name="IsAvailableToAll" Type="Boolean" />
           <Property Name="IsHiddenSystemType" Type="Boolean" />
+          <Property Name="HasSettings" Type="Boolean" />
         </EntityType>
         <Association Name="FK_Widget_WidgetType">
           <End Type="iOPS_NormalizedModel.WidgetType" Role="WidgetType" Multiplicity="0..1" />
@@ -4281,6 +4364,7 @@
           <Property Name="Value" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
           <Property Name="ETLDate" Type="DateTime" Precision="3" />
           <Property Name="Quality" Type="Int32" />
+          <Property Name="NotificationLevel" Type="Int32" />
         </EntityType>
         <Association Name="FK_Widget_Widget">
           <End Type="iOPS_NormalizedModel.Widget" Role="Widget" Multiplicity="0..1" />
@@ -4291,6 +4375,52 @@
             </Principal>
             <Dependent Role="Widget1">
               <PropertyRef Name="ParentWidgetId" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <EntityType Name="GSReport">
+          <Key>
+            <PropertyRef Name="Id" />
+          </Key>
+          <Property Name="Id" Type="Int64" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="SiteId" Type="Int64" />
+          <Property Name="Name" Type="String" MaxLength="100" FixedLength="false" Unicode="false" />
+          <Property Name="Description" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
+          <Property Name="RSURL" Type="String" MaxLength="500" FixedLength="false" Unicode="false" />
+          <NavigationProperty Name="Site" Relationship="iOPS_NormalizedModel.FK_GSReport_Site" FromRole="GSReport" ToRole="Site" />
+          <NavigationProperty Name="GSReportRuns" Relationship="iOPS_NormalizedModel.FK_GSReportRun_GSReport" FromRole="GSReport" ToRole="GSReportRun" />
+        </EntityType>
+        <Association Name="FK_GSReport_Site">
+          <End Type="iOPS_NormalizedModel.Site" Role="Site" Multiplicity="0..1" />
+          <End Type="iOPS_NormalizedModel.GSReport" Role="GSReport" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Site">
+              <PropertyRef Name="Id" />
+            </Principal>
+            <Dependent Role="GSReport">
+              <PropertyRef Name="SiteId" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <EntityType Name="GSReportRun">
+          <Key>
+            <PropertyRef Name="Id" />
+          </Key>
+          <Property Name="Id" Type="Int64" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="Date" Type="DateTime" Precision="3" />
+          <Property Name="UserId" Type="Int64" />
+          <Property Name="GSReportId" Type="Int64" />
+          <NavigationProperty Name="GSReport" Relationship="iOPS_NormalizedModel.FK_GSReportRun_GSReport" FromRole="GSReportRun" ToRole="GSReport" />
+        </EntityType>
+        <Association Name="FK_GSReportRun_GSReport">
+          <End Type="iOPS_NormalizedModel.GSReport" Role="GSReport" Multiplicity="0..1" />
+          <End Type="iOPS_NormalizedModel.GSReportRun" Role="GSReportRun" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="GSReport">
+              <PropertyRef Name="Id" />
+            </Principal>
+            <Dependent Role="GSReportRun">
+              <PropertyRef Name="GSReportId" />
             </Dependent>
           </ReferentialConstraint>
         </Association>
@@ -4367,6 +4497,8 @@
           <EntitySetMapping Name="People">
             <EntityTypeMapping TypeName="iOPS_NormalizedModel.Person">
               <MappingFragment StoreEntitySet="Person">
+                <ScalarProperty Name="MobilePhone" ColumnName="MobilePhone" />
+                <ScalarProperty Name="CellPhoneCarrierId" ColumnName="CellPhoneCarrierId" />
                 <ScalarProperty Name="ZipCode" ColumnName="ZipCode" />
                 <ScalarProperty Name="State" ColumnName="State" />
                 <ScalarProperty Name="City" ColumnName="City" />
@@ -4511,6 +4643,12 @@
           <EntitySetMapping Name="Tags">
             <EntityTypeMapping TypeName="iOPS_NormalizedModel.Tag">
               <MappingFragment StoreEntitySet="Tag">
+                <ScalarProperty Name="MergeToTagId" ColumnName="MergeToTagId" />
+                <ScalarProperty Name="MarkedForDelete" ColumnName="MarkedForDelete" />
+                <ScalarProperty Name="ValueWhenActive" ColumnName="ValueWhenActive" />
+                <ScalarProperty Name="YIntercept" ColumnName="YIntercept" />
+                <ScalarProperty Name="NotificationLevelId" ColumnName="NotificationLevelId" />
+                <ScalarProperty Name="IsInformational" ColumnName="IsInformational" />
                 <ScalarProperty Name="IsCritical" ColumnName="IsCritical" />
                 <ScalarProperty Name="ScalingFactor" ColumnName="ScalingFactor" />
                 <ScalarProperty Name="LastReportedDate" ColumnName="LastReportedDate" />
@@ -4639,6 +4777,7 @@
           <EntitySetMapping Name="WidgetTypes">
             <EntityTypeMapping TypeName="iOPS_NormalizedModel.WidgetType">
               <MappingFragment StoreEntitySet="WidgetType">
+                <ScalarProperty Name="HasSettings" ColumnName="HasSettings" />
                 <ScalarProperty Name="IsHiddenSystemType" ColumnName="IsHiddenSystemType" />
                 <ScalarProperty Name="IsAvailableToAll" ColumnName="IsAvailableToAll" />
                 <ScalarProperty Name="IsAvailableToAdmin" ColumnName="IsAvailableToAdmin" />
@@ -5415,12 +5554,34 @@
           <EntitySetMapping Name="ChronologicalRawTagValueLogKepwareReceivers">
             <EntityTypeMapping TypeName="iOPS_NormalizedModel.ChronologicalRawTagValueLogKepwareReceiver">
               <MappingFragment StoreEntitySet="ChronologicalRawTagValueLogKepwareReceiver">
+                <ScalarProperty Name="NotificationLevel" ColumnName="NotificationLevel" />
                 <ScalarProperty Name="Quality" ColumnName="Quality" />
                 <ScalarProperty Name="ETLDate" ColumnName="ETLDate" />
                 <ScalarProperty Name="Value" ColumnName="Value" />
                 <ScalarProperty Name="TagName" ColumnName="TagName" />
                 <ScalarProperty Name="CreationDate" ColumnName="CreationDate" />
                 <ScalarProperty Name="ObservationDateTime" ColumnName="ObservationDateTime" />
+                <ScalarProperty Name="Id" ColumnName="Id" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="GSReports">
+            <EntityTypeMapping TypeName="iOPS_NormalizedModel.GSReport">
+              <MappingFragment StoreEntitySet="GSReport">
+                <ScalarProperty Name="RSURL" ColumnName="RSURL" />
+                <ScalarProperty Name="Description" ColumnName="Description" />
+                <ScalarProperty Name="Name" ColumnName="Name" />
+                <ScalarProperty Name="SiteId" ColumnName="SiteId" />
+                <ScalarProperty Name="Id" ColumnName="Id" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="GSReportRuns">
+            <EntityTypeMapping TypeName="iOPS_NormalizedModel.GSReportRun">
+              <MappingFragment StoreEntitySet="GSReportRun">
+                <ScalarProperty Name="GSReportId" ColumnName="GSReportId" />
+                <ScalarProperty Name="UserId" ColumnName="UserId" />
+                <ScalarProperty Name="Date" ColumnName="Date" />
                 <ScalarProperty Name="Id" ColumnName="Id" />
               </MappingFragment>
             </EntityTypeMapping>
