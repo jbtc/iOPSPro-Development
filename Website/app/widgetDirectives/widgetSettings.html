@@ -45,7 +45,7 @@ BHS = Baggage Handling System
                 </div>
 
 
-                <div class="panel-body" style="overflow-x: hidden; background: linear-gradient(to bottom,#bebebe, #eeeeee);">
+                <div class="panel-body" style="overflow-x: hidden; background: linear-gradient(to bottom,#bebebe, #efefef);">
                     <form class="form-horizontal" role="form" name="userForm" id="userForm" novalidate>
                         <div class="row" style="padding: 20px;">
 
@@ -61,7 +61,7 @@ BHS = Baggage Handling System
                             </div>
 
                             <!-- Site Terminals (if more than one) -->
-                            <div ng-if="vm.selectTerminal" class="form-group">
+                            <div ng-if="vm.selectTerminal && vm.terminals" class="form-group">
                                 <label class="col-sm-{{vm.bootstrapLabelColumns}} control-label innovation-right-aligned">
                                     Terminal
                                 </label>

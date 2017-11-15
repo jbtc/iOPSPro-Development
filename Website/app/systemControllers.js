@@ -27,6 +27,10 @@
 		switch (vm.widget.WidgetResource.WidgetType.AngularDirectiveName) {
 
 			case 'siteGateSummary':
+			case 'gsReports':
+			case 'siteActiveAlarms':
+			case 'siteActiveWarnings':
+
 				vm.selectSite = true;
 				vm.selectTerminal = vm.selectZone = vm.selectGate = vm.selectAsset = vm.selectBHS = false;
 				break;
@@ -140,9 +144,10 @@
 
 			console.log("user site codes = %O", userSiteCodes);
 
-			vm.userSites = vm.JBTData.Sites.where(function (site) {
-				return userSiteCodes.any(function (sc) { return sc == site.Name })
-			});
+			vm.userSites = vm.JBTData.Sites.where(function(site) {
+				return userSiteCodes.any(function(sc) { return sc == site.Name });
+			})
+			.where(function(s){ return !vm.selectTerminal || s.Systems.any(function(sys){ return sys.TypeId == 1})});
 
 			console.log("vm.userSites = %O", vm.userSites);
 
@@ -3184,6 +3189,7 @@
 
 				vm.isAvailableToAdmin = vm.widgetType.IsAvailableToAdmin ? 1 : 0;
 				vm.isAvailableToAll = vm.widgetType.IsAvailableToAll ? 1 : 0;
+				vm.hasSettings = vm.widgetType.HasSettings ? 1 : 0;
 				vm.showScreen = true;
 				console.log("vm.widgetType = %O", vm.widgetType);
 
@@ -3231,6 +3237,8 @@
 			vm.widgetType.IsAvailableToAdmin = vm.isAvailableToAdmin == 1 ? true : false;
 			vm.widgetType.IsAvailableToAll = vm.isAvailableToAll == 1 ? true : false;
 			vm.widgetType.IsHiddenSystemType = vm.isHiddenSystemType == 1 ? true : false;
+			vm.widgetType.HasSettings = vm.hasSettings == 1 ? true : false;
+
 			(vm.widgetType.Id > 0 ? vm.widgetType.$save() : dataService.AddEntity("WidgetTypes", vm.widgetType)).then(function (data) {
 				signalR.SignalAllClientsInGroup("Admin", "WidgetType", data);
 				$state.go("^");

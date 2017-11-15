@@ -104,36 +104,3 @@
         </div>
     </div>
 </div>
-
-
-
-
-
-<!--Settings Form Below-->
-<div class="panel panel-info" style="display: none; position: fixed; z-index: 30; left: 20px; top: 0; width: 90%; border: 3px solid darkcyan;" id="widget-settings-{{vm.widget.WidgetResource.Id}}">
-
-    <div class="panel-heading" style="min-height: 20px;">
-        Site Settings for {{vm.widget.Name}}
-    </div>
-    <div class="panel-body" style="overflow-x: hidden; background: linear-gradient(to bottom,#bebebe, #eeeeee);">
-        <form class="form-horizontal" role="form" name="userForm" id="userForm" novalidate>
-            <div class="row" style="padding: 20px;">
-
-
-                <!-- Site - If the user has access to more than one -->
-                <div class="form-group">
-                    <label class="col-sm-{{vm.bootstrapLabelColumns}} control-label innovation-right-aligned">
-                        Site
-                    </label>
-                    <div class="col-sm-{{vm.bootstrapInputColumns}}">
-                        <label ng-repeat="site in vm.userSites" style="margin: 1px;" class="btn btn-default" ng-model="vm.widget.WidgetResource.SiteId" uib-btn-radio="{{site.Id}}">{{site.Name}}</label>
-                    </div>
-                </div>
-
-
-
-            </div>
-        </form>
-    </div>
-</div>
-

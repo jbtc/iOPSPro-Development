@@ -487,6 +487,8 @@
           <Property Name="City" Type="nvarchar" MaxLength="100" />
           <Property Name="State" Type="nvarchar" MaxLength="20" />
           <Property Name="ZipCode" Type="nvarchar" MaxLength="10" />
+          <Property Name="CellPhoneCarrierId" Type="bigint" />
+          <Property Name="MobilePhone" Type="nvarchar" MaxLength="50" />
         </EntityType>
         <EntityType Name="Site">
           <Key>
@@ -614,6 +616,10 @@
           <Property Name="IsCritical" Type="bit" />
           <Property Name="IsInformational" Type="bit" />
           <Property Name="NotificationLevelId" Type="bigint" />
+          <Property Name="YIntercept" Type="float" />
+          <Property Name="ValueWhenActive" Type="varchar" MaxLength="50" />
+          <Property Name="MarkedForDelete" Type="bit" />
+          <Property Name="MergeToTagId" Type="bigint" />
         </EntityType>
         <EntityType Name="Unit">
           <Key>
@@ -692,6 +698,7 @@
           <Property Name="IsAvailableToAdmin" Type="bit" />
           <Property Name="IsAvailableToAll" Type="bit" />
           <Property Name="IsHiddenSystemType" Type="bit" />
+          <Property Name="HasSettings" Type="bit" />
         </EntityType>
         <EntityType Name="ChronologicalRawTagValueLogKepwareReceiver">
           <Key>
@@ -2525,6 +2532,8 @@
           <NavigationProperty Name="Subordinates" Relationship="iOPS_NormalizedModel.FK_Person_Person" FromRole="Person" ToRole="Person1" />
           <NavigationProperty Name="Supervisor" Relationship="iOPS_NormalizedModel.FK_Person_Person" FromRole="Person1" ToRole="Person" />
           <NavigationProperty Name="CompanyContacts" Relationship="iOPS_NormalizedModel.FK_CompanyContact_Person" FromRole="Person" ToRole="CompanyContact" />
+          <Property Name="CellPhoneCarrierId" Type="Int64" />
+          <Property Name="MobilePhone" Type="String" MaxLength="50" FixedLength="false" Unicode="true" />
         </EntityType>
         <Association Name="FK_Person_Country">
           <End Type="iOPS_NormalizedModel.Country" Role="Country" Multiplicity="0..1" />
@@ -2867,6 +2876,10 @@
           <Property Name="IsCritical" Type="Boolean" />
           <Property Name="IsInformational" Type="Boolean" />
           <Property Name="NotificationLevelId" Type="Int64" />
+          <Property Name="YIntercept" Type="Double" />
+          <Property Name="ValueWhenActive" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
+          <Property Name="MarkedForDelete" Type="Boolean" />
+          <Property Name="MergeToTagId" Type="Int64" />
         </EntityType>
         <Association Name="FK_Observation_Tag">
           <End Type="iOPS_NormalizedModel.Tag" Role="Tag" Multiplicity="0..1" />
@@ -3099,6 +3112,7 @@
           <Property Name="IsAvailableToAdmin" Type="Boolean" />
           <Property Name="IsAvailableToAll" Type="Boolean" />
           <Property Name="IsHiddenSystemType" Type="Boolean" />
+          <Property Name="HasSettings" Type="Boolean" />
         </EntityType>
         <Association Name="FK_Widget_WidgetType">
           <End Type="iOPS_NormalizedModel.WidgetType" Role="WidgetType" Multiplicity="0..1" />
@@ -4483,6 +4497,8 @@
           <EntitySetMapping Name="People">
             <EntityTypeMapping TypeName="iOPS_NormalizedModel.Person">
               <MappingFragment StoreEntitySet="Person">
+                <ScalarProperty Name="MobilePhone" ColumnName="MobilePhone" />
+                <ScalarProperty Name="CellPhoneCarrierId" ColumnName="CellPhoneCarrierId" />
                 <ScalarProperty Name="ZipCode" ColumnName="ZipCode" />
                 <ScalarProperty Name="State" ColumnName="State" />
                 <ScalarProperty Name="City" ColumnName="City" />
@@ -4627,6 +4643,10 @@
           <EntitySetMapping Name="Tags">
             <EntityTypeMapping TypeName="iOPS_NormalizedModel.Tag">
               <MappingFragment StoreEntitySet="Tag">
+                <ScalarProperty Name="MergeToTagId" ColumnName="MergeToTagId" />
+                <ScalarProperty Name="MarkedForDelete" ColumnName="MarkedForDelete" />
+                <ScalarProperty Name="ValueWhenActive" ColumnName="ValueWhenActive" />
+                <ScalarProperty Name="YIntercept" ColumnName="YIntercept" />
                 <ScalarProperty Name="NotificationLevelId" ColumnName="NotificationLevelId" />
                 <ScalarProperty Name="IsInformational" ColumnName="IsInformational" />
                 <ScalarProperty Name="IsCritical" ColumnName="IsCritical" />
@@ -4757,6 +4777,7 @@
           <EntitySetMapping Name="WidgetTypes">
             <EntityTypeMapping TypeName="iOPS_NormalizedModel.WidgetType">
               <MappingFragment StoreEntitySet="WidgetType">
+                <ScalarProperty Name="HasSettings" ColumnName="HasSettings" />
                 <ScalarProperty Name="IsHiddenSystemType" ColumnName="IsHiddenSystemType" />
                 <ScalarProperty Name="IsAvailableToAll" ColumnName="IsAvailableToAll" />
                 <ScalarProperty Name="IsAvailableToAdmin" ColumnName="IsAvailableToAdmin" />

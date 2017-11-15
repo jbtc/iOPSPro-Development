@@ -163,7 +163,7 @@
 
 
 								vm.showWidget = true;
-
+								displaySetupService.SetPanelBodyWithIdHeight(vm.widget.Id);
 							});
 
 
@@ -228,9 +228,9 @@
 								//Set the "showImage" flag on each appropriately.
 								if (+tg.JBTStandardObservationId == +updatedTag.JBTStandardObservationId && +updatedTag.TagId == +tg.TagId) {
 
-									console.log("===========================================================");
-									console.log("Tag Update from SignalR = ", updatedTag.TagName + " StdObsId = " + updatedTag.JBTStandardObservationId + " Val=" + updatedTag.Value);
-									console.log("TG Item identified = %O", tg);
+									//console.log("===========================================================");
+									//console.log("Tag Update from SignalR = ", updatedTag.TagName + " StdObsId = " + updatedTag.JBTStandardObservationId + " Val=" + updatedTag.Value);
+									//console.log("TG Item identified = %O", tg);
 
 								
 									tg.LastObservationTextValue = updatedTag.Value;
@@ -244,12 +244,12 @@
 									}
 
 									if (tg.showImage) {
-										console.log("Tag set to visible = %O", tg);
+										//console.log("Tag set to visible = %O", tg);
 									}
 									if (!tg.showImage) {
-										console.log("Tag set to invisible = %O", tg);
+										//console.log("Tag set to invisible = %O", tg);
 									}
-									console.log("===========================================================");
+									//console.log("===========================================================");
 									
 								}
 							});

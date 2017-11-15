@@ -45,32 +45,7 @@
 
 
 					vm.openSettingsDash = function ($event, widget) {
-
-
-						//$state.go('.widgetSettings', { widget: widget });
-
-
-
-
-						try {
-							var element = $("#widget-settings-" + widget.Id)[0].parentNode.parentNode.offsetParent;
-							var position = $(element).offset();
-							position.width = $(element).width();
-
-							vm.settingsZIndex = $("#gridster" + widget.Id).css('z-index');
-
-							if (vm.settingsZIndex < 10) {
-								$("#gridster" + widget.Id).css('z-index', '35');
-							} else {
-								$("#gridster" + widget.Id).css('z-index', '2');
-
-							}
-							$("#widget-settings-" + widget.Id).css({ left: position.left + 20, top: position.top + 35, width: 500, 'z-index': 3500 });
-							$("#widget-settings-" + widget.Id).slideToggle();
-
-						} catch (e) {
-
-						}
+						$state.go('.widgetSettings', { widget: widget });
 					}
 
 					ReportStep(2);

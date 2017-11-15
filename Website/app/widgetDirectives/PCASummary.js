@@ -185,7 +185,7 @@
 							.Assets
 							.first(function (a) { return a.ParentSystemId == vm.widget.WidgetResource.GateSystemId && a.Name == 'PCA' });
 
-
+						vm.Asset = vm.pca;
 						console.log("vm.pca = %O", vm.pca);
 
 
@@ -627,7 +627,7 @@
 
 					}
 
-					//+Generate the Primary 1 Compressor chart
+					//+Generate the Primary 1 Compressor Pressure chart
 					function GeneratePrimary1CompressorPressureChart() {
 
 
@@ -661,7 +661,7 @@
 						}
 					}
 
-					//+Generate the Primary 2 Compressor chart
+					//+Generate the Primary 2 Compressor Pressure chart
 					function GeneratePrimary2CompressorPressureChart() {
 
 
@@ -695,7 +695,7 @@
 						}
 					}
 
-					//+Generate the Secondary 1 Compressor chart
+					//+Generate the Secondary 1 Compressor Pressure chart
 					function GenerateSecondary1CompressorPressureChart() {
 
 
@@ -726,7 +726,7 @@
 						}
 					}
 
-					//+Generate the Secondary 2 Compressor chart
+					//+Generate the Secondary 2 Compressor Pressure chart
 					function GenerateSecondary2CompressorPressureChart() {
 
 

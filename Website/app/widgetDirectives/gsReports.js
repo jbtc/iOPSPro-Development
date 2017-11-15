@@ -13,12 +13,12 @@
 					vm.state = $state;
 					//Get the alarms data
 
-					vm.alarms = [];
-
 					vm.widgetDimensions = displaySetupService.GetWidgetPanelBodyDimensions(vm.widget.Id);
 
 					function GetHeadingExtraTitle() {
+						if (vm.widgetSite) {							
 							return ' - ' + vm.widgetSite.Name;
+						}
 					}
 
 					
@@ -41,7 +41,7 @@
 
 
 
-						var timeZoneOffsetHoursFromUTC = (new Date().getTimezoneOffset()) / 60;
+						var timeZoneOffsetHoursFromUTC = -((new Date().getTimezoneOffset()) / 60);
 
 						window.open(report.RSURL + '&accessToken=' + encodeURIComponent(Global.User.ODataAccessToken) + '&offset=' + timeZoneOffsetHoursFromUTC + '&siteId=' + vm.widget.WidgetResource.SiteId);
 						window.open(report.RSURL);
@@ -82,9 +82,6 @@
 						GetData();
 
 					});
-					//GetData();
-
-
 
 
 					vm.sortField = 'Name';
@@ -114,11 +111,11 @@
 
 						dataService.GetIOPSResource("GSReports")
 							.expandPredicate("GSReportRuns")
-								.filter("UserId", Global.User.Id)
+							.filter("UserId", Global.User.Id)
 							.finish()
 							.query()
 							.$promise
-							.then(function (data) {
+							.then(function(data) {
 
 								SetLastRunDatePropertyForCollection(data);
 								vm.reports = data;
@@ -128,19 +125,18 @@
 								displaySetupService.SetPanelBodyWithIdHeight(vm.widget.Id);
 								vm.widgetDimensions = displaySetupService.GetWidgetPanelBodyDimensions(vm.widget.Id);
 
-								$scope.$$postDigest(function () {
-									$timeout(function () {
-										displaySetupService.SetPanelBodyWithIdHeight(vm.widget.Id);
-									}, 1);
+								$scope.$$postDigest(function() {
+									$timeout(function() {
+											displaySetupService.SetPanelBodyWithIdHeight(vm.widget.Id);
+										},
+										1);
 
 								});
 
 								vm.widget.displaySettings.headingExtraTitle = GetHeadingExtraTitle();
 
 
-							})
-
-
+							});
 
 
 					}
@@ -217,16 +213,7 @@
 
 
 
-					vm.scrolledToEnd = function () {
-						//console.log("Scrolled to end fired");
-						//var leastId = vm.alarms.min(function (d) { return d.Id });
-						//GetData(leastId);
-
-					}
-
-
-
-
+					
 				};
 
 

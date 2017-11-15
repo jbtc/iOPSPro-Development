@@ -84,6 +84,17 @@
                             <!-- Is Hidden System Type? -->
                             <div class="form-group">
                                 <label class="col-sm-{{vm.bootstrapLabelColumns}} control-label innovation-right-aligned">
+                                    Has Settings?
+                                </label>
+                                <div class="col-sm-{{vm.bootstrapInputColumns}}">
+                                    <label class="btn btn-default" style="width: 55px; margin: 1px;" ng-model="vm.hasSettings" uib-btn-radio=1>Yes</label>
+                                    <label class="btn btn-default" style="width: 55px; margin: 1px;" ng-model="vm.hasSettings" uib-btn-radio=0>No</label>
+                                </div>
+                            </div>
+
+                            <!-- Has Settings? -->
+                            <div class="form-group">
+                                <label class="col-sm-{{vm.bootstrapLabelColumns}} control-label innovation-right-aligned">
                                     Is A Hidden, System Type?
                                 </label>
                                 <div class="col-sm-{{vm.bootstrapInputColumns}}">

@@ -310,7 +310,7 @@
 		function LoadDataCollections() {
 
 			//Get an instance of the localDB and proceed from there.
-			indexedDBService.getDBInstance("iOPS", 26, [
+			indexedDBService.getDBInstance("iOPS", 27, [
 							{
 								dataStoreName: "Companies",
 								keyName: "Id"

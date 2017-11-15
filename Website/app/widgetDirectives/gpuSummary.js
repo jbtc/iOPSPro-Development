@@ -179,6 +179,8 @@
 								.first(function (a) { return a.ParentSystemId == vm.widget.WidgetResource.GateSystemId && a.Name == 'GPU' });
 
 
+							vm.Asset = vm.gpu;
+
 							if (vm.widget.WidgetResource.GateSystemId) {
 
 								vm.GateSystem = vm.JBTData.Systems.first(function (s) { return s.Id == vm.widget.WidgetResource.GateSystemId });

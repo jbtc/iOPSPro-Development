@@ -12,7 +12,9 @@
 					var vm = this;
 
 					function GetHeadingExtraTitle() {
-						return ' - ' + vm.Asset.Site.Name + ' Gate ' + vm.Asset.ParentSystem.Name + (vm.Asset.ModelGenericName ? ' - ' + vm.Asset.ModelGenericName : '');
+						if (vm.Asset && vm.Asset.Site && vm.Asset.ParentSystem && vm.Asset.ParentSystem.Name) {						
+							return ' - ' + vm.Asset.Site.Name + ' Gate ' + vm.Asset.ParentSystem.Name + (vm.Asset.ModelGenericName ? ' - ' + vm.Asset.ModelGenericName : '');
+						}
 					}
 
 					vm.widget.displaySettings = {
@@ -136,17 +138,8 @@
 
 								dataService.GetEntityById("SystemGroups", newValue).then(function (gateSystem) {
 									vm.GateSystem = gateSystem;
-									//vm.widget.displaySettings.headingExtraTitle = GetHeadingExtraTitle();
 								});
 
-								$timeout(function () {
-									if (vm.pbb) {
-										//Uncomment to cause the settings window to close after a short delay after gate selection
-										if (Global.User.Username != 'markzzzz') {
-											$("#widget-settings-" + vm.widget.WidgetResource.Id).slideToggle();
-										}
-									}
-								}, 400);
 							}
 							GetPBBAssetForGate();
 						}
@@ -167,6 +160,8 @@
 								.first(function (a) { return a.ParentSystemId == vm.widget.WidgetResource.GateSystemId && a.Name == 'PBB' });
 
 
+							vm.Asset = vm.pbb;
+
 							if (vm.widget.WidgetResource.GateSystemId) {
 
 								vm.GateSystem = vm.JBTData.Systems.first(function (s) { return s.Id == vm.widget.WidgetResource.GateSystemId });
@@ -177,6 +172,7 @@
 
 
 							vm.widget.WidgetResource.AssetId = vm.pbb.Id;
+							vm.widget.displaySettings.headingExtraTitle = GetHeadingExtraTitle();
 
 							SaveWidgetResourceObjectIfChanged();
 							dataService.GetAllSignalRObservationFormattedTagsForAssetIdIntoInventory(vm.pbb.Id).then(function () {

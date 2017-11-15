@@ -78,7 +78,7 @@
                                     + <i class="fa fa-line-chart" aria-hidden="true" style="cursor: pointer;"></i>
                                 </button>
 
-                                <i ng-click="vm.openSettingsDash($event, widget)" class="fa fa-cog" aria-hidden="true" style="cursor: pointer; padding: 4px;"></i>
+                                <i ng-if="widget.WidgetResource.WidgetType.HasSettings" ng-click="vm.openSettingsDash($event, widget)" class="fa fa-cog" aria-hidden="true" style="cursor: pointer; padding: 4px;"></i>
 
 
                                 <i ui-sref=".editWidget({ WidgetId: widget.Id})" class="fa fa-pencil-square-o" aria-hidden="true" title="Edit widget {{widget.Name}}" style="cursor: pointer; padding: 4px;"></i>
@@ -113,6 +113,7 @@
                             <site-active-warnings ng-if="widget.WidgetResource.WidgetType.AngularDirectiveName == 'siteActiveWarnings'" widget="widget" dashboard="vm.dashboard"></site-active-warnings>
                             <site-gate-summary ng-if="widget.WidgetResource.WidgetType.AngularDirectiveName == 'siteGateSummary'" widget="widget" dashboard="vm.dashboard"></site-gate-summary>
                             <gs-reports ng-if="widget.WidgetResource.WidgetType.AngularDirectiveName == 'gsReports'" widget="widget" dashboard="vm.dashboard"></gs-reports>
+                            <site-data-stream ng-if="widget.WidgetResource.WidgetType.AngularDirectiveName == 'siteDataStream'" widget="widget" dashboard="vm.dashboard"></site-data-stream>
 
                             <!--<dashboard ng-if="widget.WidgetResource.WidgetType.AngularDirectiveName == 'dashboard'" widget="widget" dashboard="widget.WidgetResource.EmbeddedDashboard" dashboard-id="widget.WidgetResource.EmbeddedDashboard.Id"></dashboard>-->
                         </div>
