@@ -238,6 +238,7 @@
     <Compile Include="Controllers\OdataV4\AssetsController.cs" />
     <Compile Include="Controllers\OdataV4\AssetTypesController.cs" />
     <Compile Include="Controllers\OdataV4\AuthorizableActivitiesController.cs" />
+    <Compile Include="Controllers\OdataV4\GSAlarmHistoriesController.cs" />
     <Compile Include="Controllers\OdataV4\BHSAlarmHistoriesController.cs" />
     <Compile Include="Controllers\OdataV4\BHSBagTagScansController.cs" />
     <Compile Include="Controllers\OdataV4\BHSCurrentAlarmsController.cs" />
@@ -514,6 +515,9 @@
     <Compile Include="Models\DatabaseMailQueue.cs">
       <DependentUpon>Model1.tt</DependentUpon>
     </Compile>
+    <Compile Include="Models\GSAlarmHistory.cs">
+      <DependentUpon>Model1.tt</DependentUpon>
+    </Compile>
     <Compile Include="Models\GSAlertCountByDay_Result.cs">
       <DependentUpon>Model1.tt</DependentUpon>
     </Compile>
@@ -527,6 +531,9 @@
       <DependentUpon>Model1.tt</DependentUpon>
     </Compile>
     <Compile Include="Models\GSReportRun.cs">
+      <DependentUpon>Model1.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Models\GSTop5AlarmTypes_Result.cs">
       <DependentUpon>Model1.tt</DependentUpon>
     </Compile>
     <Compile Include="Models\iOPSUser.cs">

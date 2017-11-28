@@ -12,8 +12,14 @@
 					var vm = this;
 
 
-					//console.log("gsTopFiveAlarmTypes controller invoked");
+					console.log("gsTopFiveAlarmTypes controller invoked. vm = %O", vm);
+					function GetHeadingExtraTitle() {
+					    vm.widgetSite = vm.userSites.first(function (s) { return s.Id == vm.widget.WidgetResource.SiteId });
 
+					    if (vm.widgetSite) {
+					        return ' - ' + vm.widgetSite.Name;
+					    }
+					}
 
 					$scope.$on("WidgetResize", function (event, resizedWidgetId) {
 
@@ -57,7 +63,7 @@
 								endDate: vm.dashboard.webApiParameterEndDate,
 								siteId: 81463
 							}, function (data) {
-								//console.log("GSTop5AlarmTypes initial data = %O", data);
+								console.log("GSTop5AlarmTypes initial data = %O", data);
 
 								if (updateOnly) {
 									//console.log("vm.chart = %O",vm.chart);
@@ -183,10 +189,10 @@
 												dataService.GetIOPSResource("GSAlarmHistories")
 																			.orderBy("Id", "desc")
 
-																			.filter("ActiveDateTime", "!=", null)
-																			.filter("ActiveDateTime", ">", vm.dashboard.webApiParameterStartDate)
-																			.filter("ActiveDateTime", "<", vm.dashboard.webApiParameterEndDate)
-																			.filter("Alarm", filterCategory)
+																			.filter("AlarmTime", "!=", null)
+																			.filter("AlarmTime", ">", vm.dashboard.webApiParameterStartDate)
+																			.filter("AlarmTime", "<", vm.dashboard.webApiParameterEndDate)
+																			.filter("JBTStandardObservationName", filterCategory)
 																			.query().$promise.then(function (data) {
 
 
@@ -200,20 +206,20 @@
 																					maincontentText: "<table class='table table-condensed table-striped' style='font-size: .75em;'>" +
 																										"<thead>" +
 																											"<th>Active Date</th>" +
-																											"<th>Location</th>" +
+																											"<th>Gate</th>" +
 																											"<th>Acknowledge Time</th>" +
 																										"</thead>" +
 																										"<tbody>" +
 																										data.select(function (d) {
 																											return "<tr>" +
 																												"<td>" +
-																												utilityService.GetFormattedLocalDisplayDateFromUTCDate(d.ActiveDateTime) +
+																												utilityService.GetFormattedLocalDisplayDateFromUTCDate(d.AlarmTime) +
 																												"</td>" +
 																												"<td>" +
-																												d.Location +
+																												d.Gate +
 																												"</td>" +
 																												"<td>" +
-																												utilityService.GetFormattedLocalDisplayDateFromUTCDate(d.AcknowledgeTime || "") +
+																												utilityService.GetFormattedLocalDisplayDateFromUTCDate(d.CloseDate || "") +
 																												"</td>" +
 																												"</tr>";
 

@@ -120,6 +120,8 @@
         <AssociationConnector Association="iOPS_NormalizedModel.FK_GSReport_Site" />
         <EntityTypeShape EntityType="iOPS_NormalizedModel.GSReportRun" Width="1.5" PointX="18.625" PointY="19.125" />
         <AssociationConnector Association="iOPS_NormalizedModel.FK_GSReportRun_GSReport" />
+        <EntityTypeShape EntityType="iOPS_NormalizedModel.GSAlarmHistory" Width="1.5" PointX="35.25" PointY="29" />
+        <AssociationConnector Association="iOPS_NormalizedModel.FK_GSAlarmHistory_Tag" />
         </Diagram>
     </edmx:Diagrams>
   </edmx:Designer>

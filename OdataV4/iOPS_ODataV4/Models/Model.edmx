@@ -705,6 +705,27 @@
           <Property Name="Quality" Type="int" />
           <Property Name="NotificationLevel" Type="int" />
         </EntityType>
+        <EntityType Name="GSAlarmHistory">
+          <Key>
+            <PropertyRef Name="Id" />
+          </Key>
+          <Property Name="Id" Type="bigint" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="SiteId" Type="bigint" Nullable="false" />
+          <Property Name="Name" Type="varchar" MaxLength="200" />
+          <Property Name="AlarmTime" Type="datetime" />
+          <Property Name="CloseDate" Type="datetime" />
+          <Property Name="NextAlarmDate" Type="datetime" />
+          <Property Name="AlarmDurationInMinutes" Type="int" />
+          <Property Name="JBTStandardObservationName" Type="nvarchar" MaxLength="100" />
+          <Property Name="JBTStandardObservationSynonymsName" Type="nvarchar" MaxLength="100" />
+          <Property Name="BooleanValue" Type="bit" />
+          <Property Name="TagId" Type="bigint" />
+          <Property Name="CompanyName" Type="nvarchar" MaxLength="100" />
+          <Property Name="BuildingName" Type="nvarchar" MaxLength="100" />
+          <Property Name="AreaName" Type="nvarchar" MaxLength="100" />
+          <Property Name="GateName" Type="nvarchar" MaxLength="100" />
+          <Property Name="AssetName" Type="nvarchar" MaxLength="100" />
+        </EntityType>
         <EntityType Name="GSJBTStandardObservationIdExclusionListFromCurrentAlarms">
           <Key>
             <PropertyRef Name="Id" />
@@ -1037,6 +1058,18 @@
             </Principal>
             <Dependent Role="DeviceLocations">
               <PropertyRef Name="SiteId" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_GSAlarmHistory_Tag">
+          <End Role="Tag" Type="Self.Tag" Multiplicity="0..1" />
+          <End Role="GSAlarmHistory" Type="Self.GSAlarmHistory" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Tag">
+              <PropertyRef Name="Id" />
+            </Principal>
+            <Dependent Role="GSAlarmHistory">
+              <PropertyRef Name="TagId" />
             </Dependent>
           </ReferentialConstraint>
         </Association>
@@ -1664,6 +1697,7 @@
           <EntitySet Name="WidgetGraphTag" EntityType="Self.WidgetGraphTag" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="WidgetType" EntityType="Self.WidgetType" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="ChronologicalRawTagValueLogKepwareReceiver" EntityType="Self.ChronologicalRawTagValueLogKepwareReceiver" Schema="ETL" store:Type="Tables" />
+          <EntitySet Name="GSAlarmHistory" EntityType="Self.GSAlarmHistory" Schema="GateSystem" store:Type="Tables" />
           <EntitySet Name="GSJBTStandardObservationIdExclusionListFromCurrentAlarms" EntityType="Self.GSJBTStandardObservationIdExclusionListFromCurrentAlarms" Schema="GateSystem" store:Type="Tables" />
           <EntitySet Name="AuthorizableActivity" EntityType="Self.AuthorizableActivity" Schema="Security" store:Type="Tables" />
           <EntitySet Name="iOPSUser" EntityType="Self.iOPSUser" Schema="Security" store:Type="Tables" />
@@ -1761,6 +1795,10 @@
           <AssociationSet Name="FK_DeviceLocations_Site" Association="Self.FK_DeviceLocations_Site">
             <End Role="Site" EntitySet="Site" />
             <End Role="DeviceLocations" EntitySet="DeviceLocations" />
+          </AssociationSet>
+          <AssociationSet Name="FK_GSAlarmHistory_Tag" Association="Self.FK_GSAlarmHistory_Tag">
+            <End Role="Tag" EntitySet="Tag" />
+            <End Role="GSAlarmHistory" EntitySet="GSAlarmHistory" />
           </AssociationSet>
           <AssociationSet Name="FK_GSJBTStandardObservationIdExclusionListFromCurrentAlarms_JBTStandardObservation" Association="Self.FK_GSJBTStandardObservationIdExclusionListFromCurrentAlarms_JBTStandardObservation">
             <End Role="JBTStandardObservation" EntitySet="JBTStandardObservation" />
@@ -2381,6 +2419,11 @@
             <Parameter Name="EndTime" Mode="In" Type="DateTime" />
             <Parameter Name="SiteId" Mode="In" Type="Int64" />
           </FunctionImport>
+          <EntitySet Name="GSAlarmHistories" EntityType="iOPS_NormalizedModel.GSAlarmHistory" />
+          <AssociationSet Name="FK_GSAlarmHistory_Tag" Association="iOPS_NormalizedModel.FK_GSAlarmHistory_Tag">
+            <End Role="Tag" EntitySet="Tags" />
+            <End Role="GSAlarmHistory" EntitySet="GSAlarmHistories" />
+          </AssociationSet>
           </EntityContainer>
         <EntityType Name="AuthorizableActivity">
           <Key>
@@ -2858,6 +2901,7 @@
           <Property Name="PreviousObservationQuality" Type="Int32" />
           <Property Name="PreviousObservationCreationDate" Type="DateTime" Precision="3" />
           <Property Name="PreviousReportedDate" Type="DateTime" Precision="3" />
+          <NavigationProperty Name="GSAlarmHistories" Relationship="iOPS_NormalizedModel.FK_GSAlarmHistory_Tag" FromRole="Tag" ToRole="GSAlarmHistory" />
         </EntityType>
         <Association Name="FK_Observation_Tag">
           <End Type="iOPS_NormalizedModel.Tag" Role="Tag" Multiplicity="0..1" />
@@ -4415,6 +4459,40 @@
           <Property Type="String" Name="Gate" Nullable="true" MaxLength="100" />
           <Property Type="String" Name="Asset" Nullable="true" MaxLength="100" />
         </ComplexType>
+        <EntityType Name="GSAlarmHistory">
+          <Key>
+            <PropertyRef Name="Id" />
+          </Key>
+          <Property Name="Id" Type="Int64" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="SiteId" Type="Int64" Nullable="false" />
+          <Property Name="Name" Type="String" MaxLength="200" FixedLength="false" Unicode="false" />
+          <Property Name="AlarmTime" Type="DateTime" Precision="3" />
+          <Property Name="CloseDate" Type="DateTime" Precision="3" />
+          <Property Name="NextAlarmDate" Type="DateTime" Precision="3" />
+          <Property Name="AlarmDurationInMinutes" Type="Int32" />
+          <Property Name="JBTStandardObservationName" Type="String" MaxLength="100" FixedLength="false" Unicode="true" />
+          <Property Name="JBTStandardObservationSynonymsName" Type="String" MaxLength="100" FixedLength="false" Unicode="true" />
+          <Property Name="BooleanValue" Type="Boolean" />
+          <Property Name="TagId" Type="Int64" />
+          <Property Name="CompanyName" Type="String" MaxLength="100" FixedLength="false" Unicode="true" />
+          <Property Name="BuildingName" Type="String" MaxLength="100" FixedLength="false" Unicode="true" />
+          <Property Name="AreaName" Type="String" MaxLength="100" FixedLength="false" Unicode="true" />
+          <Property Name="GateName" Type="String" MaxLength="100" FixedLength="false" Unicode="true" />
+          <Property Name="AssetName" Type="String" MaxLength="100" FixedLength="false" Unicode="true" />
+          <NavigationProperty Name="Tag" Relationship="iOPS_NormalizedModel.FK_GSAlarmHistory_Tag" FromRole="GSAlarmHistory" ToRole="Tag" />
+        </EntityType>
+        <Association Name="FK_GSAlarmHistory_Tag">
+          <End Type="iOPS_NormalizedModel.Tag" Role="Tag" Multiplicity="0..1" />
+          <End Type="iOPS_NormalizedModel.GSAlarmHistory" Role="GSAlarmHistory" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Tag">
+              <PropertyRef Name="Id" />
+            </Principal>
+            <Dependent Role="GSAlarmHistory">
+              <PropertyRef Name="TagId" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
         </Schema>
     </edmx:ConceptualModels>
     <!-- C-S mapping content -->
@@ -5583,6 +5661,28 @@
               </ComplexTypeMapping>
             </ResultMapping>
           </FunctionImportMapping>
+          <EntitySetMapping Name="GSAlarmHistories">
+            <EntityTypeMapping TypeName="iOPS_NormalizedModel.GSAlarmHistory">
+              <MappingFragment StoreEntitySet="GSAlarmHistory">
+                <ScalarProperty Name="AssetName" ColumnName="AssetName" />
+                <ScalarProperty Name="GateName" ColumnName="GateName" />
+                <ScalarProperty Name="AreaName" ColumnName="AreaName" />
+                <ScalarProperty Name="BuildingName" ColumnName="BuildingName" />
+                <ScalarProperty Name="CompanyName" ColumnName="CompanyName" />
+                <ScalarProperty Name="TagId" ColumnName="TagId" />
+                <ScalarProperty Name="BooleanValue" ColumnName="BooleanValue" />
+                <ScalarProperty Name="JBTStandardObservationSynonymsName" ColumnName="JBTStandardObservationSynonymsName" />
+                <ScalarProperty Name="JBTStandardObservationName" ColumnName="JBTStandardObservationName" />
+                <ScalarProperty Name="AlarmDurationInMinutes" ColumnName="AlarmDurationInMinutes" />
+                <ScalarProperty Name="NextAlarmDate" ColumnName="NextAlarmDate" />
+                <ScalarProperty Name="CloseDate" ColumnName="CloseDate" />
+                <ScalarProperty Name="AlarmTime" ColumnName="AlarmTime" />
+                <ScalarProperty Name="Name" ColumnName="Name" />
+                <ScalarProperty Name="SiteId" ColumnName="SiteId" />
+                <ScalarProperty Name="Id" ColumnName="Id" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
           </EntityContainerMapping>
       </Mapping>
     </edmx:Mappings>

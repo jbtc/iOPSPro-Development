@@ -29,7 +29,8 @@
 			case 'siteGateSummary':
 			case 'gsReports':
 			case 'siteActiveAlarms':
-			case 'siteActiveWarnings':
+		    case 'siteActiveWarnings':
+		    case 'gsTopFiveAlarmTypes':
 
 				vm.selectSite = true;
 				vm.selectTerminal = vm.selectZone = vm.selectGate = vm.selectAsset = vm.selectBHS = false;
