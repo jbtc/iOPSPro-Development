@@ -1,4 +1,4 @@
-﻿// T4 code generation is enabled for model 'C:\inetpub\wwwroot\iOPS\OdataV4\iOPS_ODataV4\Models\Model.edmx'. 
+﻿// T4 code generation is enabled for model 'C:\inetpub\wwwroot\iOPSPro-Development\OdataV4\iOPS_ODataV4\Models\Model.edmx'. 
 // To enable legacy code generation, change the value of the 'Code Generation Strategy' designer
 // property to 'Legacy ObjectContext'. This property is available in the Properties Window when the model
 // is open in the designer.

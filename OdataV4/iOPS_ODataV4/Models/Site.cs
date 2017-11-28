@@ -42,6 +42,8 @@ namespace iOPS_ODataV4.Models
         public Nullable<double> GoogleLatitude { get; set; }
         public Nullable<double> GoogleLongitude { get; set; }
         public Nullable<int> KepwareSQLTimeDifferenceMSFromCentral { get; set; }
+        public Nullable<bool> HasBaggageHandling { get; set; }
+        public Nullable<bool> HasGates { get; set; }
     
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<SiteCompany> SiteCompanies { get; set; }

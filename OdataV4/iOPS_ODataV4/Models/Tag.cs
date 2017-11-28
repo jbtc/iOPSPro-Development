@@ -67,6 +67,14 @@ namespace iOPS_ODataV4.Models
         public string ValueWhenActive { get; set; }
         public Nullable<bool> MarkedForDelete { get; set; }
         public Nullable<long> MergeToTagId { get; set; }
+        public Nullable<long> PreviousObservationId { get; set; }
+        public Nullable<System.DateTime> PreviousObservationDate { get; set; }
+        public string PreviousObservationTextValue { get; set; }
+        public Nullable<int> LastObservationQuality { get; set; }
+        public Nullable<System.DateTime> LastObservationCreationDate { get; set; }
+        public Nullable<int> PreviousObservationQuality { get; set; }
+        public Nullable<System.DateTime> PreviousObservationCreationDate { get; set; }
+        public Nullable<System.DateTime> PreviousReportedDate { get; set; }
     
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<Observation> Observations { get; set; }

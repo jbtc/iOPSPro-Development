@@ -256,6 +256,7 @@
           <Property Name="Make" Type="varchar" MaxLength="100" />
           <Property Name="Program" Type="varchar" MaxLength="50" />
           <Property Name="ModelGenericName" Type="varchar" MaxLength="50" />
+          <Property Name="Revision" Type="nvarchar" MaxLength="255" />
         </EntityType>
         <EntityType Name="AssetCondition">
           <Key>
@@ -412,25 +413,6 @@
           <Property Name="SentStatus" Type="varchar" MaxLength="10" />
           <Property Name="Result" Type="int" />
         </EntityType>
-        <EntityType Name="GSReport">
-          <Key>
-            <PropertyRef Name="Id" />
-          </Key>
-          <Property Name="Id" Type="bigint" StoreGeneratedPattern="Identity" Nullable="false" />
-          <Property Name="SiteId" Type="bigint" />
-          <Property Name="Name" Type="varchar" MaxLength="100" />
-          <Property Name="Description" Type="nvarchar(max)" />
-          <Property Name="RSURL" Type="varchar" MaxLength="500" />
-        </EntityType>
-        <EntityType Name="GSReportRun">
-          <Key>
-            <PropertyRef Name="Id" />
-          </Key>
-          <Property Name="Id" Type="bigint" StoreGeneratedPattern="Identity" Nullable="false" />
-          <Property Name="Date" Type="datetime" />
-          <Property Name="UserId" Type="bigint" />
-          <Property Name="GSReportId" Type="bigint" />
-        </EntityType>
         <EntityType Name="JBTStandardObservation">
           <Key>
             <PropertyRef Name="Id" />
@@ -503,6 +485,8 @@
           <Property Name="GoogleLatitude" Type="float" />
           <Property Name="GoogleLongitude" Type="float" />
           <Property Name="KepwareSQLTimeDifferenceMSFromCentral" Type="int" />
+          <Property Name="HasBaggageHandling" Type="bit" />
+          <Property Name="HasGates" Type="bit" />
         </EntityType>
         <EntityType Name="SiteCompany">
           <Key>
@@ -620,6 +604,14 @@
           <Property Name="ValueWhenActive" Type="varchar" MaxLength="50" />
           <Property Name="MarkedForDelete" Type="bit" />
           <Property Name="MergeToTagId" Type="bigint" />
+          <Property Name="PreviousObservationId" Type="bigint" />
+          <Property Name="PreviousObservationDate" Type="datetime" />
+          <Property Name="PreviousObservationTextValue" Type="varchar" MaxLength="100" />
+          <Property Name="LastObservationQuality" Type="int" />
+          <Property Name="LastObservationCreationDate" Type="datetime" />
+          <Property Name="PreviousObservationQuality" Type="int" />
+          <Property Name="PreviousObservationCreationDate" Type="datetime" />
+          <Property Name="PreviousReportedDate" Type="datetime" />
         </EntityType>
         <EntityType Name="Unit">
           <Key>
@@ -1057,30 +1049,6 @@
             </Principal>
             <Dependent Role="GSJBTStandardObservationIdExclusionListFromCurrentAlarms">
               <PropertyRef Name="JBTStandardObservationId" />
-            </Dependent>
-          </ReferentialConstraint>
-        </Association>
-        <Association Name="FK_GSReport_Site">
-          <End Role="Site" Type="Self.Site" Multiplicity="0..1" />
-          <End Role="GSReport" Type="Self.GSReport" Multiplicity="*" />
-          <ReferentialConstraint>
-            <Principal Role="Site">
-              <PropertyRef Name="Id" />
-            </Principal>
-            <Dependent Role="GSReport">
-              <PropertyRef Name="SiteId" />
-            </Dependent>
-          </ReferentialConstraint>
-        </Association>
-        <Association Name="FK_GSReportRun_GSReport">
-          <End Role="GSReport" Type="Self.GSReport" Multiplicity="0..1" />
-          <End Role="GSReportRun" Type="Self.GSReportRun" Multiplicity="*" />
-          <ReferentialConstraint>
-            <Principal Role="GSReport">
-              <PropertyRef Name="Id" />
-            </Principal>
-            <Dependent Role="GSReportRun">
-              <PropertyRef Name="GSReportId" />
             </Dependent>
           </ReferentialConstraint>
         </Association>
@@ -1646,6 +1614,11 @@
           <Parameter Name="StartDate" Type="datetime" Mode="In" />
           <Parameter Name="EndDate" Type="datetime" Mode="In" />
         </Function>
+        <Function Name="GSTop5AlarmTypes" Aggregate="false" BuiltIn="false" NiladicFunction="false" IsComposable="false" ParameterTypeSemantics="AllowImplicitConversion" Schema="GateSystem">
+          <Parameter Name="BeginTime" Type="datetime" Mode="In" />
+          <Parameter Name="EndTime" Type="datetime" Mode="In" />
+          <Parameter Name="SiteId" Type="bigint" Mode="In" />
+        </Function>
         <EntityContainer Name="iOPS_NormalizedModelStoreContainer">
           <EntitySet Name="AlarmHistory" EntityType="Self.AlarmHistory" Schema="BHS" store:Type="Tables" />
           <EntitySet Name="BagTagScan" EntityType="Self.BagTagScan" Schema="BHS" store:Type="Tables" />
@@ -1672,8 +1645,6 @@
           <EntitySet Name="Dashboard" EntityType="Self.Dashboard" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="DashboardTimeScope" EntityType="Self.DashboardTimeScope" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="DatabaseMailQueue" EntityType="Self.DatabaseMailQueue" Schema="dbo" store:Type="Tables" />
-          <EntitySet Name="GSReport" EntityType="Self.GSReport" Schema="dbo" store:Type="Tables" />
-          <EntitySet Name="GSReportRun" EntityType="Self.GSReportRun" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="JBTStandardObservation" EntityType="Self.JBTStandardObservation" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="Observation" EntityType="Self.Observation" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="ObservationAggregatedHighChartValue" EntityType="Self.ObservationAggregatedHighChartValue" Schema="dbo" store:Type="Tables" />
@@ -1794,14 +1765,6 @@
           <AssociationSet Name="FK_GSJBTStandardObservationIdExclusionListFromCurrentAlarms_JBTStandardObservation" Association="Self.FK_GSJBTStandardObservationIdExclusionListFromCurrentAlarms_JBTStandardObservation">
             <End Role="JBTStandardObservation" EntitySet="JBTStandardObservation" />
             <End Role="GSJBTStandardObservationIdExclusionListFromCurrentAlarms" EntitySet="GSJBTStandardObservationIdExclusionListFromCurrentAlarms" />
-          </AssociationSet>
-          <AssociationSet Name="FK_GSReport_Site" Association="Self.FK_GSReport_Site">
-            <End Role="Site" EntitySet="Site" />
-            <End Role="GSReport" EntitySet="GSReport" />
-          </AssociationSet>
-          <AssociationSet Name="FK_GSReportRun_GSReport" Association="Self.FK_GSReportRun_GSReport">
-            <End Role="GSReport" EntitySet="GSReport" />
-            <End Role="GSReportRun" EntitySet="GSReportRun" />
           </AssociationSet>
           <AssociationSet Name="FK_iOPSUser_Person" Association="Self.FK_iOPSUser_Person">
             <End Role="Person" EntitySet="Person" />
@@ -2413,6 +2376,11 @@
             <End Role="GSReport" EntitySet="GSReports" />
             <End Role="GSReportRun" EntitySet="GSReportRuns" />
           </AssociationSet>
+          <FunctionImport Name="GSTop5AlarmTypes" ReturnType="Collection(iOPS_NormalizedModel.GSTop5AlarmTypes_Result)">
+            <Parameter Name="BeginTime" Mode="In" Type="DateTime" />
+            <Parameter Name="EndTime" Mode="In" Type="DateTime" />
+            <Parameter Name="SiteId" Mode="In" Type="Int64" />
+          </FunctionImport>
           </EntityContainer>
         <EntityType Name="AuthorizableActivity">
           <Key>
@@ -2688,6 +2656,8 @@
           <NavigationProperty Name="Assets" Relationship="iOPS_NormalizedModel.FK_Asset_Site" FromRole="Site" ToRole="Asset" />
           <Property Name="KepwareSQLTimeDifferenceMSFromCentral" Type="Int32" />
           <NavigationProperty Name="GSReports" Relationship="iOPS_NormalizedModel.FK_GSReport_Site" FromRole="Site" ToRole="GSReport" />
+          <Property Name="HasBaggageHandling" Type="Boolean" />
+          <Property Name="HasGates" Type="Boolean" />
         </EntityType>
         <EntityType Name="SiteCompany">
           <Key>
@@ -2880,6 +2850,14 @@
           <Property Name="ValueWhenActive" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
           <Property Name="MarkedForDelete" Type="Boolean" />
           <Property Name="MergeToTagId" Type="Int64" />
+          <Property Name="PreviousObservationId" Type="Int64" />
+          <Property Name="PreviousObservationDate" Type="DateTime" Precision="3" />
+          <Property Name="PreviousObservationTextValue" Type="String" MaxLength="100" FixedLength="false" Unicode="false" />
+          <Property Name="LastObservationQuality" Type="Int32" />
+          <Property Name="LastObservationCreationDate" Type="DateTime" Precision="3" />
+          <Property Name="PreviousObservationQuality" Type="Int32" />
+          <Property Name="PreviousObservationCreationDate" Type="DateTime" Precision="3" />
+          <Property Name="PreviousReportedDate" Type="DateTime" Precision="3" />
         </EntityType>
         <Association Name="FK_Observation_Tag">
           <End Type="iOPS_NormalizedModel.Tag" Role="Tag" Multiplicity="0..1" />
@@ -4012,6 +3990,7 @@
           <Property Name="Program" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
           <NavigationProperty Name="AssetGraphics" Relationship="iOPS_NormalizedModel.FK_AssetModelImage_Asset" FromRole="Asset" ToRole="AssetGraphic" />
           <Property Name="ModelGenericName" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
+          <Property Name="Revision" Type="String" MaxLength="255" FixedLength="false" Unicode="true" />
         </EntityType>
         <Association Name="FK_Asset_Airport">
           <End Type="iOPS_NormalizedModel.Company" Role="Company" Multiplicity="0..1" />
@@ -4424,6 +4403,18 @@
             </Dependent>
           </ReferentialConstraint>
         </Association>
+        <ComplexType Name="GSTop5AlarmTypes_Result">
+          <Property Type="String" Name="AlarmType" Nullable="true" MaxLength="100" />
+          <Property Type="Int32" Name="AlarmCount" Nullable="true" />
+          <Property Type="DateTime" Name="MinActiveDateTime" Nullable="true" Precision="23" />
+          <Property Type="DateTime" Name="MaxActiveDateTime" Nullable="true" Precision="23" />
+          <Property Type="Int32" Name="MaxDurationSec" Nullable="true" />
+          <Property Type="Int32" Name="MinDurationSec" Nullable="true" />
+          <Property Type="Int32" Name="AverageDuration" Nullable="true" />
+          <Property Type="String" Name="Zone" Nullable="true" MaxLength="100" />
+          <Property Type="String" Name="Gate" Nullable="true" MaxLength="100" />
+          <Property Type="String" Name="Asset" Nullable="true" MaxLength="100" />
+        </ComplexType>
         </Schema>
     </edmx:ConceptualModels>
     <!-- C-S mapping content -->
@@ -4554,6 +4545,8 @@
           <EntitySetMapping Name="Sites">
             <EntityTypeMapping TypeName="iOPS_NormalizedModel.Site">
               <MappingFragment StoreEntitySet="Site">
+                <ScalarProperty Name="HasGates" ColumnName="HasGates" />
+                <ScalarProperty Name="HasBaggageHandling" ColumnName="HasBaggageHandling" />
                 <ScalarProperty Name="KepwareSQLTimeDifferenceMSFromCentral" ColumnName="KepwareSQLTimeDifferenceMSFromCentral" />
                 <ScalarProperty Name="GoogleLongitude" ColumnName="GoogleLongitude" />
                 <ScalarProperty Name="GoogleLatitude" ColumnName="GoogleLatitude" />
@@ -4643,6 +4636,14 @@
           <EntitySetMapping Name="Tags">
             <EntityTypeMapping TypeName="iOPS_NormalizedModel.Tag">
               <MappingFragment StoreEntitySet="Tag">
+                <ScalarProperty Name="PreviousReportedDate" ColumnName="PreviousReportedDate" />
+                <ScalarProperty Name="PreviousObservationCreationDate" ColumnName="PreviousObservationCreationDate" />
+                <ScalarProperty Name="PreviousObservationQuality" ColumnName="PreviousObservationQuality" />
+                <ScalarProperty Name="LastObservationCreationDate" ColumnName="LastObservationCreationDate" />
+                <ScalarProperty Name="LastObservationQuality" ColumnName="LastObservationQuality" />
+                <ScalarProperty Name="PreviousObservationTextValue" ColumnName="PreviousObservationTextValue" />
+                <ScalarProperty Name="PreviousObservationDate" ColumnName="PreviousObservationDate" />
+                <ScalarProperty Name="PreviousObservationId" ColumnName="PreviousObservationId" />
                 <ScalarProperty Name="MergeToTagId" ColumnName="MergeToTagId" />
                 <ScalarProperty Name="MarkedForDelete" ColumnName="MarkedForDelete" />
                 <ScalarProperty Name="ValueWhenActive" ColumnName="ValueWhenActive" />
@@ -5401,6 +5402,7 @@
           <EntitySetMapping Name="Assets">
             <EntityTypeMapping TypeName="iOPS_NormalizedModel.Asset">
               <MappingFragment StoreEntitySet="Asset">
+                <ScalarProperty Name="Revision" ColumnName="Revision" />
                 <ScalarProperty Name="ModelGenericName" ColumnName="ModelGenericName" />
                 <ScalarProperty Name="Program" ColumnName="Program" />
                 <ScalarProperty Name="Make" ColumnName="Make" />
@@ -5565,28 +5567,23 @@
               </MappingFragment>
             </EntityTypeMapping>
           </EntitySetMapping>
-          <EntitySetMapping Name="GSReports">
-            <EntityTypeMapping TypeName="iOPS_NormalizedModel.GSReport">
-              <MappingFragment StoreEntitySet="GSReport">
-                <ScalarProperty Name="RSURL" ColumnName="RSURL" />
-                <ScalarProperty Name="Description" ColumnName="Description" />
-                <ScalarProperty Name="Name" ColumnName="Name" />
-                <ScalarProperty Name="SiteId" ColumnName="SiteId" />
-                <ScalarProperty Name="Id" ColumnName="Id" />
-              </MappingFragment>
-            </EntityTypeMapping>
-          </EntitySetMapping>
-          <EntitySetMapping Name="GSReportRuns">
-            <EntityTypeMapping TypeName="iOPS_NormalizedModel.GSReportRun">
-              <MappingFragment StoreEntitySet="GSReportRun">
-                <ScalarProperty Name="GSReportId" ColumnName="GSReportId" />
-                <ScalarProperty Name="UserId" ColumnName="UserId" />
-                <ScalarProperty Name="Date" ColumnName="Date" />
-                <ScalarProperty Name="Id" ColumnName="Id" />
-              </MappingFragment>
-            </EntityTypeMapping>
-          </EntitySetMapping>
-        </EntityContainerMapping>
+          <FunctionImportMapping FunctionImportName="GSTop5AlarmTypes" FunctionName="iOPS_NormalizedModel.Store.GSTop5AlarmTypes">
+            <ResultMapping>
+              <ComplexTypeMapping TypeName="iOPS_NormalizedModel.GSTop5AlarmTypes_Result">
+                <ScalarProperty Name="AlarmType" ColumnName="AlarmType" />
+                <ScalarProperty Name="AlarmCount" ColumnName="AlarmCount" />
+                <ScalarProperty Name="MinActiveDateTime" ColumnName="MinActiveDateTime" />
+                <ScalarProperty Name="MaxActiveDateTime" ColumnName="MaxActiveDateTime" />
+                <ScalarProperty Name="MaxDurationSec" ColumnName="MaxDurationSec" />
+                <ScalarProperty Name="MinDurationSec" ColumnName="MinDurationSec" />
+                <ScalarProperty Name="AverageDuration" ColumnName="AverageDuration" />
+                <ScalarProperty Name="Zone" ColumnName="Zone" />
+                <ScalarProperty Name="Gate" ColumnName="Gate" />
+                <ScalarProperty Name="Asset" ColumnName="Asset" />
+              </ComplexTypeMapping>
+            </ResultMapping>
+          </FunctionImportMapping>
+          </EntityContainerMapping>
       </Mapping>
     </edmx:Mappings>
   </edmx:Runtime>

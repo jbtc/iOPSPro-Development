@@ -294,6 +294,7 @@
     <Compile Include="Controllers\WebAPI\BHSPercentOfFailSafePerDayController.cs" />
     <Compile Include="Controllers\WebAPI\BHSPercentOfFailSafePerHourController.cs" />
     <Compile Include="Controllers\WebAPI\BHSTop5AlarmTypeLongestDurationController.cs" />
+    <Compile Include="Controllers\WebAPI\GSTop5AlarmTypesController.cs" />
     <Compile Include="Controllers\WebAPI\BHSTop5AlarmTypesController.cs" />
     <Compile Include="Controllers\WebAPI\BHSTop5JamDeviceswithCountController.cs" />
     <Compile Include="Controllers\WebAPI\BHSTop5JamDeviceswithLongestDurationController.cs" />
