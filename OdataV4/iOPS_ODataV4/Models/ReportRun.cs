@@ -12,13 +12,13 @@ namespace iOPS_ODataV4.Models
     using System;
     using System.Collections.Generic;
     
-    public partial class GSReportRun
+    public partial class ReportRun
     {
         public long Id { get; set; }
         public Nullable<System.DateTime> Date { get; set; }
         public Nullable<long> UserId { get; set; }
-        public Nullable<long> GSReportId { get; set; }
+        public Nullable<long> ReportId { get; set; }
     
-        public virtual GSReport GSReport { get; set; }
+        public virtual Report Report { get; set; }
     }
 }

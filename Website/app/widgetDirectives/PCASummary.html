@@ -6,14 +6,14 @@
                 <ul class="nav nav-pills" id="nav-pills{{vm.widget.Id}}" style="font-size: .7em; padding-bottom: 5px; border-bottom: 1px solid lightgray;">
                     <li class="{{(!vm.widget.WidgetResource.DefaultNavPill || vm.widget.WidgetResource.DefaultNavPill == 'Temp') ? 'active' : 'xxx'}}"><a data-toggle="pill" ng-click="vm.SetDefaultNavPillTemp()" href="#temp{{vm.widget.Id}}">Temp</a></li>
                     <li class="{{vm.widget.WidgetResource.DefaultNavPill == 'Press' ? 'active' : 'xxx'}}"><a data-toggle="pill" ng-click="vm.SetDefaultNavPillPress()" href="#press{{vm.widget.Id}}">Press</a></li>
-                    <li class="{{vm.widget.WidgetResource.DefaultNavPill == 'Data' ? 'active' : 'xxx'}}"><a data-toggle="pill"  ng-click="vm.SetDefaultNavPillData()" href="#data{{vm.widget.Id}}">Data</a></li>
+                    <li class="{{vm.widget.WidgetResource.DefaultNavPill == 'Data' ? 'active' : 'xxx'}}"><a data-toggle="pill" ng-click="vm.SetDefaultNavPillData()" href="#data{{vm.widget.Id}}">Data</a></li>
                 </ul>
 
                 <div class="tab-content" id="tab-content{{vm.widget.Id}}" style="font-family: Segoe UI; font-size: .8em; overflow-y: auto; height: 100px;">
                     <div id="temp{{vm.widget.Id}}" class="tab-pane fade{{(!vm.widget.WidgetResource.DefaultNavPill || vm.widget.WidgetResource.DefaultNavPill == 'Temp') ? ' in active' : ''}}" style="height: 100%; padding-bottom: 5px; overflow: hidden;">
                         <div class="flex-container" id="temperature-flex-container{{vm.widget.Id}}">
                             <div id="temperature-meters{{vm.widget.Id}}" style="flex-basis: 100%; height: 100%; border: 3px solid white; overflow-x: hidden; overflow-y: auto;">
-                                <linear-meter ng-if="vm.ambientDataTag" 
+                                <linear-meter ng-if="vm.ambientDataTag"
                                               min-scale="-30"
                                               max-scale="120"
                                               low-range-start-value="-30"
@@ -27,7 +27,7 @@
                                               label="Ambient Air Temperature"
                                               units='deg F'
                                               current-value="vm.ambientAirTemperature"></linear-meter>
-                                <linear-meter ng-if="vm.dischargeDataTag" 
+                                <linear-meter ng-if="vm.dischargeDataTag"
                                               min-scale="-30"
                                               max-scale="120"
                                               low-range-start-value="-30"
@@ -41,7 +41,7 @@
                                               label="Discharge Air Temperature"
                                               units='deg F'
                                               current-value="vm.dischargeAirTemperature"></linear-meter>
-                                <linear-meter ng-if="vm.cabinDataTag" 
+                                <linear-meter ng-if="vm.cabinDataTag"
                                               min-scale="-30"
                                               max-scale="120"
                                               low-range-start-value="-30"
@@ -180,61 +180,63 @@
                         </div>
                     </div>
                     <div id="data{{vm.widget.Id}}" class="tab-pane fade{{vm.widget.WidgetResource.DefaultNavPill == 'Data' ? ' in active' : ''}}" style="overflow: auto;">
-                        
-                        <table class="table table-condensed table-striped" style="font-family: Segoe UI; font-size: .8em;">
-                            <thead>
-                                <tr>
-                                    <th style="cursor: pointer;"
-                                        nowrap
-                                        ng-click="vm.SetSortField('JBTStandardObservation.Name')">
-                                        <div>
-                                            Name
-                                            <span ng-show="vm.widget.displaySettings.tagDataSortField=='-JBTStandardObservation.Name'">
-                                                <i class="fa fa-sort-numeric-desc" title="Click to sort in descending order"></i>
-                                            </span>
-                                            <span ng-show="vm.widget.displaySettings.tagDataSortField=='JBTStandardObservation.Name'">
-                                                <i class="fa fa-sort-numeric-asc" title="Click to sort in ascending order"></i>
-                                            </span>
-                                        </div>
-                                    </th>
-                                    <th style="cursor: pointer;"
-                                        nowrap
-                                        ng-click="vm.SetSortField('PLCLocalDate')">
-                                        <div>
-                                            Date
-                                            <span ng-show="vm.widget.displaySettings.tagDataSortField=='-PLCLocalDate'">
-                                                <i class="fa fa-sort-numeric-desc" title="Click to sort in descending order"></i>
-                                            </span>
-                                            <span ng-show="vm.widget.displaySettings.tagDataSortField=='PLCLocalDate'">
-                                                <i class="fa fa-sort-numeric-asc" title="Click to sort in ascending order"></i>
-                                            </span>
-                                        </div>
-                                    </th>
-                                    <th>
-                                        Value
-                                    </th>
 
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <tr ng-repeat="tag in vm.pca.Tags | orderBy: vm.widget.displaySettings.tagDataSortField" style="background-color: {{tag.Metadata.Status.LastValueWasHistorical ? 'rgba(173, 173, 173,' : 'rgba(0, 255, 0,'}} .{{tag.Metadata.UpdateCountDowns.OneSecond}});">
-                                    <td>
-                                        <label ng-click="vm.ProcessTagsToGraph()" class="btn btn-default" style="height: 15px; max-height: 15px; font-size: .7em; width: 15px; max-width: 15px; padding: 0; padding-top: 2px; margin-top: -2px;" ng-model="vm.tagsToGraph[tag.TagId]" uib-btn-checkbox="{{tag.TagId}}">
-                                            <i class="fa fa-line-chart" aria-hidden="true" title="Add to graph widget" style="cursor: pointer;"></i>
-                                        </label>
-                                        <span title="{{tag.JBTStandardObservation.Id}}">{{tag.JBTStandardObservation.Name}}</span>
-                                    </td>
-                                    <td nowrap>
-                                        {{tag.PLCLocalDate | date:'MM/dd HH:mm:ss'}}
-                                    </td>
-                                    <td>
-                                        {{tag.Value}}
+                        <div id="repeater-container-data{{vm.widget.Id}}" ng-show="vm.showTags" class="repeater-container" style="overflow-x: hidden; overflow-y: auto; width: 100%; height: {{vm.widgetDimensions.height - 10}}px;">
+                            <table class="table table-condensed table-striped" style="font-family: Segoe UI; font-size: .8em;">
+                                <thead>
+                                    <tr>
+                                        <th style="cursor: pointer;"
+                                            nowrap
+                                            ng-click="vm.SetSortField('JBTStandardObservation.Name')">
+                                            <div>
+                                                Name
+                                                <span ng-show="vm.widget.displaySettings.tagDataSortField=='-JBTStandardObservation.Name'">
+                                                    <i class="fa fa-sort-numeric-desc" title="Click to sort in descending order"></i>
+                                                </span>
+                                                <span ng-show="vm.widget.displaySettings.tagDataSortField=='JBTStandardObservation.Name'">
+                                                    <i class="fa fa-sort-numeric-asc" title="Click to sort in ascending order"></i>
+                                                </span>
+                                            </div>
+                                        </th>
+                                        <th style="cursor: pointer;"
+                                            nowrap
+                                            ng-click="vm.SetSortField('PLCLocalDate')">
+                                            <div>
+                                                Date
+                                                <span ng-show="vm.widget.displaySettings.tagDataSortField=='-PLCLocalDate'">
+                                                    <i class="fa fa-sort-numeric-desc" title="Click to sort in descending order"></i>
+                                                </span>
+                                                <span ng-show="vm.widget.displaySettings.tagDataSortField=='PLCLocalDate'">
+                                                    <i class="fa fa-sort-numeric-asc" title="Click to sort in ascending order"></i>
+                                                </span>
+                                            </div>
+                                        </th>
+                                        <th>
+                                            Value
+                                        </th>
 
-                                    </td>
-                                </tr>
-                            </tbody>
+                                    </tr>
+                                </thead>
+                                <tbody vs-repeat vs-scroll-parent=".repeater-container" vs-scrolled-to-end="vm.scrolledToEnd()" style="font-size: .75em; overflow-y: scroll; height: 100px;">>
+                                    <tr ng-repeat="tag in vm.pca.Tags | orderBy: vm.widget.displaySettings.tagDataSortField" style="background-color: {{tag.Metadata.Status.LastValueWasHistorical ? 'rgba(173, 173, 173,' : 'rgba(0, 255, 0,'}} .{{tag.Metadata.UpdateCountDowns.OneSecond}});">
+                                        <td>
+                                            <label ng-click="vm.ProcessTagsToGraph()" class="btn btn-default" style="height: 15px; max-height: 15px; font-size: .7em; width: 15px; max-width: 15px; padding: 0; padding-top: 2px; margin-top: -2px;" ng-model="vm.tagsToGraph[tag.TagId]" uib-btn-checkbox="{{tag.TagId}}">
+                                                <i class="fa fa-line-chart" aria-hidden="true" title="Add to graph widget" style="cursor: pointer;"></i>
+                                            </label>
+                                            <span title="{{tag.JBTStandardObservation.Id}}">{{tag.JBTStandardObservation.Name}}</span>
+                                        </td>
+                                        <td nowrap>
+                                            {{tag.PLCLocalDate | date:'MM/dd HH:mm:ss'}}
+                                        </td>
+                                        <td>
+                                            {{tag.Value}}
 
-                        </table>
+                                        </td>
+                                    </tr>
+                                </tbody>
+
+                            </table>
+                        </div>
                     </div>
 
                 </div>

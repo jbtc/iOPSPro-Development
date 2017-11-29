@@ -69,8 +69,9 @@ namespace iOPS_ODataV4
             builder.EntitySet<ObservationAggregatedHighChartValue>("ObservationAggregatedHighChartValues");
             builder.EntitySet<GSJBTStandardObservationIdExclusionListFromCurrentAlarm>("GSJBTStandardObservationIdExclusionListFromCurrentAlarms");
             builder.EntitySet<ChronologicalRawTagValueLogKepwareReceiver>("ChronologicalRawTagValueLogKepwareReceivers");
-            builder.EntitySet<GSReport>("GSReports");
-            builder.EntitySet<GSReportRun>("GSReportRuns");
+            builder.EntitySet<Report>("Reports");
+            builder.EntitySet<ReportRun>("ReportRuns");
+            builder.EntitySet<GSAlarmHistory>("GSAlarmHistories");
 
 
 

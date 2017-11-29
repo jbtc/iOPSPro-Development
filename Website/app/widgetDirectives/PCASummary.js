@@ -10,10 +10,10 @@
 
 				var controller = function ($scope) {
 					var vm = this;
-					console.log("PCA Summary Controller invoked");
+					//console.log("PCA Summary Controller invoked");
 
 					function GetHeadingExtraTitle() {
-						console.log("Getting site heading");
+						//console.log("Getting site heading");
 						return ' - ' + vm.Asset.Site.Name + ' Gate ' + vm.Asset.ParentSystem.Name + (vm.Asset.ModelGenericName ? ' - ' + vm.Asset.ModelGenericName : '');
 					}
 
@@ -23,6 +23,11 @@
 						headingExtraTitle: '',
 						obscureGraphics: true
 					}
+					vm.scrolledToEnd = function () {
+						console.log("pca Data Scrolled to end");
+					}
+
+
 
 					vm.originalWidgetResource = angular.copy(vm.widget.WidgetResource);
 
@@ -32,9 +37,9 @@
 						//console.log("Original widget resource = %O", vm.originalWidgetResource);
 						if (!angular.equals(vm.originalWidgetResource, possiblyChangedResource)) {
 
-							console.log("Saving widget resource........");
-							console.log("Original WidgetResource = %O", vm.originalWidgetResource);
-							console.log("Changed WidgetResource = %O", possiblyChangedResource);
+							//console.log("Saving widget resource........");
+							//console.log("Original WidgetResource = %O", vm.originalWidgetResource);
+							//console.log("Changed WidgetResource = %O", possiblyChangedResource);
 							vm.widget.WidgetResource.$save();
 							vm.originalWidgetResource = possiblyChangedResource;
 						}
@@ -48,10 +53,10 @@
 
 					//Get a copy of the user record to determine privs
 					vm.user = Global.User;
-					console.log("Initial vm.widget = %O", vm.widget);
+					//console.log("Initial vm.widget = %O", vm.widget);
 
 
-					console.log("vm.user = %O", vm.user);
+					//console.log("vm.user = %O", vm.user);
 					displaySetupService.SetWidgetPanelBodyDimensions(vm.widget.Id);
 
 
@@ -107,7 +112,7 @@
 						vm.JBTData = JBTData;
 						vm.Asset = vm.JBTData.Assets.first(function (a) { return a.Id == vm.widget.WidgetResource.AssetId });
 						vm.pca = vm.Asset;
-						console.log("pcaSumary Asset = %O", vm.Asset);
+						//console.log("pcaSumary Asset = %O", vm.Asset);
 						GetPCAAssetForGate();
 
 						vm.widget.displaySettings.headingExtraTitle = GetHeadingExtraTitle();
@@ -186,7 +191,7 @@
 							.first(function (a) { return a.ParentSystemId == vm.widget.WidgetResource.GateSystemId && a.Name == 'PCA' });
 
 						vm.Asset = vm.pca;
-						console.log("vm.pca = %O", vm.pca);
+						//console.log("vm.pca = %O", vm.pca);
 
 
 						vm.widget.WidgetResource.AssetId = vm.pca.Id;
@@ -209,7 +214,7 @@
 								SetTabBodyHeight();
 							}, 50);
 
-							console.log("Asset Graphics = %O", vm.AssetGraphics);
+							//console.log("Asset Graphics = %O", vm.AssetGraphics);
 							vm.pca.Tags.forEach(function (tag) {
 								UpdateGraphicsVisibilityForSingleTag(tag);
 							});
@@ -248,6 +253,8 @@
 
 								//console.log("Height to set = " + heightToSet);
 								$("#tab-content" + vm.widget.Id).css('height', heightToSet);
+								$("#repeater-container-data" + vm.widget.Id).css('height', heightToSet);
+								vm.showTags = true;
 							}
 
 						}, 50, 40);

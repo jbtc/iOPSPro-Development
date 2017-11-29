@@ -11,10 +11,9 @@
 				var controller = function ($scope) {
 					var vm = this;
 
-					console.log("Site Gate Summary directive invoked");
+					//console.log("Site Gate Summary directive invoked");
 
 					function GetHeadingExtraTitle() {
-						console.log("GetHeadingExtraTitle vm.widgetSite = %O",vm.widgetSite);
 						if (vm.widgetSite) {
 							return ' - ' + vm.widgetSite.Name;
 						}
@@ -336,7 +335,7 @@
 							.then(function (data) {
 
 								data = data[0].Tags.orderBy(function(t){return t.Name});
-								console.log("siteGateSummary data = %O", data);
+								//console.log("siteGateSummary data = %O", data);
 
 
 								vm.gateTagGroups = data
@@ -372,7 +371,7 @@
 									})
 									.orderBy(function(group){ return group.GateName});
 								vm.showWidget = true;
-								console.log("vm.gateTagGroups = %O", vm.gateTagGroups);
+								//console.log("vm.gateTagGroups = %O", vm.gateTagGroups);
 								vm.widget.displaySettings.headingExtraTitle = GetHeadingExtraTitle();
 							});
 
@@ -413,7 +412,7 @@
 						if (vm.widget.WidgetResource.SiteId && vm.userSites) {
 
 							vm.widgetSite = vm.userSites.first(function (s) { return s.Id == vm.widget.WidgetResource.SiteId });
-							console.log("vm.widget.WidgetResource.SiteId changed. Now = %O", vm.widget);
+							//console.log("vm.widget.WidgetResource.SiteId changed. Now = %O", vm.widget);
 							if (oldValue != newValue) {
 								vm.widget.WidgetResource.$save();
 								GetData();

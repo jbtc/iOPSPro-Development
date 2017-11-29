@@ -174,35 +174,52 @@
 
 
 
-									vm.widgets = widgets.select(function (w) {
-										return {
-											sizeX: w.Width,
-											sizeY: w.Height,
-											row: w.Row,
-											col: w.Col,
-											prevRow: w.Row,
-											prevCol: w.Col,
-											Id: w.Id,
-											Name: w.Name,
-											WidgetResource: w,
-											HasChanged: false
-										}
-									});
 
-									vm.dashboard.widgets = vm.widgets;
+									var assetIdList = widgets.select(function (widget) { return widget.AssetId })
+										.where(function (assetId) { return assetId }).distinct().join(',');
 
-									console.log("Dashboard widgets = %O", vm.widgets);
+									console.log("Dashboard asset id list = %O", assetIdList);
 
-									ReportStep(7);
+									//dataService.GetAllSignalRObservationFormattedTagsForAssetIdIntoInventoryByListOfAssetIds(assetIdList).then(
+									//	function () {
+
+											vm.widgets = widgets.select(function (w) {
+												return {
+													sizeX: w.Width,
+													sizeY: w.Height,
+													row: w.Row,
+													col: w.Col,
+													prevRow: w.Row,
+													prevCol: w.Col,
+													Id: w.Id,
+													Name: w.Name,
+													WidgetResource: w,
+													HasChanged: false
+												}
+											});
+
+											vm.dashboard.widgets = vm.widgets;
+											//console.log("Dashboard widgets = %O", vm.widgets);
+
+											ReportStep(7);
 
 
-									if (!vm.widget) {
-										console.log("No widget this invokation");
-										displaySetupService.SetPanelDimensions();
-									} else {
-										displaySetupService.SetWidgetPanelBodyDimensions(vm.widget.Id);
-									}
-									//console.log("Dashboard Widgets = %O", vm.widgets);
+											if (!vm.widget) {
+												//console.log("No widget this invokation");
+												displaySetupService.SetPanelDimensions();
+											} else {
+												displaySetupService.SetWidgetPanelBodyDimensions(vm.widget.Id);
+											}
+											//console.log("Dashboard Widgets = %O", vm.widgets);
+										//});
+
+
+
+
+
+
+
+
 								});
 						});
 
@@ -389,7 +406,7 @@
 						}
 					});
 
-					
+
 
 					function DeleteWidgetFromDatabase(widget) {
 						dataService.GetIOPSResource("Widgets").filter("Id", widget.Id).query().$promise.then(function (widgetToDeleteArray) {
@@ -401,11 +418,11 @@
 
 							//Delete any WidgetGraphTag rows that might be associated with this widget
 							$q.all(
-								
+
 								//Delete any associated graphtags
-								dataService.GetIOPSCollection("WidgetGraphTags", "WidgetId", widget.Id).then(function(graphTags) {
+								dataService.GetIOPSCollection("WidgetGraphTags", "WidgetId", widget.Id).then(function (graphTags) {
 									return $q.all(
-										graphTags.select(function(graphTag) {
+										graphTags.select(function (graphTag) {
 											graphTag.Id = -graphTag.Id;
 											return graphTag.$save();
 										})
@@ -416,26 +433,26 @@
 								dataService.GetIOPSCollection("Widgets", "ParentWidgetId", widget.Id).then(function (childWidgets) {
 									console.log("Child Widgets to delete = %O", childWidgets);
 									return $q.all(
-										childWidgets.select(function(childWidget) {
+										childWidgets.select(function (childWidget) {
 											childWidget.Id = -childWidget.Id;
 											return childWidget.$save();
 										})
 									);
 								})
-								
 
 
 
 
 
-							).then(function() {
+
+							).then(function () {
 								//console.log("Widget to delete = %O", widgetToDelete);
+								widgetToDelete.Id = -widgetToDelete.Id;
+								widgetToDelete.$save().then(function () {
+									console.log("Widget Deleted");
 									widgetToDelete.Id = -widgetToDelete.Id;
-									widgetToDelete.$save().then(function () {
-										console.log("Widget Deleted");
-										widgetToDelete.Id = -widgetToDelete.Id;
-										signalR.SignalAllClients("Widget.Deleted", widgetToDelete);
-									});
+									signalR.SignalAllClients("Widget.Deleted", widgetToDelete);
+								});
 							});
 						});
 					}
@@ -456,7 +473,7 @@
 							var message = 'Are you SURE you want to delete the "' + widget.Name + '" widget from this dashboard? ';
 
 							alertify.confirm(message,
-								function(e) {
+								function (e) {
 									if (e) {
 										// user clicked "ok"
 										DeleteWidgetFromDatabase(widget);
@@ -594,7 +611,7 @@
 
 					});
 
-					vm.LogWidget = function(widget) {
+					vm.LogWidget = function (widget) {
 						console.log("Clicked Widget data = %O", widget);
 					}
 

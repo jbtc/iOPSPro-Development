@@ -24,6 +24,10 @@
 						obscureGraphics: true
 					}
 
+					vm.scrolledToEnd = function () {
+						console.log("gpu Data Scrolled to end");
+					}
+
 					vm.originalWidgetResource = angular.copy(vm.widget.WidgetResource);
 
 					function SaveWidgetResourceObjectIfChanged() {
@@ -46,7 +50,7 @@
 
 					//Get a copy of the user record to determine privs
 					vm.user = Global.User;
-					console.log("Initial vm.widget = %O", vm.widget);
+					//console.log("Initial vm.widget = %O", vm.widget);
 
 
 					//console.log("vm.user = %O", vm.user);
@@ -114,7 +118,7 @@
 						vm.JBTData = JBTData;
 						vm.Asset = vm.JBTData.Assets.first(function (a) { return a.Id == vm.widget.WidgetResource.AssetId });
 						vm.gpu = vm.Asset;
-						console.log("gpuSummary Asset = %O", vm.Asset);
+						//console.log("gpuSummary Asset = %O", vm.Asset);
 						GetGPUAssetForGate();
 
 						vm.widget.displaySettings.headingExtraTitle = GetHeadingExtraTitle();
@@ -187,7 +191,7 @@
 
 							}
 
-							console.log("vm.gpu = %O", vm.gpu);
+							//console.log("vm.gpu = %O", vm.gpu);
 
 							vm.widget.WidgetResource.AssetId = vm.gpu.Id;
 
@@ -207,7 +211,7 @@
 									SetTabBodyHeight();
 								}, 50);
 
-								console.log("Asset Graphics = %O", vm.AssetGraphics);
+								//console.log("Asset Graphics = %O", vm.AssetGraphics);
 								vm.gpu.Tags.forEach(function (tag) {
 									UpdateGraphicsVisibilityForSingleTag(tag);
 								});
@@ -244,6 +248,8 @@
 
 								//console.log("Height to set = " + heightToSet);
 								$("#tab-content" + vm.widget.Id).css('height', heightToSet);
+								$("#repeater-container-data" + vm.widget.Id).css('height', heightToSet);
+								vm.showTags = true;
 							}
 
 						}, 50, 40);
@@ -559,7 +565,7 @@
 						.orderByDescending(function (t) { return t.PLCLocalDate })
 						.first();
 
-						console.log("vm.phaseAAmpsOutDataTag = %O", vm.phaseAAmpsOutDataTag);
+						//console.log("vm.phaseAAmpsOutDataTag = %O", vm.phaseAAmpsOutDataTag);
 						if (vm.phaseAAmpsOutDataTag) {
 							vm.phaseAAmpsOut = +vm.phaseAAmpsOutDataTag.Value;
 						}
@@ -675,7 +681,7 @@
 						.orderByDescending(function (t) { return t.PLCLocalDate })
 						.first();
 
-						console.log("vm.phaseAVoltsOutDataTag = %O", vm.phaseAVoltsOutDataTag);
+						//console.log("vm.phaseAVoltsOutDataTag = %O", vm.phaseAVoltsOutDataTag);
 						if (vm.phaseAVoltsOutDataTag) {
 							vm.phaseAVoltsOut = +vm.phaseAVoltsOutDataTag.Value;
 						}

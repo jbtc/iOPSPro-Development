@@ -38,6 +38,29 @@
 						}
 					}
 
+					vm.SetDefaultNavPillAlarms = function () {
+						$timeout(function () {
+							vm.widget.WidgetResource.DefaultNavPill = 'Alarms';
+							SaveWidgetResourceObjectIfChanged();
+						}, 100);
+
+					}
+					vm.SetDefaultNavPillWarnings = function () {
+						$timeout(function () {
+							vm.widget.WidgetResource.DefaultNavPill = 'Warnings';
+							SaveWidgetResourceObjectIfChanged();
+						}, 100);
+
+					}
+					vm.SetDefaultNavPillData = function () {
+						$timeout(function () {
+							vm.widget.WidgetResource.DefaultNavPill = 'Data';
+							SaveWidgetResourceObjectIfChanged();
+						}, 100);
+
+
+					}
+
 
 					vm.tagsToGraph = [];
 
@@ -47,7 +70,7 @@
 
 					//Get a copy of the user record to determine privs
 					vm.user = Global.User;
-					console.log("Initial vm.widget = %O", vm.widget);
+					//console.log("Initial vm.widget = %O", vm.widget);
 
 
 					//console.log("vm.user = %O", vm.user);
@@ -76,7 +99,9 @@
 
 
 
-
+					vm.scrolledToEnd = function() {
+						console.log("pbb Data Scrolled to end");
+					}
 
 
 					vm.OpenSettingsIfNoAssetAndCloseIfAssetIsPresent = function () {
@@ -114,7 +139,7 @@
 						vm.JBTData = JBTData;
 						vm.Asset = vm.JBTData.Assets.first(function (a) { return a.Id == vm.widget.WidgetResource.AssetId });
 						vm.pbb = vm.Asset;
-						console.log("pbbSummary Asset = %O", vm.Asset);
+						//console.log("pbbSummary Asset = %O", vm.Asset);
 						GetPBBAssetForGate();
 
 						vm.widget.displaySettings.headingExtraTitle = GetHeadingExtraTitle();
@@ -168,14 +193,14 @@
 
 							}
 
-							console.log("vm.pbb = %O", vm.pbb);
+							//console.log("vm.pbb = %O", vm.pbb);
 
 
 							vm.widget.WidgetResource.AssetId = vm.pbb.Id;
 							vm.widget.displaySettings.headingExtraTitle = GetHeadingExtraTitle();
 
 							SaveWidgetResourceObjectIfChanged();
-							dataService.GetAllSignalRObservationFormattedTagsForAssetIdIntoInventory(vm.pbb.Id).then(function () {
+							dataService.GetAllSignalRObservationFormattedTagsForAssetIdIntoInventoryByListOfAssetIds(vm.pbb.Id).then(function () {
 
 
 								vm.AssetGraphics = dataService.cache.assetGraphics.where(function (ag) { return ag.AssetId == vm.pbb.Id });
@@ -190,7 +215,7 @@
 									SetTabBodyHeight();
 								}, 50);
 
-								console.log("Asset Graphics = %O", vm.AssetGraphics);
+								//console.log("Asset Graphics = %O", vm.AssetGraphics);
 								vm.pbb.Tags.forEach(function (tag) {
 									UpdateGraphicsVisibilityForSingleTag(tag);
 								});
@@ -226,6 +251,10 @@
 							
 								//console.log("Height to set = " + heightToSet);
 								$("#tab-content" + vm.widget.Id).css('height', heightToSet);
+								$("#repeater-container-data" + vm.widget.Id).css('height', heightToSet);
+								$("#repeater-container-alarms" + vm.widget.Id).css('height', heightToSet);
+								$("#repeater-container-warnings" + vm.widget.Id).css('height', heightToSet);
+								vm.showTags = true;
 							}
 
 						}, 50, 40);

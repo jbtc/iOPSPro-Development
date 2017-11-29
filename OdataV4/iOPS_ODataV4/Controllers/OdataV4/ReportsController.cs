@@ -23,30 +23,29 @@ namespace iOPS_ODataV4.Controllers.OdataV4
     using System.Web.OData.Extensions;
     using iOPS_ODataV4.Models;
     ODataConventionModelBuilder builder = new ODataConventionModelBuilder();
-    builder.EntitySet<GSReportRun>("GSReportRuns");
-    builder.EntitySet<GSReport>("GSReports"); 
+    builder.EntitySet<Report>("Reports");
+    builder.EntitySet<ReportRun>("ReportRuns"); 
     config.MapODataServiceRoute("odata", "odata", builder.GetEdmModel());
     */
-    public class GSReportRunsController : ODataController
+    public class ReportsController : ODataController
     {
         private iOPS_NormalizedEntities db = new iOPS_NormalizedEntities();
 
-        // GET: odata/GSReportRuns
+        // GET: odata/Reports
         [EnableQuery]
-        public IQueryable<GSReportRun> GetGSReportRuns()
+        public IQueryable<Report> GetReports()
         {
-            return db.GSReportRuns;
+            return db.Reports;
         }
 
-        // GET: odata/GSReportRuns(5)
+        // GET: odata/Reports(5)
         [EnableQuery]
-        public SingleResult<GSReportRun> GetGSReportRun([FromODataUri] long key)
+        public SingleResult<Report> GetReport([FromODataUri] long key)
         {
-            return SingleResult.Create(db.GSReportRuns.Where(gSReportRun => gSReportRun.Id == key));
+            return SingleResult.Create(db.Reports.Where(report => report.Id == key));
         }
 
-        // POST: odata/GSReportRuns
-        public async Task<IHttpActionResult> Post(GSReportRun entity)
+        public async Task<IHttpActionResult> Post(Report entity)
         {
             if (!ModelState.IsValid)
             {
@@ -56,38 +55,34 @@ namespace iOPS_ODataV4.Controllers.OdataV4
 
             if (entity.Id < 0)
             {
-                var delEntity = new GSReportRun { Id = -entity.Id };
-                db.GSReportRuns.Attach(delEntity);
-                db.GSReportRuns.Remove(delEntity);
+                var delEntity = new Report { Id = -entity.Id };
+                db.Reports.Attach(delEntity);
+                db.Reports.Remove(delEntity);
                 await db.SaveChangesAsync();
                 return StatusCode(HttpStatusCode.NoContent);
             }
 
-            var modifiedEntity = await db.GSReportRuns.FindAsync(entity.Id);
+            var modifiedEntity = await db.Reports.FindAsync(entity.Id);
 
             if (modifiedEntity != null)
             {
                 db.Entry(modifiedEntity).State = EntityState.Detached;
-                db.GSReportRuns.Attach(entity);
+                db.Reports.Attach(entity);
                 db.Entry(entity).State = EntityState.Modified;
                 await db.SaveChangesAsync();
                 return Updated(entity);
 
             }
-            modifiedEntity = db.GSReportRuns.Add(entity);
+            modifiedEntity = db.Reports.Add(entity);
 
             await db.SaveChangesAsync();
 
             return Created(modifiedEntity);
         }
 
-
-
-        // GET: odata/GSReportRuns(5)/GSReport
-        [EnableQuery]
-        public SingleResult<GSReport> GetGSReport([FromODataUri] long key)
+        public IQueryable<ReportRun> GetReportRuns([FromODataUri] long key)
         {
-            return SingleResult.Create(db.GSReportRuns.Where(m => m.Id == key).Select(m => m.GSReport));
+            return db.Reports.Where(m => m.Id == key).SelectMany(m => m.ReportRuns);
         }
 
         protected override void Dispose(bool disposing)
@@ -99,9 +94,9 @@ namespace iOPS_ODataV4.Controllers.OdataV4
             base.Dispose(disposing);
         }
 
-        private bool GSReportRunExists(long key)
+        private bool ReportExists(long key)
         {
-            return db.GSReportRuns.Count(e => e.Id == key) > 0;
+            return db.Reports.Count(e => e.Id == key) > 0;
         }
     }
 }

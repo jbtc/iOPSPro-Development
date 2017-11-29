@@ -34,7 +34,7 @@ namespace iOPS_ODataV4.Controllers.OdataV4
         private iOPS_NormalizedEntities db = new iOPS_NormalizedEntities();
 
         // GET: odata/Tags
-        [EnableQuery(MaxExpansionDepth = 100)]
+        [EnableQuery(MaxExpansionDepth = 100, MaxNodeCount = 10000)]
         public IQueryable<Tag> GetTags()
         {
             return db.Tags;

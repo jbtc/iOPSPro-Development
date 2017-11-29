@@ -23,33 +23,29 @@ namespace iOPS_ODataV4.Controllers.OdataV4
     using System.Web.OData.Extensions;
     using iOPS_ODataV4.Models;
     ODataConventionModelBuilder builder = new ODataConventionModelBuilder();
-    builder.EntitySet<GSReport>("GSReports");
-    builder.EntitySet<Site>("Sites"); 
+    builder.EntitySet<ReportRun>("ReportRuns");
+    builder.EntitySet<Report>("Reports"); 
     config.MapODataServiceRoute("odata", "odata", builder.GetEdmModel());
     */
-    public class GSReportsController : ODataController
+    public class ReportRunsController : ODataController
     {
         private iOPS_NormalizedEntities db = new iOPS_NormalizedEntities();
 
-        // GET: odata/GSReports
+        // GET: odata/ReportRuns
         [EnableQuery]
-        public IQueryable<GSReport> GetGSReports()
+        public IQueryable<ReportRun> GetReportRuns()
         {
-            return db.GSReports;
+            return db.ReportRuns;
         }
 
-        // GET: odata/GSReports(5)
+        // GET: odata/ReportRuns(5)
         [EnableQuery]
-        public SingleResult<GSReport> GetGSReport([FromODataUri] long key)
+        public SingleResult<ReportRun> GetReportRun([FromODataUri] long key)
         {
-            return SingleResult.Create(db.GSReports.Where(gSReport => gSReport.Id == key));
+            return SingleResult.Create(db.ReportRuns.Where(reportRun => reportRun.Id == key));
         }
 
-
-
-
-        // POST: odata/GSReports
-        public async Task<IHttpActionResult> Post(GSReport entity)
+        public async Task<IHttpActionResult> Post(ReportRun entity)
         {
             if (!ModelState.IsValid)
             {
@@ -59,47 +55,36 @@ namespace iOPS_ODataV4.Controllers.OdataV4
 
             if (entity.Id < 0)
             {
-                var delEntity = new GSReport { Id = -entity.Id };
-                db.GSReports.Attach(delEntity);
-                db.GSReports.Remove(delEntity);
+                var delEntity = new ReportRun { Id = -entity.Id };
+                db.ReportRuns.Attach(delEntity);
+                db.ReportRuns.Remove(delEntity);
                 await db.SaveChangesAsync();
                 return StatusCode(HttpStatusCode.NoContent);
             }
 
-            var modifiedEntity = await db.GSReports.FindAsync(entity.Id);
+            var modifiedEntity = await db.ReportRuns.FindAsync(entity.Id);
 
             if (modifiedEntity != null)
             {
                 db.Entry(modifiedEntity).State = EntityState.Detached;
-                db.GSReports.Attach(entity);
+                db.ReportRuns.Attach(entity);
                 db.Entry(entity).State = EntityState.Modified;
                 await db.SaveChangesAsync();
                 return Updated(entity);
 
             }
-            modifiedEntity = db.GSReports.Add(entity);
+            modifiedEntity = db.ReportRuns.Add(entity);
 
             await db.SaveChangesAsync();
 
             return Created(modifiedEntity);
         }
 
-
-        // GET: odata/GSReports(5)/GSReportRuns
-        [EnableQuery(MaxExpansionDepth = 100)]
-        public IQueryable<GSReportRun> GetGSReportRuns([FromODataUri] long key)
-        {
-            return db.GSReports.Where(m => m.Id == key).SelectMany(m => m.GSReportRuns);
-        }
-
-
-
-
-        // GET: odata/GSReports(5)/Site
+        // GET: odata/ReportRuns(5)/Report
         [EnableQuery]
-        public SingleResult<Site> GetSite([FromODataUri] long key)
+        public SingleResult<Report> GetReport([FromODataUri] long key)
         {
-            return SingleResult.Create(db.GSReports.Where(m => m.Id == key).Select(m => m.Site));
+            return SingleResult.Create(db.ReportRuns.Where(m => m.Id == key).Select(m => m.Report));
         }
 
         protected override void Dispose(bool disposing)
@@ -111,9 +96,9 @@ namespace iOPS_ODataV4.Controllers.OdataV4
             base.Dispose(disposing);
         }
 
-        private bool GSReportExists(long key)
+        private bool ReportRunExists(long key)
         {
-            return db.GSReports.Count(e => e.Id == key) > 0;
+            return db.ReportRuns.Count(e => e.Id == key) > 0;
         }
     }
 }

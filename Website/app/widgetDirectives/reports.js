@@ -2,7 +2,7 @@
 
 	var app = angular.module('app');
 
-	app.directive('gsReports',
+	app.directive('reports',
 		[
 			"dataService", "utilityService", "$state", "hotkeys", "displaySetupService", "$timeout", "$window", "$interval", "signalR",
 
@@ -32,6 +32,7 @@
 
 					vm.columnwidths = {
 						Name: 30,
+						Category: 30,
 						Description: 10,
 						LastRunDate: 10,
 						Run: 12
@@ -47,23 +48,23 @@
 						window.open(report.RSURL);
 
 
-						if (report.GSReportRuns.length == 0) {
+						if (report.ReportRuns.length == 0) {
 							//Record the fact the the report has been run.
-							dataService.AddEntity("GSReportRuns",
+							dataService.AddEntity("ReportRuns",
 								{
 									Date: utilityService.GetOdataUpdateableCurrentDateTime(),
 									UserId: Global.User.Id,
-									GSReportId: report.Id
+									ReportId: report.Id
 								}).then(function(newReportRun) {
 
-									report.GSReportRuns.push(newReportRun);
+									report.ReportRuns.push(newReportRun);
 									SetLastRunDatePropertyForCollection(vm.reports);
 
 							});
 						} else {
 
 							//Get the report run from the database to update it
-							dataService.GetEntityById("GSReportRuns", report.GSReportRuns[0].Id).then(function(dbReportRun) {
+							dataService.GetEntityById("ReportRuns", report.GSReportRuns[0].Id).then(function(dbReportRun) {
 								dbReportRun.Date = utilityService.GetOdataUpdateableCurrentDateTime();
 								dbReportRun.$save();
 								report.GSReportRuns[0] = dbReportRun;
@@ -76,9 +77,9 @@
 					}
 
 
-					$scope.$on("GSReports", function (event, r) {
+					$scope.$on("Reports", function (event, r) {
 						r = dataService.GetJsonFromSignalR(r);
-						console.log("GSReports event. GSReport = %O", r);
+						console.log("Reports event. Report = %O", r);
 						GetData();
 
 					});
@@ -109,18 +110,29 @@
 
 						displaySetupService.SetPanelBodyWithIdHeight(vm.widget.Id);
 
-						dataService.GetIOPSResource("GSReports")
-							.expandPredicate("GSReportRuns")
-							.filter("UserId", Global.User.Id)
+						dataService.GetIOPSResource("Reports")
+							.expandPredicate("ReportRuns")
+								.filter("UserId", Global.User.Id)
 							.finish()
 							.query()
 							.$promise
 							.then(function(data) {
 
 								SetLastRunDatePropertyForCollection(data);
-								vm.reports = data;
+								SetCategoryDescriptionsForCollection(data);
 
-								console.log("Report Data = %O", data);
+								
+
+
+								//Correlate the reports collection with the sites to which the user has access.
+								//The sites marked "HasGates" will be for the GS type reports. The sites marked "HasBaggageHandling" will be for the BHS reports. 
+
+
+								vm.reports = data.where(function(r) {
+									return (r.Type == 'GS' && vm.widgetSite.HasGates) || (r.Type == 'BHS' && vm.widgetSite.HasBaggageHandling);
+								});
+
+								//console.log("Report Data = %O", data);
 
 								displaySetupService.SetPanelBodyWithIdHeight(vm.widget.Id);
 								vm.widgetDimensions = displaySetupService.GetWidgetPanelBodyDimensions(vm.widget.Id);
@@ -141,19 +153,39 @@
 
 					}
 
+
+
+					function SetCategoryDescriptionsForCollection(data) {
+						data.forEach(function(r) {
+							switch(r.Type) {
+								case 'GS':
+									r.Category = 'Gate Systems';
+									break;
+
+								case 'BHS':
+									r.Category = 'Baggage Handling';
+									break;
+
+								default:
+									r.Category = '';
+
+							}
+						});
+					}
+
 					//Get the site entities for which the user has access.
 					dataService.GetJBTData().then(function (JBTData) {
 						vm.JBTData = JBTData;
 						var userSiteCodes = Global.User.ReaderOf.where(function (s) { return s.split('.')[0] == 'Site' })
 							.select(function (s) { return s.split('.')[1] });
 
-						console.log("user site codes = %O", userSiteCodes);
+						//console.log("user site codes = %O", userSiteCodes);
 
 						vm.userSites = vm.JBTData.Sites.where(function (site) {
-							return userSiteCodes.any(function (sc) { return sc == site.Name })
+							return userSiteCodes.any(function(sc) { return sc == site.Name });
 						});
 
-						console.log("vm.userSites = %O", vm.userSites);
+						//console.log("vm.userSites = %O", vm.userSites);
 
 						if (vm.userSites.length == 1) {
 							console.log("User only has a single Site");
@@ -176,7 +208,7 @@
 						if (vm.widget.WidgetResource.SiteId && vm.userSites) {
 
 							vm.widgetSite = vm.userSites.first(function (s) { return s.Id == vm.widget.WidgetResource.SiteId });
-							console.log("vm.widget.WidgetResource.SiteId changed. Now = %O", vm.widget);
+							//console.log("vm.widget.WidgetResource.SiteId changed. Now = %O", vm.widget);
 							if (oldValue != newValue) {
 								vm.widget.WidgetResource.$save();
 								GetData();
@@ -186,7 +218,7 @@
 
 					function SetLastRunDatePropertyForCollection(collection) {
 						collection.forEach(function(r) {
-							r.LastRunDate = r.GSReportRuns.length > 0 ? r.GSReportRuns[0].Date : null;
+							r.LastRunDate = r.ReportRuns.length > 0 ? r.ReportRuns[0].Date : null;
 						});
 						
 					}
@@ -223,7 +255,7 @@
 
 				return {
 					restrict: 'E', //Default for 1.3+
-					templateUrl: "app/widgetDirectives/gsReports.html?" + Date.now(),
+					templateUrl: "app/widgetDirectives/reports.html?" + Date.now(),
 
 					scope: {
 						dashboard: "=",

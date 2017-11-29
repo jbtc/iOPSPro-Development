@@ -121,7 +121,7 @@
 				};
 
 				vm.user.authorizedActivityIds = [];
-
+				vm.user.SiteDataReaders = [];
 				vm.authorizableActivities.forEach(function (aa) {
 					vm.user.authorizedActivityIds[aa.Id] = false;
 				});

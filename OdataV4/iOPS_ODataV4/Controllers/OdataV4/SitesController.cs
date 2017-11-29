@@ -106,12 +106,6 @@ namespace iOPS_ODataV4.Controllers.OdataV4
             return db.Sites.Where(m => m.Id == key).SelectMany(m => m.SiteDataReaders);
         }
         
-        // GET: odata/Sites(5)/GSReports
-        [EnableQuery(MaxExpansionDepth = 100)]
-        public IQueryable<GSReport> GetGSReports([FromODataUri] long key)
-        {
-            return db.Sites.Where(m => m.Id == key).SelectMany(m => m.GSReports);
-        }
 
         // GET: odata/Sites(5)/Systems
         [EnableQuery(MaxExpansionDepth = 100)]

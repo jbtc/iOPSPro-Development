@@ -12,22 +12,21 @@ namespace iOPS_ODataV4.Models
     using System;
     using System.Collections.Generic;
     
-    public partial class GSReport
+    public partial class Report
     {
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2214:DoNotCallOverridableMethodsInConstructors")]
-        public GSReport()
+        public Report()
         {
-            this.GSReportRuns = new HashSet<GSReportRun>();
+            this.ReportRuns = new HashSet<ReportRun>();
         }
     
         public long Id { get; set; }
-        public Nullable<long> SiteId { get; set; }
+        public string Type { get; set; }
         public string Name { get; set; }
         public string Description { get; set; }
         public string RSURL { get; set; }
     
-        public virtual Site Site { get; set; }
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
-        public virtual ICollection<GSReportRun> GSReportRuns { get; set; }
+        public virtual ICollection<ReportRun> ReportRuns { get; set; }
     }
 }

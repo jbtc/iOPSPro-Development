@@ -226,6 +226,7 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />
+    <Folder Include="Views\Top5ObservationExceptions\" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="App_Start\BundleConfig.cs" />
@@ -252,15 +253,16 @@
     <Compile Include="Controllers\OdataV4\DashboardsController.cs" />
     <Compile Include="Controllers\OdataV4\DashboardTimeScopesController.cs" />
     <Compile Include="Controllers\OdataV4\DatabaseMailQueuesController.cs" />
+    <Compile Include="Controllers\OdataV4\GSAlarmHistoriesController.cs" />
     <Compile Include="Controllers\OdataV4\GSJBTStandardObservationIdExclusionListFromCurrentAlarmsController.cs" />
-    <Compile Include="Controllers\OdataV4\GSReportRunsController.cs" />
-    <Compile Include="Controllers\OdataV4\GSReportsController.cs" />
     <Compile Include="Controllers\OdataV4\iOPSUsersController.cs" />
     <Compile Include="Controllers\OdataV4\BHSJamAlarmsController.cs" />
     <Compile Include="Controllers\OdataV4\JBTStandardObservationsController.cs" />
     <Compile Include="Controllers\OdataV4\ObservationAggregatedHighChartValuesController.cs" />
     <Compile Include="Controllers\OdataV4\ObservationsController.cs" />
     <Compile Include="Controllers\OdataV4\PeopleController.cs" />
+    <Compile Include="Controllers\OdataV4\ReportRunsController.cs" />
+    <Compile Include="Controllers\OdataV4\ReportsController.cs" />
     <Compile Include="Controllers\OdataV4\SiteCompaniesController.cs" />
     <Compile Include="Controllers\OdataV4\SiteDataReadersController.cs" />
     <Compile Include="Controllers\OdataV4\SitesController.cs" />
@@ -301,6 +303,7 @@
     <Compile Include="Controllers\WebAPI\GSAlertCountByDayController.cs" />
     <Compile Include="Controllers\WebAPI\GSAlertCountByHourController.cs" />
     <Compile Include="Controllers\WebAPI\TerminalOverviewGraphicsAndTagsController.cs" />
+    <Compile Include="Controllers\WebAPI\Top5ObservationExceptionsController.cs" />
     <Compile Include="Filters\ClaimsAuthorize.cs" />
     <Compile Include="Filters\iOPSAuthorizeAttribute.cs" />
     <Compile Include="Global.asax.cs">
@@ -513,6 +516,9 @@
     <Compile Include="Models\DatabaseMailQueue.cs">
       <DependentUpon>Model1.tt</DependentUpon>
     </Compile>
+    <Compile Include="Models\GSAlarmHistory.cs">
+      <DependentUpon>Model1.tt</DependentUpon>
+    </Compile>
     <Compile Include="Models\GSAlertCountByDay_Result.cs">
       <DependentUpon>Model1.tt</DependentUpon>
     </Compile>
@@ -522,10 +528,7 @@
     <Compile Include="Models\GSJBTStandardObservationIdExclusionListFromCurrentAlarm.cs">
       <DependentUpon>Model1.tt</DependentUpon>
     </Compile>
-    <Compile Include="Models\GSReport.cs">
-      <DependentUpon>Model1.tt</DependentUpon>
-    </Compile>
-    <Compile Include="Models\GSReportRun.cs">
+    <Compile Include="Models\GSTop5AlarmTypes_Result.cs">
       <DependentUpon>Model1.tt</DependentUpon>
     </Compile>
     <Compile Include="Models\iOPSUser.cs">
@@ -556,6 +559,12 @@
       <DependentUpon>Model1.tt</DependentUpon>
     </Compile>
     <Compile Include="Models\Person.cs">
+      <DependentUpon>Model1.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Models\Report.cs">
+      <DependentUpon>Model1.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Models\ReportRun.cs">
       <DependentUpon>Model1.tt</DependentUpon>
     </Compile>
     <Compile Include="Models\Site.cs">

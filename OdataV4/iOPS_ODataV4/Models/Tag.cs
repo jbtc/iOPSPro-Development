@@ -20,6 +20,7 @@ namespace iOPS_ODataV4.Models
             this.Observations = new HashSet<Observation>();
             this.WidgetGraphTags = new HashSet<WidgetGraphTag>();
             this.ObservationAggregatedHighChartValues = new HashSet<ObservationAggregatedHighChartValue>();
+            this.GSAlarmHistories = new HashSet<GSAlarmHistory>();
         }
     
         public long Id { get; set; }
@@ -67,6 +68,14 @@ namespace iOPS_ODataV4.Models
         public string ValueWhenActive { get; set; }
         public Nullable<bool> MarkedForDelete { get; set; }
         public Nullable<long> MergeToTagId { get; set; }
+        public Nullable<long> PreviousObservationId { get; set; }
+        public Nullable<System.DateTime> PreviousObservationDate { get; set; }
+        public string PreviousObservationTextValue { get; set; }
+        public Nullable<int> LastObservationQuality { get; set; }
+        public Nullable<System.DateTime> LastObservationCreationDate { get; set; }
+        public Nullable<int> PreviousObservationQuality { get; set; }
+        public Nullable<System.DateTime> PreviousObservationCreationDate { get; set; }
+        public Nullable<System.DateTime> PreviousReportedDate { get; set; }
     
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<Observation> Observations { get; set; }
@@ -77,5 +86,7 @@ namespace iOPS_ODataV4.Models
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<ObservationAggregatedHighChartValue> ObservationAggregatedHighChartValues { get; set; }
         public virtual Observation LastObservation { get; set; }
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
+        public virtual ICollection<GSAlarmHistory> GSAlarmHistories { get; set; }
     }
 }

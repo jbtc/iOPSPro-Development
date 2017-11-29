@@ -57,7 +57,7 @@
 
 
 
-	function DataService(odataService, $rootScope, $q, $interval, utilityService, $timeout, indexedDBService, signalR) {
+	function DataService(odataService, $rootScope, $q, $interval, utilityService, $timeout, indexedDBService, signalR, $odata) {
 
 
 		//console.log("dataService created");
@@ -1091,31 +1091,35 @@
 
 		}
 
+		service.GetAllSignalRObservationFormattedTagsForAssetIdIntoInventoryByListOfAssetIds = function (assetIdList) {
 
 
+			var notLoadedAssetIds = ("" + assetIdList).split(',').distinct().where(function (assetId) {
 
-		service.GetAllSignalRObservationFormattedTagsForAssetIdIntoInventory = function (assetId) {
+				return !cache.assets.first(function (a) { return a.Id == +assetId }).AllTagsLoaded;
 
+			});
 
-			var asset = cache.assets.first(function (a) { return a.Id == assetId });
-
-			if (asset.AllTagsLoaded) {
+			//console.log("notLoadedAssetIds = %O", notLoadedAssetIds);
+			if (notLoadedAssetIds.length == 0) {
 				return $q.when(true);
 			}
 
 			//The asset object in the dataService might have already loaded all its tags into the running inventory. If it has, we do nothing.
-			if (!asset.AllTagsLoaded) {
+			if (notLoadedAssetIds.length > 0) {
+
 				return service.GetIOPSResource("Tags")
-					.expand("LastObservation")
-					.filter("AssetId", assetId)
+					//.expand("LastObservation")
+					.filter($odata.Predicate.or(notLoadedAssetIds.select(function (assetId) {
+						return new $odata.Predicate("AssetId", +assetId);
+					})))
+					.select(["Id", "Name", "SiteId", "LastObservationDate", "LastObservationCreationDate", "AssetId",
+						"LastObservationId", "JBTStandardObservationId",
+						"LastObservationTextValue", "LastObservationQuality", "IsAlarm", "IsWarning"])
 					.query()
 					.$promise
 					.then(function (data) {
 
-
-
-						//console.log("service.GetAllSignalRObservationFormattedTagsForAssetIdIntoInventory Aircraft Docked data = %O", data.first(function (d) { return d.JBTStandardObservationId == 12245 }));
-						//console.log("service.GetAllSignalRObservationFormattedTagsForAssetIdIntoInventory Audible Warning data = %O", data.first(function (d) { return d.JBTStandardObservationId == 3792 }));
 
 
 						data
@@ -1125,15 +1129,9 @@
 								var site = cache.sites.first(function (s) { return s.Id == tag.SiteId });
 
 								//console.log("Pre-loaded observation = %O", tag);
-								var plcUTCDate;
-								var obsCreatedDate;
-								if (tag.LastObservation) {
-									plcUTCDate = !service.dataSourceIsLocal ? utilityService.GetUTCDateFromLocalDate(new Date(tag.LastObservation.Date)) : new Date(tag.LastObservation.Date);
-									obsCreatedDate = !service.dataSourceIsLocal ? utilityService.GetUTCDateFromLocalDate(new Date(tag.LastObservation.CreationDate)) : new Date(tag.LastObservation.CreationDate);
-								} else {
-									plcUTCDate = !service.dataSourceIsLocal ? utilityService.GetUTCDateFromLocalDate(new Date(tag.LastObservationDate)) : new Date(tag.LastObservationDate);
-									obsCreatedDate = plcUTCDate;
-								}
+
+								var plcUTCDate = !service.dataSourceIsLocal ? utilityService.GetUTCDateFromLocalDate(new Date(tag.LastObservationDate)) : new Date(tag.LastObservationDate);
+								var obsCreatedDate = !service.dataSourceIsLocal ? utilityService.GetUTCDateFromLocalDate(new Date(tag.LastObservationCreationDate)) : new Date(tag.LastObservationCreationDate);
 
 
 
@@ -1152,7 +1150,7 @@
 									SiteName: site ? site.Name : null,
 									TagName: tag.Name || tag.TagName,
 									Value: tag.LastObservationTextValue,
-									Quality: tag.LastObservation ? tag.LastObservation.Quality : null,
+									Quality: tag.LastObservationQuality,
 									JBTStandardObservation: cache.jbtStandardObservations.first(function (s) { return s.Id == tag.JBTStandardObservationId }),
 									Severity: tag.IsCritical ? 'Critical' :
 										tag.IsAlarm ? 'Alarm' :
@@ -1172,18 +1170,116 @@
 
 								if (signalRData.JBTStandardObservationId == 12245 || signalRData.JBTStandardObservationId == 3792) {
 
-									console.log("Pre-Load observation to be added to inventory = %O", signalRData);
+									//console.log("Pre-Load observation to be added to inventory = %O", signalRData);
 								}
 
 								LoadSignalRObservationToInventory(signalRData);
-								var asset = cache.assets.first(function (a) { return a.Id == assetId });
-
-								//Flag the asset as having all of its tags now loaded. 
-								if (asset) {
-									asset.AllTagsLoaded = true;
-								}
 							});
+					})
+				.then(function () {
+					notLoadedAssetIds.forEach(function (assetId) {
+						var asset = cache.assets.first(function (a) { return a.Id == +assetId });
+
+						//Flag the asset as having all of its tags now loaded. 
+						if (asset) {
+							asset.AllTagsLoaded = true;
+						}
 					});
+				});
+			}
+		}
+
+
+		service.GetAllSignalRObservationFormattedTagsForAssetIdIntoInventory = function (assetId) {
+
+
+			var asset = cache.assets.first(function (a) { return a.Id == assetId });
+
+			if (asset.AllTagsLoaded) {
+				return $q.when(true);
+			}
+
+			//The asset object in the dataService might have already loaded all its tags into the running inventory. If it has, we do nothing.
+			if (!asset.AllTagsLoaded) {
+				return service.GetIOPSResource("Tags")
+					//.expand("LastObservation")
+					.filter("AssetId", assetId)
+					.select(["Id", "Name", "SiteId", "LastObservationDate", "LastObservationCreationDate", "AssetId",
+						"LastObservationId", "JBTStandardObservationId",
+						"LastObservationTextValue", "LastObservationQuality", "IsAlarm", "IsWarning"])
+					.query()
+					.$promise
+					.then(function (data) {
+
+
+
+						//console.log("service.GetAllSignalRObservationFormattedTagsForAssetIdIntoInventory Aircraft Docked data = %O", data.first(function (d) { return d.JBTStandardObservationId == 12245 }));
+						//console.log("service.GetAllSignalRObservationFormattedTagsForAssetIdIntoInventory Audible Warning data = %O", data.first(function (d) { return d.JBTStandardObservationId == 3792 }));
+
+
+						data
+							.where(function (tag) { return tag.Name.indexOf('|') > 0 }) //Only the new format tags have pipe symbols in the name.
+							.select(function (tag) {
+
+								var site = cache.sites.first(function (s) { return s.Id == tag.SiteId });
+
+								//console.log("Pre-loaded observation = %O", tag);
+
+								var plcUTCDate = !service.dataSourceIsLocal ? utilityService.GetUTCDateFromLocalDate(new Date(tag.LastObservationDate)) : new Date(tag.LastObservationDate);
+								var obsCreatedDate = !service.dataSourceIsLocal ? utilityService.GetUTCDateFromLocalDate(new Date(tag.LastObservationCreationDate)) : new Date(tag.LastObservationCreationDate);
+
+
+
+								var signalRData = {
+
+									DataType: 'DB',
+									PLCUTCDate: plcUTCDate,
+									ObservationUTCDate: obsCreatedDate,
+
+									AssetId: +tag.AssetId,
+									TagId: +tag.Id,
+									SiteId: +tag.SiteId,
+									ObservationId: +tag.LastObservationId,
+									JBTStandardObservationId: +tag.JBTStandardObservationId,
+
+									SiteName: site ? site.Name : null,
+									TagName: tag.Name || tag.TagName,
+									Value: tag.LastObservationTextValue,
+									Quality: tag.LastObservationQuality,
+									JBTStandardObservation: cache.jbtStandardObservations.first(function (s) { return s.Id == tag.JBTStandardObservationId }),
+									Severity: tag.IsCritical ? 'Critical' :
+										tag.IsAlarm ? 'Alarm' :
+											tag.IsWarning ? 'Warning' :
+												''
+
+								}
+
+								signalRData.PLCUTCDateMS = signalRData.PLCUTCDate.getTime();
+								signalRData.PLCLocalDate = utilityService.GetLocalDateFromUTCDate(signalRData.PLCUTCDate);
+								signalRData.ObservationUTCDateMS = signalRData.ObservationUTCDate.getTime();
+								signalRData.ObservationLocalDate = utilityService.GetLocalDateFromUTCDate(signalRData.ObservationUTCDate);
+
+								AttachShortTagNameToTagData(signalRData);
+
+
+
+								if (signalRData.JBTStandardObservationId == 12245 || signalRData.JBTStandardObservationId == 3792) {
+
+									//console.log("Pre-Load observation to be added to inventory = %O", signalRData);
+								}
+
+								LoadSignalRObservationToInventory(signalRData);
+
+							});
+					})
+				.then(function () {
+					var asset = cache.assets.first(function (a) { return a.Id == assetId });
+
+					//Flag the asset as having all of its tags now loaded. 
+					if (asset) {
+						asset.AllTagsLoaded = true;
+					}
+				});
 			}
 		}
 
@@ -1647,28 +1743,28 @@
 
 			if (entity) {
 				if (entity.Metadata.UpdateCountDowns.OneSecond > 0) {
-					entity.Metadata.UpdateCountDowns.OneSecond -= 1000*2;
+					entity.Metadata.UpdateCountDowns.OneSecond -= 1000 * 2;
 				}
 				if (entity.Metadata.UpdateCountDowns.TenSecond > 0) {
-					entity.Metadata.UpdateCountDowns.TenSecond -= 100*2;
+					entity.Metadata.UpdateCountDowns.TenSecond -= 100 * 2;
 				}
 				if (entity.Metadata.UpdateCountDowns.ThirtySecond > 0) {
-					entity.Metadata.UpdateCountDowns.ThirtySecond -= 33.33*2;
+					entity.Metadata.UpdateCountDowns.ThirtySecond -= 33.33 * 2;
 				}
 				if (entity.Metadata.UpdateCountDowns.OneMinute > 0) {
-					entity.Metadata.UpdateCountDowns.OneMinute -= 16.66*2;
+					entity.Metadata.UpdateCountDowns.OneMinute -= 16.66 * 2;
 				}
 				if (entity.Metadata.UpdateCountDowns.FiveMinute > 0) {
-					entity.Metadata.UpdateCountDowns.FiveMinute -= 3.332*2;
+					entity.Metadata.UpdateCountDowns.FiveMinute -= 3.332 * 2;
 				}
 				if (entity.Metadata.UpdateCountDowns.FifteenMinute > 0) {
-					entity.Metadata.UpdateCountDowns.FifteenMinute -= 1.111*2;
+					entity.Metadata.UpdateCountDowns.FifteenMinute -= 1.111 * 2;
 				}
 				if (entity.Metadata.UpdateCountDowns.ThirtyMinute > 0) {
-					entity.Metadata.UpdateCountDowns.ThirtyMinute -= .5553*2;
+					entity.Metadata.UpdateCountDowns.ThirtyMinute -= .5553 * 2;
 				}
 				if (entity.Metadata.UpdateCountDowns.OneHour > 0) {
-					entity.Metadata.UpdateCountDowns.OneHour -= .27766*2;
+					entity.Metadata.UpdateCountDowns.OneHour -= .27766 * 2;
 				}
 			}
 
@@ -1699,6 +1795,7 @@
 			"$timeout",
 			"indexedDBService",
 			"signalR",
+			"$odata",
 			DataService]);
 
 
@@ -3206,8 +3303,8 @@
 		}
 
 		function ConsoleLogAllConnectedClients() {
-			console.log("Clients Connected: %O", service.connectedClients);
-			console.log("hub = %O", $.connection.hub);
+			//console.log("Clients Connected: %O", service.connectedClients);
+			//console.log("hub = %O", $.connection.hub);
 		}
 
 		service.SignalClientsForLogout = function () {
@@ -3231,7 +3328,7 @@
 
 			startTime = performance.now();
 			console.log("signalR Client = %O", service.Me);
-			if (service.Me) {			
+			if (service.Me) {
 				service.SignalSpecificClient(service.Me.ClientId, "signalRPerformanceTest", true);
 			}
 		}
@@ -3265,7 +3362,7 @@
 				})
 
 				.fail(function (error) {
-					console.log("SignalR Error " + error);
+					//console.log("SignalR Error " + error);
 					service.connected = false;
 					$timeout(function () {
 						HubStart();

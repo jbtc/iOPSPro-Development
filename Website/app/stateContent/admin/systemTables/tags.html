@@ -26,26 +26,41 @@
             <table class="table table-hover table-responsive table-striped">
                 <thead>
                     <tr>
-                        <th style="width: {{vm.columnWidths.company}}%">
+                        <th style="width: {{vm.columnWidths.site}}%">
                             Site
-                        </th>
-                        <th style="width: {{vm.columnWidths.equipment}}%">
-                            Equipment
                         </th>
                         <th style="width: {{vm.columnWidths.tagName}}%">
                             TagName
                         </th>
                         <th style="width: {{vm.columnWidths.observationName}}%">
-                            Observation Name
+                            Standard Observation Name
+                        </th>
+                        <th style="width: {{vm.columnWidths.observationId}}%">
+                            Last Obs Id
                         </th>
                         <th style="width: {{vm.columnWidths.date}}%">
                             Last Observed Date
                         </th>
                         <th style="width: {{vm.columnWidths.value}}%">
-                            Value
+                            Last Obs Value
                         </th>
-                        <th style="width: {{vm.columnWidths.dataChangeCount}}%">
-                            Change Count
+                        <th style="width: {{vm.columnWidths.isCritical}}%">
+                            Is Critical
+                        </th>
+                        <th style="width: {{vm.columnWidths.isAlarm}}%">
+                            Is Alarm
+                        </th>
+                        <th style="width: {{vm.columnWidths.isWarning}}%">
+                            Is Warning
+                        </th>
+                        <th style="width: {{vm.columnWidths.isInformational}}%">
+                            Is Informational
+                        </th>
+                        <th style="width: {{vm.columnWidths.valueWhenActive}}%">
+                            Value When Active
+                        </th>
+                        <th style="width: {{vm.columnWidths.markedForDelete}}%">
+                            Marked For Delete
                         </th>
                     </tr>
                 </thead>
@@ -54,10 +69,7 @@
                     <tr ng-repeat="tag in vm.tags" style="background-color: rgba(100, 255, 100, .{{tag.Metadata.LastUpdateCountDown}});">
 
                         <td>
-                            {{tag.Asset.Company.Name}}
-                        </td>
-                        <td>
-                            {{tag.Asset.Name}}
+                            {{tag.Site.Name}}
                         </td>
                         <td nowrap>
                             {{tag.Name}}

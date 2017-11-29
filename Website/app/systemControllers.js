@@ -27,7 +27,7 @@
 		switch (vm.widget.WidgetResource.WidgetType.AngularDirectiveName) {
 
 			case 'siteGateSummary':
-			case 'gsReports':
+			case 'reports':
 			case 'siteActiveAlarms':
 			case 'siteActiveWarnings':
 

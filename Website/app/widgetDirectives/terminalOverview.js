@@ -156,8 +156,8 @@
 								});
 
 								vm.terminalSystem = vm.JBTData.Systems.first(function(s){return s.Id == vm.widget.WidgetResource.TerminalSystemId});
-								//console.log("vm.terminalSystem = %O", vm.terminalSystem);
-								//console.log("TerminalOverviewGraphicsAndTags initial data = %O", data);
+								console.log("vm.terminalSystem = %O", vm.terminalSystem);
+								console.log("TerminalOverviewGraphicsAndTags initial data = %O", data.orderBy(function(d){return d.ImageURL}));
 								dataService.PlaceTerminalGraphicsTagsIntoInventory(data);
 								vm.widget.displaySettings.headingExtraTitle = GetHeadingExtraTitle();
 
