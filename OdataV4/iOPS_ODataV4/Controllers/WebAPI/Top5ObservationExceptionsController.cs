@@ -8,7 +8,7 @@ using iOPS_ODataV4.Models;
 
 namespace iOPS_ODataV4.Controllers.WebAPI
 {
-    public class GSTop5AlarmTypesController : ApiController
+    public class Top5ObservationExceptionsController : ApiController
     {
         private iOPS_NormalizedEntities db = new iOPS_NormalizedEntities();
         public IEnumerable<GSTop5AlarmTypes_Result> Get(DateTime beginDate, DateTime endDate, int siteId)

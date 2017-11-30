@@ -55,13 +55,58 @@
 						}
 					});
 
+			
+
+				    //Get the site entities for which the user has access.
+					dataService.GetJBTData().then(function (JBTData) {
+					    vm.JBTData = JBTData;
+					    var userSiteCodes = Global.User.ReaderOf.where(function (s) { return s.split('.')[0] == 'Site' })
+							.select(function (s) { return s.split('.')[1] });
+
+					    console.log("user site codes = %O", userSiteCodes);
+
+					    vm.userSites = vm.JBTData.Sites.where(function (site) {
+					        return userSiteCodes.any(function (sc) { return sc == site.Name })
+					    });
+
+					    console.log("vm.userSites = %O", vm.userSites);
+
+					    if (vm.userSites.length == 1) {
+					        console.log("User only has a single Site");
+					        vm.widget.WidgetResource.SiteId = vm.userSites[0].Id;
+					        vm.widgetSite = vm.userSites[0];
+					        GetChartData();
+					    } else {
+
+					        if (vm.widget.WidgetResource.SiteId) {
+					            GetChartData();
+					        }
+					    }
+					    
+					});
+
+
+				    //Start watching for site id changes	
+					$scope.$watch("vm.widget.WidgetResource.SiteId",
+					function (newValue, oldValue) {
+					    if (vm.widget.WidgetResource.SiteId && vm.userSites) {
+
+					        vm.widgetSite = vm.userSites.first(function (s) { return s.Id == vm.widget.WidgetResource.SiteId });
+					        console.log("vm.widget.WidgetResource.SiteId changed. Now = %O", vm.widget);
+					        if (oldValue != newValue) {
+					            vm.widget.WidgetResource.$save();
+					            GetChartData();
+					        }
+					    }
+					});
+
 
 					function GetChartData(updateOnly) {
-						dataService.GetIOPSWebAPIResource("gsTop5AlarmTypes")
+					    dataService.GetIOPSWebAPIResource("top5ObservationExceptions")
 							.query({
 								beginDate: vm.dashboard.webApiParameterStartDate,
 								endDate: vm.dashboard.webApiParameterEndDate,
-								siteId: 81463
+								siteId:  vm.widget.WidgetResource.SiteId
 							}, function (data) {
 								console.log("GSTop5AlarmTypes initial data = %O", data);
 
@@ -86,12 +131,13 @@
 									});
 								}
 								vm.data = data;
+								
 
 							});
 
 					}
 
-					GetChartData();
+					
 
 					//Refresh data on the 15 second system clock tick
 					$scope.$on("System.ClockTick15", function () {
@@ -100,6 +146,7 @@
 
 
 					function CreateChart(data) {
+					    vm.widget.displaySettings.headingExtraTitle = GetHeadingExtraTitle();
 
 						var chartOptions = {
 							chart: {
@@ -194,7 +241,6 @@
 																			.filter("AlarmTime", "<", vm.dashboard.webApiParameterEndDate)
 																			.filter("JBTStandardObservationName", filterCategory)
 																			.query().$promise.then(function (data) {
-
 
 																				//console.log("data from OData Source = %O", angular.copy(data));
 																				hs.htmlExpand(null, {
