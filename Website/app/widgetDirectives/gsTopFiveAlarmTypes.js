@@ -21,6 +21,15 @@
 					    }
 					}
 
+					vm.widget.headingBackground = 'linear-gradient(to bottom,#dedede, #fefefe)';
+
+
+					vm.widget.displaySettings = {
+					    headingBackground: 'linear-gradient(to bottom,#dedede, #fefefe)',
+					    headingExtraTitle: '',
+					    obscureGraphics: true
+					}
+
 					$scope.$on("WidgetResize", function (event, resizedWidgetId) {
 
 						if (vm.widget.Id == resizedWidgetId || resizedWidgetId == 0) {
@@ -70,7 +79,7 @@
 					    });
 
 					    console.log("vm.userSites = %O", vm.userSites);
-
+					    
 					    if (vm.userSites.length == 1) {
 					        console.log("User only has a single Site");
 					        vm.widget.WidgetResource.SiteId = vm.userSites[0].Id;
@@ -82,7 +91,7 @@
 					            GetChartData();
 					        }
 					    }
-					    
+					    vm.widget.displaySettings.headingExtraTitle = GetHeadingExtraTitle();
 					});
 
 
@@ -131,7 +140,7 @@
 									});
 								}
 								vm.data = data;
-								
+								vm.widget.displaySettings.headingExtraTitle = GetHeadingExtraTitle();
 
 							});
 
@@ -146,7 +155,7 @@
 
 
 					function CreateChart(data) {
-					    vm.widget.displaySettings.headingExtraTitle = GetHeadingExtraTitle();
+					   
 
 						var chartOptions = {
 							chart: {
@@ -251,28 +260,31 @@
 																					headingText: chartThis.y + ' ' + chartThis.category + 's',
 																					maincontentText: "<table class='table table-condensed table-striped' style='font-size: .75em;'>" +
 																										"<thead>" +
-																											"<th>Active Date</th>" +
-																											"<th>Gate</th>" +
-																											"<th>Acknowledge Time</th>" +
+																											"<th>Alarm Date Time</th>" +
+																											"<th>Cleared Date Time</th>" +
+                                                                                                            "<th>Alarm Text</th>" +
+                                                                                                            "<th>Gate</th>" +
+                                                                                                            "<th>Equipment</th>" +
 																										"</thead>" +
 																										"<tbody>" +
 																										data.select(function (d) {
 																											return "<tr>" +
 																												"<td>" +
 																												utilityService.GetFormattedLocalDisplayDateFromUTCDate(d.AlarmTime) +
-																												"</td>" +
-																												"<td>" +
-																												d.Gate +
-																												"</td>" +
 																												"<td>" +
 																												utilityService.GetFormattedLocalDisplayDateFromUTCDate(d.CloseDate || "") +
-																												"</td>" +
+                                                                                                                "<td>" +
+                                                                                                                d.JBTStandardObservationName +
+                                                                                                                "<td>" +
+                                                                                                                d.GateName +
+                                                                                                                "<td>" +
+                                                                                                                d.AssetName +
 																												"</tr>";
 
 																										}).join("") +
 																										"</tbody>" +
 																						"</table>",
-																					width: 800,
+																					width: 700,
 																					height: window.outerHeight * .6
 																				});
 
