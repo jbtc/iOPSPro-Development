@@ -304,7 +304,7 @@
 							series: [{ data: data.select(function (item) { return item.AlarmCount }) }]
 						};
 
-						//console.log("chartOptions = %O", chartOptions);
+						console.log("chartOptions = %O", chartOptions);
 
 						vm.chart = Highcharts.chart('gsTopFiveAlarmTypes' + vm.widget.Id, chartOptions);
 					}
