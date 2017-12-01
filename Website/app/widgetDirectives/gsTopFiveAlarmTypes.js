@@ -262,9 +262,9 @@
 																										"<thead>" +
 																											"<th>Alarm Date Time</th>" +
 																											"<th>Cleared Date Time</th>" +
-                                                                                                            "<th>Alarm Text</th>" +
-                                                                                                            "<th>Gate</th>" +
-                                                                                                            "<th>Equipment</th>" +
+                                                                                                            														"<th>Alarm Text</th>" +
+                                                                                                            														"<th>Gate</th>" +
+                                                                                                            														"<th>Equipment</th>" +
 																										"</thead>" +
 																										"<tbody>" +
 																										data.select(function (d) {
@@ -273,12 +273,12 @@
 																												utilityService.GetFormattedLocalDisplayDateFromUTCDate(d.AlarmTime) +
 																												"<td>" +
 																												utilityService.GetFormattedLocalDisplayDateFromUTCDate(d.CloseDate || "") +
-                                                                                                                "<td>" +
-                                                                                                                d.JBTStandardObservationName +
-                                                                                                                "<td>" +
-                                                                                                                d.GateName +
-                                                                                                                "<td>" +
-                                                                                                                d.AssetName +
+                                                                                                               														        "<td>" +
+                                                                                                                														d.JBTStandardObservationName +
+                                                                                                                														"<td>" +
+                                                                                                                														d.GateName +
+                                                                                                                														"<td>" +
+                                                                                                                														d.AssetName +
 																												"</tr>";
 
 																										}).join("") +
