@@ -117,7 +117,7 @@
 								endDate: vm.dashboard.webApiParameterEndDate,
 								siteId:  vm.widget.WidgetResource.SiteId
 							}, function (data) {
-								console.log("GSTop5AlarmTypes initial data = %O", data);
+								//console.log("GSTop5AlarmTypes initial data = %O", data);
 
 								if (updateOnly) {
 									//console.log("vm.chart = %O",vm.chart);
