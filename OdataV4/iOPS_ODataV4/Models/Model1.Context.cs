@@ -542,5 +542,22 @@ namespace iOPS_ODataV4.Models
     
             return ((IObjectContextAdapter)this).ObjectContext.ExecuteFunction<GSTop5AlarmTypes_Result>("GSTop5AlarmTypes", beginTimeParameter, endTimeParameter, siteIdParameter);
         }
+    
+        public virtual ObjectResult<GSTop5AlarmTypes3_Result> GSTop5AlarmTypes3(Nullable<System.DateTime> beginTime, Nullable<System.DateTime> endTime, Nullable<long> siteId)
+        {
+            var beginTimeParameter = beginTime.HasValue ?
+                new ObjectParameter("BeginTime", beginTime) :
+                new ObjectParameter("BeginTime", typeof(System.DateTime));
+    
+            var endTimeParameter = endTime.HasValue ?
+                new ObjectParameter("EndTime", endTime) :
+                new ObjectParameter("EndTime", typeof(System.DateTime));
+    
+            var siteIdParameter = siteId.HasValue ?
+                new ObjectParameter("SiteId", siteId) :
+                new ObjectParameter("SiteId", typeof(long));
+    
+            return ((IObjectContextAdapter)this).ObjectContext.ExecuteFunction<GSTop5AlarmTypes3_Result>("GSTop5AlarmTypes3", beginTimeParameter, endTimeParameter, siteIdParameter);
+        }
     }
 }

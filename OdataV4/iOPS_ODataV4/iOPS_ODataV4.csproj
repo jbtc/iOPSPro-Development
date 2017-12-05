@@ -533,6 +533,9 @@
     <Compile Include="Models\GSReportRun.cs">
       <DependentUpon>Model1.tt</DependentUpon>
     </Compile>
+    <Compile Include="Models\GSTop5AlarmTypes3_Result.cs">
+      <DependentUpon>Model1.tt</DependentUpon>
+    </Compile>
     <Compile Include="Models\GSTop5AlarmTypes_Result.cs">
       <DependentUpon>Model1.tt</DependentUpon>
     </Compile>
@@ -639,7 +642,9 @@
       <LastGenOutput>Model11.cs</LastGenOutput>
       <DependentUpon>Model.edmx</DependentUpon>
     </Content>
-    <Content Include="Web.config" />
+    <Content Include="Web.config">
+      <SubType>Designer</SubType>
+    </Content>
     <Content Include="Web.Debug.config">
       <DependentUpon>Web.config</DependentUpon>
     </Content>
