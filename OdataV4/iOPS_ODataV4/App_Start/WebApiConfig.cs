@@ -72,7 +72,8 @@ namespace iOPS_ODataV4
             builder.EntitySet<Report>("Reports");
             builder.EntitySet<ReportRun>("ReportRuns");
             builder.EntitySet<GSAlarmHistory>("GSAlarmHistories");
-
+            builder.EntitySet<ObservationException>("ObservationExceptions");
+            builder.EntitySet<ObservationExceptionComment>("ObservationExceptionComments");
 
 
 

@@ -14,6 +14,13 @@ namespace iOPS_ODataV4.Models
     
     public partial class Observation
     {
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2214:DoNotCallOverridableMethodsInConstructors")]
+        public Observation()
+        {
+            this.ObservationExceptions = new HashSet<ObservationException>();
+            this.ObservationExceptions1 = new HashSet<ObservationException>();
+        }
+    
         public long Id { get; set; }
         public Nullable<long> TagId { get; set; }
         public Nullable<System.DateTime> Date { get; set; }
@@ -29,5 +36,9 @@ namespace iOPS_ODataV4.Models
         public Nullable<int> Quality { get; set; }
     
         public virtual Tag Tag { get; set; }
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
+        public virtual ICollection<ObservationException> ObservationExceptions { get; set; }
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
+        public virtual ICollection<ObservationException> ObservationExceptions1 { get; set; }
     }
 }

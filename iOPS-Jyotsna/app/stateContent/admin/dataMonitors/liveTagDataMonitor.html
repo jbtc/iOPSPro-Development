@@ -1,0 +1,100 @@
+﻿<div>
+    <div class="panel panel-primary static-panel">
+        <div class="panel-heading">
+            <div class='btn-toolbar pull-right' style="display: inline-block;">
+                <input type="text"
+                       focus
+                       id="searchInput"
+                       name="searchInput"
+                       ng-model="vm.searchText"
+                       ng-model-options="{ debounce: 100 }"
+                       placeholder="Type characters here to search."
+                       class="form-control search-term responsive-button"
+                       style="margin-left: 15px; width: 500px; display: inline-block; font-size: 1em;">
+            </div>
+            <div class="panel-heading-title">
+                Data Flow Monitor - All Tags as Table 
+            </div>
+            <div class="panel-heading-subtitle">
+                Observations = {{vm.dataService.Statistics.SignalR.MessageCount}}. Observations Per Second = {{vm.dataService.Statistics.SignalR.MessagesPerSecond}}. Items drop off after 10 Seconds of inactivity.
+            </div>
+
+        </div>
+        <div class="panel-body repeater-container" style="overflow: hidden; width: 100%">
+
+
+            <table class="table table-hover table-responsive table-striped">
+                <thead>
+                    <tr>
+                        <th style="width: {{vm.columnWidths.company}}%">
+                            Site
+                        </th>
+                        <th style="width: {{vm.columnWidths.terminal}}%">
+                            Terminal
+                        </th>
+                        <th style="width: {{vm.columnWidths.zone}}%">
+                            Zone
+                        </th>
+                        <th style="width: {{vm.columnWidths.gate}}%">
+                            Gate
+                        </th>
+                       
+                        <th style="width: {{vm.columnWidths.tagName}}%">
+                            TagName
+                        </th>
+                        <th style="width: {{vm.columnWidths.observationName}}%">
+                            Observation Name
+                        </th>
+                        <th style="width: {{vm.columnWidths.date}}%">
+                            Last Observed Date
+                        </th>
+                        <th style="width: {{vm.columnWidths.value}}%">
+                            Value
+                        </th>
+                        <th style="width: {{vm.columnWidths.value}}%">
+                            Obs Id
+                        </th>
+                    </tr>
+                </thead>
+
+                <tbody vs-repeatzzzzz vs-scroll-parent=".repeater-container" vs-scrolled-to-end="vm.scrolledToEnd()">
+                    <tr ng-repeat="tag in vm.tags | orderBy: '-ObservationLocalDate'" style="background-color:  {{tag.Metadata.Status.LastValueWasHistorical ? 'rgba(173, 173, 173,' : 'rgba(0, 255, 0,'}} .{{tag.Metadata.UpdateCountDowns.OneSecond}});">
+
+                        <td>
+                            {{tag.Asset.Company.Name}}
+                        </td>
+                        <td>
+                            {{tag.Asset.ParentSystem.ParentSystem.ParentSystem.Name}}
+                        </td>
+                        <td>
+                            {{tag.Asset.ParentSystem.ParentSystem.Name}}
+                        </td>
+                        <td>
+                            {{tag.Asset.ParentSystem.Name}}
+                        </td>
+                        
+                        <td nowrap>
+                            {{tag.TagName}}
+                        </td>
+                        <td nowrap>
+                            {{tag.JBTStandardObservation.Name}}
+                        </td>
+                        <td nowrap>
+                            {{tag.ObservationLocalDate |  date:'MM/dd HH:mm:ss.ss'}}
+                        </td>
+                        <td>
+                            {{tag.Value}}
+                        </td>
+                        <td>
+                            {{tag.ObservationId}}
+                        </td>
+                    </tr>
+
+                </tbody>
+            </table>
+
+        </div>
+        <div ui-view="contentPane"></div>
+    </div>
+</div>
+

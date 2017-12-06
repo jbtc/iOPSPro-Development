@@ -19,7 +19,9 @@
 
 					vm.widget.displaySettings = {
 						headingBackground: 'linear-gradient(to bottom,#dedede, #fefefe)',
-						tagDataSortField: '-LastObservationDate',
+						tagDataSortField: '-PLCLocalDate',
+						alarmDataSortField: '-PLCLocalDate',
+						warningsDataSortField: '-PLCLocalDate',
 						headingExtraTitle: '',
 						obscureGraphics: true
 					}
@@ -81,6 +83,42 @@
 					}
 
 
+					vm.SetAlarmSortField = function (fieldName) {
+						var t0 = performance.now();
+
+						if (vm.widget.displaySettings.alarmDataSortField.substr(1, 50) == fieldName || vm.widget.displaySettings.alarmDataSortField == fieldName) {
+							if (vm.widget.displaySettings.alarmDataSortField.substr(0, 1) == "-") {
+								vm.widget.displaySettings.alarmDataSortField = fieldName;
+
+
+							} else {
+								vm.widget.displaySettings.alarmDataSortField = "-" + fieldName;
+
+							}
+						} else {
+							vm.widget.displaySettings.alarmDataSortField = fieldName;
+						}
+					}
+
+					vm.SetWarningSortField = function (fieldName) {
+						var t0 = performance.now();
+
+						if (vm.widget.displaySettings.warningDataSortField.substr(1, 50) == fieldName || vm.widget.displaySettings.warningDataSortField == fieldName) {
+							if (vm.widget.displaySettings.warningDataSortField.substr(0, 1) == "-") {
+								vm.widget.displaySettings.warningDataSortField = fieldName;
+
+
+							} else {
+								vm.widget.displaySettings.warningDataSortField = "-" + fieldName;
+
+							}
+						} else {
+							vm.widget.displaySettings.warningDataSortField = fieldName;
+						}
+					}
+
+
+
 					vm.OpenSettingsIfNoAssetAndCloseIfAssetIsPresent = function () {
 
 						console.log("Opening settings vm.Asset = %O", vm.Asset);
@@ -117,10 +155,6 @@
 
 						vm.widget.displaySettings.headingExtraTitle = GetHeadingExtraTitle();
 					});
-
-
-
-
 
 
 					//Start watching for gate id changes	
@@ -182,6 +216,22 @@
 
 
 					}
+					vm.SetDefaultNavPillAlarms = function () {
+						$timeout(function () {
+							vm.widget.WidgetResource.DefaultNavPill = 'Alarms';
+							SaveWidgetResourceObjectIfChanged();
+						}, 100);
+
+
+					}
+					vm.SetDefaultNavPillWarnings = function () {
+						$timeout(function () {
+							vm.widget.WidgetResource.DefaultNavPill = 'Warnings';
+							SaveWidgetResourceObjectIfChanged();
+						}, 100);
+
+
+					}
 
 					function GetPCAAssetForGate() {
 
@@ -211,7 +261,7 @@
 							});
 							$timeout(function () {
 								SetupSplitter();
-								SetTabBodyHeight();
+								SetTabBodyHeight(5);
 							}, 50);
 
 							//console.log("Asset Graphics = %O", vm.AssetGraphics);
@@ -221,7 +271,7 @@
 
 							vm.atLeastOneGraphicIsVisible = AtLeastOneGraphicIsVisible();
 							vm.widget.displaySettings.obscureGraphics = !AtLeastOneGraphicIsVisible();
-							SetHeadingBackground();
+							
 							vm.widget.displaySettings.headingExtraTitle = GetHeadingExtraTitle();
 							vm.GenerateTemperatureCharts();
 							vm.GeneratePressureCharts();
@@ -230,13 +280,25 @@
 								vm.showWidget = true;
 							}, 100);
 
+							if (!vm.alarms) {
+								vm.alarms = [];
+							}
+							if (!vm.warnings) {
+								vm.warnings = [];
+							}
 
+							vm.alarms = vm.pca.Tags.where(function (dsTag) { return dsTag.AssetId == vm.widget.WidgetResource.AssetId && dsTag.IsAlarm });
+							vm.warnings = vm.pca.Tags.where(function (dsTag) { return dsTag.AssetId == vm.widget.WidgetResource.AssetId && dsTag.IsWarning });
+
+							//console.log("vm.alarms = %O", vm.alarms);
+							//console.log("vm.warnings = %O", vm.warnings);
+
+							SetHeadingBackground();
 						});
 					}
 
 
-
-					function SetTabBodyHeight() {
+					function SetTabBodyHeight(repeatCount) {
 						$interval(function () {
 
 							displaySetupService.SetWidgetPanelBodyDimensions(vm.widget.Id);
@@ -248,22 +310,43 @@
 								if (vm.widget.WidgetResource.IsModalPopUp) {
 									heightToSet = widgetDimensions.height - tabDimensions.height - 20;
 								} else {
-									heightToSet = widgetDimensions.height - tabDimensions.height - 9;
+									heightToSet = widgetDimensions.height - tabDimensions.height - 3;
 								}
 
 								//console.log("Height to set = " + heightToSet);
 								$("#tab-content" + vm.widget.Id).css('height', heightToSet);
 								$("#repeater-container-data" + vm.widget.Id).css('height', heightToSet);
+								$("#repeater-container-alarms" + vm.widget.Id).css('height', heightToSet);
+								$("#repeater-container-warnings" + vm.widget.Id).css('height', heightToSet);
 								vm.showTags = true;
 							}
 
-						}, 50, 40);
+						}, 50, repeatCount || 1);
 					}
 
 
 
 
+
 					function SetHeadingBackground() {
+
+						if (vm.alarms && vm.alarms.length > 0) {
+
+							vm.widget.displaySettings.headingBackground = 'linear-gradient(to bottom,#FF0000, #FFDDDD)';
+							//vm.widget.displaySettings.headingBackground = 'linear-gradient(to bottom,#FF0000, #FFFF00)';
+
+
+							return;
+						}
+						if(vm.warnings && vm.warnings.length > 0) {
+
+							vm.widget.displaySettings.headingBackground = 'linear-gradient(to bottom,#FFFF00, #FFFFee)';
+
+
+							return;
+						}
+
+
 						if (AtLeastOneGraphicIsVisible()) {
 							vm.widget.displaySettings.headingBackground = 'linear-gradient(to bottom,#3eff3e, #eefeee)';
 						} else {
@@ -306,7 +389,7 @@
 												}
 											},
 											sizes: [vm.widget.WidgetResource.SplitLeftPercentage, vm.widget.WidgetResource.SplitRightPercentage],
-											minSize: 200,
+											minSize: 0,
 											onDragEnd: function () {
 
 												var sizes = vm.splitter.getSizes();
@@ -332,18 +415,24 @@
 
 						if (vm.widget.Id == resizedWidgetId || resizedWidgetId == 0) {
 							displaySetupService.SetPanelBodyWithIdHeight(vm.widget.Id);
-							SetTabBodyHeight();
+							SetTabBodyHeight(1);
 						}
 					});
 
 					$scope.$on("WidgetResize.Stop", function (event, resizedWidgetId) {
 						if (vm.widget.Id == resizedWidgetId || resizedWidgetId == 0) {
-							$interval(function () {
+							$timeout(function () {
 								displaySetupService.SetPanelBodyWithIdHeight(vm.widget.Id);
-								SetTabBodyHeight();
+								SetTabBodyHeight(1);
 
-							}, 50, 20);
+							}, 200);
 						}
+					});
+
+					$scope.$on("ResizeVirtualScrollContainers", function () {
+						//console.log("ResizeVirtualScrollContainers received");
+						displaySetupService.SetPanelBodyWithIdHeight(vm.widget.Id);
+						SetTabBodyHeight(1);
 					});
 
 					$scope.$on("GraphWidgetAdded", function (event, graphWidget) {
@@ -390,6 +479,58 @@
 						UpdateSecondary1CompressorSuctionChart(updatedTag);
 						UpdateSecondary2CompressorChart(updatedTag);
 						UpdateSecondary2CompressorSuctionChart(updatedTag);
+
+
+
+						if (updatedTag.AssetId == vm.widget.WidgetResource.AssetId &&
+							(updatedTag.IsAlarm || updatedTag.IsCritical) &&
+							updatedTag.TagName.indexOf('|') >= 3
+						) {
+							console.log("Alarm Tag Update = " + updatedTag.TagName + "  " + updatedTag.Value);
+							if (+updatedTag.Value == 1) {
+								if (vm.alarms) {
+									vm.alarms.push(updatedTag);
+								} else {
+									vm.alarms = [];
+									vm.alarms.push(updatedTag);
+								}
+							}
+
+							if (+updatedTag.Value == 0) {
+								if (vm.alarms) {
+									vm.alarms = vm.alarms.where(function (a) { return a.TagId != updatedTag.TagId });
+								}
+							}
+							SetHeadingBackground();
+
+						}
+
+						if (updatedTag.AssetId == vm.widget.WidgetResource.AssetId &&
+							(updatedTag.IsWarning) &&
+							updatedTag.TagName.indexOf('|') >= 3
+						) {
+							console.log("Warning Tag Update = " + updatedTag.TagName + "  " + updatedTag.Value);
+							if (+updatedTag.Value == 1) {
+								if (vm.warnings) {
+									vm.warnings.push(updatedTag);
+								} else {
+									vm.warnings = [];
+									vm.warnings.push(updatedTag);
+								}
+							}
+
+							if (+updatedTag.Value == 0) {
+								if (vm.warnings) {
+									vm.warnings = vm.warnings.where(function (a) { return a.TagId != updatedTag.TagId });
+								}
+							}
+							SetHeadingBackground();
+
+						}
+						
+
+
+
 					});
 
 
@@ -435,7 +576,6 @@
 						//console.log("vm.widget = %O", vm.widget);
 
 						vm.widget.displaySettings.obscureGraphics = !AtLeastOneGraphicIsVisible();
-						SetHeadingBackground();
 
 
 					}

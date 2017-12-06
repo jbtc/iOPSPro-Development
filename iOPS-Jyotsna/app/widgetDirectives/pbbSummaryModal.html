@@ -1,0 +1,31 @@
+﻿<div>
+    <div class="modal-backdrop"></div>
+    <div class="modal-holder" autoscroll="false">
+        <div>
+            <div ng-show="vm.showScreen" class="panel panel-primary panel-centered-modal-floating" style="width: 1000px; height: 550px; overflow: hidden;">
+
+
+                <div class="panel-heading" style="font-size:.9em; padding-top:3px; padding-left: 5px; height:40px; min-height: 40px; max-height: 40px;">
+                    <div class='btn-toolbar pull-right' style="display: inline-block;">
+                        <button ui-sref="^" class="btn btn-default tiny-button responsive-button">Close</button>
+                        <button ng-click="vm.AddToDashboard()" class="btn btn-default tiny-button responsive-button">Add to Dashboard</button>
+                    </div>
+                    <div class="panel-heading-small-title">
+                        {{vm.panelTitle}}
+                    </div>
+                    <div class="panel-heading-small-subtitle">
+                        {{vm.panelSubtitle}}
+                    </div>
+
+                </div>
+
+
+                <div class="panel-body" id="{{vm.widget.Id}}">
+                    <pbb-summary widget="vm.widget" dashboard="vm.dashboard"></pbb-summary>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+

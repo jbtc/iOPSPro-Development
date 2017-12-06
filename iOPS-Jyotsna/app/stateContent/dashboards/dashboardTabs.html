@@ -1,0 +1,13 @@
+﻿<div style="margin-top: 3px;">
+	<ul id="siteDashboardTabs" class="tabs">
+		<li ui-sref=".dashboards" ui-sref-active="selected">Applications</li>
+		<li ng-repeat="tab in vm.tabs" ng-click="vm.TabClicked()"
+			ui-sref=".{{tab.Code.toLowerCase()}}" ui-sref-active="selected">{{tab.Name}}</li>
+	</ul>
+	<div ui-view="appTiles" ng-show="vm.state.includes('home.appTabs.appTiles')"></div>
+	<div ng-repeat="app in vm.appService.applications | unique: 'Id'"
+		ng-show="vm.state.includes('home.appTabs.' + app.Code.toLowerCase())"
+		class="tab-pane"
+		ui-view="{{app.Code.toLowerCase()}}">
+	</div>
+</div>  

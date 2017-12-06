@@ -80,6 +80,8 @@ namespace iOPS_ODataV4.Models
         public virtual DbSet<Report> Reports { get; set; }
         public virtual DbSet<ReportRun> ReportRuns { get; set; }
         public virtual DbSet<GSAlarmHistory> GSAlarmHistories { get; set; }
+        public virtual DbSet<ObservationExceptionComment> ObservationExceptionComments { get; set; }
+        public virtual DbSet<ObservationException> ObservationExceptions { get; set; }
     
         public virtual ObjectResult<BHSLocationThroughput_Result1> BHSLocationThroughput(Nullable<System.DateTime> beginDate, Nullable<System.DateTime> endDate, string location)
         {
@@ -541,6 +543,23 @@ namespace iOPS_ODataV4.Models
                 new ObjectParameter("SiteId", typeof(long));
     
             return ((IObjectContextAdapter)this).ObjectContext.ExecuteFunction<GSTop5AlarmTypes_Result>("GSTop5AlarmTypes", beginTimeParameter, endTimeParameter, siteIdParameter);
+        }
+    
+        public virtual ObjectResult<GSTop5AlarmTypes3_Result> GSTop5AlarmTypes3(Nullable<System.DateTime> beginTime, Nullable<System.DateTime> endTime, Nullable<long> siteId)
+        {
+            var beginTimeParameter = beginTime.HasValue ?
+                new ObjectParameter("BeginTime", beginTime) :
+                new ObjectParameter("BeginTime", typeof(System.DateTime));
+    
+            var endTimeParameter = endTime.HasValue ?
+                new ObjectParameter("EndTime", endTime) :
+                new ObjectParameter("EndTime", typeof(System.DateTime));
+    
+            var siteIdParameter = siteId.HasValue ?
+                new ObjectParameter("SiteId", siteId) :
+                new ObjectParameter("SiteId", typeof(long));
+    
+            return ((IObjectContextAdapter)this).ObjectContext.ExecuteFunction<GSTop5AlarmTypes3_Result>("GSTop5AlarmTypes3", beginTimeParameter, endTimeParameter, siteIdParameter);
         }
     }
 }

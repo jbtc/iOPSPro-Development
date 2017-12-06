@@ -1,0 +1,38 @@
+﻿<div>
+	<div class="panel panel-primary" style="margin-left: 5px; margin-top: 5px;">
+		<div id="userListHeading" class="panel-heading clearfix">
+			<h3 class="panel-title pull-left" style="padding-top: 7.5px;">{{labelText}}&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</h3>
+			<div class="input-group">
+				<input focus ng-enter="model.SearchUsers()" class="form-control" placeholder="Last Name starts with, First Name starts with" ng-model="vm.search" type="text">
+				<div class="input-group-btn">
+					<button class="btn btn-default" ng-click="vm.SearchUsers()"><i class="glyphicon glyphicon-search"></i></button>
+				</div>
+			</div>
+		</div>
+
+		<div id="userListBody" class="panel-body">
+			<table class="table table-hover">
+				<thead>
+					<tr>
+						<th>Family Name</th>
+						<th>Given Name</th>
+						<th>Username</th>
+						<th>Type</th>
+						<th>Email Address</th>
+					</tr>
+				</thead>
+				<tbody>
+					<tr ng-repeat="user in model.users | orderBy: ['FamilyName','GivenName'] track by user.MasterId">
+						<td title="Family Name">{{ user.FamilyName }}</td>
+						<td title="Given Name">{{ user.GivenName }}</td>
+						<td title="UTMB Username">{{ user.Username }}</td>
+						<td title="Employee Type">{{ user.EducationAffiliation }}</td>
+						<td title="Email Address">{{ user.Email }}</td>
+					</tr>
+				</tbody>
+			</table>
+		</div>
+	</div>
+	<div ui-view="{{editPaneUIViewName}}" autoscroll="false"></div>
+	
+</div>

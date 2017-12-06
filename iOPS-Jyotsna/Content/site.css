@@ -1,0 +1,932 @@
+﻿
+/*  
+	----------------------------------------------------------------------------------------
+
+	bootstrap overrides
+	----------------------------------------------------------------------------------------
+
+
+*/
+
+/* 
+  Allow angular.js to be loaded in body, hiding cloaked elements until 
+  templates compile.  The !important is important given that there may be 
+  other selectors that are more specific or come later and might alter display.  
+ */
+
+
+.auto-content-scroll {
+  /* Subtract the header size */
+  height: calc(100% - 50px);
+  overflow: auto;
+}
+
+.true-td-value {
+    font-size: 1.2em;
+    font-weight: bold;
+    background-color: rgb(213, 240, 87);
+    text-align: center;
+    border-radius: 5px;
+    padding: 3px;
+
+}
+
+.false-td-value {
+    font-size: 1.2em;
+    font-weight: bold;
+    background-color: rgb(255, 150, 150);
+    text-align: center;
+    border-radius: 5px;
+    padding: 3px;
+}
+
+.chart-wrapper {
+ position: relative;
+    /*padding-bottom: 95%;*/
+}
+
+.chart-inner {
+position: absolute;
+    width: 100%; height: 100%;
+}
+
+div::-webkit-scrollbar {
+    width: 15px;
+}
+
+div::-webkit-scrollbar-track {
+    -webkit-box-shadow: inset 0 0 6px rgba(0,0,0,0.3);
+    border-radius: 10px;
+}
+
+div::-webkit-scrollbar-thumb {
+    border-radius: 10px;
+    -webkit-box-shadow: inset 0 0 10px rgba(0,0,0,0.5);
+    background-color: #f5f5f5;
+    min-height: 30px;
+}
+
+
+[ng\:cloak], [ng-cloak], .ng-cloak {
+  display: none !important;
+}
+
+a:hover, a:visited, a:link, a:active
+{
+    text-decoration: none;
+}
+
+.co-located-container {
+	 position:relative;
+}
+
+.innovation-has-error
+{
+  border-color: #c94442;
+  border: 2px solid #c94442
+  -webkit-box-shadow: inset 0 1px 1px rgba(0, 0, 0, .075);
+          box-shadow: inset 0 1px 1px rgba(0, 0, 0, .075);
+}
+
+.id-number-display {
+	font-size: 1.5em;
+	color: rgb(3, 0, 181);
+	font-weight: bold;
+	padding: 2px;
+	border: 1px solid black;
+	padding-left: 8px;
+	padding-right: 8px;
+	-ms-border-radius: 3px;
+	border-radius:3px;
+}
+
+div.scrollable {
+    width: 100%;
+    height: 95px;
+    margin: 0;
+    padding: 0;
+    overflow: auto;
+}
+
+.id-number-display {
+	font-size: 1.5em;
+	color: rgb(3, 0, 181);
+	font-weight: bold;
+	padding: 2px;
+	border: 1px solid black;
+	margin-left: 5px;
+	padding-left: 8px;
+	padding-right: 8px;
+	-ms-border-radius: 3px;
+	border-radius:3px;
+}
+
+
+.co-located-div {
+	position: absolute;
+}
+
+.calendar-muted {
+	color: #7e7e7e; 
+	font-size: .7em; 
+	font-style: italic;
+}
+.calendar-muted-large {
+	color: #7e7e7e; 
+	font-size: 1em; 
+	font-style: italic;
+}
+
+.locationDirections {
+	color: #7e7e7e; 
+	font-size: .9em; 
+	font-style: italic;
+}
+
+
+
+.user-logout-name {
+	color: #d0d0d0;
+	font-size: .8em;
+	font-style: italic;
+	margin-top: 15px;
+}
+
+.userFullNameDisplay {
+	font-weight: bolder;
+	white-space: nowrap;
+}
+
+.bolder {
+	font-weight: bolder;
+}
+
+
+
+select::-ms-expand {
+			width:12px;
+			border:none;
+			background:#fff;
+		}
+
+
+form {
+	color: #404040;
+	font-size: 16px;
+	padding: 10px 10px;
+}
+
+.noselect {
+  -webkit-touch-callout: none; /* iOS Safari */
+  -webkit-user-select: none;   /* Chrome/Safari/Opera */
+  -khtml-user-select: none;    /* Konqueror */
+  -moz-user-select: none;      /* Firefox */
+  -ms-user-select: none;       /* Internet Explorer/Edge */
+  user-select: none;           /* Non-prefixed version, currently
+                                  not supported by any browser */
+}
+
+.form-control {
+	margin-bottom: 10px;
+}
+
+
+.wizard a {
+	background: #efefef;
+	display: inline-block;
+	margin-right: 5px;
+	min-width: 150px;
+	outline: none;
+	padding: 10px 40px 10px;
+	position: relative;
+	text-decoration: none;
+}
+
+.wizard .active {
+	background: #007acc;
+	color: #fff;
+}
+
+
+
+
+.dropdown-large {
+  position: static !important;
+}
+.dropdown-menu-large {
+  margin-left: 16px;
+  margin-right: 16px;
+  padding: 20px 0px;
+}
+.dropdown-menu-large > li > ul {
+  padding: 0;
+  margin: 0;
+}
+.dropdown-menu-large > li > ul > li {
+  list-style: none;
+}
+.dropdown-menu-large > li > ul > li > a {
+  display: block;
+  padding: 3px 20px;
+  clear: both;
+  font-weight: normal;
+  line-height: 1.428571429;
+  color: #333333;
+  white-space: normal;
+}
+.dropdown-menu-large > li ul > li > a:hover,
+.dropdown-menu-large > li ul > li > a:focus {
+  text-decoration: none;
+  color: #262626;
+  background-color: #f5f5f5;
+}
+.dropdown-menu-large .disabled > a,
+.dropdown-menu-large .disabled > a:hover,
+.dropdown-menu-large .disabled > a:focus {
+  color: #999999;
+}
+.dropdown-menu-large .disabled > a:hover,
+.dropdown-menu-large .disabled > a:focus {
+  text-decoration: none;
+  background-color: transparent;
+  background-image: none;
+  filter: progid:DXImageTransform.Microsoft.gradient(enabled = false);
+  cursor: not-allowed;
+}
+.dropdown-menu-large .dropdown-header {
+  color: #428bca;
+  font-size: 18px;
+}
+
+@media screen and (min-width: 992px)
+{
+  .modal-box
+  {
+	width: 50%;
+	padding: 30px;
+  }
+}
+
+
+
+/*
+
+
+
+
+	dhtmlx calendar overrides
+
+
+
+*/
+
+
+/*event in day or week view*/
+	.dhx_cal_event div {
+		/*background-color: #dddbca !important;*/
+		color: #000000 !important;
+		
+	}
+	/*multi-day event in month view*/
+	.dhx_cal_event_line {
+		color: #000000 !important;
+		height:60px;
+		border: 1px solid #9e9e9e;
+		padding-left: 5px;
+		padding-top: 2px;
+		padding-bottom: 2px;
+	}
+
+
+
+		html, body {
+		margin: 0px;
+		padding: 0px;
+		height: 100%;
+		overflow: hidden;
+	}
+
+
+
+
+
+.dhx_scheduler_month .border{
+	word-wrap: normal;
+	margin-left: 0px;
+}
+
+.dhx_scheduler_month .border_bottom_thick{
+	border-bottom: 1px solid black;
+}
+
+.border {
+	border:1px solid rgba(100, 100, 100, 0.30);
+}
+
+	
+.dhx_scheduler_week .border{
+/*border:1px solid rgba(0,0,0,0.3);*/
+}	
+.dhx_scheduler_day .border{
+/*border:1px solid rgba(0,0,0,0.3);*/
+}	
+.dhx_cal_container{
+  border-top:1px solid silver;
+  border-bottom:1px solid silver;
+}
+.dhx_cal_container:before{
+  content: "";
+  position: absolute;
+  left: 0px;
+  top: 0px;
+  height: 10000px;
+  width: 1px;
+  z-index: 20;
+  background-color: #C0C0C0;
+}
+  
+.dhx_cal_container:after{
+  content: "";
+  position: absolute;
+  top: 0px;
+  right: 0px;
+  height: 10000px;
+  width: 1px;
+  z-index: 20;
+  background-color: #C0C0C0;
+}
+
+	/* disabling default color for select menu */
+		.dhx_cal_select_menu.my_event div {
+			border: 0;
+			background-color: transparent;
+			color: black;
+		}
+		/* styles for event content */
+		.dhx_cal_event.my_event .my_event_body {
+
+			padding-top: 0px;
+			padding-left: 0px;
+		}
+		/* event's date information */
+		.my_event .event_date {
+			font-weight: bold;
+			padding-right: 5px;
+		}
+		/* event's resizing section */
+		.my_event_resize {
+			height: 3px;
+			position: absolute;
+			bottom: -1px;
+		}
+		/* event's move section */
+		.my_event_move {
+			position: absolute;
+			top: 0;
+			height: 10px;
+			cursor: pointer;
+		}
+
+
+#map {
+		width: 800px;
+		height: 620px;
+		margin: 5px;
+	}
+	.map-panel {
+		width: 810px;
+		position: fixed; 
+		top: 50%; 
+		left: 50%; 
+		-ms-transform: translate(-50%, 0%);
+		transform: translate(-50%, -50%);
+	}
+	.map-label-title {
+		font-size: 1.2em;
+		color: #0059c1;
+		padding-bottom: 5px;
+	}
+	.infoWindowContent {
+		font-size: .9em;
+		border-top: 1px solid #aaa;
+		padding-top: 10px;
+		max-width: 300px;
+}
+
+
+	.panel-heading-title-red {
+		font-size: 1.1em;
+		color: rgb(255, 210, 210);
+	}
+	.calendar-responsive {
+		margin-top: 55px;
+	}
+	
+	
+
+/*Display is 816px wide or less*/
+@media (max-width: 816px) {
+	#map {
+		width: 600px;
+		height: 620px;
+		margin: 5px;
+	}
+	.map-panel {
+		width: 610px;
+		position: fixed; 
+		top: 75px; 
+		left: 50%; 
+		transform: translate(-50%, 0%);
+	}
+	
+	.calendar-responsive {
+		margin-top: 45px;
+	}
+
+}
+
+/*Display is 619px wide or less*/
+@media (max-width: 619px) {
+	#map {
+		width: 450px;
+		height: 620px;
+		margin: 5px;
+	}
+	.map-panel {
+		width: 460px;
+		position: fixed; 
+		top: 75px; 
+		left: 50%; 
+		transform: translate(-50%, 0%);
+	}
+
+	.calendar-responsive {
+		margin-top: 45px;
+	}
+
+	.id-number-display {
+		font-size: 1.1em;
+	}
+
+	
+}
+
+/*Display is 468x wide or less*/
+@media (max-width: 468px) {
+	#map {
+		width: 350px;
+		height: 500px;
+		margin: 5px;
+	}
+	.map-panel {
+		width: 360px;
+		position: fixed; 
+		top: 70px; 
+		left: 50%; 
+		transform: translate(-50%, 0%);
+		-ms-transform: translate(-50%, 0%);
+	}
+
+	.calendar-responsive {
+		margin-top: 33px;
+	}
+
+	.panel-centered-modal-floating {
+		position: fixed; top: 60px; 
+	}
+
+
+}
+
+
+
+/*Display is 360x wide or less*/
+@media (max-width: 320px) {
+	#map {
+		width: 310px;
+		height: 500px;
+		margin: 5px;
+	}
+	.map-panel {
+		width: 320px;
+		position: fixed; 
+		top: 70px; 
+		left: 50%; 
+		transform: translate(-50%, 0%);
+	}
+	
+}
+
+
+/*Display is 567x high or less*/
+@media (max-height: 560px) {
+	#map {
+		width: 310px;
+		height: 340px;
+		margin: 5px;
+	}
+	.map-panel {
+		width: 320px;
+		position: fixed; 
+		top: 70px; 
+		left: 50%; 
+		transform: translate(-50%, 0%);
+	}
+}
+
+/*Display is 640x high or less*/
+@media (max-height: 640px) {
+	#map {
+		width: 350px;
+		height: 510px;
+		margin: 5px;
+	}
+	.map-panel {
+		width: 360px;
+		position: fixed; 
+		top: 60px; 
+		left: 50%; 
+		transform: translate(-50%, 0%);
+	}
+
+}
+
+
+
+/* ----------- iPhone 4 and 4S ----------- */
+
+/* Portrait and Landscape */
+@media only screen 
+  and (min-device-width: 320px) 
+  and (max-device-width: 480px)
+  and (-webkit-min-device-pixel-ratio: 2) {
+
+	.calendar-responsive {
+		margin-top: 33px;
+	}
+
+}
+
+/* Portrait */
+@media only screen 
+  and (min-device-width: 320px) 
+  and (max-device-width: 480px)
+  and (-webkit-min-device-pixel-ratio: 2)
+  and (orientation: portrait) {
+	.calendar-responsive {
+		margin-top: 33px;
+	}
+}
+
+/* Landscape */
+@media only screen 
+  and (min-device-width: 320px) 
+  and (max-device-width: 480px)
+  and (-webkit-min-device-pixel-ratio: 2)
+  and (orientation: landscape) {
+		.calendar-responsive {
+		margin-top: 45px;
+	}
+
+}
+
+/* ----------- iPhone 5 and 5S ----------- */
+
+/* Portrait and Landscape */
+@media only screen 
+  and (min-device-width: 320px) 
+  and (max-device-width: 568px)
+  and (-webkit-min-device-pixel-ratio: 2) {
+		.calendar-responsive {
+		margin-top: 33px;
+	}
+
+}
+
+/* Portrait */
+@media only screen 
+  and (min-device-width: 320px) 
+  and (max-device-width: 568px)
+  and (-webkit-min-device-pixel-ratio: 2)
+  and (orientation: portrait) {
+	.calendar-responsive {
+		margin-top: 33px;
+	}
+}
+
+/* Landscape */
+@media only screen 
+  and (min-device-width: 320px) 
+  and (max-device-width: 568px)
+  and (-webkit-min-device-pixel-ratio: 2)
+  and (orientation: landscape) {
+
+	.calendar-responsive {
+		margin-top: 45px;
+	}
+}
+
+/* ----------- iPhone 6 ----------- */
+
+/* Portrait and Landscape */
+@media only screen 
+  and (min-device-width: 375px) 
+  and (max-device-width: 667px) 
+  and (-webkit-min-device-pixel-ratio: 2) { 
+		.calendar-responsive {
+		margin-top: 33px;
+	}
+
+}
+
+/* Portrait */
+@media only screen 
+  and (min-device-width: 375px) 
+  and (max-device-width: 667px) 
+  and (-webkit-min-device-pixel-ratio: 2)
+  and (orientation: portrait) { 
+	.calendar-responsive {
+		margin-top: 33px;
+	}
+
+}
+
+/* Landscape */
+@media only screen 
+  and (min-device-width: 375px) 
+  and (max-device-width: 667px) 
+  and (-webkit-min-device-pixel-ratio: 2)
+  and (orientation: landscape) { 
+	.calendar-responsive {
+		margin-top: 45px;
+	}
+
+}
+
+/* ----------- iPhone 6+ ----------- */
+
+/* Portrait and Landscape */
+@media only screen 
+  and (min-device-width: 414px) 
+  and (max-device-width: 736px) 
+  and (-webkit-min-device-pixel-ratio: 3) { 
+		.calendar-responsive {
+		margin-top: 33px;
+	}
+
+}
+
+/* Portrait */
+@media only screen 
+  and (min-device-width: 414px) 
+  and (max-device-width: 736px) 
+  and (-webkit-min-device-pixel-ratio: 3)
+  and (orientation: portrait) { 
+	.calendar-responsive {
+		margin-top: 33px;
+	}
+
+}
+
+/* Landscape */
+@media only screen 
+  and (min-device-width: 414px) 
+  and (max-device-width: 736px) 
+  and (-webkit-min-device-pixel-ratio: 3)
+  and (orientation: landscape) { 
+	.calendar-responsive {
+		margin-top: 45;
+	}
+
+}
+
+
+
+/* ----------- Galaxy S3 ----------- */
+
+/* Portrait and Landscape */
+@media screen 
+  and (device-width: 320px) 
+  and (device-height: 640px) 
+  and (-webkit-device-pixel-ratio: 2) {
+		.calendar-responsive {
+		margin-top: 33px;
+	}
+
+}
+
+/* Portrait */
+@media screen 
+  and (device-width: 320px) 
+  and (device-height: 640px) 
+  and (-webkit-device-pixel-ratio: 2) 
+  and (orientation: portrait) {
+	.calendar-responsive {
+		margin-top: 33px;
+	}
+	.panel-centered-modal-floating {
+		position: fixed; top: 60px; left: 50%;height: 630px;
+	}
+
+}
+
+/* Landscape */
+@media screen 
+  and (device-width: 320px) 
+  and (device-height: 640px) 
+  and (-webkit-device-pixel-ratio: 2) 
+  and (orientation: landscape) {
+	.calendar-responsive {
+		margin-top: 45px;
+	}
+
+}
+
+/* ----------- Galaxy S4 ----------- */
+
+/* Portrait and Landscape */
+@media screen 
+  and (device-width: 320px) 
+  and (device-height: 640px) 
+  and (-webkit-device-pixel-ratio: 3) {
+		.calendar-responsive {
+		margin-top: 33px;
+	}
+
+}
+
+/* Portrait */
+@media screen 
+  and (device-width: 320px) 
+  and (device-height: 640px) 
+  and (-webkit-device-pixel-ratio: 3) 
+  and (orientation: portrait) {
+	.calendar-responsive {
+		margin-top: 33px;
+	}
+
+}
+
+/* Landscape */
+@media screen 
+  and (device-width: 320px) 
+  and (device-height: 640px) 
+  and (-webkit-device-pixel-ratio: 3) 
+  and (orientation: landscape) {
+	.calendar-responsive {
+		margin-top: 33px;
+	}
+
+}
+
+/* ----------- Galaxy S5 ----------- */
+
+
+
+/* Portrait */
+@media screen 
+  and (device-width: 360px) 
+  and (device-height: 640px) 
+  and (-webkit-device-pixel-ratio: 3) 
+  and (orientation: portrait) {
+		#map {
+			width: 350px;
+			height: 500px;
+			margin: 5px;
+		}
+		.map-panel {
+			width: 360px;
+			position: fixed; 
+			top: 70px; 
+			left: 50%; 
+			transform: translate(-50%, 0%);
+		}
+
+	.calendar-responsive {
+		margin-top: 33px;
+	}
+
+}
+
+/* Landscape */
+@media screen 
+  and (device-width: 360px) 
+  and (device-height: 640px) 
+  and (-webkit-device-pixel-ratio: 3) 
+  and (orientation: landscape) {
+		#map {
+			width: 520px;
+			height: 500px;
+			margin: 5px;
+		}
+		.map-panel {
+			width: 530px;
+			position: fixed; 
+			top: 70px; 
+			left: 50%; 
+			transform: translate(-50%, 0%);
+		}
+
+	.calendar-responsive {
+		margin-top: 45px;
+	}
+
+}
+
+
+
+/* ----------- HTC One ----------- */
+
+/* Portrait and Landscape */
+@media screen 
+  and (device-width: 360px) 
+  and (device-height: 640px) 
+  and (-webkit-device-pixel-ratio: 3) {
+	.calendar-responsive {
+		margin-top: 33px;
+	}
+		#map {
+		width: 350px;
+		height: 500px;
+		margin: 5px;
+	}
+	.map-panel {
+		width: 360px;
+		position: fixed; 
+		top: 70px; 
+		left: 50%; 
+		transform: translate(-50%, 0%);
+	}
+
+}
+
+
+/* Portrait */
+@media screen 
+  and (device-width: 360px) 
+  and (device-height: 640px) 
+  and (-webkit-device-pixel-ratio: 3) 
+  and (orientation: portrait) {
+	.calendar-responsive {
+		margin-top: 33px;
+	}
+
+}
+
+/* Landscape */
+@media screen 
+  and (device-width: 360px) 
+  and (device-height: 640px) 
+  and (-webkit-device-pixel-ratio: 3) 
+  and (orientation: landscape) {
+	.calendar-responsive {
+		margin-top: 45px;
+	}
+
+}
+@media (max-width: 768px) {
+  .dropdown-menu-large {
+	margin-left: 0 ;
+	margin-right: 0 ;
+  }
+  .dropdown-menu-large > li {
+	margin-bottom: 30px;
+  }
+  .dropdown-menu-large > li:last-child {
+	margin-bottom: 0;
+  }
+  .dropdown-menu-large .dropdown-header {
+	padding: 3px 15px !important;
+  }
+
+ 
+}
+
+
+.click-blocker {
+	animation:locking-pulse 2s infinite; 
+	-webkit-animation:locking-pulse 2s infinite;
+	position: absolute;
+	height: 100%;
+	width: 100%;
+	z-index: 30;
+	background-color: transparent;
+	-ms-opacity: 0.4;
+	opacity: 0.4;
+	-ms-align-content: center;
+	-webkit-align-content: center;
+	align-content: center;
+	vertical-align: middle;
+	text-align: center;
+	font-size: 2em;
+	 color: yellow;
+    text-shadow: -1px 0 black, 0 1px black, 1px 0 black, 0 -1px black;
+	display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+
+.panel-default {
+    margin: 0;
+}

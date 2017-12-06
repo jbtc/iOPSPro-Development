@@ -1,0 +1,19 @@
+﻿<div class="row ps-title-bar">
+    <div class="ps-logo-area col-sm-6">
+        <img class="ps-icon" src="images/iOPSProLogo.png" />
+        <div class="ps-title-area">
+            <p style="color: #111;margin-top: 6px;font-size: 26px;">All the Data, All the Time</p>
+        </div>
+
+        <div ng-if="vm.displaySetupService.menuParameters.isMenuButtonVisible" ng-click="vm.displaySetupService.menuParameters.menuButtonClicked()"
+             class="ps-collapsed-menu pull-right">
+            <button type="button" class="btn ps-nav-button">
+                <i class="fa fa-bars"></i>
+            </button>
+        </div>
+
+    </div>
+    <div class='btn-toolbar pull-right' style="display: inline-block;">
+        <button ng-click="vm.Logout()" class="btn btn-primary">Log Out</button>
+    </div>
+</div>

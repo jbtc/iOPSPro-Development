@@ -1,0 +1,69 @@
+﻿<div class="panel-body repeater-container" ng-show="vm.reports" style="overflow-x: hidden; overflow-y: auto; width: 100%; height: {{vm.widgetDimensions.height - 10}}px;">
+    <table class="table table-hover table-condensed">
+        <thead style="font-size: .8em;">
+            <tr>
+
+                <th style="cursor: pointer; width: {{vm.columnWidths.Name}}%;"
+                    nowrap
+                    ng-click="vm.SetSortField('Name')">
+                    <div>
+                        Report Name
+                        <span ng-show="vm.sortField=='-Name'">
+                            <i class="fa fa-sort-alpha-desc" title="Click to sort in ascending order"></i>
+                        </span>
+                        <span ng-show="vm.sortField=='Name'">
+                            <i class="fa fa-sort-alpha-asc" title="Click to sort in ascending order"></i>
+                        </span>
+                    </div>
+                </th>
+
+
+                <th style="cursor: pointer; width: {{vm.columnWidths.Description}}%;"
+                    nowrap
+                    ng-click="vm.SetSortField('Description')">
+                    <div>
+                        Description
+                        <span ng-show="vm.sortField=='-Description'">
+                            <i class="fa fa-sort-alpha-desc" title="Click to sort in ascending order"></i>
+                        </span>
+                        <span ng-show="vm.sortField=='Description'">
+                            <i class="fa fa-sort-alpha-asc" title="Click to sort in ascending order"></i>
+                        </span>
+                    </div>
+                </th>
+
+                <th style="cursor: pointer; width: {{vm.columnWidths.LastRunDate}}%;"
+                    nowrap
+                    ng-click="vm.SetSortField('LastRunDate')">
+                    <div>
+                        Last Run Date
+                        <span ng-show="vm.sortField=='-LastRunDate'">
+                            <i class="fa fa-sort-numeric-desc" title="Click to sort in ascending order"></i>
+                        </span>
+                        <span ng-show="vm.sortField=='LastRunDate'">
+                            <i class="fa fa-sort-numeric-asc" title="Click to sort in ascending order"></i>
+                        </span>
+                    </div>
+                </th>
+
+                <th style="cursor: pointer; width: 1%;" nowrap>
+                    <div>
+                        &nbsp;
+                    </div>
+                </th>
+
+            </tr>
+        </thead>
+        <tbody vs-repeat vs-scroll-parent=".repeater-container" vs-scrolled-to-end="vm.scrolledToEnd()" style="font-size: .8em; overflow-y: scroll; height: 300px;">
+            <tr ng-repeat="report in vm.reports | orderBy: vm.sortField" title="{{report.Name}}" class="no-select">
+                <td style="width: {{vm.columnWidths.Name}}%; font-weight: bold;">{{report.Name}}</td>
+                <td style="width: {{vm.columnWidths.Description}}%;">{{report.Description}}</td>
+                <td style="width: {{vm.columnWidths.LastRunDate}}%;">{{report.LastRunDate | date:'MM/dd HH:mm:ss'}}</td>
+                <td>
+                    <a class="btn btn-default" ng-click="vm.RunReport(report)" style="width: 25px; padding-left: 3px; padding-right: 3px; padding-top:0; padding-bottom: 0;"><i class="fa fa-newspaper-o" aria-hidden="true" title="Open report" style="color:green"></i></a>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+
+</div>

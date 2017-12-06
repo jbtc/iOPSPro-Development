@@ -1,0 +1,31 @@
+﻿
+        <div class="repeater-container" style="height: 500px; overflow: auto;">
+            <table>
+                <thead>
+                    <tr>
+                        <th>
+                            Id
+                        </th>
+                        <th>
+                            Name
+                        </th>
+                       
+                    </tr>
+                </thead>
+
+                <tbody vs-repeat vs-options="{latch: false}" vs-scroll-parent=".repeater-container" vs-scrolled-to-end="vm.scrolledToEnd()" style="cursor: pointer; -webkit-user-select: none; -moz-user-select: none; -ms-user-select: none;">
+                    <tr ng-repeat="asset in vm.assets">
+
+                        <td>
+                            {{asset.Id}}
+                        </td>
+                        <td>
+                            {{asset.Name}}
+                        </td>
+                       
+                    </tr>
+
+                </tbody>
+            </table>
+
+        </div>

@@ -1,0 +1,38 @@
+.viewport {
+  white-space: nowrap;
+  max-height: 300px;
+  border: 1px solid blue;
+}
+.viewport.real,.viewport.slice,.viewport.virtual{
+  max-height: 100px;
+}
+.viewport li{
+  background: #eee;
+}
+.viewport li:nth-child(even){
+  background: #ccc;
+}
+
+.real{
+  overflow: auto;
+}
+.real ul, .slice ul{
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+tr {
+  height: 25px;
+}
+td {
+  font: 12px monospace;
+  line-height: 1em !important;
+}
+td.time {
+  width: 7em;
+}
+.line-count {
+  display: inline-block;
+  width: 7em;
+}

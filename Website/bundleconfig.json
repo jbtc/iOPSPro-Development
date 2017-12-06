@@ -4,5 +4,11 @@
     "inputFiles": [
       "app/services/services.js"
     ]
+  },
+  {
+    "outputFileName": "Scripts/ODataAngularResources-master/build/odataresources.min.js",
+    "inputFiles": [
+      "Scripts/ODataAngularResources-master/build/odataresources.js"
+    ]
   }
 ]

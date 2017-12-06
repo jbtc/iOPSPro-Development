@@ -302,7 +302,7 @@
 											name: gt.Tag.Asset.Site.Name + ' ' + gt.Tag.Asset.System.Name + ' ' + gt.Tag.Asset.Name + ' ' + gt.Tag.JBTStandardObservationName,
 											data: gt.Observations.select(function (o) {
 												vm.pointCount++;
-												return [o.MillisecondsDate, gt.isDigital ? o.FloatValue + digitalStepValue : toFixed(o.FloatValue,1)];
+												return [o.MillisecondsDate, gt.isDigital ? (o.FloatValue || 0) + digitalStepValue : toFixed(o.FloatValue,1)];
 											})
 										};
 

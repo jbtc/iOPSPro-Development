@@ -21,6 +21,7 @@ namespace iOPS_ODataV4.Models
             this.WidgetGraphTags = new HashSet<WidgetGraphTag>();
             this.ObservationAggregatedHighChartValues = new HashSet<ObservationAggregatedHighChartValue>();
             this.GSAlarmHistories = new HashSet<GSAlarmHistory>();
+            this.ObservationExceptions = new HashSet<ObservationException>();
         }
     
         public long Id { get; set; }
@@ -88,5 +89,7 @@ namespace iOPS_ODataV4.Models
         public virtual Observation LastObservation { get; set; }
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<GSAlarmHistory> GSAlarmHistories { get; set; }
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
+        public virtual ICollection<ObservationException> ObservationExceptions { get; set; }
     }
 }

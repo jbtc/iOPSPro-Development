@@ -1,0 +1,135 @@
+﻿<div>
+    <div class="modal-backdrop"></div>
+    <div class="modal-holder" autoscroll="false">
+        <div style="width: 100%">
+            <div class="panel panel-primary panel-centered-modal-floating" style="width: 100%;">
+
+                <div class="panel-heading panel-heading-standard-height" id="{{vm.panelHeadingId}}">
+                    <div>
+
+                        <div class='btn-toolbar pull-right'>
+                            <div class='btn-group'>
+                                <button type="button" ng-if="!vm.readOnly" class="btn btn-danger btn-s" ng-click="vm.removeAllUploads()" ng-disabled="!uploader.queue.length && vm.fileImageLibraryData.length == 0">
+                                    <span class="glyphicon glyphicon-trash"></span> Remove all
+                                </button>
+                                <button ng-click="vm.SaveAndClose()" ng-if="!vm.hideCloseButton" class="btn btn-default responsive-button">Finished - Close</button>
+                            </div>
+                        </div>
+
+                    </div>
+                    <div class="panel-heading-title">
+                        {{vm.listTitle}}
+                    </div>
+                    <div class="panel-heading-subtitle">
+                        {{vm.panelSubtitle}}
+                    </div>
+                </div>
+
+                <script language="javascript">
+                    function textAreaAdjust(o) {
+                        o.style.height = "1px";
+                        o.style.height = (15 + o.scrollHeight) + "px";
+                    }
+                </script>
+
+                <div class="panel-body" nv-file-drop="" uploader="uploader" id="pasteTarget">
+                    <table class="table table-hover table-condensed" id="fileUploadTable">
+                        <thead>
+                            <tr>
+                                <th>Type/Thumbnail</th>
+                                <th>Date</th>
+                                <th>Uploaded By</th>
+                                <th>Description</th>
+                                <th ng-show="uploader.isHTML5">Size</th>
+                                <th width="150px">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr ng-repeat="previousFile in vm.fileImageLibraryData | orderBy: 'Ordinal'" imagekey="{{previousFile.ImageKey}}" ng-click="vm.ViewItemIfReadOnly(previousFile)">
+                                <td style="max-width: 100px; width: 100px; cursor: pointer;" ng-click="vm.viewItem(previousFile)">
+                                    <div ng-show="!previousFile.thumbnailUrl && !previousFile.iconFile">
+                                        <div>
+                                            <strong>{{previousFile.FileName}}</strong>
+                                        </div>
+                                    </div>
+                                    <div ng-show="previousFile.iconFile">
+                                        <img width="60px;" ng-src="{{previousFile.iconFile}}" title="{{previousFile.FileName}}"></img>
+                                    </div>
+
+                                    <div ng-show="previousFile.thumbnailUrl">
+                                        <img width="100px;" ng-src="{{previousFile.thumbnailUrl}}" title="{{previousFile.FileName}}"></img>
+                                    </div>
+
+                                </td>
+                                <td nowrap>{{::previousFile.CreationDate | date:'MM/dd/yyyy HH:mm'}}</td>
+                                <td nowrap style="padding-right: 10px;">
+                                    {{previousFile.CreatorPerson.FullName}}
+                                </td>
+                                <td ng-if="!vm.readOnly" style="width: 100%;">
+                                    <textarea class="surprise-textarea auto-expand"
+                                              ng-blur="vm.SaveAllModifiedDescriptions()"
+                                              ng-keydown="vm.markDescriptionModified(previousFile)"
+                                              onkeyup="textAreaAdjust(this)"
+                                              ng-model="previousFile.Description"></textarea>
+                                </td>
+                                <td ng-if="vm.readOnly">
+                                    {{previousFile.Description}}
+                                </td>
+                                <td style="width: 70px;" nowrap>{{ previousFile.Size/1024/1024|number:2 }} MB</td>
+                                <td width="150px" nowrap>
+                                    <button ng-if="!vm.readOnly" type="button" class="btn btn-danger btn-xs" tabindex="-1" ng-click="vm.removePreviousFile(previousFile)">
+                                        <span class="glyphicon glyphicon-trash"></span> Remove
+                                    </button>
+                                    <button type="button" class="btn btn-success btn-xs" tabindex="-1" ng-click="vm.viewItem(previousFile)">
+                                        <i class="fa fa-binoculars fa-md"></i> View
+                                    </button>
+                                </td>
+                            </tr>
+                            <tr ng-if="!vm.readOnly" ng-repeat="item in uploader.queue | orderBy: 'Ordinal'" imagekey="{{item.ImageKey}}">
+                                <td ng-click="vm.viewItem(item)" style="max-width: 100px; width: 100px; cursor: pointer;">
+                                    <div ng-show="!item._file.imageDisplayUrl && !item.thumbnailUrl && !item.iconFile">
+                                        <strong>{{ item.file.name }}</strong>
+                                    </div>
+                                    <div ng-show="item.iconFile">
+                                        <img width="60px;" ng-src="{{item.iconFile}}" title="{{item.FileName}}"></img>
+                                    </div>
+
+                                    <div ng-show="item._file.imageDisplayUrl">
+                                        <img width="100px;" ng-src="{{item._file.imageDisplayUrl}}" title="{{item.FileName}}"></img>
+                                    </div>
+                                    <div ng-show="item.thumbnailUrl">
+                                        <img width="100px;" ng-src="{{item.thumbnailUrl}}" title="{ title=" {{item.FileName}} "></img>
+                                    </div>
+                                </td>
+                                <td nowrap>{{::Date.now() | date:'MM/dd/yyyy HH:mm'}}</td>
+                                <td>
+                                    {{item.CreatorPerson.FullName}}
+                                </td>
+                                <td style="width: 100%">
+                                    <textarea class="surprise-textarea"
+                                              onkeyup="textAreaAdjust(this)"
+                                              ng-blur="vm.SaveAllModifiedDescriptions()" ng-keydown="vm.markDescriptionModified(item)" rows="3" ng-model="item.Description"></textarea>
+                                </td>
+                                <td ng-show="uploader.isHTML5" nowrap>{{ item.file.size/1024/1024|number:2 }} MB</td>
+                                <td ng-if="uploader.isHTML5 && !item.isSuccess">
+                                    <div class="progress" style="margin-bottom: 0;">
+                                        <div class="progress-bar" role="progressbar" ng-style="{ 'width': item.progress + '%' }"></div>
+                                    </div>
+                                </td>
+                                <td width="150px" ng-if="item.isSuccess && !vm.readOnly" nowrap>
+                                    <button type="button" class="btn btn-danger btn-xs" ng-click="vm.removeUploaderItem(item)" tabindex="-1" ng-show="item.isSuccess">
+                                        <span class="glyphicon glyphicon-trash"></span> Remove
+                                    </button>
+                                    <button type="button" class="btn btn-success btn-xs" ng-click="vm.viewItem(item)" tabindex="-1" ng-show="item.isSuccess">
+                                        <i class="fa fa-binoculars fa-md"></i> View
+                                    </button>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>

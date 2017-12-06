@@ -1,0 +1,116 @@
+﻿
+<div ng-show="vm.ShowLoginPanel" class="modal-holder" autoscroll="false">
+    <div class="panel panel-primary panel-centered-modal-floating" style="z-index: 1000; width: 370px; position: fixed; top: 225px; left: 50%; -ms-transform: translate(-50%, 0%); transform: translate(-50%, 0%);">
+
+        <div class="panel-heading">
+            <div class="row">
+                <div ng-show="!vm.PasswordChangeToken" class="col-xs-12 panel-heading-title">
+                    Please login with your JBT iOPS account...
+                </div>
+                <div ng-show="vm.PasswordChangeToken" class="col-xs-12 panel-heading-title">
+                    Please choose a new password for your JBT iOPS {{vm.username }} account. You must enter it twice before you will see a log in button...
+                </div>
+            </div>
+        </div>
+
+        <form id="login-form" role="form" style="display: block; margin: 20px;">
+            <div class="row">
+                <div ng-if="!vm.PasswordChangeToken">
+                    <div class="form-group">
+                        <label for="username"
+                               class="col-sm-4 control-label innovation-right-aligned">
+                            Username
+                        </label>
+                        <div class="col-sm-8">
+                            <input id="username"
+                                   name="username"
+                                   focus
+                                   type="text"
+                                   tabindex="1"
+                                   class="form-control"
+                                   placeholder="Username or Email Address"
+                                   ng-model="vm.username" />
+                        </div>
+                    </div>
+
+                    <div ng-if="!vm.PasswordChangeToken" class="form-group">
+                        <label for="password"
+                               class="col-sm-4 control-label innovation-right-aligned">
+                            Password
+                        </label>
+                        <div class="col-sm-8">
+                            <input id="password"
+                                   name="password"
+                                   type="password"
+                                   tabindex="2"
+                                   class="form-control"
+                                   placeholder="Username or Email Address"
+                                   ng-model="vm.password" />
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <div class="row">
+                            <div class="col-sm-6 col-sm-offset-3">
+                                <input ng-enter="vm.LoginWithUsernameAndPassword()" ng-click="vm.LoginWithUsernameAndPassword()"
+                                       type="submit" name="login-submit"
+                                       id="login-submit1" tabindex="3"
+                                       class="form-control btn btn-login"
+                                       style="margin-top: 30px;"
+                                       value="Log In">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div ng-if="vm.PasswordChangeToken">
+                    <div class="form-group">
+                        <label for="newPassword1"
+                               class="col-sm-4 control-label innovation-right-aligned">
+                            Password
+                        </label>
+                        <div class="col-sm-8">
+                            <input id="newPassword1"
+                                   name="newPassword1"
+                                   focus
+                                   tabindex="1"
+                                   type="password"
+                                   class="form-control"
+                                   placeholder="New Password"
+                                   ng-model="vm.passwordChoice1" />
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="newPassword1"
+                               class="col-sm-4 control-label innovation-right-aligned">
+                            Password
+                        </label>
+                        <div class="col-sm-8">
+                            <input id="newPassword2"
+                                   name="newPassword2"
+                                   type="password"
+                                   tabindex="2"
+                                   class="form-control"
+                                   placeholder="Confirm New Password"
+                                   ng-model="vm.passwordChoice2" />
+                        </div>
+                    </div>
+                    <div ng-show="vm.passwordChoice1 &&  vm.passwordChoice1 == vm.passwordChoice2" class="form-group">
+                        <div class="row">
+                            <div class="col-sm-8 col-sm-offset-2">
+                                <input ng-enter="vm.SetNewPassword()" ng-click="vm.SetNewPassword()"
+                                       type="submit" name="login-submit"
+                                       id="login-submit2" tabindex="3"
+                                       class="form-control btn btn-login"
+                                       style="margin-top: 30px;"
+                                       value="Set Password and LOG IN">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+
+            </div>
+        </form>
+
+    </div>
+</div>

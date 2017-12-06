@@ -1,0 +1,64 @@
+﻿<div>
+    <div class="modal-backdrop"></div>
+    <div class="modal-holder" autoscroll="false">
+        <div>
+            <div ng-show="vm.showScreen" class="panel panel-primary panel-centered-modal-floating" style="width: 80%;">
+
+
+                <div class="panel-heading">
+                    <div class='btn-toolbar pull-right' style="display: inline-block;">
+                        
+                        <button ng-click="vm.Close()" class="btn btn-default responsive-button">Close</button>
+                    </div>
+                    <div class="panel-heading-title">
+                        Select Widget to Add
+                    </div>
+                    <div class="panel-heading-subtitle">
+                        Click anywhere on the widget to add it to the current dashboard.
+                    </div>
+
+                </div>
+
+
+                <div class="panel-body">
+
+                    <form class="form-horizontal" role="form" name="dashboardForm" id="dashboardForm" novalidate>
+                        <table class="table table-hover table-responsive">
+                            <thead>
+                                <tr>
+                                    <th style="width: {{vm.columnWidths.categoryPath}}%">
+                                        Scope
+                                    </th>
+                                    <th style="width: {{vm.columnWidths.name}}%">
+                                        Name
+                                    </th>
+                                    <th style="width: {{vm.columnWidths.description}}%">
+                                        Description
+                                    </th>
+                                </tr>
+                            </thead>
+
+                            <tbody>
+                                <tr ng-repeat="widgetType in vm.widgetTypes" ng-click="vm.AddWidget(widgetType)" style="cursor: pointer;">
+
+                                    <td>
+                                        {{widgetType.CategoryPath}}
+                                    </td>
+                                    <td>
+                                        {{widgetType.Name}}
+                                    </td>
+                                    <td>
+                                        {{widgetType.Description}}
+                                    </td>
+                                </tr>
+
+                            </tbody>
+                        </table>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+

@@ -259,6 +259,8 @@
     <Compile Include="Controllers\OdataV4\BHSJamAlarmsController.cs" />
     <Compile Include="Controllers\OdataV4\JBTStandardObservationsController.cs" />
     <Compile Include="Controllers\OdataV4\ObservationAggregatedHighChartValuesController.cs" />
+    <Compile Include="Controllers\OdataV4\ObservationExceptionCommentsController.cs" />
+    <Compile Include="Controllers\OdataV4\ObservationExceptionsController.cs" />
     <Compile Include="Controllers\OdataV4\ObservationsController.cs" />
     <Compile Include="Controllers\OdataV4\PeopleController.cs" />
     <Compile Include="Controllers\OdataV4\ReportRunsController.cs" />
@@ -528,6 +530,9 @@
     <Compile Include="Models\GSJBTStandardObservationIdExclusionListFromCurrentAlarm.cs">
       <DependentUpon>Model1.tt</DependentUpon>
     </Compile>
+    <Compile Include="Models\GSTop5AlarmTypes3_Result.cs">
+      <DependentUpon>Model1.tt</DependentUpon>
+    </Compile>
     <Compile Include="Models\GSTop5AlarmTypes_Result.cs">
       <DependentUpon>Model1.tt</DependentUpon>
     </Compile>
@@ -556,6 +561,12 @@
       <DependentUpon>Model1.tt</DependentUpon>
     </Compile>
     <Compile Include="Models\ObservationAggregatedHighChartValue.cs">
+      <DependentUpon>Model1.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Models\ObservationException.cs">
+      <DependentUpon>Model1.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Models\ObservationExceptionComment.cs">
       <DependentUpon>Model1.tt</DependentUpon>
     </Compile>
     <Compile Include="Models\Person.cs">

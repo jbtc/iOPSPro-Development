@@ -1,0 +1,29 @@
+﻿<iframe id="systemIFrame{{vm.widget.Id}}" width="100%" height="100%" ng-src="{{vm.url}}"></iframe>
+
+<!--Settings Form Below-->
+<div class="panel panel-info" style="display: none; position: fixed; z-index: 30; left: 20px; top: 0; width: 90%; border: 3px solid darkcyan;" id="widget-settings-{{vm.widget.WidgetResource.Id}}">
+
+    <div class="panel-heading" style="min-height: 20px;">
+        URL Settings for {{vm.widget.Name}}
+    </div>
+    <div class="panel-body" style="overflow-x: hidden; background: linear-gradient(to bottom,#bebebe, #eeeeee);">
+        <form class="form-horizontal" role="form" name="userForm" id="userForm" novalidate>
+            <div class="row" style="padding: 20px;">
+
+
+                <!-- Name -->
+                <text-input-field model="vm.widget.WidgetResource.TargetURL"
+                                  label-text="Target URL"
+                                  id-text="widgetName"
+                                  focus
+                                  bootstrap-label-columns="{{vm.bootstrapLabelColumns}}"
+                                  bootstrap-input-columns="{{vm.bootstrapInputColumns}}">
+                </text-input-field>
+
+            </div>
+        </form>
+    </div>
+</div>
+
+
+

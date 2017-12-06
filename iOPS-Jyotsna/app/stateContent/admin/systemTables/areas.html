@@ -1,0 +1,71 @@
+﻿<div class="modal-blocking-backdrop"></div>
+<div class="modal-holder">
+    <div class="panel panel-primary static-panel">
+        <div class="panel-heading">
+            <div class='btn-toolbar pull-right' style="display: inline-block;">
+                <button ng-if="vm.previousScreenName" ui-sref="^" class="btn btn-default responsive-button">Back to {{vm.previousScreenName}}</button>
+                <button ui-sref=".airportEdit({ Id: null })" class="btn btn-default responsive-button">Add New Area</button>
+            </div>
+            <div ng-if="!vm.building" class="panel-heading-title">
+                All Areas
+            </div>
+            <div ng-if="vm.building" class="panel-heading-title">
+                Areas for {{vm.building.BuildingType.Name}} {{vm.building.Name}}
+            </div>
+            <div class="panel-heading-subtitle">
+                Areas or Zones
+            </div>
+
+        </div>
+        <div class="panel-body repeater-container" style="overflow: hidden; width: 100%">
+
+
+            <table class="table table-hover table-responsive table-striped">
+                <thead>
+                <tr>
+                    <th style="width: {{vm.columnWidths.company}}%">
+                        Company
+                    </th>
+                    <th style="width: {{vm.columnWidths.building}}%">
+                        Building
+                    </th>
+                    <th style="width: {{vm.columnWidths.name}}%">
+                        Area Name
+                    </th>
+                    <th style="width: 150px;">
+                        Actions
+                    </th>
+                </tr>
+                </thead>
+
+                <tbody vs-repeat vs-excess="10" vs-scroll-parent=".repeater-container" vs-scrolled-to-end="vm.scrolledToEnd()">
+                <tr ng-repeat="area in vm.areas track by $index">
+
+                    <td>
+                        {{area.Building.Company.Name}}
+                    </td>
+                    <td>
+                        {{area.Building.BuildingType.Name}} {{area.Building.Name}}
+                    </td>
+                    <td>
+                        {{area.AreaType.Name}} {{area.Name}}
+                    </td>
+                    <td width="{{vm.buttonPanelWidth}}px">
+                        <div class="btn-group" style="width: {{vm.buttonPanelWidth}}]px; -moz-min-width: {{vm.buttonPanelWidth}}px; -ms-min-width: {{vm.buttonPanelWidth}}px; -o-min-width: {{vm.buttonPanelWidth}}px; -webkit-min-width: {{vm.buttonPanelWidth}}px; min-width: {{vm.buttonPanelWidth}}px">
+                            <a title="Edit Area"
+                               class="btn btn-default responsive-button"
+                               style="height: 37px; padding-top: 7px; width: 115px; min-width: 115px;"
+                               ui-sref=".areaEdit({ Id: area.Id })">
+                                Edit
+                            </a>
+                        </div>
+                    </td>
+                </tr>
+
+                </tbody>
+            </table>
+
+        </div>
+        <div ui-view="editAreaPane"></div>
+    </div>
+</div>

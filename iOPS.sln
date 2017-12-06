@@ -75,6 +75,27 @@ Project("{E24C65DC-7377-472B-9ABA-BC803B73C61A}") = "Innovation", "..\Innovation
 		SlnRelativePath = "..\Innovation\"
 	EndProjectSection
 EndProject
+Project("{E24C65DC-7377-472B-9ABA-BC803B73C61A}") = "iOPS-Jyotsna", "iOPS-Jyotsna\", "{5473C567-49F8-4B11-9699-6EFF7295F6E8}"
+	ProjectSection(WebsiteProperties) = preProject
+		TargetFrameworkMoniker = ".NETFramework,Version%3Dv4.0"
+		Debug.AspNetCompiler.VirtualPath = "/localhost_52517"
+		Debug.AspNetCompiler.PhysicalPath = "iOPS-Jyotsna\"
+		Debug.AspNetCompiler.TargetPath = "PrecompiledWeb\localhost_52517\"
+		Debug.AspNetCompiler.Updateable = "true"
+		Debug.AspNetCompiler.ForceOverwrite = "true"
+		Debug.AspNetCompiler.FixedNames = "false"
+		Debug.AspNetCompiler.Debug = "True"
+		Release.AspNetCompiler.VirtualPath = "/localhost_52517"
+		Release.AspNetCompiler.PhysicalPath = "iOPS-Jyotsna\"
+		Release.AspNetCompiler.TargetPath = "PrecompiledWeb\localhost_52517\"
+		Release.AspNetCompiler.Updateable = "true"
+		Release.AspNetCompiler.ForceOverwrite = "true"
+		Release.AspNetCompiler.FixedNames = "false"
+		Release.AspNetCompiler.Debug = "False"
+		VWDPort = "52517"
+		SlnRelativePath = "iOPS-Jyotsna\"
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -225,6 +246,22 @@ Global
 		{3571525A-18A4-4CFE-A762-7295FDFE8966}.odatatest|Any CPU.Build.0 = Debug|Any CPU
 		{3571525A-18A4-4CFE-A762-7295FDFE8966}.Release|Any CPU.ActiveCfg = Debug|Any CPU
 		{3571525A-18A4-4CFE-A762-7295FDFE8966}.Release|Any CPU.Build.0 = Debug|Any CPU
+		{5473C567-49F8-4B11-9699-6EFF7295F6E8}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{5473C567-49F8-4B11-9699-6EFF7295F6E8}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{5473C567-49F8-4B11-9699-6EFF7295F6E8}.DebugLocal|Any CPU.ActiveCfg = Debug|Any CPU
+		{5473C567-49F8-4B11-9699-6EFF7295F6E8}.DebugLocal|Any CPU.Build.0 = Debug|Any CPU
+		{5473C567-49F8-4B11-9699-6EFF7295F6E8}.innovation|Any CPU.ActiveCfg = Debug|Any CPU
+		{5473C567-49F8-4B11-9699-6EFF7295F6E8}.innovation|Any CPU.Build.0 = Debug|Any CPU
+		{5473C567-49F8-4B11-9699-6EFF7295F6E8}.innovationtest|Any CPU.ActiveCfg = Debug|Any CPU
+		{5473C567-49F8-4B11-9699-6EFF7295F6E8}.innovationtest|Any CPU.Build.0 = Debug|Any CPU
+		{5473C567-49F8-4B11-9699-6EFF7295F6E8}.local|Any CPU.ActiveCfg = Debug|Any CPU
+		{5473C567-49F8-4B11-9699-6EFF7295F6E8}.local|Any CPU.Build.0 = Debug|Any CPU
+		{5473C567-49F8-4B11-9699-6EFF7295F6E8}.odataprod|Any CPU.ActiveCfg = Debug|Any CPU
+		{5473C567-49F8-4B11-9699-6EFF7295F6E8}.odataprod|Any CPU.Build.0 = Debug|Any CPU
+		{5473C567-49F8-4B11-9699-6EFF7295F6E8}.odatatest|Any CPU.ActiveCfg = Debug|Any CPU
+		{5473C567-49F8-4B11-9699-6EFF7295F6E8}.odatatest|Any CPU.Build.0 = Debug|Any CPU
+		{5473C567-49F8-4B11-9699-6EFF7295F6E8}.Release|Any CPU.ActiveCfg = Debug|Any CPU
+		{5473C567-49F8-4B11-9699-6EFF7295F6E8}.Release|Any CPU.Build.0 = Debug|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

@@ -1,15 +1,17 @@
 ﻿<div class="chart-wrapper" style="width:100%; height: 100%" ng-click="vm.OpenSettingsIfNoAssetAndCloseIfAssetIsPresent()">
     <div class="chart-inner" style="width:100%; height: 100%">
         <div ng-show="vm.showWidget" style="display: flex; width: 100%; height: 100%;">
-            <div class="container" id="containerData{{vm.widget.Id}}" style="font-size .8em; height 100%; width:{{vm.widget.WidgetResource.SplitLeftPercentage}}%; padding-left: 0; padding-right: 0;">
+            <div class="container" id="containerData{{vm.widget.Id}}" style="height 100%; width:{{vm.widget.WidgetResource.SplitLeftPercentage}}%; padding-left: 0; padding-right: 0;">
 
-                <ul class="nav nav-pills" id="nav-pills{{vm.widget.Id}}" style="font-size: .7em; padding-bottom: 5px; border-bottom: 1px solid lightgray;">
+                <ul class="nav nav-pills widget-tab-nav-button" id="nav-pills{{vm.widget.Id}}">
                     <li class="{{(!vm.widget.WidgetResource.DefaultNavPill || vm.widget.WidgetResource.DefaultNavPill == 'Temp') ? 'active' : 'xxx'}}"><a data-toggle="pill" ng-click="vm.SetDefaultNavPillTemp()" href="#temp{{vm.widget.Id}}">Temp</a></li>
                     <li class="{{vm.widget.WidgetResource.DefaultNavPill == 'Press' ? 'active' : 'xxx'}}"><a data-toggle="pill" ng-click="vm.SetDefaultNavPillPress()" href="#press{{vm.widget.Id}}">Press</a></li>
                     <li class="{{vm.widget.WidgetResource.DefaultNavPill == 'Data' ? 'active' : 'xxx'}}"><a data-toggle="pill" ng-click="vm.SetDefaultNavPillData()" href="#data{{vm.widget.Id}}">Data</a></li>
+                    <li class="{{vm.widget.WidgetResource.DefaultNavPill == 'Alarms' ? 'active' : 'xxx'}}"><a data-toggle="pill" ng-click="vm.SetDefaultNavPillAlarms()" href="#alarms{{vm.widget.Id}}">Alarms</a></li>
+                    <li class="{{vm.widget.WidgetResource.DefaultNavPill == 'Warnings' ? 'active' : 'xxx'}}"><a data-toggle="pill" ng-click="vm.SetDefaultNavPillWarnings()" href="#warnings{{vm.widget.Id}}">Warnings</a></li>
                 </ul>
 
-                <div class="tab-content" id="tab-content{{vm.widget.Id}}" style="font-family: Segoe UI; font-size: .8em; overflow-y: auto; height: 100px;">
+                <div class="tab-content" id="tab-content{{vm.widget.Id}}" style="overflow-y: auto; height: 100px;">
                     <div id="temp{{vm.widget.Id}}" class="tab-pane fade{{(!vm.widget.WidgetResource.DefaultNavPill || vm.widget.WidgetResource.DefaultNavPill == 'Temp') ? ' in active' : ''}}" style="height: 100%; padding-bottom: 5px; overflow: hidden;">
                         <div class="flex-container" id="temperature-flex-container{{vm.widget.Id}}">
                             <div id="temperature-meters{{vm.widget.Id}}" style="flex-basis: 100%; height: 100%; border: 3px solid white; overflow-x: hidden; overflow-y: auto;">
@@ -180,14 +182,13 @@
                         </div>
                     </div>
                     <div id="data{{vm.widget.Id}}" class="tab-pane fade{{vm.widget.WidgetResource.DefaultNavPill == 'Data' ? ' in active' : ''}}" style="overflow: auto;">
-
                         <div id="repeater-container-data{{vm.widget.Id}}" ng-show="vm.showTags" class="repeater-container" style="overflow-x: hidden; overflow-y: auto; width: 100%; height: {{vm.widgetDimensions.height - 10}}px;">
-                            <table class="table table-condensed table-striped" style="font-family: Segoe UI; font-size: .8em;">
+                            <table class="table table-condensed table-striped widget-tag-data-table">
                                 <thead>
                                     <tr>
-                                        <th style="cursor: pointer;"
-                                            nowrap
-                                            ng-click="vm.SetSortField('JBTStandardObservation.Name')">
+                                        <th nowrap
+                                            ng-click="vm.SetSortField('JBTStandardObservation.Name')"
+                                            style="width: 100%; cursor: pointer;">
                                             <div>
                                                 Name
                                                 <span ng-show="vm.widget.displaySettings.tagDataSortField=='-JBTStandardObservation.Name'">
@@ -198,8 +199,7 @@
                                                 </span>
                                             </div>
                                         </th>
-                                        <th style="cursor: pointer;"
-                                            nowrap
+                                        <th nowrap
                                             ng-click="vm.SetSortField('PLCLocalDate')">
                                             <div>
                                                 Date
@@ -217,10 +217,10 @@
 
                                     </tr>
                                 </thead>
-                                <tbody vs-repeat vs-scroll-parent=".repeater-container" vs-scrolled-to-end="vm.scrolledToEnd()" style="font-size: .75em; overflow-y: scroll; height: 100px;">>
+                                <tbody vs-repeat vs-autoresize vs-scroll-parent=".repeater-container" vs-scrolled-to-end="vm.scrolledToEnd()" style="overflow-y: scroll; height: 100px;">
                                     <tr ng-repeat="tag in vm.pca.Tags | orderBy: vm.widget.displaySettings.tagDataSortField" style="background-color: {{tag.Metadata.Status.LastValueWasHistorical ? 'rgba(173, 173, 173,' : 'rgba(0, 255, 0,'}} .{{tag.Metadata.UpdateCountDowns.OneSecond}});">
                                         <td>
-                                            <label ng-click="vm.ProcessTagsToGraph()" class="btn btn-default" style="height: 15px; max-height: 15px; font-size: .7em; width: 15px; max-width: 15px; padding: 0; padding-top: 2px; margin-top: -2px;" ng-model="vm.tagsToGraph[tag.TagId]" uib-btn-checkbox="{{tag.TagId}}">
+                                            <label ng-click="vm.ProcessTagsToGraph()" class="btn btn-default graph-select-icon" ng-model="vm.tagsToGraph[tag.TagId]" uib-btn-checkbox="{{tag.TagId}}">
                                                 <i class="fa fa-line-chart" aria-hidden="true" title="Add to graph widget" style="cursor: pointer;"></i>
                                             </label>
                                             <span title="{{tag.JBTStandardObservation.Id}}">{{tag.JBTStandardObservation.Name}}</span>
@@ -231,6 +231,144 @@
                                         <td>
                                             {{tag.Value}}
 
+                                        </td>
+                                    </tr>
+                                </tbody>
+
+                            </table>
+                        </div>
+                    </div>
+                    <div id="alarms{{vm.widget.Id}}" class="tab-pane fade{{(!vm.widget.WidgetResource.DefaultNavPill || vm.widget.WidgetResource.DefaultNavPill == 'Alarms') ? ' in active' : ''}}" style="overflow: auto;">
+                        <div id="repeater-container-alarms{{vm.widget.Id}}" ng-show="vm.showTags" class="repeater-container" style="overflow-x: hidden; overflow-y: auto; width: 100%; height: {{vm.widgetDimensions.height - 10}}px;">
+                            <table class="table table-condensed table-striped widget-tag-data-table">
+                                <thead>
+                                    <tr>
+                                        <th style="cursor: pointer;"
+                                            nowrap
+                                            ng-click="vm.SetAlarmSortField('PLCLocalDate')">
+                                            <div>
+                                                Date
+                                                <span ng-show="vm.alarmSortField=='-PLCLocalDate'">
+                                                    <i class="fa fa-sort-numeric-desc" title="Click to sort in ascending order"></i>
+                                                </span>
+                                                <span ng-show="vm.alarmSortField=='PLCLocalDate'">
+                                                    <i class="fa fa-sort-numeric-asc" title="Click to sort in ascending order"></i>
+                                                </span>
+                                            </div>
+                                        </th>
+
+                                        <th style="cursor: pointer;"
+                                            nowrap
+                                            ng-click="vm.SetAlarmSortField('Severity')">
+                                            <div>
+                                                Severity
+                                                <span ng-show="vm.alarmSortField=='-Severity'">
+                                                    <i class="fa fa-sort-alpha-desc" title="Click to sort in ascending order"></i>
+                                                </span>
+                                                <span ng-show="vm.alarmSortField=='Severity'">
+                                                    <i class="fa fa-sort-alpha-asc" title="Click to sort in ascending order"></i>
+                                                </span>
+                                            </div>
+                                        </th>
+
+
+                                        <th style="cursor: pointer;"
+                                            ng-click="vm.SetAlarmSortField('JBTStandardObservation.Name')">
+                                            <div>
+                                                Description
+                                                <span ng-show="vm.alarmSortField=='-JBTStandardObservation.Name'">
+                                                    <i class="fa fa-sort-numeric-desc" title="Click to sort in ascending order"></i>
+                                                </span>
+                                                <span ng-show="vm.alarmSortField=='JBTStandardObservation.Name'">
+                                                    <i class="fa fa-sort-numeric-asc" title="Click to sort in ascending order"></i>
+                                                </span>
+                                            </div>
+                                        </th>
+
+                                        <th ng-if="vm.canCloseAlarm" style="cursor: pointer; width: 1%;" nowrap>
+                                            <div>
+                                                &nbsp;
+                                            </div>
+                                        </th>
+
+                                    </tr>
+                                </thead>
+                                <tbody vs-repeat vs-autoresize vs-scroll-parent=".repeater-container" vs-scrolled-to-end="vm.scrolledToEnd()" style="overflow-y: scroll; height: 100px;">
+                                    <tr ng-repeat="alarm in vm.alarms | orderBy: vm.widget.displaySettings.alarmDataSortField" style="background-color: {{tag.Metadata.Status.LastValueWasHistorical ? 'rgba(173, 173, 173,' : 'rgba(0, 255, 0,'}} .{{tag.Metadata.UpdateCountDowns.OneSecond}});">
+                                        <td nowrap>{{alarm.PLCLocalDate | date:'MM/dd HH:mm:ss'}}</td>
+                                        <td nowrap><div ng-class="{ 'pulsing': alarm.Severity == 'Critical'}" style="width: 1%;">{{alarm.Severity}}</div></td>
+                                        <td nowrap>{{alarm.JBTStandardObservation.Name}}</td>
+                                        <td ng-if="vm.canCloseAlarm">
+                                            <a class="btn btn-default" ng-click="vm.closeAlarm(alarm)" style="width: 25px; padding-left: 3px; padding-right: 3px; padding-top:0; padding-bottom: 0;"><i class="fa fa-times" aria-hidden="true" title="Close alarm" style="color:red"></i></a>
+                                        </td>
+                                    </tr>
+                                </tbody>
+
+                            </table>
+                        </div>
+                    </div>
+                    <div id="warnings{{vm.widget.Id}}" class="tab-pane fade{{(!vm.widget.WidgetResource.DefaultNavPill || vm.widget.WidgetResource.DefaultNavPill == 'Warnings') ? ' in active' : ''}}" style="overflow: auto;">
+                        <div id="repeater-container-warnings{{vm.widget.Id}}" ng-show="vm.showTags" class="repeater-container" style="overflow-x: hidden; overflow-y: auto; width: 100%; height: {{vm.widgetDimensions.height - 10}}px;">
+                            <table class="table table-condensed table-striped widget-tag-data-table">
+                                <thead>
+                                    <tr>
+                                        <th style="cursor: pointer;"
+                                            nowrap
+                                            ng-click="vm.SetWarningSortField('PLCLocalDate')">
+                                            <div>
+                                                Date
+                                                <span ng-show="vm.warningSortField=='-PLCLocalDate'">
+                                                    <i class="fa fa-sort-numeric-desc" title="Click to sort in ascending order"></i>
+                                                </span>
+                                                <span ng-show="vm.warningSortField=='PLCLocalDate'">
+                                                    <i class="fa fa-sort-numeric-asc" title="Click to sort in ascending order"></i>
+                                                </span>
+                                            </div>
+                                        </th>
+
+                                        <th style="cursor: pointer;"
+                                            nowrap
+                                            ng-click="vm.SetWarningSortField('Severity')">
+                                            <div>
+                                                Severity
+                                                <span ng-show="vm.warningSortField=='-Severity'">
+                                                    <i class="fa fa-sort-alpha-desc" title="Click to sort in ascending order"></i>
+                                                </span>
+                                                <span ng-show="vm.warningSortField=='Severity'">
+                                                    <i class="fa fa-sort-alpha-asc" title="Click to sort in ascending order"></i>
+                                                </span>
+                                            </div>
+                                        </th>
+
+
+                                        <th style="cursor: pointer;"
+                                            ng-click="vm.SetWarningSortField('JBTStandardObservation.Name')">
+                                            <div>
+                                                Description
+                                                <span ng-show="vm.warningSortField=='-JBTStandardObservation.Name'">
+                                                    <i class="fa fa-sort-numeric-desc" title="Click to sort in ascending order"></i>
+                                                </span>
+                                                <span ng-show="vm.warningSortField=='JBTStandardObservation.Name'">
+                                                    <i class="fa fa-sort-numeric-asc" title="Click to sort in ascending order"></i>
+                                                </span>
+                                            </div>
+                                        </th>
+
+                                        <th ng-if="vm.canCloseAlarm" style="cursor: pointer; width: 1%;" nowrap>
+                                            <div>
+                                                &nbsp;
+                                            </div>
+                                        </th>
+
+                                    </tr>
+                                </thead>
+                                <tbody vs-repeat vs-autoresize vs-scroll-parent=".repeater-container" vs-scrolled-to-end="vm.scrolledToEnd()" style="overflow-y: scroll; height: 100px;">
+                                    <tr ng-repeat="warning in vm.warnings | orderBy: vm.widget.displaySettings.warningDataSortField" style="background-color: {{tag.Metadata.Status.LastValueWasHistorical ? 'rgba(173, 173, 173,' : 'rgba(0, 255, 0,'}} .{{tag.Metadata.UpdateCountDowns.OneSecond}});">
+                                        <td nowrap>{{warning.PLCLocalDate | date:'MM/dd HH:mm:ss'}}</td>
+                                        <td nowrap><div ng-class="{ 'pulsing': warning.Severity == 'Critical'}" style="width: 1%;">{{warning.Severity}}</div></td>
+                                        <td nowrap>{{warning.JBTStandardObservation.Name}}</td>
+                                        <td ng-if="vm.canCloseAlarm">
+                                            <a class="btn btn-default" ng-click="vm.closeAlarm(warning)" style="width: 25px; padding-left: 3px; padding-right: 3px; padding-top:0; padding-bottom: 0;"><i class="fa fa-times" aria-hidden="true" title="Close alarm" style="color:red"></i></a>
                                         </td>
                                     </tr>
                                 </tbody>

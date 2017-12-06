@@ -1,0 +1,23 @@
+﻿<div style="text-align: center; width: 100%;  background-color: rgb(248, 248, 255); padding-top: 5px; padding-left:20px; padding-right: 20px;">
+    <span style="font-size: .8em;">{{vm.label}}</span> <span style="font-size: smaller; color: gray;">({{vm.units}})</span> 
+    <div class="flex-container" style="padding: 10px; position: relative;">
+        <div ng-show="vm.lowRangeActive" style="flex-basis: {{vm.lowPercentageWidth}}%; height: 12px; border: none; overflow: hidden; background-color: {{vm.lowRangeActiveColor}};" title="{{vm.lowRangeTitle}}">
+        </div>
+        <div ng-show="!vm.lowRangeActive" style="flex-basis: {{vm.lowPercentageWidth}}%; height: 12px;" class="linear-meter-inactive-range" title="{{vm.lowRangeTitle}}">
+        </div>
+        <div style="flex-basis: 1px; height: 12px; overflow: hidden; background-color: gray;">
+        </div>
+        <div ng-show="vm.normalRangeActive" style="flex-basis: {{vm.midPercentageWidth}}%; height: 12px; border: none; overflow: hidden; background-color: {{vm.normalRangeActiveColor}};" title="{{vm.normalRangeTitle}}">
+        </div>
+        <div ng-show="!vm.normalRangeActive" style="flex-basis: {{vm.midPercentageWidth}}%; height: 12px;" class="linear-meter-inactive-range" title="{{vm.normalRangeTitle}}">
+        </div>
+        <div style="flex-basis: 1px; height: 12px; overflow: hidden; background-color: gray;">
+        </div>
+        <div ng-show="vm.highRangeActive" style="flex-basis: {{vm.highPercentageWidth}}%; height: 12px; border: none; overflow: hidden; background-color: {{vm.highRangeActiveColor}};" title="{{vm.highRangeTitle}}">
+        </div>
+        <div ng-show="!vm.highRangeActive" style="flex-basis: {{vm.highPercentageWidth}}%; height: 12px;" class="linear-meter-inactive-range" title="{{vm.highRangeTitle}}">
+        </div>
+        <div id="{{vm.id}}currentValue" style="position:absolute; left: {{vm.valuePercentagePosition}}%; top: 6px; background-color: darkgreen; padding: 4px 3px; color: white; border-radius: 5px; font-weight: bold; width: 40px;">{{vm.currentValueLabel}}</div>
+
+    </div>
+</div>

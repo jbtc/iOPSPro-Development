@@ -19,7 +19,9 @@
 
 					vm.widget.displaySettings = {
 						headingBackground: 'linear-gradient(to bottom,#dedede, #fefefe)',
-						tagDataSortField: '-LastObservationDate',
+						tagDataSortField: '-PLCLocalDate',
+						alarmDataSortField: '-PLCLocalDate',
+						warningsDataSortField: '-PLCLocalDate',
 						headingExtraTitle: '',
 						obscureGraphics: true
 					}
@@ -151,7 +153,6 @@
 							vm.widget.WidgetResource.DefaultNavPill = defaultValue;
 							SaveWidgetResourceObjectIfChanged();
 						}, 100);
-
 					}
 
 
@@ -208,7 +209,7 @@
 								});
 								$timeout(function () {
 									SetupSplitter();
-									SetTabBodyHeight();
+									SetTabBodyHeight(5);
 								}, 50);
 
 								//console.log("Asset Graphics = %O", vm.AssetGraphics);
@@ -224,6 +225,23 @@
 								vm.GenerateAmpsCharts();
 								vm.showWidget = true;
 
+								
+								vm.alarms = vm.gpu.Tags.where(function (dsTag) { return dsTag.AssetId == vm.widget.WidgetResource.AssetId && dsTag.IsAlarm});
+								vm.warnings = vm.gpu.Tags.where(function (dsTag) { return dsTag.AssetId == vm.widget.WidgetResource.AssetId && dsTag.IsWarning});
+
+								//dataService.GetIOPSResource("ObservationExceptions")
+								//	.filter("AssetId", vm.widget.WidgetResource.AssetId)
+								//	.filter("TerminatingObservationId", null)
+								//	.expand("Tag")
+								//	.query()
+								//	.$promise.then(function(exceptionData) {
+
+								//		vm.alarms = exceptionData.where(function (d) { return d.Tag.IsAlarm });
+								//		//console.log("vm.alarms = %O", vm.alarms);
+								//		vm.warnings = exceptionData.where(function(d) { return d.Tag.IsWarning });
+								//		//console.log("vm.warnings = %O", vm.warnings);
+
+								//	});
 
 							});
 						});
@@ -231,7 +249,7 @@
 
 
 
-					function SetTabBodyHeight() {
+					function SetTabBodyHeight(repeatCount) {
 						$interval(function () {
 
 							displaySetupService.SetWidgetPanelBodyDimensions(vm.widget.Id);
@@ -239,20 +257,22 @@
 							var tabDimensions = displaySetupService.GetDivDimensionsById("nav-pills" + vm.widget.Id);
 							var heightToSet = 0;
 							if (widgetDimensions) {
-
+								
 								if (vm.widget.WidgetResource.IsModalPopUp) {
 									heightToSet = widgetDimensions.height - tabDimensions.height - 20;
 								} else {
-									heightToSet = widgetDimensions.height - tabDimensions.height - 9;
+									heightToSet = widgetDimensions.height - tabDimensions.height-3;	
 								}
-
+							
 								//console.log("Height to set = " + heightToSet);
 								$("#tab-content" + vm.widget.Id).css('height', heightToSet);
 								$("#repeater-container-data" + vm.widget.Id).css('height', heightToSet);
+								$("#repeater-container-alarms" + vm.widget.Id).css('height', heightToSet);
+								$("#repeater-container-warnings" + vm.widget.Id).css('height', heightToSet);
 								vm.showTags = true;
 							}
 
-						}, 50, 40);
+						}, 50, repeatCount);
 					}
 
 
@@ -305,7 +325,7 @@
 												}
 											},
 											sizes: [vm.widget.WidgetResource.SplitLeftPercentage, vm.widget.WidgetResource.SplitRightPercentage],
-											minSize: 200,
+											minSize: 0,
 											onDragEnd: function () {
 
 												var sizes = vm.splitter.getSizes();
@@ -338,18 +358,24 @@
 
 						if (vm.widget.Id == resizedWidgetId || resizedWidgetId == 0) {
 							displaySetupService.SetPanelBodyWithIdHeight(vm.widget.Id);
-							SetTabBodyHeight();
+							SetTabBodyHeight(1);
 						}
 					});
 
 					$scope.$on("WidgetResize.Stop", function (event, resizedWidgetId) {
 						if (vm.widget.Id == resizedWidgetId || resizedWidgetId == 0) {
-							$interval(function () {
+							$timeout(function () {
 								displaySetupService.SetPanelBodyWithIdHeight(vm.widget.Id);
-								SetTabBodyHeight();
+								SetTabBodyHeight(1);
 
-							}, 50, 20);
+							}, 200);
 						}
+					});
+
+					$scope.$on("ResizeVirtualScrollContainers", function () {
+						console.log("ResizeVirtualScrollContainers received");
+						displaySetupService.SetPanelBodyWithIdHeight(vm.widget.Id);
+						SetTabBodyHeight(1);
 					});
 
 					$scope.$on("GraphWidgetAdded", function (event, graphWidget) {

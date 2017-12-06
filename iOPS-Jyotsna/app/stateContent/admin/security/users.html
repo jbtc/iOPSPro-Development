@@ -1,0 +1,152 @@
+﻿<div class="modal-blocking-backdrop"></div>
+<div class="modal-holder">
+    <div class="panel panel-primary static-panel">
+        <div class="panel-heading">
+            <div class='btn-toolbar pull-right' style="display: inline-block;">
+                <button ui-sref=".edit({ UserId: -1 })" class="btn btn-default responsive-button">Add New User</button>
+            </div>
+            <div class="panel-heading-title">
+                iOPS Users
+            </div>
+            <div class="panel-heading-subtitle">
+            </div>
+
+        </div>
+        <div class="panel-body repeater-container" style="overflow: hidden; width: 100%">
+
+
+            <table class="table table-hover table-responsive table-striped">
+                <thead>
+                    <tr>
+                        <th style="width: {{vm.columnWidths.name}}%">
+                            Name
+                        </th>
+                        <th style="width: {{vm.columnWidths.company}}%">
+                            Company
+                        </th>
+                        <th style="width: {{vm.columnWidths.username}}%">
+                            Username
+                        </th>
+                        <th style="width: {{vm.columnWidths.email}}%">
+                            Email
+                        </th>
+                        <th style="width: {{vm.columnWidths.privileges}}%">
+                            Privileges
+                        </th>
+                        <th style="width: {{vm.columnWidths.accountStatus}}%">
+                            Account Status
+                        </th>
+                        <th style="width: {{vm.columnWidths.loggedInStatus}}%">
+                            Logged In Status
+                        </th>
+
+                        <th style="width: {{vm.columnWidths.sites}}%">
+                            Site Access
+                        </th>
+                        <th style="width: 150px;">
+                            Actions
+                        </th>
+                    </tr>
+                </thead>
+
+                <tbody vs-repeatxxx vs-scroll-parent=".repeater-container" vs-scrolled-to-endxx="vm.scrolledToEnd()">
+                    <tr ng-repeat="user in vm.users track by user.Id">
+
+                        <td>
+                            {{user.Person.FamilyName}}, {{user.Person.GivenName}} {{user.Person.MiddleName}}
+                        </td>
+                        <td>
+                            {{user.Person.CompanyContacts.first().Company.Name}}
+                        </td>
+                        <td>
+                            {{user.Username}}
+                        </td>
+                        <td>
+                            {{user.Person.Email}}
+                        </td>
+                        <td>
+                            {{user.PrivilegesList}}
+                        </td>
+                        <td nowrap>
+                            <div ng-repeat="status in user.accountStatus">{{status}}</div>
+                        </td>
+                        <td nowrap>
+                            <div class="panel panel-success" ng-if="user.connectedClients.length > 0">
+                                <table class="table table-condensed">
+                                    <thead>
+                                        <tr>
+                                            <th class="shaded-gray">
+                                                Login Time
+                                            </th>
+                                            <th class="shaded-gray">
+                                                Actions
+                                            </th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr ng-repeat="login in user.connectedClients">
+                                            <td>
+                                                {{login.User.DateLoggedInFormatted | date:'MM/dd HH:mm:ss.ss'}}
+                                            </td>
+                                            <td width="{{vm.buttonPanelWidth}}px">
+                                                <div class="btn-group" style="width: {{vm.buttonPanelWidth}}]px; -moz-min-width: {{vm.buttonPanelWidth}}px; -ms-min-width: {{vm.buttonPanelWidth}}px; -o-min-width: {{vm.buttonPanelWidth}}px; -webkit-min-width: {{vm.buttonPanelWidth}}px; min-width: {{vm.buttonPanelWidth}}px">
+                                                    <a title="Send Message"
+                                                       class="btn btn-default responsive-button"
+                                                       style="height: 37px; padding-top: 7px; width: 125px; min-width: 125px;"
+                                                       ng-click="vm.messageToUser(login)">
+                                                        Send Message
+                                                    </a>
+                                                    <a title="Send a must acknowledge alert"
+                                                       class="btn btn-default responsive-button"
+                                                       style="height: 37px; padding-top: 7px; width: 180px; min-width: 180px;"
+                                                       ng-click="vm.ackAlert(login)">
+                                                        Send Forced Ack Alert
+                                                    </a>
+                                                </div>
+                                            </td>
+                                        </tr>
+
+                                    </tbody>
+
+
+                                </table>
+
+
+                            </div>
+                        </td>
+                        <td>
+                            {{user.SitesList}}
+                        </td>
+                        <td width="{{vm.buttonPanelWidth}}px">
+                            <div class="btn-group" style="width: {{vm.buttonPanelWidth}}]px; -moz-min-width: {{vm.buttonPanelWidth}}px; -ms-min-width: {{vm.buttonPanelWidth}}px; -o-min-width: {{vm.buttonPanelWidth}}px; -webkit-min-width: {{vm.buttonPanelWidth}}px; min-width: {{vm.buttonPanelWidth}}px">
+                                <a title="Edit User"
+                                   class="btn btn-default responsive-button"
+                                   style="height: 37px; padding-top: 7px; width: 115px; min-width: 115px;"
+                                   ui-sref=".edit({ UserId: user.Id })">
+                                    Edit
+                                </a>
+                                <a title="Password Reset"
+                                   class="btn btn-default responsive-button"
+                                   style="height: 37px; padding-top: 7px; width: 210px; min-width: 210px;"
+                                   ng-click="vm.sendPasswordResetEmail(user)">
+                                    Send Password Reset Email
+                                </a>
+                                <a title="Delete this user account"
+                                   class="btn btn-default responsive-button"
+                                   style="height: 37px; padding-top: 7px;"
+                                   ng-click="vm.deleteUser(user)">
+                                    <i class="fa fa-times" aria-hidden="true" title="Delete {{dashboard.Name}}" style="color:red"></i>
+                                </a>
+                            </div>
+                        </td>
+                    </tr>
+
+                </tbody>
+            </table>
+
+        </div>
+        <div ui-view="contentPane"></div>
+    </div>
+
+</div>
+

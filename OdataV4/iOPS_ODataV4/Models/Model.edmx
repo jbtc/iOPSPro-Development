@@ -450,6 +450,30 @@
           <Property Name="Day" Type="datetime" />
           <Property Name="TagValues" Type="varchar(max)" />
         </EntityType>
+        <EntityType Name="ObservationException">
+          <Key>
+            <PropertyRef Name="Id" />
+          </Key>
+          <Property Name="Id" Type="bigint" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="TagId" Type="bigint" />
+          <Property Name="InitiatingObservationId" Type="bigint" />
+          <Property Name="TerminatingObservationId" Type="bigint" />
+          <Property Name="DurationMS" Type="bigint" />
+          <Property Name="ExceptionStartDate" Type="datetime" />
+          <Property Name="ExceptionEndDate" Type="datetime" />
+          <Property Name="AssetId" Type="bigint" />
+        </EntityType>
+        <EntityType Name="ObservationExceptionComment">
+          <Key>
+            <PropertyRef Name="Id" />
+          </Key>
+          <Property Name="Id" Type="bigint" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="UserId" Type="bigint" />
+          <Property Name="ObservationExceptionId" Type="bigint" />
+          <Property Name="Date" Type="datetime" />
+          <Property Name="Importance" Type="int" />
+          <Property Name="Comment" Type="varchar" MaxLength="4096" />
+        </EntityType>
         <EntityType Name="Person">
           <Key>
             <PropertyRef Name="Id" />
@@ -1164,6 +1188,54 @@
             </Dependent>
           </ReferentialConstraint>
         </Association>
+        <Association Name="FK_ObservationException_InitiatingObservationId_Observation">
+          <End Role="Observation" Type="Self.Observation" Multiplicity="0..1" />
+          <End Role="ObservationException" Type="Self.ObservationException" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Observation">
+              <PropertyRef Name="Id" />
+            </Principal>
+            <Dependent Role="ObservationException">
+              <PropertyRef Name="InitiatingObservationId" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_ObservationException_Tag">
+          <End Role="Tag" Type="Self.Tag" Multiplicity="0..1" />
+          <End Role="ObservationException" Type="Self.ObservationException" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Tag">
+              <PropertyRef Name="Id" />
+            </Principal>
+            <Dependent Role="ObservationException">
+              <PropertyRef Name="TagId" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_ObservationException_TerminatingObservationId_Observation">
+          <End Role="Observation" Type="Self.Observation" Multiplicity="0..1" />
+          <End Role="ObservationException" Type="Self.ObservationException" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Observation">
+              <PropertyRef Name="Id" />
+            </Principal>
+            <Dependent Role="ObservationException">
+              <PropertyRef Name="TerminatingObservationId" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_ObservationExceptionComment_Observation">
+          <End Role="ObservationException" Type="Self.ObservationException" Multiplicity="0..1" />
+          <End Role="ObservationExceptionComment" Type="Self.ObservationExceptionComment" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="ObservationException">
+              <PropertyRef Name="Id" />
+            </Principal>
+            <Dependent Role="ObservationExceptionComment">
+              <PropertyRef Name="ObservationExceptionId" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
         <Association Name="FK_Person_Country">
           <End Role="Country" Type="Self.Country" Multiplicity="0..1" />
           <End Role="Person" Type="Self.Person" Multiplicity="*" />
@@ -1683,6 +1755,11 @@
           <Parameter Name="EndTime" Type="datetime" Mode="In" />
           <Parameter Name="SiteId" Type="bigint" Mode="In" />
         </Function>
+        <Function Name="GSTop5AlarmTypes3" Aggregate="false" BuiltIn="false" NiladicFunction="false" IsComposable="false" ParameterTypeSemantics="AllowImplicitConversion" Schema="GateSystem">
+          <Parameter Name="BeginTime" Type="datetime" Mode="In" />
+          <Parameter Name="EndTime" Type="datetime" Mode="In" />
+          <Parameter Name="SiteId" Type="bigint" Mode="In" />
+        </Function>
         <EntityContainer Name="iOPS_NormalizedModelStoreContainer">
           <EntitySet Name="AlarmHistory" EntityType="Self.AlarmHistory" Schema="BHS" store:Type="Tables" />
           <EntitySet Name="BagTagScan" EntityType="Self.BagTagScan" Schema="BHS" store:Type="Tables" />
@@ -1712,6 +1789,8 @@
           <EntitySet Name="JBTStandardObservation" EntityType="Self.JBTStandardObservation" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="Observation" EntityType="Self.Observation" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="ObservationAggregatedHighChartValue" EntityType="Self.ObservationAggregatedHighChartValue" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="ObservationException" EntityType="Self.ObservationException" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="ObservationExceptionComment" EntityType="Self.ObservationExceptionComment" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="Person" EntityType="Self.Person" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="Report" EntityType="Self.Report" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="ReportRun" EntityType="Self.ReportRun" Schema="dbo" store:Type="Tables" />
@@ -1856,6 +1935,22 @@
           <AssociationSet Name="FK_ObservationAggregatedHighChartValue_Tag" Association="Self.FK_ObservationAggregatedHighChartValue_Tag">
             <End Role="Tag" EntitySet="Tag" />
             <End Role="ObservationAggregatedHighChartValue" EntitySet="ObservationAggregatedHighChartValue" />
+          </AssociationSet>
+          <AssociationSet Name="FK_ObservationException_InitiatingObservationId_Observation" Association="Self.FK_ObservationException_InitiatingObservationId_Observation">
+            <End Role="Observation" EntitySet="Observation" />
+            <End Role="ObservationException" EntitySet="ObservationException" />
+          </AssociationSet>
+          <AssociationSet Name="FK_ObservationException_Tag" Association="Self.FK_ObservationException_Tag">
+            <End Role="Tag" EntitySet="Tag" />
+            <End Role="ObservationException" EntitySet="ObservationException" />
+          </AssociationSet>
+          <AssociationSet Name="FK_ObservationException_TerminatingObservationId_Observation" Association="Self.FK_ObservationException_TerminatingObservationId_Observation">
+            <End Role="Observation" EntitySet="Observation" />
+            <End Role="ObservationException" EntitySet="ObservationException" />
+          </AssociationSet>
+          <AssociationSet Name="FK_ObservationExceptionComment_Observation" Association="Self.FK_ObservationExceptionComment_Observation">
+            <End Role="ObservationException" EntitySet="ObservationException" />
+            <End Role="ObservationExceptionComment" EntitySet="ObservationExceptionComment" />
           </AssociationSet>
           <AssociationSet Name="FK_Person_Country" Association="Self.FK_Person_Country">
             <End Role="Country" EntitySet="Country" />
@@ -2457,6 +2552,29 @@
             <End Role="Tag" EntitySet="Tags" />
             <End Role="GSAlarmHistory" EntitySet="GSAlarmHistories" />
           </AssociationSet>
+          <EntitySet Name="ObservationExceptionComments" EntityType="iOPS_NormalizedModel.ObservationExceptionComment" />
+          <EntitySet Name="ObservationExceptions" EntityType="iOPS_NormalizedModel.ObservationException" />
+          <AssociationSet Name="FK_ObservationException_InitiatingObservationId_Observation" Association="iOPS_NormalizedModel.FK_ObservationException_InitiatingObservationId_Observation">
+            <End Role="Observation" EntitySet="Observations" />
+            <End Role="ObservationException" EntitySet="ObservationExceptions" />
+          </AssociationSet>
+          <AssociationSet Name="FK_ObservationException_TerminatingObservationId_Observation" Association="iOPS_NormalizedModel.FK_ObservationException_TerminatingObservationId_Observation">
+            <End Role="Observation" EntitySet="Observations" />
+            <End Role="ObservationException" EntitySet="ObservationExceptions" />
+          </AssociationSet>
+          <AssociationSet Name="FK_ObservationException_Tag" Association="iOPS_NormalizedModel.FK_ObservationException_Tag">
+            <End Role="Tag" EntitySet="Tags" />
+            <End Role="ObservationException" EntitySet="ObservationExceptions" />
+          </AssociationSet>
+          <AssociationSet Name="FK_ObservationExceptionComment_Observation" Association="iOPS_NormalizedModel.FK_ObservationExceptionComment_Observation">
+            <End Role="ObservationException" EntitySet="ObservationExceptions" />
+            <End Role="ObservationExceptionComment" EntitySet="ObservationExceptionComments" />
+          </AssociationSet>
+          <FunctionImport Name="GSTop5AlarmTypes3" ReturnType="Collection(iOPS_NormalizedModel.GSTop5AlarmTypes3_Result)">
+            <Parameter Name="BeginTime" Mode="In" Type="DateTime" />
+            <Parameter Name="EndTime" Mode="In" Type="DateTime" />
+            <Parameter Name="SiteId" Mode="In" Type="Int64" />
+          </FunctionImport>
           </EntityContainer>
         <EntityType Name="AuthorizableActivity">
           <Key>
@@ -2869,7 +2987,9 @@
           <NavigationProperty Name="Tag" Relationship="iOPS_NormalizedModel.FK_Observation_Tag" FromRole="Observation" ToRole="Tag" />
           <Property Name="DateIsUTC" Type="Int32" />
           <Property Name="Quality" Type="Int32" />
-        </EntityType>
+          <NavigationProperty Name="ObservationExceptions" Relationship="iOPS_NormalizedModel.FK_ObservationException_InitiatingObservationId_Observation" FromRole="Observation" ToRole="ObservationException" />
+          <NavigationProperty Name="ObservationExceptions1" Relationship="iOPS_NormalizedModel.FK_ObservationException_TerminatingObservationId_Observation" FromRole="Observation" ToRole="ObservationException" />
+          </EntityType>
         <EntityType Name="Tag">
           <Key>
             <PropertyRef Name="Id" />
@@ -2934,6 +3054,7 @@
           <Property Name="PreviousObservationCreationDate" Type="DateTime" Precision="3" />
           <Property Name="PreviousReportedDate" Type="DateTime" Precision="3" />
           <NavigationProperty Name="GSAlarmHistories" Relationship="iOPS_NormalizedModel.FK_GSAlarmHistory_Tag" FromRole="Tag" ToRole="GSAlarmHistory" />
+          <NavigationProperty Name="ObservationExceptions" Relationship="iOPS_NormalizedModel.FK_ObservationException_Tag" FromRole="Tag" ToRole="ObservationException" />
         </EntityType>
         <Association Name="FK_Observation_Tag">
           <End Type="iOPS_NormalizedModel.Tag" Role="Tag" Multiplicity="0..1" />
@@ -4512,6 +4633,94 @@
             </Dependent>
           </ReferentialConstraint>
         </Association>
+        <EntityType Name="ObservationExceptionComment">
+          <Key>
+            <PropertyRef Name="Id" />
+          </Key>
+          <Property Name="Id" Type="Int64" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="UserId" Type="Int64" />
+          <Property Name="ObservationExceptionId" Type="Int64" />
+          <Property Name="Date" Type="DateTime" Precision="3" />
+          <Property Name="Importance" Type="Int32" />
+          <Property Name="Comment" Type="String" MaxLength="4096" FixedLength="false" Unicode="false" />
+          <NavigationProperty Name="ObservationException" Relationship="iOPS_NormalizedModel.FK_ObservationExceptionComment_Observation" FromRole="ObservationExceptionComment" ToRole="ObservationException" />
+        </EntityType>
+        <EntityType Name="ObservationException">
+          <Key>
+            <PropertyRef Name="Id" />
+          </Key>
+          <Property Name="Id" Type="Int64" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="TagId" Type="Int64" />
+          <Property Name="InitiatingObservationId" Type="Int64" />
+          <Property Name="TerminatingObservationId" Type="Int64" />
+          <Property Name="DurationMS" Type="Int64" />
+          <Property Name="ExceptionStartDate" Type="DateTime" Precision="3" />
+          <Property Name="ExceptionEndDate" Type="DateTime" Precision="3" />
+          <Property Name="AssetId" Type="Int64" />
+          <NavigationProperty Name="InitiatingObservation" Relationship="iOPS_NormalizedModel.FK_ObservationException_InitiatingObservationId_Observation" FromRole="ObservationException" ToRole="Observation" />
+          <NavigationProperty Name="TerminatingObservation" Relationship="iOPS_NormalizedModel.FK_ObservationException_TerminatingObservationId_Observation" FromRole="ObservationException" ToRole="Observation" />
+          <NavigationProperty Name="Tag" Relationship="iOPS_NormalizedModel.FK_ObservationException_Tag" FromRole="ObservationException" ToRole="Tag" />
+          <NavigationProperty Name="ObservationExceptionComments" Relationship="iOPS_NormalizedModel.FK_ObservationExceptionComment_Observation" FromRole="ObservationException" ToRole="ObservationExceptionComment" />
+        </EntityType>
+        <Association Name="FK_ObservationException_InitiatingObservationId_Observation">
+          <End Type="iOPS_NormalizedModel.Observation" Role="Observation" Multiplicity="0..1" />
+          <End Type="iOPS_NormalizedModel.ObservationException" Role="ObservationException" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Observation">
+              <PropertyRef Name="Id" />
+            </Principal>
+            <Dependent Role="ObservationException">
+              <PropertyRef Name="InitiatingObservationId" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_ObservationException_TerminatingObservationId_Observation">
+          <End Type="iOPS_NormalizedModel.Observation" Role="Observation" Multiplicity="0..1" />
+          <End Type="iOPS_NormalizedModel.ObservationException" Role="ObservationException" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Observation">
+              <PropertyRef Name="Id" />
+            </Principal>
+            <Dependent Role="ObservationException">
+              <PropertyRef Name="TerminatingObservationId" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_ObservationException_Tag">
+          <End Type="iOPS_NormalizedModel.Tag" Role="Tag" Multiplicity="0..1" />
+          <End Type="iOPS_NormalizedModel.ObservationException" Role="ObservationException" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Tag">
+              <PropertyRef Name="Id" />
+            </Principal>
+            <Dependent Role="ObservationException">
+              <PropertyRef Name="TagId" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_ObservationExceptionComment_Observation">
+          <End Type="iOPS_NormalizedModel.ObservationException" Role="ObservationException" Multiplicity="0..1" />
+          <End Type="iOPS_NormalizedModel.ObservationExceptionComment" Role="ObservationExceptionComment" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="ObservationException">
+              <PropertyRef Name="Id" />
+            </Principal>
+            <Dependent Role="ObservationExceptionComment">
+              <PropertyRef Name="ObservationExceptionId" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <ComplexType Name="GSTop5AlarmTypes3_Result">
+          <Property Type="String" Name="AlarmType" Nullable="true" MaxLength="100" />
+          <Property Type="Int32" Name="AlarmCount" Nullable="true" />
+          <Property Type="Int32" Name="ActiveCount" Nullable="true" />
+          <Property Type="DateTime" Name="MinActiveDateTime" Nullable="true" Precision="23" />
+          <Property Type="DateTime" Name="MaxActiveDateTime" Nullable="true" Precision="23" />
+          <Property Type="Int32" Name="MaxDurationSec" Nullable="true" />
+          <Property Type="Int32" Name="MinDurationSec" Nullable="true" />
+          <Property Type="Int32" Name="AverageDuration" Nullable="true" />
+          <Property Type="Int64" Name="JBTStandardObservationIdList" Nullable="true" />
+        </ComplexType>
         </Schema>
     </edmx:ConceptualModels>
     <!-- C-S mapping content -->
@@ -5723,6 +5932,47 @@
               </MappingFragment>
             </EntityTypeMapping>
           </EntitySetMapping>
+          <EntitySetMapping Name="ObservationExceptionComments">
+            <EntityTypeMapping TypeName="iOPS_NormalizedModel.ObservationExceptionComment">
+              <MappingFragment StoreEntitySet="ObservationExceptionComment">
+                <ScalarProperty Name="Comment" ColumnName="Comment" />
+                <ScalarProperty Name="Importance" ColumnName="Importance" />
+                <ScalarProperty Name="Date" ColumnName="Date" />
+                <ScalarProperty Name="ObservationExceptionId" ColumnName="ObservationExceptionId" />
+                <ScalarProperty Name="UserId" ColumnName="UserId" />
+                <ScalarProperty Name="Id" ColumnName="Id" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="ObservationExceptions">
+            <EntityTypeMapping TypeName="iOPS_NormalizedModel.ObservationException">
+              <MappingFragment StoreEntitySet="ObservationException">
+                <ScalarProperty Name="AssetId" ColumnName="AssetId" />
+                <ScalarProperty Name="ExceptionEndDate" ColumnName="ExceptionEndDate" />
+                <ScalarProperty Name="ExceptionStartDate" ColumnName="ExceptionStartDate" />
+                <ScalarProperty Name="DurationMS" ColumnName="DurationMS" />
+                <ScalarProperty Name="TerminatingObservationId" ColumnName="TerminatingObservationId" />
+                <ScalarProperty Name="InitiatingObservationId" ColumnName="InitiatingObservationId" />
+                <ScalarProperty Name="TagId" ColumnName="TagId" />
+                <ScalarProperty Name="Id" ColumnName="Id" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <FunctionImportMapping FunctionImportName="GSTop5AlarmTypes3" FunctionName="iOPS_NormalizedModel.Store.GSTop5AlarmTypes3">
+            <ResultMapping>
+              <ComplexTypeMapping TypeName="iOPS_NormalizedModel.GSTop5AlarmTypes3_Result">
+                <ScalarProperty Name="AlarmType" ColumnName="AlarmType" />
+                <ScalarProperty Name="AlarmCount" ColumnName="AlarmCount" />
+                <ScalarProperty Name="ActiveCount" ColumnName="ActiveCount" />
+                <ScalarProperty Name="MinActiveDateTime" ColumnName="MinActiveDateTime" />
+                <ScalarProperty Name="MaxActiveDateTime" ColumnName="MaxActiveDateTime" />
+                <ScalarProperty Name="MaxDurationSec" ColumnName="MaxDurationSec" />
+                <ScalarProperty Name="MinDurationSec" ColumnName="MinDurationSec" />
+                <ScalarProperty Name="AverageDuration" ColumnName="AverageDuration" />
+                <ScalarProperty Name="JBTStandardObservationIdList" ColumnName="JBTStandardObservationIdList" />
+              </ComplexTypeMapping>
+            </ResultMapping>
+          </FunctionImportMapping>
         </EntityContainerMapping>
       </Mapping>
     </edmx:Mappings>

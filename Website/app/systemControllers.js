@@ -21,6 +21,12 @@
 
 		vm.widget = $stateParams.widget;
 
+		$scope.$on("$destroy",
+                function () {
+                	console.log("Destroyed settings controller");
+					$rootScope.$broadcast("ResizeVirtualScrollContainers", null);
+                });
+
 		console.log("Settings controller widget = %O", vm.widget);
 
 		//determine the type of settings screen
@@ -30,6 +36,7 @@
 			case 'reports':
 			case 'siteActiveAlarms':
 			case 'siteActiveWarnings':
+		    case 'gsTopFiveAlarmTypes':
 
 				vm.selectSite = true;
 				vm.selectTerminal = vm.selectZone = vm.selectGate = vm.selectAsset = vm.selectBHS = false;
@@ -3862,6 +3869,11 @@
 		vm.state = $state;
 
 
+		$scope.$on("$destroy",
+        function () {
+            console.log("Destroyed settings controller");
+			$rootScope.$broadcast("ResizeVirtualScrollContainers", null);
+        });
 
 
 		//Column proportions for the view
@@ -4042,11 +4054,20 @@
 		//Makes the uib buttons a nice shade of blue.
 		uibButtonConfig.activeClass = 'radio-active';
 
+		$timeout(function() {
+			$rootScope.$broadcast("ResizeVirtualScrollContainers", null);
+		}, 1000);
+
+
 
 		if ($stateParams.DashboardId < 0) {
 			$stateParams.DashboardId = 0;
 		}
 
+		$scope.$on("$destroy",
+        function () {
+			$rootScope.$broadcast("ResizeVirtualScrollContainers", null);
+        });
 
 
 		function GetData() {

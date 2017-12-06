@@ -1,0 +1,18 @@
+﻿
+<div class="form-group">
+	<label for="{{idText}}"
+		   class="col-sm-{{labelBootstrapColumns}} control-label">
+		{{labelText}}
+	</label>
+	<div class="col-sm-{{dropdownBootstrapColumns}}" style="z-index: 10;">
+		<select selectpicker
+				id="{{idText}}"
+				class="form-control selectpicker"
+				data-width="{{displayWidth}}px"
+				data-live-search="{{liveSearch}}"
+				data-size="8"
+				data-header="{{instructions}}"
+				title="{{instructions}}"
+				ng-options="d as d for d in model"></select>
+	</div>
+</div>

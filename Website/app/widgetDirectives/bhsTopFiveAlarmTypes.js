@@ -85,6 +85,22 @@
 
 					}
 
+
+
+						dataService.GetIOPSWebAPIResource("Top5ObservationExceptions")
+							.query({
+								beginDate: vm.dashboard.webApiParameterStartDate,
+								endDate: vm.dashboard.webApiParameterEndDate,
+								siteId: 2
+							}, function (data) {
+								console.log("Top5ObservationExceptions initial data = %O", data);
+
+								
+
+							});
+
+
+
 					GetChartData();
 
 					//Refresh data on the 15 second system clock tick

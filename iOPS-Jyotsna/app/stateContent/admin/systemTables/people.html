@@ -1,0 +1,91 @@
+﻿<div>
+	<div class="panel panel-primary static-panel">
+		<div class="panel-heading">
+		    <div class='btn-toolbar pull-right' style="display: inline-block;">
+		        <button ui-sref=".edit({ PersonId: -1 })" class="btn btn-default responsive-button">Add New Person</button>
+		    </div>
+			<div class="panel-heading-title">
+				iOPS Persons
+			</div>
+			<div class="panel-heading-subtitle">
+				{{vm.people.length}} Total Count
+			</div>
+
+		</div>
+		<div class="panel-body repeater-container" style="overflow: hidden; width: 100%">
+
+
+			<table class="table table-hover table-responsive table-striped">
+				<thead>
+					<tr>
+						<th style="width: {{vm.columnWidths.name}}%">
+							Name
+						</th>
+						<th style="width: {{vm.columnWidths.shortName}}%">
+							Email
+						</th>
+						<th style="width: {{vm.columnWidths.shortName}}%">
+							Phone
+						</th>
+						<th style="width: {{vm.columnWidths.description}}%">
+							Title
+						</th>
+						<th style="width: {{vm.columnWidths.address}}%">
+							Company
+						</th>
+						<th style="width: {{vm.columnWidths.sitesList}}%">
+							Associated Sites
+						</th>
+						<th style="width: 150px;">
+							Actions
+						</th>
+					</tr>
+				</thead>
+
+				<tbody vs-repeat vs-excess="10" vs-scroll-parent=".repeater-container" vs-scrolled-to-end="vm.scrolledToEnd()">
+					<tr ng-repeat="person in vm.people | orderBy: 'FamilyName'">
+
+					    <td>
+							{{person.FamilyName}}, {{person.GivenName}} {{person.MiddleName}}
+						</td>
+					    <td>
+							{{person.Email}}
+						</td>
+					    <td>
+							{{person.Phone}}
+						</td>
+					    <td>
+							{{person.Title}}
+						</td>
+					    <td>
+							{{person.Company.Name}}
+						</td>
+					    <td>
+							{{person.siteList}}
+						</td>
+						<td width="{{vm.buttonPanelWidth}}px">
+							<div class="btn-group" style="width: {{vm.buttonPanelWidth}}]px; -moz-min-width: {{vm.buttonPanelWidth}}px; -ms-min-width: {{vm.buttonPanelWidth}}px; -o-min-width: {{vm.buttonPanelWidth}}px; -webkit-min-width: {{vm.buttonPanelWidth}}px; min-width: {{vm.buttonPanelWidth}}px">
+								<a title="Edit Person"
+								   class="btn btn-default responsive-button"
+								   style="height: 37px; padding-top: 7px; width: 115px; min-width: 115px;"
+								   ui-sref=".edit({ PersonId: person.Id })">
+									Edit
+								</a>
+								<a title="Delete Person"
+								   class="btn btn-default responsive-button"
+								   style="height: 37px; padding-top: 7px; width: 115px; min-width: 115px;"
+								   ng-click="vm.delete(person)">
+									Delete
+								</a>
+							</div>
+						</td>
+					</tr>
+
+				</tbody>
+			</table>
+
+		</div>
+		<div ui-view="contentPane"></div>
+	</div>
+</div>
+

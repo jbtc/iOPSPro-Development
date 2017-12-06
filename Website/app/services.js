@@ -1871,10 +1871,10 @@
 				var panelElement = widgetPanelBody[0].parentElement;
 				//Find the panel heading so we can determine its height
 				var panelHeadingElement = $(panelElement).find(".panel-heading")[0];
-				var panelHeadingHeight = panelHeadingElement.offsetHeight;
+				//console.log("Panel Heading Element Height = ", panelHeadingElement.offsetHeight);
 				var panelWidth = panelElement.offsetWidth;
 				var widgetContentHeight = panelElement.offsetHeight - panelHeadingElement.offsetHeight;
-				widgetPanelBody.css('height', widgetContentHeight + 28);
+				widgetPanelBody.css('height', widgetContentHeight-2);
 				$("." + widgetId + "-repeater-container").each(function (index, element) {
 					$(element).css('height', +widgetContentHeight - 33);
 					$(element).css('width', +panelWidth - 17);
@@ -2059,7 +2059,11 @@
 			}
 		}
 
-		$(window).bind('resize', SetPanelBodyHeight);
+		$(window).bind('resize',
+			function() {
+				SetPanelBodyHeight();
+				$rootScope.$broadcast("ResizeVirtualScrollContainers", null);
+			});
 
 
 		service.SetPanelBodyWithIdHeight = function (id) {

@@ -1,0 +1,92 @@
+﻿
+
+
+<script type="text/ng-template" id="menuTree">
+
+    <!--Single Item Menu - Not a folder-->
+    <a ng-if="(!menu.children || menu.children.length == 0) && !menu.hideMenuChoice" title="{{menu.description}}" ng-click="vm.ActivateState(menu)">{{menu.label}}</a>
+
+
+    <!--Populated folder of children menu items-->
+    <a ng-if="menu.children && menu.children.length > 0 && !menu.hideMenuChoice" hef="#" data-toggle="collapse" data-target="#drilldown-{{menu.id}}" style="color: black; font-weight: bold;" ng-click="vm.ActivateState(menu)">{{menu.label}} ...</a>
+
+
+    <ul ng-if="!menu.showChildren" ng-show="menu.children && menu.children.length > 0  && !menu.hideMenuChoice" id="drilldown-{{menu.id}}" class="nav nav-pills nav-stacked collapse" style="margin-left: 10px;">
+        <li ng-repeat="menu in menu.children" ng-include="'menuTree'" style="cursor: pointer; -webkit-user-select: none; -moz-user-select: none; -ms-user-select: none;" ">
+        </li>
+    </ul>
+    <ul ng-if="menu.showChildren" ng-show="menu.children && menu.children.length > 0  && !menu.hideMenuChoice" id="drilldown-{{menu.id}}" class="nav nav-pills nav-stacked collapse in" style="margin-left: 10px;">
+        <li ng-repeat="menu in menu.children" ng-include="'menuTree'" style="cursor: pointer; -webkit-user-select: none; -moz-user-select: none; -ms-user-select: none;" ">
+        </li>
+    </ul>
+ 
+</script>
+ 
+<div id="wrapper">
+ 
+    <!-- Sidebar -->
+    <div id="sidebar-wrapper">
+        <ul class="sidebar-nav">
+            
+            <li>
+                <div class="panel panel-default" style="background-color: white; margin-bottom: 0; margin-left: 5px; margin-top: 5px;">
+                    <div class="panel-heading" style="background-color: #dedede; background: linear-gradient(to bottom, #cecece, #fefefe); height: 46px;">
+                        <div class='btn-toolbar pull-right' style="display: inline-block;">
+                            <button ui-sref="home.app.editDashboard({ DashboardId: -1 })" class="btn btn-default responsive-button" style="margin-bottom: 10px; height: 30px;">New</button>
+                        </div>
+                        My Dashboards
+                    </div>
+                    <div class="panel-body" style="padding: 5px; overflow: hidden; width:100%">
+                        <div ng-show="vm.noDashboardsMessage">{{vm.noDashboardsMessage}}</div>
+                        <table class="table table-condensed table-hover" style="margin-bottom: 0;" id="dashboardsTable">
+                            <tbody>
+                                <tr ng-repeat="dashboard in vm.dashboards" itemid="{{dashboard.Id}}">
+                                    <td width="99%" style="border-top: none; cursor: pointer;" ui-sref=".dashboard({DashboardId: dashboard.Id})">
+                                        <span title="{{dashboard.Description}}">{{dashboard.Name}}</span>
+                                    </td>
+                                    <td nowrap style="border-top: none; cursor: pointer; text-align: right; width:100%">
+                                        <i ng-click="vm.deleteDashboard(dashboard)" class="fa fa-times" aria-hidden="true" title="Delete {{dashboard.Name}}" style="color:red"></i>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                <ul id="siteMenuBody" class="nav nav-pills nav-stacked" style="overflow-y: auto; height: 100%; overflow-x: hidden; background-color: white; padding-top: 15px;">
+
+                    <li ng-repeat="menu in vm.menu" ng-include="'menuTree'" style="cursor: pointer; -webkit-user-select: none; -moz-user-select: none; -ms-user-select: none;"></li>
+                </ul>
+            </li>
+        </ul>
+    </div>
+    <!-- /#sidebar-wrapper -->
+    <!-- Page Content -->
+    <input type="image" src="images/ellipsis40x32.png" border="0" padding="0" height="32px" width="40px" id="menu-toggle" />
+    <!--<a href="#menu-toggle" class="btn btn-default" id="menu-toggle">Toggle Menu</a>-->
+    <div id="page-content-wrapper">
+        <div class="container-fluid">
+            <div class="row">
+                <div class="col-lg-12">
+                    <div ui-view="contentPane" class="col-md-11 clearfix" style="overflow: hidden; margin-left: 10px; margin-top: 5px; margin-right: 10px; padding-left: 0; padding-right: 0; width:100%"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- /#page-content-wrapper -->
+ 
+</div>
+<!-- /#wrapper -->
+<!-- Menu Toggle Script -->
+<script>
+    $("#menu-toggle").click(function (e)
+    {
+        e.preventDefault();
+        $("#wrapper").toggleClass("toggled");
+    });
+</script>
+ 
+
+
+
+
+

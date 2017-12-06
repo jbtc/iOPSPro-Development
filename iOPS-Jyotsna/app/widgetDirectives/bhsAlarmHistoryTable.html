@@ -1,0 +1,137 @@
+﻿<div class="panel-body repeater-container" ng-show="vm.alarms" style="overflow-x: hidden; overflow-y: auto; width: 100%; height: {{vm.widgetDimensions.height - 10}}px;">
+    <table class="table table-hover table-condensed">
+        <thead style="font-size: .8em;">
+            <tr>
+
+                <th style="cursor: pointer; width: {{vm.columnWidths.ActiveDateTime}}%;"
+                    nowrap
+                    ng-click="vm.SetSortField('ActiveDateTime')">
+                    <div>
+                        Date
+                        <span ng-show="vm.sortField=='-ActiveDateTime'">
+                            <i class="fa fa-sort-numeric-desc" title="Click to sort in ascending order"></i>
+                        </span>
+                        <span ng-show="vm.sortField=='ActiveDateTime'">
+                            <i class="fa fa-sort-numeric-asc" title="Click to sort in ascending order"></i>
+                        </span>
+                    </div>
+                </th>
+
+                <th style="cursor: pointer; width: {{vm.columnWidths.BHSName}}%;"
+                    nowrap
+                    ng-click="vm.SetSortField('BHSName')">
+                    <div>
+                        System
+                        <span ng-show="vm.sortField=='-BHSName'">
+                            <i class="fa fa-sort-alpha-desc" title="Click to sort in ascending order"></i>
+                        </span>
+                        <span ng-show="vm.sortField=='BHSName'">
+                            <i class="fa fa-sort-alpha-asc" title="Click to sort in ascending order"></i>
+                        </span>
+                    </div>
+                </th>
+
+                <th style="cursor: pointer; width: {{vm.columnWidths.Location}}%;"
+                    nowrap
+                    ng-click="vm.SetSortField('Location')">
+                    <div>
+                        Location
+                        <span ng-show="vm.sortField=='-Location'">
+                            <i class="fa fa-sort-alpha-desc" title="Click to sort in ascending order"></i>
+                        </span>
+                        <span ng-show="vm.sortField=='Location'">
+                            <i class="fa fa-sort-alpha-asc" title="Click to sort in ascending order"></i>
+                        </span>
+                    </div>
+                </th>
+
+                <th style="cursor: pointer; width: {{vm.columnWidths.Alarm}}%;"
+                    nowrap
+                    ng-click="vm.SetSortField('Alarm')">
+                    <div>
+                        Alarm
+                        <span ng-show="vm.sortField=='-Alarm'">
+                            <i class="fa fa-sort-alpha-desc" title="Click to sort in ascending order"></i>
+                        </span>
+                        <span ng-show="vm.sortField=='Alarm'">
+                            <i class="fa fa-sort-alpha-asc" title="Click to sort in ascending order"></i>
+                        </span>
+                    </div>
+                </th>
+
+                <th style="cursor: pointer; width: {{vm.columnWidths.AcknowledgeDateTime}}%;"
+                    nowrap
+                    ng-click="vm.SetSortField('AcknowledgeDateTime')">
+                    <div>
+                        Ack Time
+                        <span ng-show="vm.sortField=='-AcknowledgeDateTime'">
+                            <i class="fa fa-sort-numeric-desc" title="Click to sort in ascending order"></i>
+                        </span>
+                        <span ng-show="vm.sortField=='AcknowledgeDateTime'">
+                            <i class="fa fa-sort-numeric-asc" title="Click to sort in ascending order"></i>
+                        </span>
+                    </div>
+                </th>
+
+                <th style="cursor: pointer; width: {{vm.columnWidths.InactiveDateTime}}%;"
+                    nowrap
+                    ng-click="vm.SetSortField('InactiveDateTime')">
+                    <div>
+                        Inactive
+                        <span ng-show="vm.sortField=='-InactiveDateTime'">
+                            <i class="fa fa-sort-numeric-desc" title="Click to sort in ascending order"></i>
+                        </span>
+                        <span ng-show="vm.sortField=='InactiveDateTime'">
+                            <i class="fa fa-sort-numeric-asc" title="Click to sort in ascending order"></i>
+                        </span>
+                    </div>
+                </th>
+
+                <th style="cursor: pointer; width: {{vm.columnWidths.DurationActiveToAcknowledgeSeconds}}%;"
+                    nowrap
+                    ng-click="vm.SetSortField('DurationActiveToAcknowledgeSeconds')">
+                    <div>
+                        Ack Duration
+                        <span ng-show="vm.sortField=='-DurationActiveToAcknowledgeSeconds'">
+                            <i class="fa fa-sort-numeric-desc" title="Click to sort in ascending order"></i>
+                        </span>
+                        <span ng-show="vm.sortField=='DurationActiveToAcknowledgeSeconds'">
+                            <i class="fa fa-sort-numeric-asc" title="Click to sort in ascending order"></i>
+                        </span>
+                    </div>
+                </th>
+
+
+                <th style="cursor: pointer; width: {{vm.columnWidths.DurationActiveToInactiveSeconds}}%;"
+                    nowrap
+                    ng-click="vm.SetSortField('DurationActiveToInactiveSeconds')">
+                    <div>
+                        Total Duration
+                        <span ng-show="vm.sortField=='-DurationActiveToInactiveSeconds'">
+                            <i class="fa fa-sort-numeric-desc" title="Click to sort in ascending order"></i>
+                        </span>
+                        <span ng-show="vm.sortField=='DurationActiveToInactiveSeconds'">
+                            <i class="fa fa-sort-numeric-asc" title="Click to sort in ascending order"></i>
+                        </span>
+                    </div>
+                </th>
+
+
+
+            </tr>
+        </thead>
+        <tbody vs-repeat="27" vs-scroll-parent=".repeater-container" vs-scrolled-to-end="vm.scrolledToEnd()" style="font-size: .75em; overflow-y: scroll; height: 300px;">
+            <tr ng-repeat="alarm in vm.alarms | orderBy: vm.sortField" title="{{::alarm.BHSName}}"  class="no-select">
+                <td style="width: {{vm.columnWidths.ActiveDateTime}}%;">{{::alarm.ActiveDateTime | date:'MM/dd HH:mm:ss'}}</td>
+                <td style="width: {{vm.columnWidths.BHSName}}%;">{{::alarm.BHSName}}</td>
+                <td style="width: {{vm.columnWidths.Location}}%;">{{::alarm.Location}}</td>
+                <td style="width: {{vm.columnWidths.Alarm}}%;">{{::alarm.Alarm}}</td>
+                <td style="width: {{vm.columnWidths.AcknowledgeDateTime}}%;">{{::alarm.AcknowledgeDateTime | date:'MM/dd HH:mm:ss'}}</td>
+                <td style="width: {{vm.columnWidths.InactiveDateTime}}%;">{{::alarm.InactiveDateTime | date:'MM/dd HH:mm:ss'}}</td>
+                <td style="width: {{vm.columnWidths.DurationActiveToAcknowledgeSeconds}}%;">{{::alarm.DurationActiveToAcknowledge}}</td>
+                <td  style="width: {{vm.columnWidths.DurationActiveToInactiveSeconds}}%;">{{::alarm.DurationActiveToInactive}}</td>
+            </tr>
+        </tbody>
+    </table>
+
+</div>

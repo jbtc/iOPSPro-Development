@@ -1,0 +1,85 @@
+﻿<div>
+	<div class="panel panel-primary static-panel">
+		<div class="panel-heading">
+			<div class='btn-toolbar pull-right' style="display: inline-block;">
+				<button ui-sref=".assetEdit({ Id: null })" class="btn btn-default responsive-button">Add New Asset</button>
+			</div>
+			<div class="panel-heading-title">
+				Real-Time Changing Assets
+			</div>
+			<div class="panel-heading-subtitle">
+				Changes Happen in Real-Time with the database update
+			</div>
+
+		</div>
+		<div class="panel-body repeater-container" style="overflow: hidden; width: 100%">
+
+
+			<table class="table table-hover table-responsive table-striped">
+				<thead>
+					<tr>
+						<th style="width: {{vm.columnWidths.company}}%">
+							Site
+						</th>
+						<th style="width: {{vm.columnWidths.gate}}%">
+							Gate
+						</th>
+						<th style="width: {{vm.columnWidths.name}}%">
+							Equipment
+						</th>
+						<th style="width: {{vm.columnWidths.dataChange}}%">
+							Last Change
+						</th>
+						<th style="width: {{vm.columnWidths.dataChangeCount}}%">
+							Change Count
+						</th>
+						<th style="width: 150px;">
+							Actions
+						</th>
+					</tr>
+				</thead>
+
+				<tbody vs-repeat vs-excess="10" vs-scroll-parent=".repeater-container" vs-scrolled-to-end="vm.scrolledToEnd()">
+					<tr ng-repeat="asset in vm.assets track by asset.data.Id">
+
+					    <td>
+							{{asset.data.Company.Name}}
+						</td>
+					    <td>
+							{{asset.data.Gate.Name}}
+						</td>
+					    <td>
+							{{asset.data.Name}}
+						</td>
+					    <td>
+							{{asset.lastChange}}
+						</td>
+					    <td>
+							{{asset.changeCounter}}
+						</td>
+						<td width="{{vm.buttonPanelWidth}}px">
+							<div class="btn-group" style="width: {{vm.buttonPanelWidth}}]px; -moz-min-width: {{vm.buttonPanelWidth}}px; -ms-min-width: {{vm.buttonPanelWidth}}px; -o-min-width: {{vm.buttonPanelWidth}}px; -webkit-min-width: {{vm.buttonPanelWidth}}px; min-width: {{vm.buttonPanelWidth}}px">
+								<a title="Edit Asset"
+								   class="btn btn-default responsive-button"
+								   style="height: 37px; padding-top: 7px; width: 115px; min-width: 115px;"
+								   ui-sref=".assetEdit({ Id: asset.Id })">
+									Edit
+								</a>
+								<a title="Delete Asset"
+								   class="btn btn-default responsive-button"
+								   style="height: 37px; padding-top: 7px; width: 115px; min-width: 115px;"
+								   ng-click="vm.deleteAsset(asset)">
+									Delete
+								</a>
+							</div>
+						</td>
+					</tr>
+
+				</tbody>
+			</table>
+
+		</div>
+		<div ui-view="editAssetPane"></div>
+	</div>
+</div>
+

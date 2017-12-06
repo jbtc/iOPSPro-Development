@@ -1,0 +1,22 @@
+﻿<div class="col-sm-{{vm.bootstrapInputColumns}}">
+	<div ng-show="vm.showSelector">
+		<input type="text"
+			   id="contactPerson"
+			   name="contactPerson"
+			   ng-blur="vm.switchToSelectedPerson()"
+			   ng-model="vm.model"
+			   placeholder="Type First Last, Last First, Username, Employee Id"
+			   uib-typeahead="person as vm.personnelService.FormatPersonDisplay(person) for person in vm.searchPeople($viewValue)"
+			   typeahead-on-select="vm.SelectPerson($item, $model, $label, $event)"
+			   typeahead-wait-ms="150"
+			   typeahead-editable="false"
+			   typeahead-select-on-exact="true"
+			   class="form-control responsive-input">
+
+	</div>
+	<div ng-show="!vm.showPersonSelector"
+		 ng-click="vm.switchToSelectingPerson()"
+		 style="border: 1px solid lightgray; width: 100%; min-height: 34px; cursor: pointer; padding: 7px; -ms-border-radius: 5px; border-radius: 5px; margin-bottom: 10px;">
+		{{vm.formattedPersonInformation}}
+	</div>
+</div>

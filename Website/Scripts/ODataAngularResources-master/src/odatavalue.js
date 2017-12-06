@@ -2,24 +2,20 @@ angular.module('ODataResources').
 factory('$odataValue', [
 
     function() {
-        var illegalChars = {
-            '%': '%25',
-            '+': '%2B',
-            '/': '%2F',
-            '?': '%3F',
-            '#': '%23',
-            '&': '%26'
-        };
         var escapeIllegalChars = function(string) {
-            for (var key in illegalChars) {
-                string = string.replace(key, illegalChars[key]);
-            }
-            string = string.replace("'", "''");
+            string = string.replace(/%/g, "%25");
+            string = string.replace(/\+/g, "%2B");
+            string = string.replace(/\//g, "%2F");
+            string = string.replace(/\?/g, "%3F");
+            string = string.replace(/#/g, "%23");
+            string = string.replace(/&/g, "%26");
+            string = string.replace(/'/g, "''");
             return string;
         };
-        var ODataValue = function(input, type) {
+        var ODataValue = function(input, type, isCustomType) {
             this.value = input;
             this.type = type;
+			this.isCustomType = isCustomType;
         };
 
         var generateDate = function(date,isOdataV4){
@@ -108,7 +104,9 @@ factory('$odataValue', [
 	        		return this.value;
 	        	}else if(this.type.toLowerCase() === "int32"){
 	        		return parseInt(this.value)+"";
-	        	}else {
+	        	}else if(this.isCustomType){
+					return this.type + "'" + this.value + "'";
+				}else{
 	        		throw "Cannot convert "+this.value+" into "+this.type;
 	        	}
         	}else if(!isNaN(this.value)){
