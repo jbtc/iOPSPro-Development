@@ -4,7 +4,7 @@ angular.module('ODataResources').
   factory('$odataOperators', [function() {
 
       var rtrim = /^[\s\uFEFF\xA0]+|[\s\uFEFF\xA0]+$/g;
-      trim = function(value) {
+      var trim = function(value) {
         return value.replace(rtrim, '');
       };
         
@@ -53,24 +53,20 @@ angular.module('ODataResources').
 factory('$odataValue', [
 
     function() {
-        var illegalChars = {
-            '%': '%25',
-            '+': '%2B',
-            '/': '%2F',
-            '?': '%3F',
-            '#': '%23',
-            '&': '%26'
-        };
         var escapeIllegalChars = function(string) {
-            for (var key in illegalChars) {
-                string = string.replace(key, illegalChars[key]);
-            }
-            string = string.replace("'", "''");
+            string = string.replace(/%/g, "%25");
+            string = string.replace(/\+/g, "%2B");
+            string = string.replace(/\//g, "%2F");
+            string = string.replace(/\?/g, "%3F");
+            string = string.replace(/#/g, "%23");
+            string = string.replace(/&/g, "%26");
+            string = string.replace(/'/g, "''");
             return string;
         };
-        var ODataValue = function(input, type) {
+        var ODataValue = function(input, type, isCustomType) {
             this.value = input;
             this.type = type;
+			this.isCustomType = isCustomType;
         };
 
         var generateDate = function(date,isOdataV4){
@@ -159,7 +155,9 @@ factory('$odataValue', [
 	        		return this.value;
 	        	}else if(this.type.toLowerCase() === "int32"){
 	        		return parseInt(this.value)+"";
-	        	}else {
+	        	}else if(this.isCustomType){
+					return this.type + "'" + this.value + "'";
+				}else{
 	        		throw "Cannot convert "+this.value+" into "+this.type;
 	        	}
         	}else if(!isNaN(this.value)){
@@ -297,6 +295,110 @@ factory('$odataBinaryOperation', ['$odataOperators','$odataProperty','$odataValu
 }
 
 ]);;angular.module('ODataResources').
+factory('$odataExpandPredicate', ['$odataPredicate', '$odataBinaryOperation', '$odataOrderByStatement', function (ODataPredicate, ODataBinaryOperation, ODataOrderByStatement) {
+
+    var ODataExpandPredicate = function (tableName, context) {
+        if (tableName === undefined) {
+            throw "ExpandPredicate should be passed a table name but got undefined.";
+        }
+
+        if (context === undefined) {
+            throw "ExpandPredicate should be passed a context but got undefined.";
+        }
+
+        this.name = tableName;
+        this.expandables = []; // To maintain recursion compatibility with base OdataResourceProvider
+        this.options = {
+            select: [],
+            filter: [],
+            orderby: [],
+            expand: this.expandables,
+        };
+        this.context = context;
+		this.isv4 = context.isv4; // NEW  LINE !!!
+
+    };
+
+    ODataExpandPredicate.prototype.filter = function(operand1, operand2, operand3) {
+        if (operand1 === undefined) throw "The first parameter is undefined. Did you forget to invoke the method as a constructor by adding the 'new' keyword?";
+
+        var predicate;
+
+        if (angular.isFunction(operand1.execute) && operand2 === undefined) {
+            predicate = operand1;
+        } else {
+            predicate = new ODataBinaryOperation(operand1, operand2, operand3);
+        }
+
+        this.options.filter.push(predicate);
+
+        return this;
+    };
+
+    ODataExpandPredicate.prototype.select = function (propertyName) {
+        if (propertyName === undefined) {
+            throw "ExpandPredicate.select should be passed a property name but got undefined.";
+        }
+
+        if (!angular.isArray(propertyName))
+            propertyName = propertyName.split(',');
+
+        function checkArray(i, value) {
+            return value === propertyName[i];
+        }
+
+        for (var i = 0; i < propertyName.length; i++) {
+            if (!this.options.select.some(checkArray.bind(this, i)))
+                this.options.select.push(propertyName[i]);
+        }
+        return this;
+    };
+
+    ODataExpandPredicate.prototype.orderBy = function (arg1, arg2) {
+        this.options.orderby.push((new ODataOrderByStatement(arg1, arg2)).execute());
+        return this;
+    };
+
+    ODataExpandPredicate.prototype.expand = function (tableName) {
+        if (tableName === undefined) {
+            throw "ExpandPredicate.expand should be passed a table name but got undefined.";
+        }
+        return new ODataExpandPredicate(tableName, this).finish();
+    };
+
+    ODataExpandPredicate.prototype.expandPredicate = function (tableName) {
+        if (tableName === undefined) {
+            throw "ExpandPredicate.expandPredicate should be passed a table name but got undefined.";
+        }
+        return new ODataExpandPredicate(tableName, this);
+    };
+
+    ODataExpandPredicate.prototype.build = function () {
+        var query = this.name;
+        var sub = [];
+        for (var option in this.options) {
+            if (this.options[option].length) {
+                if (option === 'filter') {
+                    sub.push("$filter=" + ODataPredicate.and(this.options.filter).execute(this.isv4, true));
+                } else {
+                    sub.push("$" + option + "=" + this.options[option].join(','));
+                }
+            }
+        }
+        if (sub.length) {
+            query += "(" + sub.join(';') + ")";
+        }
+        return query;
+    };
+
+    ODataExpandPredicate.prototype.finish = function () {
+        var query = this.build();
+        this.context.expandables.push(query);
+        return this.context;
+    };
+
+    return ODataExpandPredicate;
+}]);;angular.module('ODataResources').
 factory('$odataMethodCall', ['$odataProperty', '$odataValue',
     function(ODataProperty, ODataValue) {
 
@@ -327,14 +429,36 @@ factory('$odataMethodCall', ['$odataProperty', '$odataValue',
         };
 
         ODataMethodCall.prototype.execute = function() {
-            var invocation = this.methodName + "(";
-            for (var i = 0; i < this.params.length; i++) {
-                if (i > 0)
-                    invocation += ",";
+            var lambdaOperators = ["any", "all"];
+            var invocation = "";
 
-                invocation += this.params[i].execute();
+            if(lambdaOperators.indexOf(this.methodName) > -1) {
+                for (var i = 0; i < this.params.length; i++) {
+                    if (i === 0) {
+                        invocation += this.params[i].execute();
+                        invocation += "/";
+                        invocation += this.methodName;
+                    } else if(i === 1) {
+                        invocation += "(";
+                        invocation += this.params[i].value;
+                        invocation += ":";
+                    } else {
+                        invocation += this.params[i].execute();
+                        invocation += ")";
+                    }
+                }
+            } else {
+                invocation += this.methodName + "(";
+
+                for (var j = 0; j < this.params.length; j++) {
+                    if (j > 0)
+                        invocation += ",";
+
+                    invocation += this.params[j].execute();
+                }
+                invocation += ")";
             }
-            invocation += ")";
+
             return invocation;
         };
 
@@ -410,10 +534,10 @@ factory('$odataPredicate', ['$odataBinaryOperation',function(ODataBinaryOperatio
 
 }]);
 ;angular.module('ODataResources').
-factory('$odataProvider', ['$odataOperators', '$odataBinaryOperation', '$odataPredicate', '$odataOrderByStatement',
-    function($odataOperators, ODataBinaryOperation, ODataPredicate, ODataOrderByStatement) {
-        var ODataProvider = function(callback, isv4) {
-            this.callback = callback;
+factory('$odataProvider', ['$odataOperators', '$odataBinaryOperation', '$odataPredicate', '$odataOrderByStatement', '$odataExpandPredicate',
+    function($odataOperators, ODataBinaryOperation, ODataPredicate, ODataOrderByStatement, ODataExpandPredicate) {
+        var ODataProvider = function(callback, isv4, reusables) {
+            this.$$callback = callback;
             this.filters = [];
             this.sortOrders = [];
             this.takeAmount = undefined;
@@ -422,6 +546,10 @@ factory('$odataProvider', ['$odataOperators', '$odataBinaryOperation', '$odataPr
             this.isv4 = isv4;
             this.hasInlineCount = false;
             this.selectables = [];
+            this.transformUrls=[];
+            this.formatBy = undefined;
+            if (reusables)
+                this.$$reusables = reusables;
         };
         ODataProvider.prototype.filter = function(operand1, operand2, operand3) {
             if (operand1 === undefined) throw "The first parameted is undefined. Did you forget to invoke the method as a constructor by adding the 'new' keyword?";
@@ -434,6 +562,12 @@ factory('$odataProvider', ['$odataOperators', '$odataBinaryOperation', '$odataPr
             this.filters.push(predicate);
             return this;
         };
+
+        ODataProvider.prototype.transformUrl = function(transformMethod) {
+            this.transformUrls.push(transformMethod);
+            return this;
+        };
+
         ODataProvider.prototype.orderBy = function(arg1, arg2) {
             this.sortOrders.push(new ODataOrderByStatement(arg1, arg2));
             return this;
@@ -444,6 +578,10 @@ factory('$odataProvider', ['$odataOperators', '$odataBinaryOperation', '$odataPr
         };
         ODataProvider.prototype.skip = function(amount) {
             this.skipAmount = amount;
+            return this;
+        };
+        ODataProvider.prototype.format = function(format) {
+            this.formatBy = format;
             return this;
         };
         ODataProvider.prototype.execute = function() {
@@ -485,22 +623,32 @@ factory('$odataProvider', ['$odataOperators', '$odataBinaryOperation', '$odataPr
                 queryString += this.isv4 ? "$count=true" : "$inlinecount=allpages";
             }
 
+            if (this.formatBy) {
+                if (queryString !== "") queryString += "&";
+                queryString += "$format=" + this.formatBy;
+            }
+
+            for (i = 0; i < this.transformUrls.length; i++) {
+               var transform= this.transformUrls[i];
+               queryString = transform(queryString);
+            }
+
             return queryString;
         };
         ODataProvider.prototype.query = function(success, error) {
-            if (!angular.isFunction(this.callback)) throw "Cannot execute query, no callback was specified";
+            if (!angular.isFunction(this.$$callback)) throw "Cannot execute query, no callback was specified";
             success = success || angular.noop;
             error = error || angular.noop;
-            return this.callback(this.execute(), success, error);
+            return this.$$callback(this.execute(), success, error, false, false, getPersistence.bind(this, 'query'));
         };
-        ODataProvider.prototype.single = function(data, success, error) {
-            if (!angular.isFunction(this.callback)) throw "Cannot execute get, no callback was specified";
+        ODataProvider.prototype.single = function(success, error) {
+            if (!angular.isFunction(this.$$callback)) throw "Cannot execute single, no callback was specified";
             success = success || angular.noop;
             error = error || angular.noop;
-            return this.callback(this.execute(), success, error, true, true);
+            return this.$$callback(this.execute(), success, error, true, true, getPersistence.bind(this, 'single'));
         };
         ODataProvider.prototype.get = function(data, success, error) {
-            if (!angular.isFunction(this.callback)) throw "Cannot execute count, no callback was specified";
+            if (!angular.isFunction(this.$$callback)) throw "Cannot execute get, no callback was specified";
             success = success || angular.noop;
             error = error || angular.noop;
             // The query string from this.execute() should be included even
@@ -509,11 +657,11 @@ factory('$odataProvider', ['$odataOperators', '$odataBinaryOperation', '$odataPr
             if (queryString.length > 0) {
                 queryString = "?" + queryString;
             }
-            return this.callback("(" + data + ")" + queryString, success, error, true);
+            return this.$$callback("(" + data + ")" + queryString, success, error, true, false, getPersistence.bind(this, 'get'));
         };
 
         ODataProvider.prototype.count = function(success, error) {
-            if (!angular.isFunction(this.callback)) throw "Cannot execute get, no callback was specified";
+            if (!angular.isFunction(this.$$callback)) throw "Cannot execute count, no callback was specified";
             success = success || angular.noop;
             error = error || angular.noop;
             // The query string from this.execute() should be included even
@@ -522,8 +670,7 @@ factory('$odataProvider', ['$odataOperators', '$odataBinaryOperation', '$odataPr
             if (queryString.length > 0) {
                 queryString = "/?" + queryString;
             }
-
-            return this.callback("/$count"+queryString, success, error, true);
+            return this.$$callback("/$count" + queryString, success, error, true, false, getPersistence.bind(this, 'count'));
         };
 
         ODataProvider.prototype.withInlineCount = function() {
@@ -571,6 +718,9 @@ factory('$odataProvider', ['$odataOperators', '$odataBinaryOperation', '$odataPr
             return this;
         };
 
+        ODataProvider.prototype.expandPredicate = function(tableName) {
+            return new ODataExpandPredicate(tableName, this);
+        };
 
         ODataProvider.prototype.select = function(params) {
             if (!angular.isString(params) && !angular.isArray(params)) {
@@ -591,6 +741,49 @@ factory('$odataProvider', ['$odataOperators', '$odataBinaryOperation', '$odataPr
                     this.selectables.push(params[i]);
             }   
 
+            return this;
+        };
+
+        function getPersistence(type, full) {
+            var reusables = {};
+            // Set full persistence if type is count or single(?) because we'll want to pull in filters, etc to reproduce what we're refreshing.
+            // Otherwise, let the factory decide if the persistence state should include the full (for a refresh on the array), or limited for
+            // a single entity refresh.
+            // Single is tricky... Should the refresh requery and take the first element based on full filtering, or just refresh the entity we
+            // already have based on limited persistence?  What's its purposed use case?  Could set an option toggle for either or.
+            if (!full && (type === 'count' || type === 'single'))
+                full = true;
+            Object.defineProperty(reusables, '$$type', { enumerble: false, writable: true, configurable: true, value: type });
+            if (full) {
+                for (var key in this) {
+                    if (this.hasOwnProperty(key) && !(key.charAt(0) === '$' && key.charAt(1) === '$')) {
+                        reusables[key] = this[key];
+                    }
+                }
+                return reusables;
+            } else {
+                if (this.selectables.length)
+                    reusables.selectables = this.selectables;
+                if (this.expandables.length)
+                    reusables.expandables = this.expandables;
+                if (this.formatBy)
+                    reusables.formatBy = this.formatBy;
+            }
+            return reusables;
+        }
+
+        ODataProvider.prototype.re = function (force) {
+            if (this.$$reusables) {
+                for (var option in this.$$reusables) {
+                    if (angular.isArray(this.$$reusables[option])) {
+                        for (var i = 0; i < this.$$reusables[option].length; i++) {
+                            if (this[option].indexOf(this.$$reusables[option][i]) === -1)
+                                this[option].push(this.$$reusables[option][i]);
+                        }
+                    } else
+                        this[option] = this.$$reusables[option];
+                }
+            }
             return this;
         };
 
@@ -691,7 +884,8 @@ factory('$odataProvider', ['$odataOperators', '$odataBinaryOperation', '$odataPr
           forEach = angular.forEach,
           extend = angular.extend,
           copy = angular.copy,
-          isFunction = angular.isFunction;
+          isFunction = angular.isFunction,
+          resourceStore = [];
 
         /**
          * We need our custom method because encodeURIComponent is too aggressive and doesn't follow
@@ -758,10 +952,14 @@ factory('$odataProvider', ['$odataOperators', '$odataBinaryOperation', '$odataPr
               url = url.replace(/\/+$/, '') || '/';
             }
 
-              url = url + '(:' + self.defaults.odatakey + ')';
+            var odatakeySplit = self.defaults.odatakey.split(',');
+            var splitKey = odatakeySplit.map(function (key) { return odatakeySplit.length > 1 ? key + '=:' + key : ':' + key; });
+            url = url + '(' + splitKey.join(',') + ')';
 
               if (data) {
-                params[self.defaults.odatakey] = data[self.defaults.odatakey];
+                  forEach(odatakeySplit, function (param) {
+                      params[param] = data[param];
+                  });
               }
             }
 
@@ -851,7 +1049,7 @@ factory('$odataProvider', ['$odataOperators', '$odataBinaryOperation', '$odataPr
           }
 
           function Resource(value) {
-            shallowClearAndCopy(value || {}, this);
+              shallowClearAndCopy(value || {}, this);
           }
 
           Resource.prototype.toJSON = function() {
@@ -861,16 +1059,99 @@ factory('$odataProvider', ['$odataOperators', '$odataBinaryOperation', '$odataPr
             return data;
           };
 
+          Resource.store = function (resource) {
+              var exists = resourceStore.filter(function (filter) {
+                  return filter.resource === resource;
+              });
+              if (exists.length) {
+                  Array.prototype.splice.call(arguments, 0, 1, exists[0]);
+                  return angular.extend.apply(angular, arguments);
+              }
+              Array.prototype.splice.call(arguments, 0, 1, { resource: resource });
+              exists = angular.extend.apply(angular, arguments);
+              resourceStore.push(exists);
+              return exists;
+          };
+
+          Resource.isResource = function(target) {
+              return resourceStore.filter(function(filter) {
+                  return filter.resource === target;
+              }).length;
+          };
+
+          Resource.store.get = function(target) {
+              var hash = resourceStore.filter(function(filter) {
+                  return filter.resource === target;
+              });
+              return hash.length ? hash[0] : null;
+          };
+
+          Resource.store.getHeaders = function(target) {
+              var stored = Resource.store.get(target);
+              return stored ? stored.headers : null;
+          };
+
+          Resource.store.copyHeaders = function(target, source) {
+              return Resource.store(target, { headers: Resource.store.getHeaders(source) });
+          };
+
+          Resource.store.getConfig = function(target) {
+              var stored = Resource.store.get(target);
+              return stored ? stored.config : null;
+          };
+
+          Resource.store.updateConfig = function (target) {
+              if (arguments.length < 2)
+                  return false;
+              var configPropNames = ['url', 'paramDefaults', 'action', 'options'];
+              var settings = arguments.length > 2 && angular.isString(arguments[1]) ? Array.prototype.slice.call(arguments, 1, 5).reduce(function (prev, config, index) {
+                  prev[configPropNames[index]] = config;
+                  return prev;
+              }, {}) : arguments[1];
+              if (Resource.isResource(settings))
+                  settings = Resource.store.getConfig(settings);
+              // If this library is updated to support 1.4+ change to use merge (not available in angular 1.3 which is what unit tests currently use).
+              angular.extend(actions, settings.actions || {});
+              angular.extend(paramDefaults, settings.paramDefaults || {});
+              angular.extend(options, settings.options || {});
+              if (angular.isDefined(settings.url) && angular.isString(settings.url))
+                  url = settings.url;
+              route = new Route(url, options);
+              Resource.store(target, {
+                  config: {
+                      url: url,
+                      paramDefaults: paramDefaults,
+                      actions: actions,
+                      options: options,
+                  },
+                  pendingCorrection: false,
+              });
+              return true;
+          };
+
+          Resource.store.pendingCorrection = function (target) {
+              var stored = Resource.store.get(target);
+              return stored ? stored.pendingCorrection || false : false;
+          };
+
+          Resource.store.getRefreshingResource = function(target) {
+              var stored = resourceStore.filter(function(filter) {
+                  return filter.refreshedAs === target;
+              });
+              return stored ? stored[0] : null;
+          };
+
           forEach(actions, function(action, name) {
 
             var hasBody = /^(POST|PUT|PATCH)$/i.test(action.method);
 
-            Resource[name] = function(a1, a2, a3, a4, isOdata, odataQueryString, isSingleElement,forceSingleElement) {
+            Resource[name] = function(a1, a2, a3, a4, isOdata, odataQueryString, isSingleElement, forceSingleElement, persistence) {
               var params = {}, data, success, error;
 
               /* jshint -W086 */
               /* (purposefully fall through case statements) */
               switch (arguments.length) {
+                case 9:
                 case 8:
                 case 7:
                 case 6:
@@ -919,6 +1200,8 @@ factory('$odataProvider', ['$odataOperators', '$odataBinaryOperation', '$odataPr
               var responseErrorInterceptor = action.interceptor && action.interceptor.responseError ||
                 undefined;
 
+              addRefreshMethod(value, persistence);
+
               forEach(action, function(value, key) {
                 if (key != 'params' && key != 'isArray' && key != 'interceptor') {
                   httpConfig[key] = copy(value);
@@ -934,108 +1217,183 @@ factory('$odataProvider', ['$odataOperators', '$odataBinaryOperation', '$odataPr
                 data,
                 isOdata);
 
+              //if (angular.isString(odataQueryString) && odataQueryString !== "" && !isOdata || (isOdata && (!isSingleElement || forceSingleElement))) {
               if (isOdata && odataQueryString !== "" && (!isSingleElement || forceSingleElement)) {
                 httpConfig.url += "?" + odataQueryString;
-              } else if (isOdata && odataQueryString !== "" && isSingleElement) {
+              } else if (odataQueryString !== "" && isSingleElement) {
                 httpConfig.url += odataQueryString;
               }
 
-              var promise = $http(httpConfig).then(function(response) {
-                var data = response.data,
-                  promise = value.$promise;
+              //chieffancypants / angular-loading-bar
+              //https://github.com/chieffancypants/angular-loading-bar
+              if (options.ignoreLoadingBar)
+                httpConfig.ignoreLoadingBar = true;
 
-                if(data && angular.isNumber(data['@odata.count'])) {
-                    data.count = data['@odata.count'];
+                function httpSuccessHandler(response) {
+                    var data = response.data,
+                        promise = value.$promise;
+
+                    if(data && angular.isNumber(data['@odata.count'])) {
+                        data.count = data['@odata.count'];
+                    }
+
+                    if (data && (angular.isString(data['@odata.context']) || angular.isString(data['odata.metadata']) ) && data.value && angular.isArray(data.value)) {
+                        var fullObject = data;
+                        data = data.value;
+                        for (var property in fullObject) {
+                            if (property !== "value") {
+                                value[property] = fullObject[property];
+                            }
+                        }
+                    }
+
+
+                    if (data) {
+                        // Need to convert action.isArray to boolean in case it is undefined
+                        // jshint -W018
+                        if (angular.isArray(data) !== (!isSingleElement && !! action.isArray) && !forceSingleElement) {
+                            throw $resourceMinErr('badcfg',
+                                'Error in resource configuration for action `{0}`. Expected response to ' +
+                                'contain an {1} but got an {2} (Request: {3} {4})', name, (!isSingleElement && action.isArray) ? 'array' : 'object',
+                                angular.isArray(data) ? 'array' : 'object', httpConfig.method, httpConfig.url);
+                        }
+
+                        if(angular.isArray(data) && forceSingleElement){
+                            if(data.length>0){
+                                data = data[0];
+                            }else{
+                                throw "The response returned no result";
+                            }
+                        }
+
+                        // jshint +W018
+                        if (!isSingleElement && action.isArray && isNaN(parseInt(data))) {
+                            value.length = 0;
+                            forEach(data, function(item) {
+                                if (typeof item === "object") {
+                                    var newResource = new Resource(item);
+                                    addRefreshMethod(newResource, persistence, false);
+                                    value.push(newResource);
+                                } else {
+                                    // Valid JSON values may be string literals, and these should not be converted
+                                    // into objects. These items will not have access to the Resource prototype
+                                    // methods, but unfortunately there
+                                    value.push(item);
+                                }
+                            });
+                        } else {
+                            shallowClearAndCopy(data, value);
+                            value.$promise = promise;
+                        }
+                    }
+
+                    if(angular.isNumber(data) && isSingleElement){
+                        value.result = data;
+                    }
+                    else if(!isNaN(parseInt(data)) && isSingleElement){
+                        value.result = parseInt(data);
+                    }
+
+                    value.$resolved = true;
+
+                    response.resource = value;
+
+                    Resource.store(value, { headers: response.headers() });
+
+                    return responseInterceptor(response) || response;
                 }
 
-                if (data && angular.isString(data['@odata.context']) && data.value && angular.isArray(data.value)) {
-                  var fullObject = data;
-                  data = data.value;
-                  for (var property in fullObject) {
-                    if (property !== "value") {
-                      value[property] = fullObject[property];
-
+                // Input: httpResponse error object
+                // Output: Rejection wrapped error object, rejected non promise response from errorInterceptor, or promise from errorInterceptor with errorCorrectionHandler appended to chain
+                function httpErrorHandler(response) {
+                    value.$resolved = true;
+                    var refreshingResource = Resource.store.getRefreshingResource(value);
+                    if (refreshingResource && refreshingResource.preventErrorLooping) {
+                        Resource.store(refreshingResource.resource, { preventErrorLooping: false });
+                        return $q.reject(response);
                     }
-                  }
+                    Resource.store(value, { headers: response.headers(), preventErrorLooping: true });
+                    return chooseErrorResponsePromiseChain((responseErrorInterceptor || noop)(response) || response);
                 }
 
+                function callbackSuccessHandler(response) {
+                    (success || noop)(response, Resource.store.getHeaders(value));
+                    return response;
+                }
 
-                if (data) {
-                  // Need to convert action.isArray to boolean in case it is undefined
-                  // jshint -W018
-                  if (angular.isArray(data) !== (!isSingleElement && !! action.isArray) && !forceSingleElement) {
-                    throw $resourceMinErr('badcfg',
-                      'Error in resource configuration for action `{0}`. Expected response to ' +
-                      'contain an {1} but got an {2} (Request: {3} {4})', name, (!isSingleElement && action.isArray) ? 'array' : 'object',
-                      angular.isArray(data) ? 'array' : 'object', httpConfig.method, httpConfig.url);
-                  }
-
-                  if(angular.isArray(data) && forceSingleElement){
-                    if(data.length>0){
-                      data = data[0];
-                    }else{
-                      throw "The response returned no result";
+                // Input: string of thrown error from httpSuccessCallback, rejection from httpErrorHandler
+                // Output: Rejection wrapped error output rejected non promise response from errorCallback, or promise from errorCallback with errorCorrectionHandler appended to chain
+                function callbackErrorHandler(response) {
+                    var refreshingResource = Resource.store.getRefreshingResource(value);
+                    if (refreshingResource && refreshingResource.preventErrorLooping) {
+                        Resource.store(refreshingResource.resource, { preventErrorLooping: false });
+                        return $q.reject(response);
                     }
-                  }
-
-                  // jshint +W018
-                  if (!isSingleElement && action.isArray && isNaN(parseInt(data))) {
-                    value.length = 0;
-                    forEach(data, function(item) {
-                      if (typeof item === "object") {
-                        value.push(new Resource(item));
-                      } else {
-                        // Valid JSON values may be string literals, and these should not be converted
-                        // into objects. These items will not have access to the Resource prototype
-                        // methods, but unfortunately there
-                        value.push(item);
-                      }
+                    Resource.store(value, { preventErrorLooping: true });
+                    return chooseErrorResponsePromiseChain((error || noop)(response) || response).then(function (newResponse) {
+                        // Allow a successful correction at this stage to notify sucessCallback.
+                        (success || noop)(newResponse, Resource.store.getHeaders(value));
+                        return newResponse;
                     });
-                  } else {
-                    shallowClearAndCopy(data, value);
+                }
+
+                // Error Correcction methods
+                function chooseErrorResponsePromiseChain(response) {
+                    if (angular.isDefined(response) && angular.isObject(response) && angular.isObject(response.$correction)) {
+                        Resource.store.updateConfig(value, response.$correction);
+                        var refreshed = value.$refresh();
+                        Resource.store(value, { refreshedAs: refreshed });
+                        return refreshed.$promise.then(allowErrorCorrectionHandler);
+                    }
+                    if (angular.isDefined(response) && angular.isDefined(response.$value) && response.$correction) {
+                        Resource.store(value, { pendingCorrection: response.$correction });
+                        response = response.$value;
+                    }
+                    if (Resource.isResource(response))
+                        return response.$promise.then(allowErrorCorrectionHandler);
+                    if (angular.isDefined(response) && angular.isFunction(response.then))
+                        return response.then(allowErrorCorrectionHandler);
+                    return $q.reject(response);
+                }
+
+                // Assume a Resource or promise ($http, or $q.resolve) was passed to errorInterceptor or errorCallback
+                function allowErrorCorrectionHandler(response) {
+                    if (Resource.isResource(response)) {
+                        Resource.store.copyHeaders(value, response);
+                        if (Resource.store.pendingCorrection(value))
+                            Resource.store.updateConfig(value, response);
+                        Resource.store(value, { preventErrorLooping: false });
+                        shallowClearAndCopy(response, value);
+                        return value;
+                    }
+                    if (angular.isDefined(response) && angular.isObject(response) && angular.isFunction(response.headers)) {
+                        return $q.when(response).then(httpSuccessHandler);
+                    }
+                    return $q.when({ data: response, headers: function() { return null; }}).then(httpSuccessHandler);
+                }
+
+                var promise = $http(httpConfig)
+                    .then(httpSuccessHandler, httpErrorHandler)         // Http response phase (transform response into final Resource object and call interceptors)
+                    .then(callbackSuccessHandler, callbackErrorHandler);// Callback phase (errorCallback has opportrunity to address issues from errors being thrown in http response phase)
+
+                if (!isInstanceCall) {
+                    // we are creating instance / collection
+                    // - set the initial promise
+                    // - return the instance / collection
                     value.$promise = promise;
-                  }
+                    value.$resolved = false;
+                    Resource.store(value, {
+                        config: {
+                            url: url,
+                            paramDefaults: paramDefaults,
+                            actions: actions,
+                            options: options,
+                        },
+                    });
+                    return value;
                 }
 
-                if(angular.isNumber(data) && isSingleElement){
-                  value.result = data;
-                }
-                else if(!isNaN(parseInt(data)) && isSingleElement){
-                  value.result = parseInt(data);
-                }
-
-                value.$resolved = true;
-
-                response.resource = value;
-
-                return response;
-              }, function(response) {
-                value.$resolved = true;
-
-                (error || noop)(response);
-
-                return $q.reject(response);
-              });
-
-              promise = promise.then(
-                function(response) {
-                  var value = responseInterceptor(response);
-                  (success || noop)(value, response.headers);
-                  return value;
-                },
-                responseErrorInterceptor);
-
-              if (!isInstanceCall) {
-                // we are creating instance / collection
-                // - set the initial promise
-                // - return the instance / collection
-                value.$promise = promise;
-                value.$resolved = false;
-
-                return value;
-              }
-
-              // instance call
+                // instance call
               return promise;
             };
 
@@ -1052,14 +1410,45 @@ factory('$odataProvider', ['$odataOperators', '$odataBinaryOperation', '$odataPr
           });
 
           var oldOdataResource = Resource.odata;
-          Resource.odata = function() {
-            var onQuery = function(queryString, success, error, isSingleElement,forceSingleElement) {
-              return oldOdataResource({}, {}, success, error, true, queryString, isSingleElement,forceSingleElement);
+          Resource.odata = function (persistence) {
+              var onQuery = function(queryString, success, error, isSingleElement, forceSingleElement, _persistence) {
+                  return oldOdataResource({}, {}, success, error, true, queryString, isSingleElement, forceSingleElement, _persistence);
+              };
+
+              var odataProvider = new $odata.Provider(onQuery, options.isodatav4, this.$refresh ? this.$refresh.$$persistence : null);
+              return options.persistence ? odataProvider.re() : odataProvider;
+          };
+
+          var addRefreshMethod = function (target, persistence, full) {
+                full = typeof full === 'boolean' ? full : true;
+                if (angular.isDefined(target) && angular.isDefined(persistence)) {
+                    var refreshFn = refreshData.bind(target);
+                    refreshFn.$$persistence = angular.isFunction(persistence) ? persistence(full) : persistence;
+                    Object.defineProperty(target, '$refresh', { enumerable: false, configurable: true, writable: true, value: refreshFn });
+                }
             };
 
+            var refreshData = function refreshData(success, error) {
+                var onQuery = function(queryString, success, error, isSingleElement, forceSingleElement, _persistence) {
+                    return oldOdataResource({}, {}, success, error, true, queryString, isSingleElement, forceSingleElement, _persistence);
+                };
+                var odataProvider = new $odata.Provider(onQuery, options.isodatav4, this.$refresh.$$persistence);
+                odataProvider = odataProvider.re();
 
-            return new $odata.Provider(onQuery,options.isodatav4);
-          };
+                // Single and Count are special, so rerun them.
+                if (this.$refresh.$$persistence.$$type == 'count') {
+                    return odataProvider.count();
+                }
+                if (this.$refresh.$$persistence.$$type == 'single') {
+                    return odataProvider.single();
+                }
+
+                var queryString = odataProvider.execute();
+
+                var multiple = this instanceof Array;
+                // Refresh a normal Resource or Array of Resources
+                return Resource[multiple ? 'query' : 'get'].call(undefined, {}, multiple ? {} : this, success, error, multiple, (!multiple? '?' : '') + queryString, !multiple, false, this.$refresh.$$persistence);
+            };
 
           Resource.bind = function(additionalParamDefaults) {
             return resourceFactory(url, extend({}, paramDefaults, additionalParamDefaults), actions);
@@ -1074,10 +1463,11 @@ factory('$odataProvider', ['$odataOperators', '$odataBinaryOperation', '$odataPr
   });
 
 
-})(window, window.angular);;angular.module('ODataResources').
+})(window, window.angular);
+;angular.module('ODataResources').
 factory('$odata', ['$odataBinaryOperation','$odataProvider','$odataValue',
-	'$odataProperty','$odataMethodCall','$odataPredicate','$odataOrderByStatement',
-	function(ODataBinaryOperation,ODataProvider,ODataValue,ODataProperty,ODataMethodCall,ODataPredicate,ODataOrderByStatement) {
+	'$odataProperty','$odataMethodCall','$odataPredicate','$odataOrderByStatement','$odataExpandPredicate',
+	function(ODataBinaryOperation,ODataProvider,ODataValue,ODataProperty,ODataMethodCall,ODataPredicate,ODataOrderByStatement,ODataExpandPredicate) {
 
 		return {
 			Provider : ODataProvider,
@@ -1087,6 +1477,7 @@ factory('$odata', ['$odataBinaryOperation','$odataProvider','$odataValue',
 			Func : ODataMethodCall,
 			Predicate : ODataPredicate,
 			OrderBy : ODataOrderByStatement,
+            ExpandPredicate : ODataExpandPredicate,
 		};
 
 	}]);

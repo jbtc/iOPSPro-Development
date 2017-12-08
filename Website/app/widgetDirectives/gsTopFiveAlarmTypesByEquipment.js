@@ -1,8 +1,8 @@
 ﻿(function () {
-
+gsTopFiveAlarmTypes
     var app = angular.module('app');
 
-    app.directive('gsTopFiveAlarmTypes',
+    app.directive('gsTopFiveAlarmTypesByEquipment',
 		[
 			"dataService", "utilityService", "$state", "hotkeys", "displaySetupService", "$timeout", "$window", "$interval", "signalR","$odata",
 
@@ -12,7 +12,7 @@
 			        var vm = this;
 
 
-			        console.log("gsTopFiveAlarmTypes controller invoked. vm = %O", vm);
+			        console.log("gsTopFiveAlarmTypesByEquipment controller invoked. vm = %O", vm);
 			        function GetHeadingExtraTitle() {
 			            vm.widgetSite = vm.userSites.first(function (s) { return s.Id == vm.widget.WidgetResource.SiteId 
 
@@ -51,7 +51,7 @@
 
 
 			        $scope.$on("Dashboard", function (event, modifiedExpandedDashboard) {
-			            console.log("gsTopFiveAlarmTypes Dashboard event. Modified Dashboard = %O", modifiedExpandedDashboard);
+			            console.log("gsTopFiveAlarmTypesByEquipment Dashboard event. Modified Dashboard = %O", modifiedExpandedDashboard);
 			            if (modifiedExpandedDashboard.Id == vm.dashboard.Id) {
 			                vm.dashboard = modifiedExpandedDashboard;
 			                GetChartData(false); //
@@ -115,7 +115,7 @@
 
 
 			        function GetChartData(updateOnly) {
-			            dataService.GetIOPSWebAPIResource("top5ObservationExceptions")
+			            dataService.GetIOPSWebAPIResource("top5EquipmentWithMostAlarmsController")
 							.query({
 							    beginDate: vm.dashboard.webApiParameterStartDate,
 							    endDate: vm.dashboard.webApiParameterEndDate,
@@ -123,7 +123,7 @@
 							}, function (data) {
 							    console.log("webApiParameterStartDate", vm.dashboard.webApiParameterStartDate);
 							    console.log("webApiParameterEndDate", vm.dashboard.webApiParameterEndDate);
-							    console.log("GSTop5AlarmTypes initial data = %O", data);
+							    console.log("GSTop5AlarmTypesByEquipment initial data = %O", data);
 							    vm.chartData = data;
 							    if (updateOnly) {
 							        //console.log("vm.chart = %O",vm.chart);
@@ -168,12 +168,12 @@
 			            var chartOptions = {
 			                chart: {
 			                    type: 'bar',
-			                    renderTo: "gsTopFiveAlarmTypes" + vm.widget.Id
+			                    renderTo: "gsTopFiveAlarmTypesByEquipment" + vm.widget.Id
 			                },
 			                animation: false,
 			                credits: { enabled: false },
 			                title: {
-			                    text: 'Top 5 Alarm Types',
+			                    text: 'Top 5 Eqipment With Most Alarms',
 			                    style: {
 			                        fontSize: '.8em'
 			                    }
@@ -183,7 +183,7 @@
 			                //},
 			                xAxis: {
 			                    type: 'category',
-			                    categories: data.select(function (item) { return item.AlarmType }),
+			                    categories: data.select(function (item) { return item.display }),
 			                    labels: {
 			                        autoRotation: [-10, -20, -30, -40, -50, -60, -70, -80, -90],
 			                        style: {
@@ -250,12 +250,12 @@
 			                                        var filterCategory = this.category;
 			                                        var chartThis = this;
 			                                        console.log("vm = %O" , vm);
-			                                        var JBTStandardObservationId = vm.chartData.first(function (d) { return d.AlarmType == filterCategory }).JBTStandardObservationIdList;
-			                                            console.log("JBTStandardObservationId:" + JBTStandardObservationId);
+			                                        var Gate = vm.chartData.first(function (d) { return d.AlarmType == filterCategory }).Gate;
+			                                            console.log("Gate:" + JBTStandardObservationId);
 			                                            console.log("siteId:" + vm.widget.WidgetResource.SiteId);
 			                                        dataService.GetIOPSResource("Tags")
                                                         .filter("SiteId", vm.widget.WidgetResource.SiteId)
-                                                        .filter("JBTStandardObservationId", JBTStandardObservationId)
+                                                        .filter("GateName", Gate)
                                                         .filter("IsAlarm",true)
                                                                             
 			                                        .expandPredicate("ObservationExceptions")
@@ -331,7 +331,7 @@
 
 			                                    console.log("chartOptions = %O", chartOptions);
 
-			                                    vm.chart = Highcharts.chart('gsTopFiveAlarmTypes' + vm.widget.Id, chartOptions);
+			                                    vm.chart = Highcharts.chart('gsTopFiveAlarmTypesByEquipment' + vm.widget.Id, chartOptions);
 			                                }
 			                            };
 
@@ -339,7 +339,7 @@
 
                                 return {
                                     restrict: 'E', //Default for 1.3+
-                                    templateUrl: "app/widgetDirectives/gsTopFiveAlarmTypes.html?" + Date.now(),
+                                    templateUrl: "app/widgetDirectives/gsTopFiveAlarmTypesByEquipment.html?" + Date.now(),
 
                                     scope: {
 

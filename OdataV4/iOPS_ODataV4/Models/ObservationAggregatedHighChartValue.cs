@@ -18,6 +18,7 @@ namespace iOPS_ODataV4.Models
         public Nullable<long> TagId { get; set; }
         public Nullable<System.DateTime> Day { get; set; }
         public string TagValues { get; set; }
+        public Nullable<long> Size { get; set; }
     
         public virtual Tag Tag { get; set; }
     }
