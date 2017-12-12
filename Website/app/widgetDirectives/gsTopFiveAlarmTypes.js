@@ -259,8 +259,8 @@
                                                         .filter("IsAlarm",true)
                                                                             
 			                                        .expandPredicate("ObservationExceptions")
-			                                            .filter("ExceptionStartDate", ">=", utilityService.GetUTCQueryDate(vm.dashboard.webApiParameterStartDate))
-			                                            .filter("ExceptionStartDate", "<=", utilityService.GetUTCQueryDate(vm.dashboard.webApiParameterEndDate))
+			                                            .filter("ExceptionStartDate", ">=", vm.dashboard.webApiParameterStartDate)
+			                                            .filter("ExceptionStartDate", "<=", vm.dashboard.webApiParameterEndDate)
                                                         .filter("DurationMS",">",0)
 			                                        .finish()
 
@@ -275,7 +275,7 @@
                                                 x: e.pageX || e.clientX,
                                                 y: e.pageY || e.clientY
 										 },
-                                            headingText: chartThis.y + ' ' + chartThis.category + 's',
+											headingText: chartThis.y + ' ' + chartThis.category + 's',
                                             maincontentText: "<table class='table table-condensed table-striped' style='font-size: .75em;'>" +
                                                                 "<thead>" +
                                                                     "<th>Alarm Date Time</th>" +
@@ -286,7 +286,8 @@
 																 "</thead>" +
 															     "<tbody>" +
 																	 flattenedData.select(function (d) {
-																		 return "<tr>" +
+																	    var tagRow = data.first(function (c) { return c.Id == d.TagId });
+																	    return "<tr>" +
 																		"<td>"
                                                                         + utilityService.GetFormattedLocalDisplayDateFromUTCDate(d.ExceptionStartDate) +
 																		"<td>"
@@ -294,11 +295,11 @@
                                                                         "<td>"
 																	     // trying to match the first Id from Tag(data) and TagId from observationException(flattenedData) and 
 																		// retrive JBTStandardObservationName out of it
-                                                                        + data.first(function (c) { return c.Id == d.TagId }).JBTStandardObservationName +
+                                                                        + tagRow.JBTStandardObservationName +
 																	    "<td>"
-                                                                        + data.first(function (c) { return c.Id == d.TagId }).GateName +
+                                                                        + tagRow.GateName +
                                                                          "<td>"
-                                                                        + data.first(function (c) { return c.Id == d.TagId }).AssetName +
+                                                                        + tagRow.AssetName +
 																		"</tr>";
 														              }).join("") +
 																"</tbody>" +

@@ -31,6 +31,7 @@
 			case 'siteActiveAlarms':
 		    case 'siteActiveWarnings':
 		    case 'gsTopFiveAlarmTypes':
+		    case 'gsTopFiveAlarmTypesByEquipment':
 
 				vm.selectSite = true;
 				vm.selectTerminal = vm.selectZone = vm.selectGate = vm.selectAsset = vm.selectBHS = false;

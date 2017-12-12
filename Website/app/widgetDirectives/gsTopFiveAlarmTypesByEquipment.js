@@ -1,20 +1,21 @@
 ﻿(function () {
-gsTopFiveAlarmTypes
+
     var app = angular.module('app');
 
     app.directive('gsTopFiveAlarmTypesByEquipment',
 		[
-			"dataService", "utilityService", "$state", "hotkeys", "displaySetupService", "$timeout", "$window", "$interval", "signalR","$odata",
+			"dataService", "utilityService", "$state", "hotkeys", "displaySetupService", "$timeout", "$window", "$interval", "signalR", "$odata",
 
-			function (dataService, utilityService, $state, hotkeys, displaySetupService, $timeout, $window, $interval, signalR,$odata) {
+			function (dataService, utilityService, $state, hotkeys, displaySetupService, $timeout, $window, $interval, signalR, $odata) {
 
 			    var controller = function ($scope) {
 			        var vm = this;
 
 
-			        console.log("gsTopFiveAlarmTypesByEquipment controller invoked. vm = %O", vm);
+			        console.log("gsTopFiveAlarmTypes controller invoked. vm = %O", vm);
 			        function GetHeadingExtraTitle() {
-			            vm.widgetSite = vm.userSites.first(function (s) { return s.Id == vm.widget.WidgetResource.SiteId 
+			            vm.widgetSite = vm.userSites.first(function (s) {
+			                return s.Id == vm.widget.WidgetResource.SiteId
 
 			            });
 
@@ -51,7 +52,7 @@ gsTopFiveAlarmTypes
 
 
 			        $scope.$on("Dashboard", function (event, modifiedExpandedDashboard) {
-			            console.log("gsTopFiveAlarmTypesByEquipment Dashboard event. Modified Dashboard = %O", modifiedExpandedDashboard);
+			            console.log("gsTopFiveAlarmTypes Dashboard event. Modified Dashboard = %O", modifiedExpandedDashboard);
 			            if (modifiedExpandedDashboard.Id == vm.dashboard.Id) {
 			                vm.dashboard = modifiedExpandedDashboard;
 			                GetChartData(false); //
@@ -66,12 +67,13 @@ gsTopFiveAlarmTypes
 			            }
 			        });
 
-			
+
 
 			        //Get the site entities for which the user has access.
 			        dataService.GetJBTData().then(function (JBTData) {
 			            vm.JBTData = JBTData;
-			            var userSiteCodes = Global.User.ReaderOf.where(function (s) { return s.split('.')[0] == 'Site' 
+			            var userSiteCodes = Global.User.ReaderOf.where(function (s) {
+			                return s.split('.')[0] == 'Site'
 
 			            })
 							.select(function (s) { return s.split('.')[1] });
@@ -83,7 +85,7 @@ gsTopFiveAlarmTypes
 			            });
 
 			            console.log("vm.userSites = %O", vm.userSites);
-					    
+
 			            if (vm.userSites.length == 1) {
 			                console.log("User only has a single Site");
 			                vm.widget.WidgetResource.SiteId = vm.userSites[0].Id;
@@ -104,7 +106,7 @@ gsTopFiveAlarmTypes
 					function (newValue, oldValue) {
 					    if (vm.widget.WidgetResource.SiteId && vm.userSites) {
 
-					        vm.widgetSite = vm.userSites.first(function (s) { return s.Id ==vm.widget.WidgetResource.SiteId });
+					        vm.widgetSite = vm.userSites.first(function (s) { return s.Id == vm.widget.WidgetResource.SiteId });
 					        console.log("vm.widget.WidgetResource.SiteId changed. Now = %O", vm.widget);
 					        if (oldValue != newValue) {
 					            vm.widget.WidgetResource.$save();
@@ -115,24 +117,25 @@ gsTopFiveAlarmTypes
 
 
 			        function GetChartData(updateOnly) {
-			            dataService.GetIOPSWebAPIResource("top5EquipmentWithMostAlarmsController")
+			            dataService.GetIOPSWebAPIResource("top5EquipmentWithMostAlarms")
 							.query({
 							    beginDate: vm.dashboard.webApiParameterStartDate,
 							    endDate: vm.dashboard.webApiParameterEndDate,
-							    siteId:  vm.widget.WidgetResource.SiteId
+							    siteId: vm.widget.WidgetResource.SiteId
 							}, function (data) {
 							    console.log("webApiParameterStartDate", vm.dashboard.webApiParameterStartDate);
 							    console.log("webApiParameterEndDate", vm.dashboard.webApiParameterEndDate);
-							    console.log("GSTop5AlarmTypesByEquipment initial data = %O", data);
+							    console.log("GSTop5AlarmTypes initial data = %O", data);
 							    vm.chartData = data;
 							    if (updateOnly) {
 							        //console.log("vm.chart = %O",vm.chart);
 							        data
 										.forEach(function (d) {
 										    //Find the data point that matches the area and gs name and update THAT ONE to the right data value
-										    vm.chart.series[0].data.first(function (dataPoint) { 
+										    vm.chart.series[0].data.first(function (dataPoint) {
 
-										        return dataPoint.category == d.AlarmType }).update(d.AlarmCount, false);
+										        return dataPoint.category == d.AlarmType
+										    }).update(d.AlarmCount, false);
 										});
 							        vm.chart.redraw();
 
@@ -143,7 +146,7 @@ gsTopFiveAlarmTypes
 							            //Render the chart
 							            $timeout(function () {
 							                CreateChart(data);
-							                displaySetupService.SetLoneChartSize(vm.widget.Id,vm.chart);
+							                displaySetupService.SetLoneChartSize(vm.widget.Id, vm.chart);
 							            }, 100);
 							        });
 							    }
@@ -154,7 +157,7 @@ gsTopFiveAlarmTypes
 
 			        }
 
-					
+
 
 			        //Refresh data on the 15 second system clock tick
 			        $scope.$on("System.ClockTick15", function () {
@@ -163,7 +166,7 @@ gsTopFiveAlarmTypes
 
 
 			        function CreateChart(data) {
-					   
+
 
 			            var chartOptions = {
 			                chart: {
@@ -173,7 +176,7 @@ gsTopFiveAlarmTypes
 			                animation: false,
 			                credits: { enabled: false },
 			                title: {
-			                    text: 'Top 5 Eqipment With Most Alarms',
+			                    text: 'Top 5 Equipment With Most Alarms',
 			                    style: {
 			                        fontSize: '.8em'
 			                    }
@@ -183,7 +186,7 @@ gsTopFiveAlarmTypes
 			                //},
 			                xAxis: {
 			                    type: 'category',
-			                    categories: data.select(function (item) { return item.display }),
+			                    categories: data.select(function (item) { return item.display}),
 			                    labels: {
 			                        autoRotation: [-10, -20, -30, -40, -50, -60, -70, -80, -90],
 			                        style: {
@@ -205,7 +208,7 @@ gsTopFiveAlarmTypes
 			                        enabled: true,
 			                        style: {
 			                            fontWeight: 'bold'
-										// color: (Highcharts.theme && Highcharts.theme.textColor) || 'gray'
+			                            // color: (Highcharts.theme && Highcharts.theme.textColor) || 'gray'
 			                        }
 			                    },
 			                    //tickInterval: 3600,
@@ -222,139 +225,137 @@ gsTopFiveAlarmTypes
 			                },
 			                tooltip: {
 			                    pointFormat: 'Alarm Count: <b>{point.y:.0f} Alarms</b><br/>Click for details'
-			            },
+			                },
 			                plotOptions: {
-			                stacking: 'normal',
-			                bar: {
+			                    stacking: 'normal',
+			                    bar: {
 			                        dataLabels: {
 			                            enabled: true,
 			                            //formatter: function () {
 			                            //	//this.percentage	Stacked series and pies only. The point's percentage of the total.
 			                            //	//this.point	The point object. The point name, if defined, is available through this.point.name.
-                                        //	//this.series:	The series object. The series name is available through this.series.name.
-                                        //	//this.total	Stacked series only. The total value at this point's x value.
+			                            //	//this.series:	The series object. The series name is available through this.series.name.
+			                            //	//this.total	Stacked series only. The total value at this point's x value.
 			                            //	//this.x:	The x value.
 			                            //	//this.y:	The y value.
 			                            //	return utilityService.SecondsToString(this.y);
 			                            //}
 			                        }
 
-			                },
+			                    },
 			                    series: {
 			                        cursor: 'pointer',
 			                        point: {
 			                            events: {
-			                                    click: function (e) {
-			                                        console.log("this = %O", this);
-			                                        console.log("window = %O", window);
-			                                        var filterCategory = this.category;
-			                                        var chartThis = this;
-			                                        console.log("vm = %O" , vm);
-			                                        var Gate = vm.chartData.first(function (d) { return d.AlarmType == filterCategory }).Gate;
-			                                            console.log("Gate:" + JBTStandardObservationId);
-			                                            console.log("siteId:" + vm.widget.WidgetResource.SiteId);
-			                                        dataService.GetIOPSResource("Tags")
-                                                        .filter("SiteId", vm.widget.WidgetResource.SiteId)
-                                                        .filter("GateName", Gate)
-                                                        .filter("IsAlarm",true)
-                                                                            
-			                                        .expandPredicate("ObservationExceptions")
-			                                            .filter("ExceptionStartDate", ">=", utilityService.GetUTCQueryDate(vm.dashboard.webApiParameterStartDate))
-			                                            .filter("ExceptionStartDate", "<=", utilityService.GetUTCQueryDate(vm.dashboard.webApiParameterEndDate))
-                                                        .filter("DurationMS",">",0)
-			                                        .finish()
+			                                click: function (e) {
+			                                    console.log("this = %O", this);
+			                                    console.log("window = %O", window);
+			                                    var filterCategory = this.category;
+			                                    var chartThis = this;
+			                                    console.log("vm = %O", vm);
+			                                    var chartRow = vm.chartData.first(function (d) { return d.display == filterCategory });
+			                                    console.log("GateName:" + chartRow.Gate);
+			                                    console.log("AssetName:" + chartRow.AlarmType);
+			                                    console.log("siteId:" + vm.widget.WidgetResource.SiteId);
+			                                    dataService.GetIOPSResource("Tags")
+                                                    .filter("SiteId", vm.widget.WidgetResource.SiteId)
+                                                    .filter("GateName", chartRow.Gate)
+                                                    .filter("AssetName", chartRow.AlarmType)
+                                                    .filter("IsAlarm", true)
 
-                                    .query().$promise.then(function (data) {
-								
-                                        flattenedData = data.selectMany(function (tag) { return tag.ObservationExceptions });
-                                        console.log("flattenedData", flattenedData);
-                                        console.log("data from OData Source = %O", angular.copy(data));
-                                        
-                                        hs.htmlExpand(null, {
-											 pageOrigin: {
-                                                x: e.pageX || e.clientX,
-                                                y: e.pageY || e.clientY
-										 },
-                                            headingText: chartThis.y + ' ' + chartThis.category + 's',
-                                            maincontentText: "<table class='table table-condensed table-striped' style='font-size: .75em;'>" +
-                                                                "<thead>" +
-                                                                    "<th>Alarm Date Time</th>" +
-																    "<th>Cleared Date Time</th>" +
-                                                                    "<th>Alarm Text</th>" +
-                                                                    "<th>Gate</th>" +
-                                                                    "<th>Equipment</th>" +
-																 "</thead>" +
-															     "<tbody>" +
-																	 flattenedData.select(function (d) {
-																		 return "<tr>" +
-																		"<td>"
-                                                                        + utilityService.GetFormattedLocalDisplayDateFromUTCDate(d.ExceptionStartDate) +
-																		"<td>"
-                                                                        + utilityService.GetFormattedLocalDisplayDateFromUTCDate(d.ExceptionEndDate || "") +
-                                                                        "<td>"
-																	     // trying to match the first Id from Tag(data) and TagId from observationException(flattenedData) and 
-																		// retrive JBTStandardObservationName out of it
-                                                                        + data.first(function (c) { return c.Id == d.TagId }).JBTStandardObservationName +
-																	    "<td>"
-                                                                        + data.first(function (c) { return c.Id == d.TagId }).GateName +
-                                                                         "<td>"
-                                                                        + data.first(function (c) { return c.Id == d.TagId }).AssetName +
-																		"</tr>";
-														              }).join("") +
-																"</tbody>" +
-															 "</table>",
-																		
+                                                .expandPredicate("ObservationExceptions")
+                                                    .filter("ExceptionStartDate", ">=", utilityService.GetUTCQueryDate(vm.dashboard.webApiParameterStartDate))
+                                                    .filter("ExceptionStartDate", "<=", utilityService.GetUTCQueryDate(vm.dashboard.webApiParameterEndDate))
+                                                    .filter("DurationMS", ">", 0)
+                                                .finish()
 
-                                            width: 700,
-											 height: window.outerHeight * .6
-																		
+                                .query().$promise.then(function (data) {
 
-                                        });
+                                    flattenedData = data.selectMany(function (tag) { return tag.ObservationExceptions });
+                                    console.log("flattenedData", flattenedData);
+                                    console.log("data from OData Source = %O", angular.copy(data));
+
+                                    hs.htmlExpand(null, {
+                                        pageOrigin: {
+                                            x: e.pageX || e.clientX,
+                                            y: e.pageY || e.clientY
+                                        },
+
+                                        headingText: chartThis.y + ' ' + chartThis.category + ' ' +'Alarms',
+                                        maincontentText: "<table class='table table-condensed table-striped' style='font-size: .75em;'>" +
+                                                            "<thead>" +
+                                                                "<th>Alarm Date Time</th>" +
+                                                                "<th>Cleared Date Time</th>" +
+                                                                "<th>Alarm Text</th>" +
+                                                               
+                                                             "</thead>" +
+                                                             "<tbody>" +
+                                                                 flattenedData.select(function (d) {
+                                                                     return "<tr>" +
+                                                                    "<td>"
+                                                                    + utilityService.GetFormattedLocalDisplayDateFromUTCDate(d.ExceptionStartDate) +
+                                                                    "<td>"
+                                                                    + utilityService.GetFormattedLocalDisplayDateFromUTCDate(d.ExceptionEndDate || "") +
+                                                                    "<td>"
+                                                                     // trying to match the first Id from Tag(data) and TagId from observationException(flattenedData) and 
+                                                                    // retrive JBTStandardObservationName out of it
+                                                                    + data.first(function (c) { return c.Id == d.TagId }).JBTStandardObservationName +
+                                                                    "</tr>";
+                                                                 }).join("") +
+                                                            "</tbody>" +
+                                                         "</table>",
 
 
-																		
+                                        width: 500,
+                                        height: window.outerHeight * .6
+
 
                                     });
 
 
-			                                                                }
-			                                                        }
-			                                                    },
-			                                                    marker: {
-			                                                        lineWidth: 1
-			                                                    }
-			                                                }
 
-			                                            },
-			                                        series: [{ data: data.select(function (item) { return item.AlarmCount }) }]
-			                                    };
 
-			                                    console.log("chartOptions = %O", chartOptions);
+                                });
 
-			                                    vm.chart = Highcharts.chart('gsTopFiveAlarmTypesByEquipment' + vm.widget.Id, chartOptions);
+
 			                                }
-			                            };
+			                            }
+			                        },
+			                        marker: {
+			                            lineWidth: 1
+			                        }
+			                    }
 
-                                controller.$inject = ["$scope"];
+			                },
+			                series: [{ data: data.select(function (item) { return item.AlarmCount }) }]
+			            };
 
-                                return {
-                                    restrict: 'E', //Default for 1.3+
-                                    templateUrl: "app/widgetDirectives/gsTopFiveAlarmTypesByEquipment.html?" + Date.now(),
+			            console.log("chartOptions = %O", chartOptions);
 
-                                    scope: {
+			            vm.chart = Highcharts.chart('gsTopFiveAlarmTypesByEquipment' + vm.widget.Id, chartOptions);
+			        }
+			    };
 
-                                        dashboard: "=",
-                                        widget: "=",
-                                        signalUpdateFunction: "&",
-                                        setPanelHeadingColorFunction: "&",
-                                        mode: "@"
-                                    },
+			    controller.$inject = ["$scope"];
 
-                                    controllerAs: 'vm',
-                                    controller: controller,
-                                    bindToController: true //required in 1.3+ with controllerAs
-                                };
-                            }
-                 ]);
+			    return {
+			        restrict: 'E', //Default for 1.3+
+			        templateUrl: "app/widgetDirectives/gsTopFiveAlarmTypesByEquipment.html?" + Date.now(),
 
-        }());
+			        scope: {
+
+			            dashboard: "=",
+			            widget: "=",
+			            signalUpdateFunction: "&",
+			            setPanelHeadingColorFunction: "&",
+			            mode: "@"
+			        },
+
+			        controllerAs: 'vm',
+			        controller: controller,
+			        bindToController: true //required in 1.3+ with controllerAs
+			    };
+			}
+		]);
+
+}());
