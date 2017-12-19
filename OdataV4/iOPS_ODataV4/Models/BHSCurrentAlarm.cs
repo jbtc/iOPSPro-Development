@@ -32,6 +32,7 @@ namespace iOPS_ODataV4.Models
         public string TransactionType { get; set; }
         public Nullable<long> SiteId { get; set; }
         public string Description { get; set; }
+        public Nullable<bool> Hide { get; set; }
     
         public virtual Site Site { get; set; }
     }

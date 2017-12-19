@@ -2,7 +2,7 @@
 
     var app = angular.module('app');
 
-    app.directive('gsTopFiveAlarmTypesByEquipment',
+    app.directive('gsEquipmentUsage',
 		[
 			"dataService", "utilityService", "$state", "hotkeys", "displaySetupService", "$timeout", "$window", "$interval", "signalR", "$odata",
 
@@ -12,7 +12,7 @@
 			        var vm = this;
 
 
-			        console.log("gsTopFiveAlarmTypes controller invoked. vm = %O", vm);
+			        console.log("gsEquipmentUsage controller invoked. vm = %O", vm);
 			        function GetHeadingExtraTitle() {
 			            vm.widgetSite = vm.userSites.first(function (s) {
 			                return s.Id == vm.widget.WidgetResource.SiteId
@@ -52,7 +52,7 @@
 
 
 			        $scope.$on("Dashboard", function (event, modifiedExpandedDashboard) {
-			            console.log("gsTopFiveAlarmTypes Dashboard event. Modified Dashboard = %O", modifiedExpandedDashboard);
+			            console.log("gsEquipmentUsage Dashboard event. Modified Dashboard = %O", modifiedExpandedDashboard);
 			            if (modifiedExpandedDashboard.Id == vm.dashboard.Id) {
 			                vm.dashboard = modifiedExpandedDashboard;
 			                GetChartData(false); //
@@ -117,7 +117,7 @@
 
 
 			        function GetChartData(updateOnly) {
-			            dataService.GetIOPSWebAPIResource("top5EquipmentWithMostAlarms")
+			            dataService.GetIOPSWebAPIResource("gSEquipmentUsage_TVF_Query")
 							.query({
 							    beginDate: vm.dashboard.webApiParameterStartDate,
 							    endDate: vm.dashboard.webApiParameterEndDate,
@@ -125,7 +125,7 @@
 							}, function (data) {
 							    console.log("webApiParameterStartDate", vm.dashboard.webApiParameterStartDate);
 							    console.log("webApiParameterEndDate", vm.dashboard.webApiParameterEndDate);
-							    console.log("GSTop5AlarmTypes initial data = %O", data);
+							    console.log("EquipmentUsage initial data = %O", data);
 							    vm.chartData = data;
 							    if (updateOnly) {
 							        //console.log("vm.chart = %O",vm.chart);
@@ -134,8 +134,8 @@
 										    //Find the data point that matches the area and gs name and update THAT ONE to the right data value
 										    vm.chart.series[0].data.first(function (dataPoint) {
 
-										        return dataPoint.category == d.AlarmType
-										    }).update(d.AlarmCount, false);
+										        return dataPoint.category == d.Gate
+										    }).update(d.PBB_Hours, false);
 										});
 							        vm.chart.redraw();
 
@@ -170,13 +170,13 @@
 
 			            var chartOptions = {
 			                chart: {
-			                    type: 'bar',
-			                    renderTo: "gsTopFiveAlarmTypesByEquipment" + vm.widget.Id
+			                    type: 'column',
+			                    renderTo: "gsEquipmentUsage" + vm.widget.Id
 			                },
 			                animation: false,
 			                credits: { enabled: false },
 			                title: {
-			                    text: 'Top 5 Equipment With Most Alarms',
+			                    text: 'Equipment Usage Summary',
 			                    style: {
 			                        fontSize: '.8em'
 			                    }
@@ -186,7 +186,7 @@
 			                //},
 			                xAxis: {
 			                    type: 'category',
-			                    categories: data.select(function (item) { return item.display}),
+			                    categories: data.select(function (item) { return item.Gate}),
 			                    labels: {
 			                        autoRotation: [-10, -20, -30, -40, -50, -60, -70, -80, -90],
 			                        style: {
@@ -221,25 +221,20 @@
 			                    //}
 			                },
 			                legend: {
-			                    enabled: false
+			                    align: 'center',
+			                    verticalAlign: 'bottom',
+			                    x: 0,
+			                    y: 0
 			                },
 			                tooltip: {
-			                    pointFormat: 'Alarm Count: <b>{point.y:.0f} Alarms</b><br/>Click for details'
+			                    headerFormat: '<b>{point.x}</b><br/>',
+			                    pointFormat: '{series.name}: {point.y}<br/>Click for details'
 			                },
 			                plotOptions: {
-			                    stacking: 'normal',
-			                    bar: {
+			                    column: {
+			                        stacking: 'normal',
 			                        dataLabels: {
 			                            enabled: true,
-			                            //formatter: function () {
-			                            //	//this.percentage	Stacked series and pies only. The point's percentage of the total.
-			                            //	//this.point	The point object. The point name, if defined, is available through this.point.name.
-			                            //	//this.series:	The series object. The series name is available through this.series.name.
-			                            //	//this.total	Stacked series only. The total value at this point's x value.
-			                            //	//this.x:	The x value.
-			                            //	//this.y:	The y value.
-			                            //	return utilityService.SecondsToString(this.y);
-			                            //}
 			                        }
 
 			                    },
@@ -252,28 +247,14 @@
 			                                    console.log("window = %O", window);
 			                                    var filterCategory = this.category;
 			                                    var chartThis = this;
-			                                    console.log("vm = %O", vm);
-			                                    var chartRow = vm.chartData.first(function (d) { return d.display == filterCategory });
-			                                    console.log("GateName:" + chartRow.Gate);
-			                                    console.log("AssetName:" + chartRow.AlarmType);
-			                                    console.log("siteId:" + vm.widget.WidgetResource.SiteId);
-			                                    dataService.GetIOPSResource("Tags")
-                                                    .filter("SiteId", vm.widget.WidgetResource.SiteId)
-                                                    .filter("GateName", chartRow.Gate)
-                                                    .filter("AssetName", chartRow.AlarmType)
-                                                    .filter("IsAlarm", true)
-
-                                                .expandPredicate("ObservationExceptions")
-                                                    .filter("ExceptionStartDate", ">=", vm.dashboard.webApiParameterStartDate)
-                                                    .filter("ExceptionStartDate", "<=", vm.dashboard.webApiParameterEndDate)
-                                                    .filter("DurationMS", ">", 0)
-                                                .finish()
-
-                                .query().$promise.then(function (data) {
-
-                                    flattenedData = data.selectMany(function (tag) { return tag.ObservationExceptions });
-                                    console.log("flattenedData", flattenedData);
-                                    console.log("data from OData Source = %O", angular.copy(data));
+			                                    dataService.GetIOPSWebAPIResource("gSEquipmentUsage_TVF_Query")
+                                                               .query({
+                                                                   beginDate: vm.dashboard.webApiParameterStartDate,
+                                                                   endDate: vm.dashboard.webApiParameterEndDate,
+                                                                   siteId: vm.widget.WidgetResource.SiteId
+                                                               }, function (data) {
+                                                                    console.log("data from OData Source = %O", angular.copy(data));
+                                    
 
                                     hs.htmlExpand(null, {
                                         pageOrigin: {
@@ -281,38 +262,46 @@
                                             y: e.pageY || e.clientY
                                         },
 
-                                        headingText: chartThis.y + ' ' + chartThis.category + ' ' +'Alarms',
-                                        maincontentText: "<table class='table table-condensed table-striped' style='font-size: .75em;'>" +
+                                         headingText: 'All Gates Summary',
+                                         maincontentText: "<table class='table table-condensed table-striped' style='font-size: .75em;'>" +
                                                             "<thead>" +
-                                                                "<th>Alarm Date Time</th>" +
-                                                                "<th>Cleared Date Time</th>" +
-                                                                "<th>Alarm Text</th>" +
+                                                                "<th>Gate</th>" +
+                                                                "<th>PBB Hours</th>" +
+                                                                "<th>PCA Hours</th>" +
+                                                                "<th>GPU Hours</th>" +
+                                                                "<th>PBB Times Used</th>" +
+                                                                "<th>PCA Times Used</th>" +
+                                                                "<th>GPU Times Used</th>" +
                                                                
                                                              "</thead>" +
                                                              "<tbody>" +
-                                                                 flattenedData.select(function (d) {
+                                                                 data.select(function (d) {
                                                                      return "<tr>" +
                                                                     "<td>"
-                                                                    + utilityService.GetFormattedLocalDisplayDateFromUTCDate(d.ExceptionStartDate) +
+                                                                    + d.Gate +
                                                                     "<td>"
-                                                                    + utilityService.GetFormattedLocalDisplayDateFromUTCDate(d.ExceptionEndDate || "") +
+                                                                    + d.PBB_Hours+
                                                                     "<td>"
-                                                                     // trying to match the first Id from Tag(data) and TagId from observationException(flattenedData) and 
-                                                                    // retrive JBTStandardObservationName out of it
-                                                                    + data.first(function (c) { return c.Id == d.TagId }).JBTStandardObservationName +
+                                                                    + d.PCA_Hours +
+                                                                    "<td>"
+                                                                    + d.GPU_Hours +
+                                                                    "<td>"
+                                                                    + d.PBB_Times_Used +
+                                                                     "<td>"
+                                                                    + d.PCA_Times_Used +
+                                                                     "<td>"
+                                                                    + d.GPU_Times_Used +
                                                                     "</tr>";
                                                                  }).join("") +
                                                             "</tbody>" +
                                                          "</table>",
 
 
-                                        width: 500,
+                                        width: 400,
                                         height: window.outerHeight * .6
 
 
                                     });
-
-
 
 
                                 });
@@ -327,12 +316,16 @@
 			                    }
 
 			                },
-			                series: [{ data: data.select(function (item) { return item.AlarmCount }) }]
+			                series: [
+                              { name: 'PBBTimesUsed', data: data.select(function (item) { return item.PBB_Times_Used })},
+                              { name: 'PCATimesUsed' ,data: data.select(function (item) { return item.PCA_Times_Used })},
+                              { name: 'GPUTimesUsed' ,data: data.select(function (item) { return item.GPU_Times_Used })}
+			                ]
 			            };
 
 			            console.log("chartOptions = %O", chartOptions);
 
-			            vm.chart = Highcharts.chart('gsTopFiveAlarmTypesByEquipment' + vm.widget.Id, chartOptions);
+			            vm.chart = Highcharts.chart('gsEquipmentUsage' + vm.widget.Id, chartOptions);
 			        }
 			    };
 
@@ -340,7 +333,7 @@
 
 			    return {
 			        restrict: 'E', //Default for 1.3+
-			        templateUrl: "app/widgetDirectives/gsTopFiveAlarmTypesByEquipment.html?" + Date.now(),
+			        templateUrl: "app/widgetDirectives/gsEquipmentUsage.html?" + Date.now(),
 
 			        scope: {
 
