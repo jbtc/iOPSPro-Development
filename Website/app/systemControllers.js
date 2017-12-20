@@ -33,6 +33,7 @@
 		    case 'gsTopFiveAlarmTypes':
 		    case 'gsTopFiveAlarmTypesByEquipment':
 		    case 'gsEquipmentUsage':
+		    case 'gsEquipmentHoursOfUsage':
 
 				vm.selectSite = true;
 				vm.selectTerminal = vm.selectZone = vm.selectGate = vm.selectAsset = vm.selectBHS = false;

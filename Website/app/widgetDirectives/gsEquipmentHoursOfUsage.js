@@ -2,7 +2,7 @@
 
     var app = angular.module('app');
 
-    app.directive('gsEquipmentUsage',
+    app.directive('gsEquipmentHoursOfUsage',
 		[
 			"dataService", "utilityService", "$state", "hotkeys", "displaySetupService", "$timeout", "$window", "$interval", "signalR", "$odata",
 
@@ -12,7 +12,7 @@
 			        var vm = this;
 
 
-			        console.log("gsEquipmentUsage controller invoked. vm = %O", vm);
+			        console.log("gsEquipmentHoursOfUsage controller invoked. vm = %O", vm);
 			        function GetHeadingExtraTitle() {
 			            vm.widgetSite = vm.userSites.first(function (s) {
 			                return s.Id == vm.widget.WidgetResource.SiteId
@@ -52,7 +52,7 @@
 
 
 			        $scope.$on("Dashboard", function (event, modifiedExpandedDashboard) {
-			            console.log("gsEquipmentUsage Dashboard event. Modified Dashboard = %O", modifiedExpandedDashboard);
+			            console.log("gsEquipmentHoursOfUsage Dashboard event. Modified Dashboard = %O", modifiedExpandedDashboard);
 			            if (modifiedExpandedDashboard.Id == vm.dashboard.Id) {
 			                vm.dashboard = modifiedExpandedDashboard;
 			                GetChartData(false); //
@@ -135,7 +135,7 @@
 										    vm.chart.series[0].data.first(function (dataPoint) {
 
 										        return dataPoint.category == d.Gate
-										    }).update(d.PBB_Hours, false);
+										    })
 										});
 							        vm.chart.redraw();
 
@@ -171,12 +171,12 @@
 			            var chartOptions = {
 			                chart: {
 			                    type: 'column',
-			                    renderTo: "gsEquipmentUsage" + vm.widget.Id
+			                    renderTo: "gsEquipmentHoursOfUsage" + vm.widget.Id
 			                },
 			                animation: false,
 			                credits: { enabled: false },
 			                title: {
-			                    text: 'Equipment Cycle Count Summary',
+			                    text: 'Equipment Hours Of Usage Summary',
 			                    style: {
 			                        fontSize: '.8em'
 			                    }
@@ -255,7 +255,7 @@
                                                                }, function (data) {
                                                                     console.log("data from OData Source = %O", angular.copy(data));
                                     
-
+                                                                   
                                     hs.htmlExpand(null, {
                                         pageOrigin: {
                                             x: e.pageX || e.clientX,
@@ -317,15 +317,15 @@
 
 			                },
 			                series: [
-                              { name: 'PBBCycleCount', data: data.select(function (item) { return item.PBB_Times_Used })},
-                              { name: 'PCACycleCount' ,data: data.select(function (item) { return item.PCA_Times_Used })},
-                              { name: 'GPUCycleCount' ,data: data.select(function (item) { return item.GPU_Times_Used })}
+                              { name: 'PBBHours', data: data.select(function (item) { return item.PBB_Hours })},
+                              { name: 'PCAHours', data: data.select(function (item) { return item.PCA_Hours }) },
+                              { name: 'GPUHours', data: data.select(function (item) { return item.GPU_Hours }) }
 			                ]
 			            };
 
 			            console.log("chartOptions = %O", chartOptions);
 
-			            vm.chart = Highcharts.chart('gsEquipmentUsage' + vm.widget.Id, chartOptions);
+			            vm.chart = Highcharts.chart('gsEquipmentHoursOfUsage' + vm.widget.Id, chartOptions);
 			        }
 			    };
 
@@ -333,7 +333,7 @@
 
 			    return {
 			        restrict: 'E', //Default for 1.3+
-			        templateUrl: "app/widgetDirectives/gsEquipmentUsage.html?" + Date.now(),
+			        templateUrl: "app/widgetDirectives/gsEquipmentHoursOfUsage.html?" + Date.now(),
 
 			        scope: {
 
