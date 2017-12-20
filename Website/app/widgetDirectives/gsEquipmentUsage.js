@@ -280,11 +280,11 @@
                                                                     "<td>"
                                                                     + d.Gate +
                                                                     "<td>"
-                                                                    + d.PBB_Hours+
+                                                                    + (d.PBB_Hours).toFixed(2) +
                                                                     "<td>"
-                                                                    + d.PCA_Hours +
+                                                                    + (d.PCA_Hours).toFixed(2) +
                                                                     "<td>"
-                                                                    + d.GPU_Hours +
+                                                                    + (d.GPU_Hours).toFixed(2) +
                                                                     "<td>"
                                                                     + d.PBB_Times_Used +
                                                                      "<td>"
