@@ -598,5 +598,30 @@ namespace iOPS_ODataV4.Models
     
             return ((IObjectContextAdapter)this).ObjectContext.CreateQuery<GSEquipmentUsage_TVF_Query_Result>("[iOPS_NormalizedEntities].[GSEquipmentUsage_TVF_Query](@BeginTime, @EndTime, @SiteId)", beginTimeParameter, endTimeParameter, siteIdParameter);
         }
+    
+        public virtual ObjectResult<BHSFilterByAlarmTypesbyArea_Result> BHSFilterByAlarmTypesbyArea(Nullable<System.DateTime> beginTime, Nullable<System.DateTime> endTime, string alarmTypeList, Nullable<int> topNumber, Nullable<long> siteId)
+        {
+            var beginTimeParameter = beginTime.HasValue ?
+                new ObjectParameter("BeginTime", beginTime) :
+                new ObjectParameter("BeginTime", typeof(System.DateTime));
+    
+            var endTimeParameter = endTime.HasValue ?
+                new ObjectParameter("EndTime", endTime) :
+                new ObjectParameter("EndTime", typeof(System.DateTime));
+    
+            var alarmTypeListParameter = alarmTypeList != null ?
+                new ObjectParameter("AlarmTypeList", alarmTypeList) :
+                new ObjectParameter("AlarmTypeList", typeof(string));
+    
+            var topNumberParameter = topNumber.HasValue ?
+                new ObjectParameter("TopNumber", topNumber) :
+                new ObjectParameter("TopNumber", typeof(int));
+    
+            var siteIdParameter = siteId.HasValue ?
+                new ObjectParameter("SiteId", siteId) :
+                new ObjectParameter("SiteId", typeof(long));
+    
+            return ((IObjectContextAdapter)this).ObjectContext.ExecuteFunction<BHSFilterByAlarmTypesbyArea_Result>("BHSFilterByAlarmTypesbyArea", beginTimeParameter, endTimeParameter, alarmTypeListParameter, topNumberParameter, siteIdParameter);
+        }
     }
 }

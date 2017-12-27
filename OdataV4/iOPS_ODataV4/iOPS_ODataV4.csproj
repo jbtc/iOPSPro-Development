@@ -295,6 +295,7 @@
     <Compile Include="Controllers\WebAPI\BHSPercentOfFailSafePerDayController.cs" />
     <Compile Include="Controllers\WebAPI\BHSPercentOfFailSafePerHourController.cs" />
     <Compile Include="Controllers\WebAPI\BHSTop5AlarmTypeLongestDurationController.cs" />
+    <Compile Include="Controllers\WebAPI\GSEquipmentUsage_TVF_QueryController.cs" />
     <Compile Include="Controllers\WebAPI\Top5EquipmentWithMostAlarmsController.cs" />
     <Compile Include="Controllers\WebAPI\Top5ObservationExceptionsController.cs" />
     <Compile Include="Controllers\WebAPI\BHSTop5AlarmTypesController.cs" />
@@ -421,6 +422,9 @@
       <DependentUpon>Model1.tt</DependentUpon>
     </Compile>
     <Compile Include="Models\BHSDeviceLocationThroughput.cs">
+      <DependentUpon>Model1.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Models\BHSFilterByAlarmTypesbyArea_Result.cs">
       <DependentUpon>Model1.tt</DependentUpon>
     </Compile>
     <Compile Include="Models\BHSJamAlarm.cs">
