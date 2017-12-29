@@ -206,6 +206,9 @@
 			                    },
 			                    stackLabels: {
 			                        enabled: true,
+			                        formatter: function () {
+			                            return Highcharts.numberFormat(this.total, 1);
+			                        },
 			                        style: {
 			                            fontWeight: 'bold'
 			                            // color: (Highcharts.theme && Highcharts.theme.textColor) || 'gray'
@@ -228,7 +231,7 @@
 			                },
 			                tooltip: {
 			                    headerFormat: '<b>{point.x}</b><br/>',
-			                    pointFormat: '{series.name}: {point.y}<br/>Click for details'
+			                    pointFormat: '{series.name}: {point.y:.1f}<br/>Click for details'
 			                },
 			                plotOptions: {
 			                    column: {
@@ -283,11 +286,11 @@
                                                                     "<td>"
                                                                     + d.Gate +
                                                                     "<td>"
-                                                                    + (d.PBB_Hours).toFixed(2) +
+                                                                    + (d.PBB_Hours).toFixed(1) +
                                                                     "<td>"
-                                                                    + (d.PCA_Hours).toFixed(2) +
+                                                                    + (d.PCA_Hours).toFixed(1) +
                                                                     "<td>"
-                                                                    + (d.GPU_Hours).toFixed(2) +
+                                                                    + (d.GPU_Hours).toFixed(1) +
                                                                     "<td>"
                                                                     + d.PBB_Times_Used +
                                                                      "<td>"
