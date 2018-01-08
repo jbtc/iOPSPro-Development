@@ -66,7 +66,6 @@ Project("{E24C65DC-7377-472B-9ABA-BC803B73C61A}") = "Innovation", "..\Innovation
 		Release.AspNetCompiler.FixedNames = "false"
 		Release.AspNetCompiler.Debug = "False"
 		VWDPort = "59131"
-		SlnRelativePath = "..\Innovation\"
 	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SignalRDatabaseTransmitter", "SignalRDatabaseTransmitter\SignalRDatabaseTransmitter.csproj", "{674DC804-5082-407C-B2D0-DC70A0C3200F}"

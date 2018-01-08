@@ -14,7 +14,6 @@ namespace iOPS_ODataV4.Models
     public partial class GSTop5AlarmTypesByEquipment_Result
     {
         public string AlarmType { get; set; }
-        public string display { get; set; }
         public string Gate { get; set; }
         public Nullable<int> AlarmCount { get; set; }
         public Nullable<int> ActiveCount { get; set; }
