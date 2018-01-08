@@ -1,3 +1,5 @@
 ﻿<div id="tagGraph{{vm.widget.Id}}" class="lone-chart-template">
-    Loading.....
+    <div ng-repeat="message in vm.loadingMessageArray | orderBy: '-number'">
+        {{message.message}}
+    </div>
 </div>

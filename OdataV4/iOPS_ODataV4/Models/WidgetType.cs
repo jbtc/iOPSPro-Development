@@ -38,8 +38,10 @@ namespace iOPS_ODataV4.Models
         public Nullable<bool> IsAvailableToAll { get; set; }
         public Nullable<bool> IsHiddenSystemType { get; set; }
         public Nullable<bool> HasSettings { get; set; }
+        public Nullable<long> WidgetTypeTabGroupId { get; set; }
     
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<Widget> Widgets { get; set; }
+        public virtual WidgetTypeTabGroup WidgetTypeTabGroup { get; set; }
     }
 }

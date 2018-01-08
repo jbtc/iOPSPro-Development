@@ -85,9 +85,6 @@
 
 
 
-
-
-
 		var JBTData = {};
 
 
@@ -173,9 +170,12 @@
 			if (dashboard.CustomStartDate && dashboard.CustomEndDate) {
 
 				dashboard.derivedStartDate = dashboard.CustomStartDate;
-				dashboard.webApiParameterStartDate = utilityService.GetUTCQueryDate(dashboard.CustomBeginDate);
 				dashboard.derivedEndDate = dashboard.CustomEndDate;
+
+				dashboard.webApiParameterStartDate = utilityService.GetUTCQueryDate(dashboard.CustomBeginDate);
 				dashboard.webApiParameterEndDate = utilityService.GetUTCQueryDate(dashboard.CustomEndDate);
+				dashboard.oDataFilterStartDate = utilityService.GetUTCQueryDate(dashboard.derivedStartDate);
+				dashboard.oDataFilterEndDate = utilityService.GetUTCQueryDate(dashboard.derivedEndDate);
 
 			} else {
 				var d = new Date();
@@ -208,6 +208,8 @@
 			}
 			dashboard.webApiParameterStartDate = utilityService.GetUTCQueryDate(dashboard.derivedStartDate);
 			dashboard.webApiParameterEndDate = utilityService.GetUTCQueryDate(dashboard.derivedEndDate);
+			dashboard.oDataFilterStartDate = utilityService.GetUTCQueryDate(dashboard.derivedStartDate);
+			dashboard.oDataFilterEndDate = utilityService.GetUTCQueryDate(dashboard.derivedEndDate);
 			return dashboard;
 
 		}
@@ -309,8 +311,10 @@
 
 		function LoadDataCollections() {
 
+
+			//++LocalDB Configuration
 			//Get an instance of the localDB and proceed from there.
-			indexedDBService.getDBInstance("iOPS", 27, [
+			indexedDBService.getDBInstance("iOPS", 31, [
 							{
 								dataStoreName: "Companies",
 								keyName: "Id"
@@ -326,6 +330,16 @@
 							{
 								dataStoreName: "Tags",
 								keyName: "Id"
+							},
+							{
+								dataStoreName: "TagChartDays",
+								keyName: "TagId",
+								indices: [
+									{
+										name: 'TagDay',
+										fieldName: ''
+									}
+								]
 							},
 							{
 								dataStoreName: "JBTStandardObservations",
@@ -1064,6 +1078,7 @@
 						IsCritical: tag.IsCritical,
 						IsWarning: tag.IsWarning,
 						IsAlarm: tag.IsAlarm,
+						ValueWhenActive: tag.ValueWhenActive || "1",
 						AssetName: tag.AssetName,
 						GateName: tag.GateName,
 						Severity: tag.IsCritical ? 'Critical' :
@@ -1091,12 +1106,13 @@
 
 		}
 
-		service.GetAllSignalRObservationFormattedTagsForAssetIdIntoInventoryByListOfAssetIds = function (assetIdList) {
+		service.GetAllSignalRObservationFormattedTagsForAssetIdIntoInventoryByListOfAssetIds = function (assetIdList, alarmsOnly) {
 
 
 			var notLoadedAssetIds = ("" + assetIdList).split(',').distinct().where(function (assetId) {
 
-				return !cache.assets.first(function (a) { return a.Id == +assetId }).AllTagsLoaded;
+				var asset = cache.assets.first(function(a) { return a.Id == +assetId });
+				return (!alarmsOnly && !asset.AllTagsLoaded) || (alarmsOnly && !asset.AllAlarmTagsLoaded);
 
 			});
 
@@ -1108,14 +1124,22 @@
 			//The asset object in the dataService might have already loaded all its tags into the running inventory. If it has, we do nothing.
 			if (notLoadedAssetIds.length > 0) {
 
-				return service.GetIOPSResource("Tags")
-					//.expand("LastObservation")
-					.filter($odata.Predicate.or(notLoadedAssetIds.select(function (assetId) {
+
+				var baseQuery = service.GetIOPSResource("Tags")
+					.filter($odata.Predicate.or(notLoadedAssetIds.select(function(assetId) {
 						return new $odata.Predicate("AssetId", +assetId);
-					})))
-					.select(["Id", "Name", "SiteId", "LastObservationDate", "LastObservationCreationDate", "AssetId",
+					})));
+
+
+				var standardIdsToLoad = [12323, 12324, 12325, 4331, 4445, 4765, 12255];
+
+				if (alarmsOnly) {
+					baseQuery = baseQuery.filter($odata.Predicate.or(standardIdsToLoad.select(function(sid){ return new $odata.Predicate("JBTStandardObservationId", sid)})));
+				}
+
+				return baseQuery.select(["Id", "Name", "SiteId", "LastObservationDate", "LastObservationCreationDate", "AssetId",
 						"LastObservationId", "JBTStandardObservationId",
-						"LastObservationTextValue", "LastObservationQuality", "IsAlarm", "IsWarning"])
+						"LastObservationTextValue", "LastObservationQuality", "IsAlarm", "IsWarning", "ValueWhenActive"])
 					.query()
 					.$promise
 					.then(function (data) {
@@ -1155,7 +1179,8 @@
 									Severity: tag.IsCritical ? 'Critical' :
 										tag.IsAlarm ? 'Alarm' :
 											tag.IsWarning ? 'Warning' :
-												''
+												'',
+									ValueWhenActive: tag.ValueWhenActive || "1"
 
 								}
 
@@ -1180,9 +1205,12 @@
 					notLoadedAssetIds.forEach(function (assetId) {
 						var asset = cache.assets.first(function (a) { return a.Id == +assetId });
 
-						//Flag the asset as having all of its tags now loaded. 
+						//Flag the asset as having all of its tags now loaded if it was not just the alarms loaded. 
 						if (asset) {
-							asset.AllTagsLoaded = true;
+							if (!alarmsOnly) {							
+								asset.AllTagsLoaded = true;
+							}
+							asset.AllAlarmTagsLoaded = true;
 						}
 					});
 				});
@@ -1206,16 +1234,14 @@
 					.filter("AssetId", assetId)
 					.select(["Id", "Name", "SiteId", "LastObservationDate", "LastObservationCreationDate", "AssetId",
 						"LastObservationId", "JBTStandardObservationId",
-						"LastObservationTextValue", "LastObservationQuality", "IsAlarm", "IsWarning"])
+						"LastObservationTextValue", "LastObservationQuality", "IsAlarm", "IsWarning", "ValueWhenActive"])
 					.query()
 					.$promise
 					.then(function (data) {
 
 
 
-						//console.log("service.GetAllSignalRObservationFormattedTagsForAssetIdIntoInventory Aircraft Docked data = %O", data.first(function (d) { return d.JBTStandardObservationId == 12245 }));
-						//console.log("service.GetAllSignalRObservationFormattedTagsForAssetIdIntoInventory Audible Warning data = %O", data.first(function (d) { return d.JBTStandardObservationId == 3792 }));
-
+						//console.log("GetAllSignalRObservationFormattedTagsForAssetIdIntoInventory Data = %O", data);
 
 						data
 							.where(function (tag) { return tag.Name.indexOf('|') > 0 }) //Only the new format tags have pipe symbols in the name.
@@ -1250,7 +1276,10 @@
 									Severity: tag.IsCritical ? 'Critical' :
 										tag.IsAlarm ? 'Alarm' :
 											tag.IsWarning ? 'Warning' :
-												''
+												'',
+									IsAlarm: tag.IsAlarm,
+									IsWarning: tag.IsWarning,
+									ValueWhenActive: tag.ValueWhenActive || "1"
 
 								}
 
@@ -1260,13 +1289,6 @@
 								signalRData.ObservationLocalDate = utilityService.GetLocalDateFromUTCDate(signalRData.ObservationUTCDate);
 
 								AttachShortTagNameToTagData(signalRData);
-
-
-
-								if (signalRData.JBTStandardObservationId == 12245 || signalRData.JBTStandardObservationId == 3792) {
-
-									//console.log("Pre-Load observation to be added to inventory = %O", signalRData);
-								}
 
 								LoadSignalRObservationToInventory(signalRData);
 
@@ -1289,10 +1311,10 @@
 		service.dataSourceIsLocal = document.URL.indexOf("localhost/iops/") > 0;
 
 
-		//===================================================================================================================
+		//***G
 		//++SignalR Observation Update - push messages in real-time.
-		//This function is run whenever each signalR message arrives.
-		//===================================================================================================================
+		//+This function is run whenever each signalR message arrives.
+		//***G
 		var tagLookupAverage = 0;
 		function UpdateObservationFromSignalR(signalRData) {
 			//Split the change data out into the components
@@ -1325,6 +1347,7 @@
 			signalRData.IsWarning = signalRData.IsWarning == '1';
 			signalRData.IsAlarm = signalRData.IsAlarm == '1';
 			signalRData.IsCritical = signalRData.IsCritical == '1';
+			signalRData.ValueWhenActive = signalRData.ValueWhenActive || "1", 
 			signalRData.Severity = signalRData.IsCritical ? 'Critical' :
 													signalRData.IsAlarm ? 'Alarm' :
 														signalRData.IsWarning ? 'Warning' :
@@ -1337,6 +1360,8 @@
 			LoadSignalRObservationToInventory(signalRData);
 
 		}
+
+		//***G
 
 
 
@@ -1482,6 +1507,7 @@
 						tag.ObservationId = +newObservation.ObservationId;
 						tag.Metadata.Status.LastValueWasHistorical = false;
 						tag.Value = newObservation.Value;
+						tag.ValueWhenActive = newObservation.ValueWhenActive || "1";
 					} else {
 
 						console.log("Tag is historical. Tag in inventory = %O", tag);
@@ -3560,6 +3586,7 @@
 		}
 
 		var timeZoneOffsetHoursFromUTC = (new Date().getTimezoneOffset()) / 60;
+		console.log("utilityService timeZoneOffsetHoursFromUTC = %O", timeZoneOffsetHoursFromUTC);
 
 
 		service.GetLocalDateFromUTCDate = function (utcDate) {
@@ -3607,7 +3634,9 @@
 		}
 
 		service.GetUTCQueryDate = function (inputDate) {
-			var newDate = moment(inputDate).add(timeZoneOffsetHoursFromUTC, 'hours');
+			//var newDate = moment(inputDate).add(timeZoneOffsetHoursFromUTC, 'hours');
+			//return translateMomentDateToJavascriptDate(newDate);
+			var newDate = moment(inputDate);
 			return translateMomentDateToJavascriptDate(newDate);
 		}
 

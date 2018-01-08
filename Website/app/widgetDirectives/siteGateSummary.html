@@ -23,7 +23,8 @@
                                  ng-dblclick="vm.AddToDashboard(group.PBBUnitOnTag, $event)" 
                                  title="Click = PBB Detailed Summary Popup&#13;DblClick = Add PBB Detailed Summary to this dashboard"   
                                  ng-if="group.GateSystem.PBBPresent" 
-                                 style="background-color: {{+group.PBBUnitOnTag.LastObservationTextValue == 1 ? '#00ff00' : '#dedede'}}; border: 2px solid lightblue; height: 20px; width:40px; cursor:pointer;">
+                                 ng-class="{ 'comm-loss-hatching': group.PBBAsset.CommLossTag.Value == '1'}"
+                                 style="background-color: {{+group.PBBUnitOnTag.LastObservationTextValue == 1 ? '#00ff00' : '#dedede'}}; border:2px solid  {{group.PBBAsset.AlarmActiveTag && group.PBBAsset.CommLossTag.Value == '0' && +group.PBBAsset.AlarmActiveTag.ValueWhenActive == +group.PBBAsset.AlarmActiveTag.Value ? 'red' : 'lightblue'}}; height: 20px; width:40px; cursor:pointer;">
                                 &nbsp;
                             </div>
                         </td>
@@ -37,7 +38,8 @@
                                  ng-dblclick="vm.AddToDashboard(group.PCAUnitOnTag, $event)" 
                                  title="Click = PCA Detailed Summary Popup&#13;DblClick = Add PCA Detailed Summary to this dashboard"   
                                  ng-if="group.GateSystem.PCAPresent" 
-                                 style="background-color: {{+group.PCAUnitOnTag.LastObservationTextValue == 1 ? '#00ff00' : '#dedede'}}; border: 2px solid lightblue; height: 20px; width: 40px; cursor:pointer;">
+                                 ng-class="{ 'comm-loss-hatching': group.PCAAsset.CommLossTag.Value == '1'}"
+                                 style="background-color: {{+group.PCAUnitOnTag.LastObservationTextValue == 1 ? '#00ff00' : '#dedede'}}; border:2px solid  {{group.PCAAsset.AlarmActiveTag && group.PCAAsset.CommLossTag.Value == '0'  && +group.PCAAsset.AlarmActiveTag.ValueWhenActive == +group.PCAAsset.AlarmActiveTag.Value ? 'red' : 'lightblue'}}; height: 20px; width: 40px; cursor:pointer;">
                                 &nbsp;
                             </div>
                         </td>
@@ -47,12 +49,14 @@
                             GPU
                         </td>
                         <td ng-repeat="group in vm.gateTagGroups" style="padding-left:5px; padding-right: 5px; padding-top: 3px; padding-bottom: 3px; border: 1px solid gray; width: 50px; min-width: 50px; max-width: 50px;">
-                            <div sglclick="vm.OpenSummaryWidget(group.GPUUnitOnTag, $event)" 
-                                 ng-dblclick="vm.AddToDashboard(group.GPUUnitOnTag, $event)" 
-                                 title="Click = GPU Detailed Summary Popup&#13;DblClick = Add GPU Detailed Summary to this dashboard"   
-                                 ng-if="group.GateSystem.GPUPresent" 
-                                 style="background-color: {{+group.GPUUnitOnTag.LastObservationTextValue == 1 ? '#00ff00' : '#dedede'}}; border: 2px solid lightblue; height: 20px; width:40px; cursor:pointer;">
+                            <div sglclick="vm.OpenSummaryWidget(group.GPUUnitOnTag, $event)"
+                                 ng-dblclick="vm.AddToDashboard(group.GPUUnitOnTag, $event)"
+                                 title="Click = GPU Detailed Summary Popup&#13;DblClick = Add GPU Detailed Summary to this dashboard"
+                                 ng-if="group.GateSystem.GPUPresent"
+                                 ng-class="{ 'comm-loss-hatching': group.GPUAsset.CommLossTag.Value == '1'}"
+                                 style="background-color: {{+group.GPUUnitOnTag.LastObservationTextValue == 1 ? '#00ff00' : '#dedede'}}; border:2px solid  {{group.GPUAsset.AlarmActiveTag && group.GPUAsset.CommLossTag.Value == '0'  && +group.GPUAsset.AlarmActiveTag.ValueWhenActive == +group.GPUAsset.AlarmActiveTag.Value ? 'red' : 'lightblue'}}; height: 20px; width:40px; cursor:pointer;">
                                 &nbsp;
+                                
                             </div>
                         </td>
                     </tr>
@@ -75,19 +79,6 @@
                             style="text-align: right; background-color: white; border: 1px solid gray; font-weight: bold; width: 50px; min-width: 50px; max-width: 50px;">
                             <div style="width: 40px;">
                                 {{group.AverageAmpsOutTag.DisplayValue}}
-                            </div>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td style="font-size: .9em; font-weight: bold;">
-                            Alarms & Warnings
-                        </td>
-                        <td ng-repeat="group in vm.gateTagGroups" style="padding-left:5px; padding-right: 5px; padding-top: 3px; padding-bottom: 3px; border: 1px solid gray; width: 50px; min-width: 50px; max-width: 50px;">
-                            <div sglclick="vm.OpenSummaryWidget(group.GPUUnitOnTag, $event)" 
-                                 title="Click = Expand Active Alarms and Warnings"   
-                                 ng-if="group.AlarmsOrWarningsPresent" 
-                                 style="background-color: {{+group.GPUUnitOnTag.LastObservationTextValue == 1 ? '#00ff00' : '#dedede'}}; border: 2px solid lightblue; height: 20px; width:40px; cursor:pointer;">
-                                &nbsp;
                             </div>
                         </td>
                     </tr>

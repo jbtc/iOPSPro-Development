@@ -321,10 +321,12 @@
 									var countForDataRow = matchingDataRow ? matchingDataRow.BagCount : 0;
 
 									//console.log("location = " + location + "   BHSName = " + bhs);
-									var seriesData = vm.chart.series[vm.bhsCounter++].data[vm.locationCategoryIndex];
+									if (vm.chart && vm.chart.series) {
+										var seriesData = vm.chart.series[vm.bhsCounter++].data[vm.locationCategoryIndex];									
+										seriesData.update(countForDataRow, false);
+									}
 
 
-									seriesData.update(countForDataRow, false);
 
 								});
 								vm.bhsCounter = 0;

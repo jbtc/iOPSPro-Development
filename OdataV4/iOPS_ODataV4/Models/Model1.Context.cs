@@ -82,8 +82,9 @@ namespace iOPS_ODataV4.Models
         public virtual DbSet<GSAlarmHistory> GSAlarmHistories { get; set; }
         public virtual DbSet<ObservationExceptionComment> ObservationExceptionComments { get; set; }
         public virtual DbSet<ObservationException> ObservationExceptions { get; set; }
+        public virtual DbSet<WidgetTypeTabGroup> WidgetTypeTabGroups { get; set; }
     
-        public virtual ObjectResult<BHSLocationThroughput_Result1> BHSLocationThroughput(Nullable<System.DateTime> beginDate, Nullable<System.DateTime> endDate, string location)
+        public virtual ObjectResult<BHSLocationThroughput_Result1> BHSLocationThroughput(Nullable<System.DateTime> beginDate, Nullable<System.DateTime> endDate, string location, Nullable<long> siteId)
         {
             var beginDateParameter = beginDate.HasValue ?
                 new ObjectParameter("beginDate", beginDate) :
@@ -97,7 +98,11 @@ namespace iOPS_ODataV4.Models
                 new ObjectParameter("location", location) :
                 new ObjectParameter("location", typeof(string));
     
-            return ((IObjectContextAdapter)this).ObjectContext.ExecuteFunction<BHSLocationThroughput_Result1>("BHSLocationThroughput", beginDateParameter, endDateParameter, locationParameter);
+            var siteIdParameter = siteId.HasValue ?
+                new ObjectParameter("siteId", siteId) :
+                new ObjectParameter("siteId", typeof(long));
+    
+            return ((IObjectContextAdapter)this).ObjectContext.ExecuteFunction<BHSLocationThroughput_Result1>("BHSLocationThroughput", beginDateParameter, endDateParameter, locationParameter, siteIdParameter);
         }
     
         public virtual ObjectResult<BHSActiveAlarmSummaryByDayWithAverageDurationInSeconds_Result1> BHSActiveAlarmSummaryByDayWithAverageDurationInSeconds(Nullable<System.DateTime> startDate, Nullable<System.DateTime> endDate, Nullable<long> siteId)
@@ -560,6 +565,121 @@ namespace iOPS_ODataV4.Models
                 new ObjectParameter("SiteId", typeof(long));
     
             return ((IObjectContextAdapter)this).ObjectContext.ExecuteFunction<GSTop5AlarmTypes3_Result>("GSTop5AlarmTypes3", beginTimeParameter, endTimeParameter, siteIdParameter);
+        }
+    
+        public virtual ObjectResult<GSTop5AlarmTypesByEquipment_Result> GSTop5AlarmTypesByEquipment(Nullable<System.DateTime> beginTime, Nullable<System.DateTime> endTime, Nullable<long> siteId)
+        {
+            var beginTimeParameter = beginTime.HasValue ?
+                new ObjectParameter("BeginTime", beginTime) :
+                new ObjectParameter("BeginTime", typeof(System.DateTime));
+    
+            var endTimeParameter = endTime.HasValue ?
+                new ObjectParameter("EndTime", endTime) :
+                new ObjectParameter("EndTime", typeof(System.DateTime));
+    
+            var siteIdParameter = siteId.HasValue ?
+                new ObjectParameter("SiteId", siteId) :
+                new ObjectParameter("SiteId", typeof(long));
+    
+            return ((IObjectContextAdapter)this).ObjectContext.ExecuteFunction<GSTop5AlarmTypesByEquipment_Result>("GSTop5AlarmTypesByEquipment", beginTimeParameter, endTimeParameter, siteIdParameter);
+        }
+    
+        [DbFunction("iOPS_NormalizedEntities", "GSEquipmentUsage_TVF_Query")]
+        public virtual IQueryable<GSEquipmentUsage_TVF_Query_Result> GSEquipmentUsage_TVF_Query(Nullable<System.DateTime> beginTime, Nullable<System.DateTime> endTime, Nullable<long> siteId)
+        {
+            var beginTimeParameter = beginTime.HasValue ?
+                new ObjectParameter("BeginTime", beginTime) :
+                new ObjectParameter("BeginTime", typeof(System.DateTime));
+    
+            var endTimeParameter = endTime.HasValue ?
+                new ObjectParameter("EndTime", endTime) :
+                new ObjectParameter("EndTime", typeof(System.DateTime));
+    
+            var siteIdParameter = siteId.HasValue ?
+                new ObjectParameter("SiteId", siteId) :
+                new ObjectParameter("SiteId", typeof(long));
+    
+            return ((IObjectContextAdapter)this).ObjectContext.CreateQuery<GSEquipmentUsage_TVF_Query_Result>("[iOPS_NormalizedEntities].[GSEquipmentUsage_TVF_Query](@BeginTime, @EndTime, @SiteId)", beginTimeParameter, endTimeParameter, siteIdParameter);
+        }
+    
+        public virtual ObjectResult<BHSFilterByAlarmTypesbyArea_Result> BHSFilterByAlarmTypesbyArea(Nullable<System.DateTime> beginTime, Nullable<System.DateTime> endTime, string alarmTypeList, Nullable<int> topNumber, Nullable<long> siteId)
+        {
+            var beginTimeParameter = beginTime.HasValue ?
+                new ObjectParameter("BeginTime", beginTime) :
+                new ObjectParameter("BeginTime", typeof(System.DateTime));
+    
+            var endTimeParameter = endTime.HasValue ?
+                new ObjectParameter("EndTime", endTime) :
+                new ObjectParameter("EndTime", typeof(System.DateTime));
+    
+            var alarmTypeListParameter = alarmTypeList != null ?
+                new ObjectParameter("AlarmTypeList", alarmTypeList) :
+                new ObjectParameter("AlarmTypeList", typeof(string));
+    
+            var topNumberParameter = topNumber.HasValue ?
+                new ObjectParameter("TopNumber", topNumber) :
+                new ObjectParameter("TopNumber", typeof(int));
+    
+            var siteIdParameter = siteId.HasValue ?
+                new ObjectParameter("SiteId", siteId) :
+                new ObjectParameter("SiteId", typeof(long));
+    
+            return ((IObjectContextAdapter)this).ObjectContext.ExecuteFunction<BHSFilterByAlarmTypesbyArea_Result>("BHSFilterByAlarmTypesbyArea", beginTimeParameter, endTimeParameter, alarmTypeListParameter, topNumberParameter, siteIdParameter);
+        }
+    
+        public virtual ObjectResult<BHSPercentCBRAPerDay_Result> BHSPercentCBRAPerDay(Nullable<System.DateTime> beginDateTime, Nullable<System.DateTime> endDateTime, Nullable<long> siteId)
+        {
+            var beginDateTimeParameter = beginDateTime.HasValue ?
+                new ObjectParameter("BeginDateTime", beginDateTime) :
+                new ObjectParameter("BeginDateTime", typeof(System.DateTime));
+    
+            var endDateTimeParameter = endDateTime.HasValue ?
+                new ObjectParameter("EndDateTime", endDateTime) :
+                new ObjectParameter("EndDateTime", typeof(System.DateTime));
+    
+            var siteIdParameter = siteId.HasValue ?
+                new ObjectParameter("SiteId", siteId) :
+                new ObjectParameter("SiteId", typeof(long));
+    
+            return ((IObjectContextAdapter)this).ObjectContext.ExecuteFunction<BHSPercentCBRAPerDay_Result>("BHSPercentCBRAPerDay", beginDateTimeParameter, endDateTimeParameter, siteIdParameter);
+        }
+    
+        public virtual ObjectResult<BHSPercentCBRAPerHour_Result> BHSPercentCBRAPerHour(Nullable<System.DateTime> beginDateTime, Nullable<System.DateTime> endDateTime, Nullable<long> siteId)
+        {
+            var beginDateTimeParameter = beginDateTime.HasValue ?
+                new ObjectParameter("BeginDateTime", beginDateTime) :
+                new ObjectParameter("BeginDateTime", typeof(System.DateTime));
+    
+            var endDateTimeParameter = endDateTime.HasValue ?
+                new ObjectParameter("EndDateTime", endDateTime) :
+                new ObjectParameter("EndDateTime", typeof(System.DateTime));
+    
+            var siteIdParameter = siteId.HasValue ?
+                new ObjectParameter("SiteId", siteId) :
+                new ObjectParameter("SiteId", typeof(long));
+    
+            return ((IObjectContextAdapter)this).ObjectContext.ExecuteFunction<BHSPercentCBRAPerHour_Result>("BHSPercentCBRAPerHour", beginDateTimeParameter, endDateTimeParameter, siteIdParameter);
+        }
+    
+        public virtual ObjectResult<BHSAlarmHistorySSRS_Result> BHSAlarmHistorySSRS(Nullable<System.DateTime> fromDate, Nullable<System.DateTime> toDate, Nullable<long> siteId, string oDataAccessToken)
+        {
+            var fromDateParameter = fromDate.HasValue ?
+                new ObjectParameter("fromDate", fromDate) :
+                new ObjectParameter("fromDate", typeof(System.DateTime));
+    
+            var toDateParameter = toDate.HasValue ?
+                new ObjectParameter("toDate", toDate) :
+                new ObjectParameter("toDate", typeof(System.DateTime));
+    
+            var siteIdParameter = siteId.HasValue ?
+                new ObjectParameter("siteId", siteId) :
+                new ObjectParameter("siteId", typeof(long));
+    
+            var oDataAccessTokenParameter = oDataAccessToken != null ?
+                new ObjectParameter("ODataAccessToken", oDataAccessToken) :
+                new ObjectParameter("ODataAccessToken", typeof(string));
+    
+            return ((IObjectContextAdapter)this).ObjectContext.ExecuteFunction<BHSAlarmHistorySSRS_Result>("BHSAlarmHistorySSRS", fromDateParameter, toDateParameter, siteIdParameter, oDataAccessTokenParameter);
         }
     }
 }

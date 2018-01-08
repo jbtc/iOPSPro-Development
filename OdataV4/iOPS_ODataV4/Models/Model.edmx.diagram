@@ -38,7 +38,7 @@
         <EntityTypeShape EntityType="iOPS_NormalizedModel.CompanyType" Width="1.5" PointX="16" PointY="16.625" />
         <AssociationConnector Association="iOPS_NormalizedModel.FK_Client_ClientType" />
         <EntityTypeShape EntityType="iOPS_NormalizedModel.SystemType" Width="1.5" PointX="18.5" PointY="9.75" />
-        <EntityTypeShape EntityType="iOPS_NormalizedModel.Observation" Width="1.5" PointX="35.5" PointY="3.25" />
+        <EntityTypeShape EntityType="iOPS_NormalizedModel.Observation" Width="2.25" PointX="35.5" PointY="3.25" />
         <EntityTypeShape EntityType="iOPS_NormalizedModel.Tag" Width="3.375" PointX="31.125" PointY="0.875" />
         <AssociationConnector Association="iOPS_NormalizedModel.FK_Observation_Tag" />
         <EntityTypeShape EntityType="iOPS_NormalizedModel.SystemGroup" Width="1.5" PointX="13.75" PointY="9.75" />
@@ -48,18 +48,18 @@
         <AssociationConnector Association="iOPS_NormalizedModel.FK_System_SystemType" />
         <EntityTypeShape EntityType="iOPS_NormalizedModel.CustomJBTStandardObservation" Width="2.625" PointX="22.375" PointY="9.875" />
         <EntityTypeShape EntityType="iOPS_NormalizedModel.JBTStandardObservation" Width="4.375" PointX="31.875" PointY="13.75" />
-        <EntityTypeShape EntityType="iOPS_NormalizedModel.Unit" Width="1.5" PointX="37.25" PointY="11.125" />
+        <EntityTypeShape EntityType="iOPS_NormalizedModel.Unit" Width="1.5" PointX="38.125" PointY="14.625" />
         <AssociationConnector Association="iOPS_NormalizedModel.FK_CustomJBTStandardObservation_Company" />
         <AssociationConnector Association="iOPS_NormalizedModel.FK_CustomJBTStandardObservation_JBTStandardObservation" />
         <AssociationConnector Association="iOPS_NormalizedModel.FK_JBTStandardObservation_Unit" />
         <AssociationConnector Association="iOPS_NormalizedModel.FK_Tag_JBTStandardObservation" />
         <EntityTypeShape EntityType="iOPS_NormalizedModel.Widget" Width="1.875" PointX="29.625" PointY="24.125" />
-        <EntityTypeShape EntityType="iOPS_NormalizedModel.WidgetType" Width="2.875" PointX="32.25" PointY="24.125" />
+        <EntityTypeShape EntityType="iOPS_NormalizedModel.WidgetType" Width="2.875" PointX="33" PointY="24.375" />
         <AssociationConnector Association="iOPS_NormalizedModel.FK_Widget_WidgetType" />
         <EntityTypeShape EntityType="iOPS_NormalizedModel.StateAbbreviation" Width="2.25" PointX="38.5" PointY="5.125" />
         <EntityTypeShape EntityType="iOPS_NormalizedModel.BHSBagTagScan" Width="1.5" PointX="1.75" PointY="22" />
         <AssociationConnector Association="iOPS_NormalizedModel.FK_BagTagScan_Site" />
-        <EntityTypeShape EntityType="iOPS_NormalizedModel.DatabaseMailQueue" Width="3.125" PointX="39.75" PointY="10.125" />
+        <EntityTypeShape EntityType="iOPS_NormalizedModel.DatabaseMailQueue" Width="3.125" PointX="43.125" PointY="10.25" />
         <EntityTypeShape EntityType="iOPS_NormalizedModel.BHSJamAlarm" Width="2.375" PointX="3.5" PointY="22" />
         <AssociationConnector Association="iOPS_NormalizedModel.FK_JamAlarms_Site" />
         <EntityTypeShape EntityType="iOPS_NormalizedModel.BHSDeviceLocation" Width="2.5" PointX="2.625" PointY="10.375" />
@@ -119,7 +119,7 @@
         <EntityTypeShape EntityType="iOPS_NormalizedModel.Report" Width="1.5" PointX="17.375" PointY="22.875" />
         <EntityTypeShape EntityType="iOPS_NormalizedModel.ReportRun" Width="1.5" PointX="19.625" PointY="23" />
         <AssociationConnector Association="iOPS_NormalizedModel.FK_ReportRun_Report" />
-        <EntityTypeShape EntityType="iOPS_NormalizedModel.GSAlarmHistory" Width="1.5" PointX="36.875" PointY="24.375" />
+        <EntityTypeShape EntityType="iOPS_NormalizedModel.GSAlarmHistory" Width="1.5" PointX="38.25" PointY="8.125" />
         <AssociationConnector Association="iOPS_NormalizedModel.FK_GSAlarmHistory_Tag" />
         <EntityTypeShape EntityType="iOPS_NormalizedModel.ObservationExceptionComment" Width="2.125" PointX="45.5" PointY="6" />
         <EntityTypeShape EntityType="iOPS_NormalizedModel.ObservationException" Width="2.625" PointX="41.75" PointY="5.625" />
@@ -127,6 +127,8 @@
         <AssociationConnector Association="iOPS_NormalizedModel.FK_ObservationException_TerminatingObservationId_Observation" />
         <AssociationConnector Association="iOPS_NormalizedModel.FK_ObservationException_Tag" />
         <AssociationConnector Association="iOPS_NormalizedModel.FK_ObservationExceptionComment_Observation" />
+        <EntityTypeShape EntityType="iOPS_NormalizedModel.WidgetTypeTabGroup" Width="2.25" PointX="38.625" PointY="25.25" />
+        <AssociationConnector Association="iOPS_NormalizedModel.FK_WidgetType_WidgetTypeTabGroup" />
         </Diagram>
     </edmx:Diagrams>
   </edmx:Designer>

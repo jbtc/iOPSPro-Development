@@ -64,6 +64,23 @@ body {
     opacity: .15;
 }
 
+.comm-loss-hatching {
+    border: none; 
+    overflow: hidden; 
+    background-image: linear-gradient(-45deg, blue 25%, transparent 25%, transparent 50%, blue 50%, blue 75%, transparent 75%, transparent);
+    background-size: 4px 4px;
+    opacity: .5;
+   
+}
+
+
+.asset-comm-error-present {
+    background-image: linear-gradient(-45deg, black 25%, transparent 25%, transparent 50%, black 50%, black 75%, transparent 75%, transparent);
+    background-size: 4px 4px;
+    opacity: .15;
+}
+
+
 .linear-meter-normal-active-range {
     border: 1px solid green; 
     overflow: hidden; 

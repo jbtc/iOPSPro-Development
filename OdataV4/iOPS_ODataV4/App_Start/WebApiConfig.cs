@@ -74,6 +74,7 @@ namespace iOPS_ODataV4
             builder.EntitySet<GSAlarmHistory>("GSAlarmHistories");
             builder.EntitySet<ObservationException>("ObservationExceptions");
             builder.EntitySet<ObservationExceptionComment>("ObservationExceptionComments");
+            builder.EntitySet<WidgetTypeTabGroup>("WidgetTypeTabGroups");
 
 
 

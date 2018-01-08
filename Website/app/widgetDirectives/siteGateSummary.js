@@ -50,7 +50,7 @@
 					//Do not display the widget contents until the accordions have been setup.
 					vm.showWidget = false;
 
-					//a double click on the asset indicator will add a summary widget to the dashboard
+					//++A double click on the asset indicator will add a summary widget to the dashboard
 					vm.AddToDashboard = function (tag, $event) {
 
 						console.log("Double Click tag = %O", tag);
@@ -134,12 +134,14 @@
 
 					}
 
-
-
-					vm.OpenSummaryWidget = function(tag, $event) {
+					//***G
+					//++Opening a summary widget popup.
+					//---G
+					vm.OpenSummaryWidget = function (tag, $event) {
 						console.log("Opening summary widget for tag  %O", tag);
 						
-						//Add the child widget if not already in the database.
+
+						//+Add the child widget if not already in the database.
 
 
 						dataService.GetIOPSResource("Widgets")
@@ -269,6 +271,7 @@
 
 
 					};
+					//---G
 
 
 					vm.OpenSettingsIfNoSiteAndCloseIfSiteIsPresent = function () {
@@ -286,7 +289,7 @@
 
 
 
-
+					//---G
 					//Get the site entities for which the user has access.
 					dataService.GetJBTData().then(function (JBTData) {
 						vm.JBTData = JBTData;
@@ -316,7 +319,9 @@
 						vm.widget.displaySettings.headingExtraTitle = GetHeadingExtraTitle();
 					});
 
-
+					//***G
+					//++Data Loading.....
+					//---G
 					function GetData() {
 
 						dataService.GetIOPSResource("JBTStandardObservations")
@@ -335,7 +340,15 @@
 							.then(function (data) {
 
 								data = data[0].Tags.orderBy(function(t){return t.Name});
-								//console.log("siteGateSummary data = %O", data);
+
+								console.log("siteGateSummary data = %O", data);
+
+
+								var assetIds = data.select(function(d) {
+									return d.Asset.Id.toString();
+								}).join(',');
+								console.log("assetIds = %O", assetIds);
+
 
 
 								vm.gateTagGroups = data
@@ -354,7 +367,7 @@
 
 										var outputObject = {
 											GateName: g.key,
-											GateSystem: vm.JBTData.Systems.first(function(s){return s.SiteId == vm.widget.WidgetResource.SiteId && s.TypeId == 3 && s.Name == g.key}),
+											GateSystem: vm.JBTData.Systems.first(function (s) { return s.SiteId == vm.widget.WidgetResource.SiteId && s.TypeId == 3 && s.Name == g.key }),
 											PCAUnitOnTag: g.where(function (t2) { return t2.AssetName == 'PCA' }).orderByDescending(function (t2) { return t2.LastReportedDate }).first(),
 											DischargeTemperatureTag: pcaForGate ?  pcaForGate.dischargeTemperatureTag : null,
 											GPUUnitOnTag: g.where(function(t2){return t2.AssetName == 'GPU'}).orderByDescending(function(t2){return t2.LastReportedDate}).first(),
@@ -363,6 +376,14 @@
 											PBBUnitOnTag: g.where(function(t2){return t2.AssetName == 'PBB' && t2.JBTStandardObservationId == 12374}).orderByDescending(function(t2){return t2.LastReportedDate}).first()
 										}
 
+										//Needed for tracking alarms
+										outputObject.PBBAsset = vm.JBTData.Assets.first(function(a){return a.Name == 'PBB' && a.ParentSystemId == outputObject.GateSystem.Id});
+										outputObject.PCAAsset = vm.JBTData.Assets.first(function(a){return a.Name == 'PCA' && a.ParentSystemId == outputObject.GateSystem.Id});
+										outputObject.GPUAsset = vm.JBTData.Assets.first(function(a){return a.Name == 'GPU' && a.ParentSystemId == outputObject.GateSystem.Id});
+
+
+
+
 										FormatZeroBlankDisplayValueForTag(outputObject.DischargeTemperatureTag);
 										FormatZeroBlankDisplayValueForTag(outputObject.AverageAmpsOutTag);
 										FormatDurationValue(outputObject.HookupDurationSecondsTag);
@@ -370,14 +391,52 @@
 
 									})
 									.orderBy(function(group){ return group.GateName});
-								vm.showWidget = true;
-								//console.log("vm.gateTagGroups = %O", vm.gateTagGroups);
+
+								//+Get all Alarm Tags into the dataservice inventory. The last true parameter will cause the dataService method to only look for alarm tags.
+								dataService.GetAllSignalRObservationFormattedTagsForAssetIdIntoInventoryByListOfAssetIds(assetIds, true).then(function() {
+									console.log("Alarm Tags loaded into inventory");
+
+
+
+									//+Attach the alarms and comm loss tags to the assets on the gate.
+									//Once this is done, then the controller for this directive will no longer have to track them. The data service will be maintaining them.
+									var commLossStandardObservationIds = [4331, 4445, 4765, 12255];
+
+									vm.gateTagGroups.forEach(function (gtg) {
+
+											if (gtg.PBBAsset) {
+												gtg.PBBAsset.AlarmActiveTag = dataService.cache.tags.first(function(t){ return +t.AssetId == +gtg.PBBAsset.Id && t.JBTStandardObservationId == 12323});
+												gtg.PBBAsset.CommLossTag = dataService.cache.tags.first(function(t){ return +t.AssetId == +gtg.PBBAsset.Id &&  commLossStandardObservationIds.any(function(clso){return clso ==  t.JBTStandardObservationId})});
+											}
+											if (gtg.PCAAsset) {
+												gtg.PCAAsset.AlarmActiveTag = dataService.cache.tags.first(function (t) { return +t.AssetId == +gtg.PCAAsset.Id && t.JBTStandardObservationId == 12324});
+												gtg.PCAAsset.CommLossTag = dataService.cache.tags.first(function(t){ return +t.AssetId == +gtg.PCAAsset.Id &&  commLossStandardObservationIds.any(function(clso){return clso ==  t.JBTStandardObservationId})});
+											}
+											if (gtg.GPUAsset) {
+												gtg.GPUAsset.AlarmActiveTag = dataService.cache.tags.first(function(t){ return +t.AssetId == +gtg.GPUAsset.Id && t.JBTStandardObservationId == 12325});
+												gtg.GPUAsset.CommLossTag = dataService.cache.tags.first(function(t){ return +t.AssetId == +gtg.GPUAsset.Id &&  commLossStandardObservationIds.any(function(clso){return clso ==  t.JBTStandardObservationId})});
+											}
+									});
+
+
+									console.log("vm.gateTagGroups = %O", vm.gateTagGroups);
+									vm.showWidget = true;
+
+
+
+
+
+
+								});
+
+
 								vm.widget.displaySettings.headingExtraTitle = GetHeadingExtraTitle();
 							});
 
 
 
 					}
+					//***G
 
 					function FormatDurationValue(tag) {
 						if (tag) {
@@ -441,10 +500,12 @@
 					//***G
 					//++Data Service Tag Updates
 					//---G
-					//The data service is tracking all signalR pushed tag value updates in real-time.
-					//The data service will keep an inventory of all such updates as they happen.
-					//When the data service is finished updating it's local inventory of tag data, it will retransmit "dataService.TagUpdate" to the rest of the application locally.
-					//We will watch for it here and set the appropriate graphics flag.
+					//+The data service is tracking all signalR pushed tag value updates in real-time.
+					//+The data service will keep an inventory of all such updates as they happen.
+					//+When the data service is finished updating it's local inventory of tag data, it will retransmit "dataService.TagUpdate" to the rest of the application locally.
+					//+We will watch for it here and set the appropriate graphics flag.
+					//---G
+
 					$scope.$on("dataService.TagUpdate", function (event, updatedTag) {
 
 						//console.log("tag update updatedTag = %O", updatedTag);

@@ -37,6 +37,9 @@
 			case 'siteActiveAlarms':
 			case 'siteActiveWarnings':
 		    case 'gsTopFiveAlarmTypes':
+		    case 'gsTopFiveAlarmTypesByEquipment':
+		    case 'gsEquipmentUsage':
+		    case 'gsEquipmentHoursOfUsage':
 
 				vm.selectSite = true;
 				vm.selectTerminal = vm.selectZone = vm.selectGate = vm.selectAsset = vm.selectBHS = false;
@@ -2298,7 +2301,7 @@
 						time = (new Date()).getTime(),
 						i;
 
-					for (i = -250; i <= 0; i += 1) {
+					for (i = -750; i <= 0; i += 1) {
 						data.push({
 							x: time + i * 1000,
 							y: 0
@@ -3187,10 +3190,11 @@
 
 		if ($stateParams.WidgetTypeId > 0) {
 			//Existing widget type
-
-			dataService.GetEntityById("WidgetTypes", $stateParams.WidgetTypeId).then(function (wt) {
-				vm.widgetType = wt;
-				vm.originalWidgetType = angular.copy(wt);
+			$q.all([
+				dataService.GetEntityById("WidgetTypes", $stateParams.WidgetTypeId).then(function(data) { vm.widgetType = data }),
+				dataService.GetIOPSCollection("WidgetTypeTabGroups").then(function(data) { vm.widgetTypeTabGroups = data })
+			]).then(function() {
+				vm.originalWidgetType = angular.copy(vm.widgetType);
 				vm.panelTitle = "" + vm.widgetType.DataTypeCode + " - " + vm.widgetType.Name;
 
 
@@ -3198,7 +3202,17 @@
 				vm.isAvailableToAll = vm.widgetType.IsAvailableToAll ? 1 : 0;
 				vm.hasSettings = vm.widgetType.HasSettings ? 1 : 0;
 				vm.showScreen = true;
+
+
+
 				console.log("vm.widgetType = %O", vm.widgetType);
+
+			});
+
+
+
+			dataService.GetEntityById("WidgetTypes", $stateParams.WidgetTypeId).then(function (wt) {
+				vm.widgetType = wt;
 
 			});
 
@@ -3334,7 +3348,7 @@
 		GetData();
 
 
-		//////////////////////////////////////////////////
+		//---G
 		//Section that provides for development priority reordering
 		//////////////////////////////////////////////////
 		var fixHelperModified = function (e, tr) {
@@ -3348,7 +3362,9 @@
 		updateIndex = function (e, ui) {
 
 			//console.log("---------------------------");
-			dataService.GetIOPSCollection("WidgetTypes").then(function (dbWt) {
+			dataService.GetIOPSResource("WidgetTypes")
+				.expand("WidgetTypeTabGroups")
+				.then(function (dbWt) {
 				vm.dbWt = dbWt;
 				var currentReorderNumber = 0;
 				$('#widgetTypesTable tbody tr').each(function () {

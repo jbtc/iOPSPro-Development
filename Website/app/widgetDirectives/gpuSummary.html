@@ -280,7 +280,7 @@
                                     </tr>
                                 </thead>
                                 <tbody vs-repeat vs-autoresize vs-scroll-parent=".repeater-container" vs-scrolled-to-end="vm.scrolledToEnd()" style="overflow-y: scroll; height: 100px;">
-                                    <tr ng-repeat="alarm in vm.alarms | orderBy: vm.widget.displaySettings.alarmDataSortField" style="background-color: {{tag.Metadata.Status.LastValueWasHistorical ? 'rgba(173, 173, 173,' : 'rgba(0, 255, 0,'}} .{{tag.Metadata.UpdateCountDowns.OneSecond}});">
+                                    <tr ng-repeat="alarm in vm.alarms | orderBy: vm.widget.displaySettings.alarmDataSortField | filter: vm.alarmFilterFunction" style="background-color: {{tag.Metadata.Status.LastValueWasHistorical ? 'rgba(173, 173, 173,' : 'rgba(0, 255, 0,'}} .{{tag.Metadata.UpdateCountDowns.OneSecond}});">
                                         <td nowrap>{{alarm.PLCLocalDate | date:'MM/dd HH:mm:ss'}}</td>
                                         <td nowrap><div ng-class="{ 'pulsing': alarm.Severity == 'Critical'}" style="width: 1%;">{{alarm.Severity}}</div></td>
                                         <td nowrap>{{alarm.JBTStandardObservation.Name}}</td>
@@ -380,6 +380,11 @@
                 </div>
             </div>
 
+        </div>
+        <div ng-show="vm.widget.displaySettings.commLossTag.Value == '1'" class="comm-loss-backdrop noselect">
+            <div class="comm-loss-message">
+                Communication Lost
+            </div>
         </div>
     </div>
 </div>

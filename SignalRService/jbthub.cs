@@ -77,10 +77,12 @@ namespace SignalRService
 
 		public async Task LeaveGroup(string groupName)
 		{
-			await Groups.Remove(Context.ConnectionId, groupName);
+
+            await Groups.Remove(Context.ConnectionId, groupName);
 		}
 
-		
+        
+
 	
 
 	}

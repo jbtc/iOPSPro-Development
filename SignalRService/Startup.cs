@@ -40,7 +40,13 @@ namespace SignalRService
                 // since this branch already runs under the "/signalr"
                 // path.
                 map.RunSignalR(hubConfiguration);
-			});
+
+
+
+
+
+
+            });
 		}
 	}
 }

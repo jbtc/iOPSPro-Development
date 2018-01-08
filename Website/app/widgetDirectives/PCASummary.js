@@ -23,10 +23,11 @@
 						alarmDataSortField: '-PLCLocalDate',
 						warningsDataSortField: '-PLCLocalDate',
 						headingExtraTitle: '',
-						obscureGraphics: true
+						obscureGraphics: true,
+						commLossTag: vm.commLossTag
 					}
 					vm.scrolledToEnd = function () {
-						console.log("pca Data Scrolled to end");
+						//console.log("pca Data Scrolled to end");
 					}
 
 
@@ -233,6 +234,9 @@
 
 					}
 
+					//***G
+					//++Get the Data
+					//---G
 					function GetPCAAssetForGate() {
 
 
@@ -286,17 +290,45 @@
 							if (!vm.warnings) {
 								vm.warnings = [];
 							}
+							vm.pca.Tags = dataService.cache.tags.where(function (t) { return t.AssetId == vm.pca.Id });
 
-							vm.alarms = vm.pca.Tags.where(function (dsTag) { return dsTag.AssetId == vm.widget.WidgetResource.AssetId && dsTag.IsAlarm });
+							var commLossStandardObservationIds = [4331, 4445, 4765, 12255];
+
+							vm.alarms = vm.pca.Tags.where(function (dsTag) { return dsTag.AssetId == vm.widget.WidgetResource.AssetId && dsTag.IsAlarm && !commLossStandardObservationIds.any(function(a){ return a == dsTag.JBTStandardObservationId }) });
 							vm.warnings = vm.pca.Tags.where(function (dsTag) { return dsTag.AssetId == vm.widget.WidgetResource.AssetId && dsTag.IsWarning });
+							vm.commLossTag = vm.pca.Tags.first(function(t){return commLossStandardObservationIds.any(function(clso){ return clso == t.JBTStandardObservationId})});
 
-							//console.log("vm.alarms = %O", vm.alarms);
-							//console.log("vm.warnings = %O", vm.warnings);
+							console.log("PCA vm.alarms = %O", vm.alarms);
+							console.log("PCA vm.warnings = %O", vm.warnings);
+							console.log("PCA Tags for Asset = %O", vm.pca.Tags);
+							console.log("PCA Comm Loss Tag for Asset = %O", vm.commLossTag);
+
+							vm.widget.displaySettings.commLossTag = vm.commLossTag;
+
+							console.log("PCA Tag Alarms = %O", vm.pca.Tags.select(function(t) {
+								return {
+									SName: t.JBTStandardObservation.Name,
+									IsAlarm: t.IsAlarm
+								}
+							}));
 
 							SetHeadingBackground();
+							
+
+							$timeout(function() {
+								$(function () {
+									$('[data-toggle="tooltip"]').tooltip({html: true});
+								})
+							},50);
+
 						});
 					}
+					//***G
 
+
+					vm.alarmFilterFunction = function(element) {
+						return element.ValueWhenActive == element.Value;
+					};
 
 					function SetTabBodyHeight(repeatCount) {
 						$interval(function () {
@@ -330,7 +362,7 @@
 
 					function SetHeadingBackground() {
 
-						if (vm.alarms && vm.alarms.length > 0) {
+						if (vm.alarms && vm.alarms.length > 0 && vm.alarms.any(function(a){return a.ValueWhenActive == a.Value})) {
 
 							vm.widget.displaySettings.headingBackground = 'linear-gradient(to bottom,#FF0000, #FFDDDD)';
 							//vm.widget.displaySettings.headingBackground = 'linear-gradient(to bottom,#FF0000, #FFFF00)';
@@ -338,13 +370,14 @@
 
 							return;
 						}
-						if(vm.warnings && vm.warnings.length > 0) {
+						//+Commented out the yellow header on warnings present - Can put back in if needed.
+						//if(vm.warnings && vm.warnings.length > 0) {
 
-							vm.widget.displaySettings.headingBackground = 'linear-gradient(to bottom,#FFFF00, #FFFFee)';
+						//	vm.widget.displaySettings.headingBackground = 'linear-gradient(to bottom,#FFFF00, #FFFFee)';
 
 
-							return;
-						}
+						//	return;
+						//}
 
 
 						if (AtLeastOneGraphicIsVisible()) {

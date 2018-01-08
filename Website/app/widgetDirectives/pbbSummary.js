@@ -63,6 +63,11 @@
 
 					}
 
+					vm.alarmFilterFunction = function(element) {
+						return element.ValueWhenActive == element.Value;
+					};
+
+
 
 					vm.tagsToGraph = [];
 
@@ -189,7 +194,7 @@
 					function (newValue, oldValue) {
 						if (vm.widget.WidgetResource.GateSystemId) {
 
-							//console.log("vm.widget.WidgetResource.GateSystemId changed. Now = %O", vm.widget);
+							console.log("vm.widget.WidgetResource.GateSystemId changed. Now = %O", vm.widget);
 
 							if (newValue != oldValue) {
 								vm.pbb = null;
@@ -199,14 +204,17 @@
 								dataService.GetEntityById("SystemGroups", newValue).then(function (gateSystem) {
 									vm.GateSystem = gateSystem;
 								});
+								GetPBBAssetForGate();
 
 							}
-							GetPBBAssetForGate();
 						}
 					});
 
 
 
+					//***G
+					//++Get the Data
+					//---G
 					function GetPBBAssetForGate() {
 
 						dataService.GetJBTData().then(function (jbtData) {
@@ -235,7 +243,7 @@
 							vm.widget.displaySettings.headingExtraTitle = GetHeadingExtraTitle();
 
 							SaveWidgetResourceObjectIfChanged();
-							dataService.GetAllSignalRObservationFormattedTagsForAssetIdIntoInventoryByListOfAssetIds(vm.pbb.Id).then(function () {
+							dataService.GetAllSignalRObservationFormattedTagsForAssetIdIntoInventory(vm.pbb.Id).then(function () {
 
 								vm.AssetGraphics = dataService.cache.assetGraphics.where(function (ag) { return ag.AssetId == vm.pbb.Id });
 
@@ -270,16 +278,28 @@
 									vm.warnings = [];
 								}
 
-								vm.alarms = vm.pbb.Tags.where(function (dsTag) { return dsTag.AssetId == vm.widget.WidgetResource.AssetId && dsTag.IsAlarm});
-								vm.warnings = vm.pbb.Tags.where(function (dsTag) { return dsTag.AssetId == vm.widget.WidgetResource.AssetId && dsTag.IsWarning});
+								vm.pbb.Tags = dataService.cache.tags.where(function(t) { return t.AssetId == vm.pbb.Id });
+								var commLossStandardObservationIds = [4331, 4445, 4765, 12255];
 
-								//console.log("vm.alarms = %O", vm.alarms);
-								//console.log("vm.warnings = %O", vm.warnings);
+								vm.alarms = vm.pbb.Tags.where(function (dsTag) { return dsTag.AssetId == vm.widget.WidgetResource.AssetId && dsTag.IsAlarm && !commLossStandardObservationIds.any(function(a){ return a == dsTag.JBTStandardObservationId })});
+								vm.warnings = vm.pbb.Tags.where(function (dsTag) { return dsTag.AssetId == vm.widget.WidgetResource.AssetId && dsTag.IsWarning});
+								vm.commLossTag = vm.pbb.Tags.first(function(t){return commLossStandardObservationIds.any(function(clso){ return clso == t.JBTStandardObservationId})});
+
+
+
+								vm.widget.displaySettings.commLossTag = vm.commLossTag;
+								console.log("PBB vm.alarms = %O", vm.alarms);
+								console.log("PBB vm.warnings = %O", vm.warnings);
+								console.log("PBB vm.pbb.Tags = %O", vm.pbb.Tags);
+								console.log("PBB CommLossTag = %O", vm.commLossTag);
+
 								SetHeadingBackground();
 
 							});
 						});
 					}
+					//***G
+
 
 					function SetTabBodyHeight(repeatCount) {
 						$interval(function () {
@@ -312,20 +332,22 @@
 
 					function SetHeadingBackground() {
 
-						if (vm.alarms && vm.alarms.length > 0) {
+						if (vm.alarms && vm.alarms.length > 0 && vm.alarms.any(function(a){return a.ValueWhenActive == a.Value})) {
 
 							vm.widget.displaySettings.headingBackground = 'linear-gradient(to bottom,#FF0000, #FFDDDD)';
 
 
 							return;
 						}
-						if(vm.warnings && vm.warnings.length > 0) {
-
-							vm.widget.displaySettings.headingBackground = 'linear-gradient(to bottom,#FFFF00, #FFFFee)';
 
 
-							return;
-						}
+						//+Commented out the yellow header on warnings present - Can put back in if needed.
+						//if(vm.warnings && vm.warnings.length > 0) {
+
+						//	vm.widget.displaySettings.headingBackground = 'linear-gradient(to bottom,#FFFF00, #FFFFee)';
+
+						//	return;
+						//}
 
 
 						if (AtLeastOneGraphicIsVisible()) {
@@ -353,6 +375,7 @@
 
 									vm.widget.WidgetResource.SplitLeftPercentage = vm.widget.WidgetResource.SplitLeftPercentage || 50;
 									vm.widget.WidgetResource.SplitRightPercentage = vm.widget.WidgetResource.SplitRightPercentage || 50;
+
 
 									vm.splitter = Split(['#containerData' + vm.widget.Id, '#containerGraphics' + vm.widget.Id],
 										{

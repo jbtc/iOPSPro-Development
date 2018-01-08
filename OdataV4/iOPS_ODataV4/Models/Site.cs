@@ -43,6 +43,8 @@ namespace iOPS_ODataV4.Models
         public Nullable<int> KepwareSQLTimeDifferenceMSFromCentral { get; set; }
         public Nullable<bool> HasBaggageHandling { get; set; }
         public Nullable<bool> HasGates { get; set; }
+        public Nullable<System.DateTime> LastReportedDataDate { get; set; }
+        public Nullable<System.DateTime> DateLastModified { get; set; }
     
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<SiteCompany> SiteCompanies { get; set; }

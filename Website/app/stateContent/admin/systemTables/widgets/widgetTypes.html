@@ -21,6 +21,9 @@
                         <th style="width: {{vm.columnWidths.name}}%">
                             Name
                         </th>
+                        <th style="width: {{vm.columnWidths.name}}%">
+                            Tab Group
+                        </th>
                         <th style="width: {{vm.columnWidths.description}}%">
                             Description
                         </th>
@@ -58,6 +61,9 @@
                     <tr ng-repeat="wt in vm.widgetTypes track by wt.Id" itemid="{{wt.Id}}">
                         <td>
                             {{wt.Name}}
+                        </td>
+                        <td>
+                            {{wt.WidgetTypeTabGroup.Name}}
                         </td>
                         <td>
                             <div class="scrollable" style="height: 95px;">

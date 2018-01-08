@@ -13,7 +13,7 @@ namespace iOPS_ODataV4.Controllers.WebAPI
         private iOPS_NormalizedEntities db = new iOPS_NormalizedEntities();
         public IEnumerable<BHSLocationThroughput_Result1> Get(DateTime beginDate, DateTime endDate, string location)
         {
-            var result = db.BHSLocationThroughput(beginDate, endDate, location);
+            var result = db.BHSLocationThroughput(beginDate, endDate, location, null);
 
             return result;
 

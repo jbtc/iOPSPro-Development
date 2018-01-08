@@ -89,6 +89,15 @@ namespace iOPS_ODataV4.Controllers.OdataV4
             return db.WidgetTypes.Where(m => m.Id == key).SelectMany(m => m.Widgets);
         }
 
+        // GET: odata/WidgetTypes(5)/WidgetTypeTabGroup
+        [EnableQuery(MaxExpansionDepth = 100)]
+        public SingleResult<WidgetTypeTabGroup> GetWidgetTypeTabGroup([FromODataUri] long key)
+        {
+            return SingleResult.Create(db.WidgetTypes.Where(m => m.Id == key).Select(m => m.WidgetTypeTabGroup));
+        }
+
+
+
         protected override void Dispose(bool disposing)
         {
             if (disposing)

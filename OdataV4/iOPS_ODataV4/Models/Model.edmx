@@ -131,6 +131,7 @@
           <Property Name="TransactionType" Type="varchar" MaxLength="18" />
           <Property Name="SiteId" Type="bigint" />
           <Property Name="Description" Type="varchar(max)" />
+          <Property Name="Hide" Type="bit" />
         </EntityType>
         <EntityType Name="DeviceLocations">
           <Key>
@@ -449,6 +450,7 @@
           <Property Name="TagId" Type="bigint" />
           <Property Name="Day" Type="datetime" />
           <Property Name="TagValues" Type="varchar(max)" />
+          <Property Name="Size" Type="bigint" />
         </EntityType>
         <EntityType Name="ObservationException">
           <Key>
@@ -530,6 +532,8 @@
           <Property Name="KepwareSQLTimeDifferenceMSFromCentral" Type="int" />
           <Property Name="HasBaggageHandling" Type="bit" />
           <Property Name="HasGates" Type="bit" />
+          <Property Name="LastReportedDataDate" Type="datetime" />
+          <Property Name="DateLastModified" Type="datetime" />
         </EntityType>
         <EntityType Name="SiteCompany">
           <Key>
@@ -655,6 +659,8 @@
           <Property Name="PreviousObservationQuality" Type="int" />
           <Property Name="PreviousObservationCreationDate" Type="datetime" />
           <Property Name="PreviousReportedDate" Type="datetime" />
+          <Property Name="IsDerived" Type="bit" />
+          <Property Name="IgnoreWhenTheAssetIsInactive" Type="bit" />
         </EntityType>
         <EntityType Name="Unit">
           <Key>
@@ -734,6 +740,14 @@
           <Property Name="IsAvailableToAll" Type="bit" />
           <Property Name="IsHiddenSystemType" Type="bit" />
           <Property Name="HasSettings" Type="bit" />
+          <Property Name="WidgetTypeTabGroupId" Type="bigint" />
+        </EntityType>
+        <EntityType Name="WidgetTypeTabGroup">
+          <Key>
+            <PropertyRef Name="Id" />
+          </Key>
+          <Property Name="Id" Type="bigint" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="Name" Type="varchar" MaxLength="100" />
         </EntityType>
         <EntityType Name="ChronologicalRawTagValueLogKepwareReceiver">
           <Key>
@@ -1620,6 +1634,18 @@
             </Dependent>
           </ReferentialConstraint>
         </Association>
+        <Association Name="FK_WidgetType_WidgetTypeTabGroup">
+          <End Role="WidgetTypeTabGroup" Type="Self.WidgetTypeTabGroup" Multiplicity="0..1" />
+          <End Role="WidgetType" Type="Self.WidgetType" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="WidgetTypeTabGroup">
+              <PropertyRef Name="Id" />
+            </Principal>
+            <Dependent Role="WidgetType">
+              <PropertyRef Name="WidgetTypeTabGroupId" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
         <Function Name="BHSActiveAlarmSummaryByAlarmTypeAndDayWithAverageDurationInSeconds" Aggregate="false" BuiltIn="false" NiladicFunction="false" IsComposable="false" ParameterTypeSemantics="AllowImplicitConversion" Schema="BHS">
           <Parameter Name="startDate" Type="datetime" Mode="In" />
           <Parameter Name="endDate" Type="datetime" Mode="In" />
@@ -1655,6 +1681,12 @@
           <Parameter Name="Area" Type="varchar" Mode="In" />
           <Parameter Name="SiteId" Type="bigint" Mode="In" />
         </Function>
+        <Function Name="BHSAlarmHistorySSRS" Aggregate="false" BuiltIn="false" NiladicFunction="false" IsComposable="false" ParameterTypeSemantics="AllowImplicitConversion" Schema="BHS">
+          <Parameter Name="fromDate" Type="datetime" Mode="In" />
+          <Parameter Name="toDate" Type="datetime" Mode="In" />
+          <Parameter Name="siteId" Type="bigint" Mode="In" />
+          <Parameter Name="ODataAccessToken" Type="varchar" Mode="In" />
+        </Function>
         <Function Name="BHSAlarmsHistoryByAlarmTypeAndDateRangeWithDurationInSeconds" Aggregate="false" BuiltIn="false" NiladicFunction="false" IsComposable="false" ParameterTypeSemantics="AllowImplicitConversion" Schema="BHS">
           <Parameter Name="startDate" Type="datetime" Mode="In" />
           <Parameter Name="endDate" Type="datetime" Mode="In" />
@@ -1686,10 +1718,18 @@
           <Parameter Name="EndDateTime" Type="datetime" Mode="In" />
           <Parameter Name="SiteId" Type="bigint" Mode="In" />
         </Function>
+        <Function Name="BHSFilterByAlarmTypesbyArea" Aggregate="false" BuiltIn="false" NiladicFunction="false" IsComposable="false" ParameterTypeSemantics="AllowImplicitConversion" Schema="BHS">
+          <Parameter Name="BeginTime" Type="datetime" Mode="In" />
+          <Parameter Name="EndTime" Type="datetime" Mode="In" />
+          <Parameter Name="AlarmTypeList" Type="varchar(max)" Mode="In" />
+          <Parameter Name="TopNumber" Type="int" Mode="In" />
+          <Parameter Name="SiteId" Type="bigint" Mode="In" />
+        </Function>
         <Function Name="BHSLocationThroughput" Aggregate="false" BuiltIn="false" NiladicFunction="false" IsComposable="false" ParameterTypeSemantics="AllowImplicitConversion" Schema="BHS">
           <Parameter Name="beginDate" Type="datetime" Mode="In" />
           <Parameter Name="endDate" Type="datetime" Mode="In" />
           <Parameter Name="location" Type="varchar" Mode="In" />
+          <Parameter Name="siteId" Type="bigint" Mode="In" />
         </Function>
         <Function Name="BHSLocationThroughputHistoryByDay" Aggregate="false" BuiltIn="false" NiladicFunction="false" IsComposable="false" ParameterTypeSemantics="AllowImplicitConversion" Schema="BHS">
           <Parameter Name="beginDate" Type="datetime" Mode="In" />
@@ -1700,6 +1740,16 @@
           <Parameter Name="startDate" Type="datetime" Mode="In" />
           <Parameter Name="endDate" Type="datetime" Mode="In" />
           <Parameter Name="location" Type="varchar" Mode="In" />
+        </Function>
+        <Function Name="BHSPercentCBRAPerDay" Aggregate="false" BuiltIn="false" NiladicFunction="false" IsComposable="false" ParameterTypeSemantics="AllowImplicitConversion" Schema="BHS">
+          <Parameter Name="BeginDateTime" Type="datetime" Mode="In" />
+          <Parameter Name="EndDateTime" Type="datetime" Mode="In" />
+          <Parameter Name="SiteId" Type="bigint" Mode="In" />
+        </Function>
+        <Function Name="BHSPercentCBRAPerHour" Aggregate="false" BuiltIn="false" NiladicFunction="false" IsComposable="false" ParameterTypeSemantics="AllowImplicitConversion" Schema="BHS">
+          <Parameter Name="BeginDateTime" Type="datetime" Mode="In" />
+          <Parameter Name="EndDateTime" Type="datetime" Mode="In" />
+          <Parameter Name="SiteId" Type="bigint" Mode="In" />
         </Function>
         <Function Name="BHSPercentOfFailSafePerDay" Aggregate="false" BuiltIn="false" NiladicFunction="false" IsComposable="false" ParameterTypeSemantics="AllowImplicitConversion" Schema="BHS">
           <Parameter Name="BeginDateTime" Type="datetime" Mode="In" />
@@ -1750,12 +1800,35 @@
           <Parameter Name="StartDate" Type="datetime" Mode="In" />
           <Parameter Name="EndDate" Type="datetime" Mode="In" />
         </Function>
+        <Function Name="GSEquipmentUsage_TVF_Query" Aggregate="false" BuiltIn="false" NiladicFunction="false" IsComposable="true" ParameterTypeSemantics="AllowImplicitConversion" Schema="GateSystem">
+          <Parameter Name="BeginTime" Type="datetime" Mode="In" />
+          <Parameter Name="EndTime" Type="datetime" Mode="In" />
+          <Parameter Name="SiteId" Type="bigint" Mode="In" />
+          <ReturnType>
+            <CollectionType>
+              <RowType>
+                <Property Name="Gate" Type="nvarchar" MaxLength="100" />
+                <Property Name="PBB Hours" Type="float" Nullable="false" />
+                <Property Name="PCA Hours" Type="float" Nullable="false" />
+                <Property Name="GPU Hours" Type="float" Nullable="false" />
+                <Property Name="PBB Times Used" Type="int" Nullable="false" />
+                <Property Name="PCA Times Used" Type="int" Nullable="false" />
+                <Property Name="GPU Times Used" Type="int" Nullable="false" />
+              </RowType>
+            </CollectionType>
+          </ReturnType>
+        </Function>
         <Function Name="GSTop5AlarmTypes" Aggregate="false" BuiltIn="false" NiladicFunction="false" IsComposable="false" ParameterTypeSemantics="AllowImplicitConversion" Schema="GateSystem">
           <Parameter Name="BeginTime" Type="datetime" Mode="In" />
           <Parameter Name="EndTime" Type="datetime" Mode="In" />
           <Parameter Name="SiteId" Type="bigint" Mode="In" />
         </Function>
         <Function Name="GSTop5AlarmTypes3" Aggregate="false" BuiltIn="false" NiladicFunction="false" IsComposable="false" ParameterTypeSemantics="AllowImplicitConversion" Schema="GateSystem">
+          <Parameter Name="BeginTime" Type="datetime" Mode="In" />
+          <Parameter Name="EndTime" Type="datetime" Mode="In" />
+          <Parameter Name="SiteId" Type="bigint" Mode="In" />
+        </Function>
+        <Function Name="GSTop5AlarmTypesByEquipment" Aggregate="false" BuiltIn="false" NiladicFunction="false" IsComposable="false" ParameterTypeSemantics="AllowImplicitConversion" Schema="GateSystem">
           <Parameter Name="BeginTime" Type="datetime" Mode="In" />
           <Parameter Name="EndTime" Type="datetime" Mode="In" />
           <Parameter Name="SiteId" Type="bigint" Mode="In" />
@@ -1808,6 +1881,7 @@
           <EntitySet Name="WidgetCustomTagDisplayOrder" EntityType="Self.WidgetCustomTagDisplayOrder" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="WidgetGraphTag" EntityType="Self.WidgetGraphTag" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="WidgetType" EntityType="Self.WidgetType" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="WidgetTypeTabGroup" EntityType="Self.WidgetTypeTabGroup" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="ChronologicalRawTagValueLogKepwareReceiver" EntityType="Self.ChronologicalRawTagValueLogKepwareReceiver" Schema="ETL" store:Type="Tables" />
           <EntitySet Name="GSAlarmHistory" EntityType="Self.GSAlarmHistory" Schema="GateSystem" store:Type="Tables" />
           <EntitySet Name="GSJBTStandardObservationIdExclusionListFromCurrentAlarms" EntityType="Self.GSJBTStandardObservationIdExclusionListFromCurrentAlarms" Schema="GateSystem" store:Type="Tables" />
@@ -2080,6 +2154,10 @@
             <End Role="Widget" EntitySet="Widget" />
             <End Role="WidgetGraphTag" EntitySet="WidgetGraphTag" />
           </AssociationSet>
+          <AssociationSet Name="FK_WidgetType_WidgetTypeTabGroup" Association="Self.FK_WidgetType_WidgetTypeTabGroup">
+            <End Role="WidgetTypeTabGroup" EntitySet="WidgetTypeTabGroup" />
+            <End Role="WidgetType" EntitySet="WidgetType" />
+          </AssociationSet>
         </EntityContainer>
       </Schema></edmx:StorageModels>
     <!-- CSDL content -->
@@ -2296,6 +2374,7 @@
             <Parameter Name="beginDate" Mode="In" Type="DateTime" />
             <Parameter Name="endDate" Mode="In" Type="DateTime" />
             <Parameter Name="location" Mode="In" Type="String" />
+            <Parameter Name="siteId" Mode="In" Type="Int64" />
           </FunctionImport>
           <EntitySet Name="BHSTokens" EntityType="iOPS_NormalizedModel.BHSToken" />
           <AssociationSet Name="FK_Token_Site" Association="iOPS_NormalizedModel.FK_Token_Site">
@@ -2575,6 +2654,44 @@
             <Parameter Name="EndTime" Mode="In" Type="DateTime" />
             <Parameter Name="SiteId" Mode="In" Type="Int64" />
           </FunctionImport>
+          <FunctionImport Name="GSTop5AlarmTypesByEquipment" ReturnType="Collection(iOPS_NormalizedModel.GSTop5AlarmTypesByEquipment_Result)">
+            <Parameter Name="BeginTime" Mode="In" Type="DateTime" />
+            <Parameter Name="EndTime" Mode="In" Type="DateTime" />
+            <Parameter Name="SiteId" Mode="In" Type="Int64" />
+          </FunctionImport>
+          <FunctionImport Name="GSEquipmentUsage_TVF_Query" IsComposable="true" ReturnType="Collection(iOPS_NormalizedModel.GSEquipmentUsage_TVF_Query_Result)">
+            <Parameter Name="BeginTime" Mode="In" Type="DateTime" />
+            <Parameter Name="EndTime" Mode="In" Type="DateTime" />
+            <Parameter Name="SiteId" Mode="In" Type="Int64" />
+          </FunctionImport>
+          <FunctionImport Name="BHSFilterByAlarmTypesbyArea" ReturnType="Collection(iOPS_NormalizedModel.BHSFilterByAlarmTypesbyArea_Result)">
+            <Parameter Name="BeginTime" Mode="In" Type="DateTime" />
+            <Parameter Name="EndTime" Mode="In" Type="DateTime" />
+            <Parameter Name="AlarmTypeList" Mode="In" Type="String" />
+            <Parameter Name="TopNumber" Mode="In" Type="Int32" />
+            <Parameter Name="SiteId" Mode="In" Type="Int64" />
+          </FunctionImport>
+          <FunctionImport Name="BHSPercentCBRAPerDay" ReturnType="Collection(iOPS_NormalizedModel.BHSPercentCBRAPerDay_Result)">
+            <Parameter Name="BeginDateTime" Mode="In" Type="DateTime" />
+            <Parameter Name="EndDateTime" Mode="In" Type="DateTime" />
+            <Parameter Name="SiteId" Mode="In" Type="Int64" />
+          </FunctionImport>
+          <FunctionImport Name="BHSPercentCBRAPerHour" ReturnType="Collection(iOPS_NormalizedModel.BHSPercentCBRAPerHour_Result)">
+            <Parameter Name="BeginDateTime" Mode="In" Type="DateTime" />
+            <Parameter Name="EndDateTime" Mode="In" Type="DateTime" />
+            <Parameter Name="SiteId" Mode="In" Type="Int64" />
+          </FunctionImport>
+          <EntitySet Name="WidgetTypeTabGroups" EntityType="iOPS_NormalizedModel.WidgetTypeTabGroup" />
+          <AssociationSet Name="FK_WidgetType_WidgetTypeTabGroup" Association="iOPS_NormalizedModel.FK_WidgetType_WidgetTypeTabGroup">
+            <End Role="WidgetTypeTabGroup" EntitySet="WidgetTypeTabGroups" />
+            <End Role="WidgetType" EntitySet="WidgetTypes" />
+          </AssociationSet>
+          <FunctionImport Name="BHSAlarmHistorySSRS" ReturnType="Collection(iOPS_NormalizedModel.BHSAlarmHistorySSRS_Result)">
+            <Parameter Name="fromDate" Mode="In" Type="DateTime" />
+            <Parameter Name="toDate" Mode="In" Type="DateTime" />
+            <Parameter Name="siteId" Mode="In" Type="Int64" />
+            <Parameter Name="ODataAccessToken" Mode="In" Type="String" />
+          </FunctionImport>
           </EntityContainer>
         <EntityType Name="AuthorizableActivity">
           <Key>
@@ -2851,6 +2968,8 @@
           <Property Name="KepwareSQLTimeDifferenceMSFromCentral" Type="Int32" />
           <Property Name="HasBaggageHandling" Type="Boolean" />
           <Property Name="HasGates" Type="Boolean" />
+          <Property Name="LastReportedDataDate" Type="DateTime" Precision="3" />
+          <Property Name="DateLastModified" Type="DateTime" Precision="3" />
         </EntityType>
         <EntityType Name="SiteCompany">
           <Key>
@@ -3055,6 +3174,8 @@
           <Property Name="PreviousReportedDate" Type="DateTime" Precision="3" />
           <NavigationProperty Name="GSAlarmHistories" Relationship="iOPS_NormalizedModel.FK_GSAlarmHistory_Tag" FromRole="Tag" ToRole="GSAlarmHistory" />
           <NavigationProperty Name="ObservationExceptions" Relationship="iOPS_NormalizedModel.FK_ObservationException_Tag" FromRole="Tag" ToRole="ObservationException" />
+          <Property Name="IsDerived" Type="Boolean" />
+          <Property Name="IgnoreWhenTheAssetIsInactive" Type="Boolean" />
         </EntityType>
         <Association Name="FK_Observation_Tag">
           <End Type="iOPS_NormalizedModel.Tag" Role="Tag" Multiplicity="0..1" />
@@ -3288,6 +3409,8 @@
           <Property Name="IsAvailableToAll" Type="Boolean" />
           <Property Name="IsHiddenSystemType" Type="Boolean" />
           <Property Name="HasSettings" Type="Boolean" />
+          <Property Name="WidgetTypeTabGroupId" Type="Int64" />
+          <NavigationProperty Name="WidgetTypeTabGroup" Relationship="iOPS_NormalizedModel.FK_WidgetType_WidgetTypeTabGroup" FromRole="WidgetType" ToRole="WidgetTypeTabGroup" />
         </EntityType>
         <Association Name="FK_Widget_WidgetType">
           <End Type="iOPS_NormalizedModel.WidgetType" Role="WidgetType" Multiplicity="0..1" />
@@ -3491,6 +3614,7 @@
           <Property Name="SiteId" Type="Int64" />
           <Property Name="Description" Type="String" MaxLength="Max" FixedLength="false" Unicode="false" />
           <NavigationProperty Name="Site" Relationship="iOPS_NormalizedModel.FK_CurrentAlarm_Site" FromRole="CurrentAlarm" ToRole="Site" />
+          <Property Name="Hide" Type="Boolean" />
         </EntityType>
         <Association Name="FK_CurrentAlarm_Site">
           <End Type="iOPS_NormalizedModel.Site" Role="Site" Multiplicity="0..1" />
@@ -4444,6 +4568,7 @@
           <Property Name="Day" Type="DateTime" Precision="3" />
           <Property Name="TagValues" Type="String" MaxLength="Max" FixedLength="false" Unicode="false" />
           <NavigationProperty Name="Tag" Relationship="iOPS_NormalizedModel.FK_ObservationAggregatedHighChartValue_Tag" FromRole="ObservationAggregatedHighChartValue" ToRole="Tag" />
+          <Property Name="Size" Type="Int64" />
         </EntityType>
         <Association Name="FK_ObservationAggregatedHighChartValue_Tag">
           <End Type="iOPS_NormalizedModel.Tag" Role="Tag" Multiplicity="0..1" />
@@ -4721,6 +4846,106 @@
           <Property Type="Int32" Name="AverageDuration" Nullable="true" />
           <Property Type="Int64" Name="JBTStandardObservationIdList" Nullable="true" />
         </ComplexType>
+        <ComplexType Name="GSTop5AlarmTypesByEquipment_Result">
+          <Property Type="String" Name="AlarmType" Nullable="true" MaxLength="100" />
+          <Property Type="String" Name="display" Nullable="false" MaxLength="208" />
+          <Property Type="String" Name="Gate" Nullable="true" MaxLength="100" />
+          <Property Type="Int32" Name="AlarmCount" Nullable="true" />
+          <Property Type="Int32" Name="ActiveCount" Nullable="true" />
+          <Property Type="DateTime" Name="MinActiveDateTime" Nullable="true" Precision="23" />
+          <Property Type="DateTime" Name="MaxActiveDateTime" Nullable="true" Precision="23" />
+          <Property Type="Int32" Name="MaxDurationSec" Nullable="true" />
+          <Property Type="Int32" Name="MinDurationSec" Nullable="true" />
+          <Property Type="Int32" Name="AverageDuration" Nullable="true" />
+        </ComplexType>
+        <ComplexType Name="GSEquipmentUsage_TVF_Query_Result">
+          <Property Type="String" Name="Gate" Nullable="true" MaxLength="100" />
+          <Property Type="Double" Name="PBB_Hours" Nullable="false" />
+          <Property Type="Double" Name="PCA_Hours" Nullable="false" />
+          <Property Type="Double" Name="GPU_Hours" Nullable="false" />
+          <Property Type="Int32" Name="PBB_Times_Used" Nullable="false" />
+          <Property Type="Int32" Name="PCA_Times_Used" Nullable="false" />
+          <Property Type="Int32" Name="GPU_Times_Used" Nullable="false" />
+        </ComplexType>
+        <ComplexType Name="BHSFilterByAlarmTypesbyArea_Result">
+          <Property Type="String" Name="BHSName" Nullable="true" MaxLength="64" />
+          <Property Type="String" Name="Area" Nullable="false" MaxLength="255" />
+          <Property Type="String" Name="Alarm" Nullable="false" MaxLength="64" />
+          <Property Type="Int32" Name="AlarmCount" Nullable="true" />
+          <Property Type="DateTime" Name="MinActiveDateTime" Nullable="true" Precision="23" />
+          <Property Type="DateTime" Name="MaxActiveDateTime" Nullable="true" Precision="23" />
+          <Property Type="Int32" Name="MaxDurationSec" Nullable="true" />
+          <Property Type="Int32" Name="MinDurationSec" Nullable="true" />
+          <Property Type="Int32" Name="AverageDuration" Nullable="true" />
+        </ComplexType>
+        <ComplexType Name="BHSPercentCBRAPerDay_Result">
+          <Property Type="Int64" Name="SiteId" Nullable="true" />
+          <Property Type="String" Name="BHSName" Nullable="true" MaxLength="8000" />
+          <Property Type="Int32" Name="TokenCount" Nullable="true" />
+          <Property Type="Int32" Name="TotalCBRABags" Nullable="true" />
+          <Property Type="Decimal" Name="CBRAPercentOfTotal" Nullable="true" Precision="15" Scale="2" />
+          <Property Type="DateTime" Name="MinTimeStamp" Nullable="true" Precision="23" />
+          <Property Type="DateTime" Name="MaxTimeStamp" Nullable="true" Precision="23" />
+          <Property Type="DateTime" Name="Day" Nullable="true" />
+        </ComplexType>
+        <ComplexType Name="BHSPercentCBRAPerHour_Result">
+          <Property Type="Int64" Name="SiteId" Nullable="true" />
+          <Property Type="String" Name="BHSName" Nullable="true" MaxLength="8000" />
+          <Property Type="Int32" Name="TokenCount" Nullable="true" />
+          <Property Type="Int32" Name="TotalCBRABags" Nullable="false" />
+          <Property Type="Decimal" Name="CBRAPercentOfTotal" Nullable="true" Precision="15" Scale="2" />
+          <Property Type="DateTime" Name="MinTimeStamp" Nullable="true" Precision="23" />
+          <Property Type="DateTime" Name="MaxTimeStamp" Nullable="true" Precision="23" />
+          <Property Type="DateTime" Name="Hour" Nullable="true" Precision="23" />
+        </ComplexType>
+        <EntityType Name="WidgetTypeTabGroup">
+          <Key>
+            <PropertyRef Name="Id" />
+          </Key>
+          <Property Name="Id" Type="Int64" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="Name" Type="String" MaxLength="100" FixedLength="false" Unicode="false" />
+          <NavigationProperty Name="WidgetTypes" Relationship="iOPS_NormalizedModel.FK_WidgetType_WidgetTypeTabGroup" FromRole="WidgetTypeTabGroup" ToRole="WidgetType" />
+        </EntityType>
+        <Association Name="FK_WidgetType_WidgetTypeTabGroup">
+          <End Type="iOPS_NormalizedModel.WidgetTypeTabGroup" Role="WidgetTypeTabGroup" Multiplicity="0..1" />
+          <End Type="iOPS_NormalizedModel.WidgetType" Role="WidgetType" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="WidgetTypeTabGroup">
+              <PropertyRef Name="Id" />
+            </Principal>
+            <Dependent Role="WidgetType">
+              <PropertyRef Name="WidgetTypeTabGroupId" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <ComplexType Name="BHSAlarmHistorySSRS_Result">
+          <Property Type="Int64" Name="Id" Nullable="false" />
+          <Property Type="Decimal" Name="iOPSAlarmUniqueId" Nullable="true" Precision="35" Scale="0" />
+          <Property Type="Int64" Name="BHSId" Nullable="true" />
+          <Property Type="Int64" Name="SiteId" Nullable="true" />
+          <Property Type="String" Name="Alarm" Nullable="false" MaxLength="64" />
+          <Property Type="String" Name="Description" Nullable="true" />
+          <Property Type="String" Name="BHSName" Nullable="true" MaxLength="64" />
+          <Property Type="Int32" Name="InstanceId" Nullable="false" />
+          <Property Type="Int32" Name="ChildId" Nullable="false" />
+          <Property Type="DateTime" Name="ActiveDateTime" Nullable="true" Precision="23" />
+          <Property Type="DateTime" Name="TimeStamp" Nullable="false" Precision="23" />
+          <Property Type="String" Name="ActiveColor" Nullable="true" MaxLength="42" />
+          <Property Type="DateTime" Name="AcknowledgeTime" Nullable="true" Precision="23" />
+          <Property Type="String" Name="AcknowledColor" Nullable="true" MaxLength="42" />
+          <Property Type="String" Name="Location" Nullable="true" MaxLength="64" />
+          <Property Type="DateTime" Name="ReturnToNormalTime" Nullable="true" Precision="23" />
+          <Property Type="String" Name="NormalColor" Nullable="true" MaxLength="42" />
+          <Property Type="String" Name="TransactionType" Nullable="false" MaxLength="64" />
+          <Property Type="String" Name="DeviceTypeNameList" Nullable="true" />
+          <Property Type="String" Name="DeviceNameList" Nullable="true" />
+          <Property Type="String" Name="InstanceNameList" Nullable="true" />
+          <Property Type="DateTime" Name="ActDateTime" Nullable="true" Precision="23" />
+          <Property Type="DateTime" Name="AckDateTime" Nullable="true" Precision="23" />
+          <Property Type="String" Name="AreaLocation" Nullable="false" MaxLength="13" />
+          <Property Type="String" Name="Status" Nullable="true" MaxLength="4" />
+          <Property Type="String" Name="AlarmLapse" Nullable="true" MaxLength="8" />
+        </ComplexType>
         </Schema>
     </edmx:ConceptualModels>
     <!-- C-S mapping content -->
@@ -4851,6 +5076,8 @@
           <EntitySetMapping Name="Sites">
             <EntityTypeMapping TypeName="iOPS_NormalizedModel.Site">
               <MappingFragment StoreEntitySet="Site">
+                <ScalarProperty Name="DateLastModified" ColumnName="DateLastModified" />
+                <ScalarProperty Name="LastReportedDataDate" ColumnName="LastReportedDataDate" />
                 <ScalarProperty Name="HasGates" ColumnName="HasGates" />
                 <ScalarProperty Name="HasBaggageHandling" ColumnName="HasBaggageHandling" />
                 <ScalarProperty Name="KepwareSQLTimeDifferenceMSFromCentral" ColumnName="KepwareSQLTimeDifferenceMSFromCentral" />
@@ -4942,6 +5169,8 @@
           <EntitySetMapping Name="Tags">
             <EntityTypeMapping TypeName="iOPS_NormalizedModel.Tag">
               <MappingFragment StoreEntitySet="Tag">
+                <ScalarProperty Name="IgnoreWhenTheAssetIsInactive" ColumnName="IgnoreWhenTheAssetIsInactive" />
+                <ScalarProperty Name="IsDerived" ColumnName="IsDerived" />
                 <ScalarProperty Name="PreviousReportedDate" ColumnName="PreviousReportedDate" />
                 <ScalarProperty Name="PreviousObservationCreationDate" ColumnName="PreviousObservationCreationDate" />
                 <ScalarProperty Name="PreviousObservationQuality" ColumnName="PreviousObservationQuality" />
@@ -5084,6 +5313,7 @@
           <EntitySetMapping Name="WidgetTypes">
             <EntityTypeMapping TypeName="iOPS_NormalizedModel.WidgetType">
               <MappingFragment StoreEntitySet="WidgetType">
+                <ScalarProperty Name="WidgetTypeTabGroupId" ColumnName="WidgetTypeTabGroupId" />
                 <ScalarProperty Name="HasSettings" ColumnName="HasSettings" />
                 <ScalarProperty Name="IsHiddenSystemType" ColumnName="IsHiddenSystemType" />
                 <ScalarProperty Name="IsAvailableToAll" ColumnName="IsAvailableToAll" />
@@ -5240,6 +5470,7 @@
           <EntitySetMapping Name="BHSCurrentAlarms">
             <EntityTypeMapping TypeName="iOPS_NormalizedModel.BHSCurrentAlarm">
               <MappingFragment StoreEntitySet="CurrentAlarm">
+                <ScalarProperty Name="Hide" ColumnName="Hide" />
                 <ScalarProperty Name="Description" ColumnName="Description" />
                 <ScalarProperty Name="SiteId" ColumnName="SiteId" />
                 <ScalarProperty Name="TransactionType" ColumnName="TransactionType" />
@@ -5804,6 +6035,7 @@
           <EntitySetMapping Name="ObservationAggregatedHighChartValues">
             <EntityTypeMapping TypeName="iOPS_NormalizedModel.ObservationAggregatedHighChartValue">
               <MappingFragment StoreEntitySet="ObservationAggregatedHighChartValue">
+                <ScalarProperty Name="Size" ColumnName="Size" />
                 <ScalarProperty Name="TagValues" ColumnName="TagValues" />
                 <ScalarProperty Name="Day" ColumnName="Day" />
                 <ScalarProperty Name="TagId" ColumnName="TagId" />
@@ -5970,6 +6202,118 @@
                 <ScalarProperty Name="MinDurationSec" ColumnName="MinDurationSec" />
                 <ScalarProperty Name="AverageDuration" ColumnName="AverageDuration" />
                 <ScalarProperty Name="JBTStandardObservationIdList" ColumnName="JBTStandardObservationIdList" />
+              </ComplexTypeMapping>
+            </ResultMapping>
+          </FunctionImportMapping>
+          <FunctionImportMapping FunctionImportName="GSTop5AlarmTypesByEquipment" FunctionName="iOPS_NormalizedModel.Store.GSTop5AlarmTypesByEquipment">
+            <ResultMapping>
+              <ComplexTypeMapping TypeName="iOPS_NormalizedModel.GSTop5AlarmTypesByEquipment_Result">
+                <ScalarProperty Name="AlarmType" ColumnName="AlarmType" />
+                <ScalarProperty Name="display" ColumnName="display" />
+                <ScalarProperty Name="Gate" ColumnName="Gate" />
+                <ScalarProperty Name="AlarmCount" ColumnName="AlarmCount" />
+                <ScalarProperty Name="ActiveCount" ColumnName="ActiveCount" />
+                <ScalarProperty Name="MinActiveDateTime" ColumnName="MinActiveDateTime" />
+                <ScalarProperty Name="MaxActiveDateTime" ColumnName="MaxActiveDateTime" />
+                <ScalarProperty Name="MaxDurationSec" ColumnName="MaxDurationSec" />
+                <ScalarProperty Name="MinDurationSec" ColumnName="MinDurationSec" />
+                <ScalarProperty Name="AverageDuration" ColumnName="AverageDuration" />
+              </ComplexTypeMapping>
+            </ResultMapping>
+          </FunctionImportMapping>
+          <FunctionImportMapping FunctionImportName="GSEquipmentUsage_TVF_Query" FunctionName="iOPS_NormalizedModel.Store.GSEquipmentUsage_TVF_Query">
+            <ResultMapping>
+              <ComplexTypeMapping TypeName="iOPS_NormalizedModel.GSEquipmentUsage_TVF_Query_Result">
+                <ScalarProperty Name="Gate" ColumnName="Gate" />
+                <ScalarProperty Name="PBB_Hours" ColumnName="PBB Hours" />
+                <ScalarProperty Name="PCA_Hours" ColumnName="PCA Hours" />
+                <ScalarProperty Name="GPU_Hours" ColumnName="GPU Hours" />
+                <ScalarProperty Name="PBB_Times_Used" ColumnName="PBB Times Used" />
+                <ScalarProperty Name="PCA_Times_Used" ColumnName="PCA Times Used" />
+                <ScalarProperty Name="GPU_Times_Used" ColumnName="GPU Times Used" />
+              </ComplexTypeMapping>
+            </ResultMapping>
+          </FunctionImportMapping>
+          <FunctionImportMapping FunctionImportName="BHSFilterByAlarmTypesbyArea" FunctionName="iOPS_NormalizedModel.Store.BHSFilterByAlarmTypesbyArea">
+            <ResultMapping>
+              <ComplexTypeMapping TypeName="iOPS_NormalizedModel.BHSFilterByAlarmTypesbyArea_Result">
+                <ScalarProperty Name="BHSName" ColumnName="BHSName" />
+                <ScalarProperty Name="Area" ColumnName="Area" />
+                <ScalarProperty Name="Alarm" ColumnName="Alarm" />
+                <ScalarProperty Name="AlarmCount" ColumnName="AlarmCount" />
+                <ScalarProperty Name="MinActiveDateTime" ColumnName="MinActiveDateTime" />
+                <ScalarProperty Name="MaxActiveDateTime" ColumnName="MaxActiveDateTime" />
+                <ScalarProperty Name="MaxDurationSec" ColumnName="MaxDurationSec" />
+                <ScalarProperty Name="MinDurationSec" ColumnName="MinDurationSec" />
+                <ScalarProperty Name="AverageDuration" ColumnName="AverageDuration" />
+              </ComplexTypeMapping>
+            </ResultMapping>
+          </FunctionImportMapping>
+          <FunctionImportMapping FunctionImportName="BHSPercentCBRAPerDay" FunctionName="iOPS_NormalizedModel.Store.BHSPercentCBRAPerDay">
+            <ResultMapping>
+              <ComplexTypeMapping TypeName="iOPS_NormalizedModel.BHSPercentCBRAPerDay_Result">
+                <ScalarProperty Name="SiteId" ColumnName="SiteId" />
+                <ScalarProperty Name="BHSName" ColumnName="BHSName" />
+                <ScalarProperty Name="TokenCount" ColumnName="TokenCount" />
+                <ScalarProperty Name="TotalCBRABags" ColumnName="TotalCBRABags" />
+                <ScalarProperty Name="CBRAPercentOfTotal" ColumnName="CBRAPercentOfTotal" />
+                <ScalarProperty Name="MinTimeStamp" ColumnName="MinTimeStamp" />
+                <ScalarProperty Name="MaxTimeStamp" ColumnName="MaxTimeStamp" />
+                <ScalarProperty Name="Day" ColumnName="Day" />
+              </ComplexTypeMapping>
+            </ResultMapping>
+          </FunctionImportMapping>
+          <FunctionImportMapping FunctionImportName="BHSPercentCBRAPerHour" FunctionName="iOPS_NormalizedModel.Store.BHSPercentCBRAPerHour">
+            <ResultMapping>
+              <ComplexTypeMapping TypeName="iOPS_NormalizedModel.BHSPercentCBRAPerHour_Result">
+                <ScalarProperty Name="SiteId" ColumnName="SiteId" />
+                <ScalarProperty Name="BHSName" ColumnName="BHSName" />
+                <ScalarProperty Name="TokenCount" ColumnName="TokenCount" />
+                <ScalarProperty Name="TotalCBRABags" ColumnName="TotalCBRABags" />
+                <ScalarProperty Name="CBRAPercentOfTotal" ColumnName="CBRAPercentOfTotal" />
+                <ScalarProperty Name="MinTimeStamp" ColumnName="MinTimeStamp" />
+                <ScalarProperty Name="MaxTimeStamp" ColumnName="MaxTimeStamp" />
+                <ScalarProperty Name="Hour" ColumnName="Hour" />
+              </ComplexTypeMapping>
+            </ResultMapping>
+          </FunctionImportMapping>
+          <EntitySetMapping Name="WidgetTypeTabGroups">
+            <EntityTypeMapping TypeName="iOPS_NormalizedModel.WidgetTypeTabGroup">
+              <MappingFragment StoreEntitySet="WidgetTypeTabGroup">
+                <ScalarProperty Name="Name" ColumnName="Name" />
+                <ScalarProperty Name="Id" ColumnName="Id" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <FunctionImportMapping FunctionImportName="BHSAlarmHistorySSRS" FunctionName="iOPS_NormalizedModel.Store.BHSAlarmHistorySSRS">
+            <ResultMapping>
+              <ComplexTypeMapping TypeName="iOPS_NormalizedModel.BHSAlarmHistorySSRS_Result">
+                <ScalarProperty Name="Id" ColumnName="Id" />
+                <ScalarProperty Name="iOPSAlarmUniqueId" ColumnName="iOPSAlarmUniqueId" />
+                <ScalarProperty Name="BHSId" ColumnName="BHSId" />
+                <ScalarProperty Name="SiteId" ColumnName="SiteId" />
+                <ScalarProperty Name="Alarm" ColumnName="Alarm" />
+                <ScalarProperty Name="Description" ColumnName="Description" />
+                <ScalarProperty Name="BHSName" ColumnName="BHSName" />
+                <ScalarProperty Name="InstanceId" ColumnName="InstanceId" />
+                <ScalarProperty Name="ChildId" ColumnName="ChildId" />
+                <ScalarProperty Name="ActiveDateTime" ColumnName="ActiveDateTime" />
+                <ScalarProperty Name="TimeStamp" ColumnName="TimeStamp" />
+                <ScalarProperty Name="ActiveColor" ColumnName="ActiveColor" />
+                <ScalarProperty Name="AcknowledgeTime" ColumnName="AcknowledgeTime" />
+                <ScalarProperty Name="AcknowledColor" ColumnName="AcknowledColor" />
+                <ScalarProperty Name="Location" ColumnName="Location" />
+                <ScalarProperty Name="ReturnToNormalTime" ColumnName="ReturnToNormalTime" />
+                <ScalarProperty Name="NormalColor" ColumnName="NormalColor" />
+                <ScalarProperty Name="TransactionType" ColumnName="TransactionType" />
+                <ScalarProperty Name="DeviceTypeNameList" ColumnName="DeviceTypeNameList" />
+                <ScalarProperty Name="DeviceNameList" ColumnName="DeviceNameList" />
+                <ScalarProperty Name="InstanceNameList" ColumnName="InstanceNameList" />
+                <ScalarProperty Name="ActDateTime" ColumnName="ActDateTime" />
+                <ScalarProperty Name="AckDateTime" ColumnName="AckDateTime" />
+                <ScalarProperty Name="AreaLocation" ColumnName="AreaLocation" />
+                <ScalarProperty Name="Status" ColumnName="Status" />
+                <ScalarProperty Name="AlarmLapse" ColumnName="AlarmLapse" />
               </ComplexTypeMapping>
             </ResultMapping>
           </FunctionImportMapping>

@@ -219,7 +219,7 @@
 						//console.log("BHS.CurrentAlarm event. Alarm = %O", a);
 						formatAlarm(a);
 						calculateAlarmDuration(a);
-						vm.alarms = [a].concat(vm.alarms).distinct(function (a, b) { return +a.Id == +b.Id }).where(function (a) { return a.TransactionType != 'Inactive' });
+						vm.alarms = [a].concat(vm.alarms).distinct(function (a, b) { return +a.Id == +b.Id }).where(function (a) { return a.TransactionType != 'Inactive' && (!a.Hide || a.Hide == 0) });
 
 						GetChartData(true);
 
@@ -247,7 +247,7 @@
 													});
 
 
-													vm.alarms = data.where(function (a) { return a.TransactionType != 'Inactive' });
+													vm.alarms = data.where(function (a) { return a.TransactionType != 'Inactive' &&  a.Hide == 0 });
 
 													displaySetupService.SetPanelBodyWithIdHeight(vm.widget.Id);
 

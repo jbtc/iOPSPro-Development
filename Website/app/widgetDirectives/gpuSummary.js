@@ -23,8 +23,9 @@
 						alarmDataSortField: '-PLCLocalDate',
 						warningsDataSortField: '-PLCLocalDate',
 						headingExtraTitle: '',
-						obscureGraphics: true
-					}
+						obscureGraphics: true,
+						commLossTag: false
+				}
 
 					vm.scrolledToEnd = function () {
 						console.log("gpu Data Scrolled to end");
@@ -45,6 +46,11 @@
 					}
 
 					vm.tagsToGraph = [];
+
+					vm.alarmFilterFunction = function(element) {
+						return element.ValueWhenActive == element.Value;
+					};
+
 
 					vm.bootstrapLabelColumns = 2;
 					vm.bootstrapInputColumns = 10;
@@ -225,9 +231,14 @@
 								vm.GenerateAmpsCharts();
 								vm.showWidget = true;
 
-								
-								vm.alarms = vm.gpu.Tags.where(function (dsTag) { return dsTag.AssetId == vm.widget.WidgetResource.AssetId && dsTag.IsAlarm});
+								var commLossStandardObservationIds = [4331, 4445, 4765, 12255];
+
+								vm.alarms = vm.gpu.Tags.where(function (dsTag) { return dsTag.AssetId == vm.widget.WidgetResource.AssetId && dsTag.IsAlarm && !commLossStandardObservationIds.any(function(a){ return a == dsTag.JBTStandardObservationId })});
 								vm.warnings = vm.gpu.Tags.where(function (dsTag) { return dsTag.AssetId == vm.widget.WidgetResource.AssetId && dsTag.IsWarning});
+								vm.commLossTag = vm.gpu.Tags.first(function(t){return commLossStandardObservationIds.any(function(clso){ return clso == t.JBTStandardObservationId})});
+
+								vm.widget.displaySettings.commLossTag = vm.commLossTag;
+								console.log("CommLossTag = %O", vm.commLossTag);
 
 								//dataService.GetIOPSResource("ObservationExceptions")
 								//	.filter("AssetId", vm.widget.WidgetResource.AssetId)
@@ -278,6 +289,23 @@
 
 
 					function SetHeadingBackground() {
+						if (vm.alarms && vm.alarms.length > 0 && vm.alarms.any(function(a){return a.ValueWhenActive == a.Value})) {
+
+							vm.widget.displaySettings.headingBackground = 'linear-gradient(to bottom,#FF0000, #FFDDDD)';
+
+
+							return;
+						}
+
+						//+Commented out the yellow header on warnings present - Can put back in if needed.
+						//if(vm.warnings && vm.warnings.length > 0) {
+
+						//	vm.widget.displaySettings.headingBackground = 'linear-gradient(to bottom,#FFFF00, #FFFFee)';
+
+
+						//	return;
+						//}
+
 						if (AtLeastOneGraphicIsVisible()) {
 							vm.widget.displaySettings.headingBackground = 'linear-gradient(to bottom,#3eff3e, #eefeee)';
 						} else {
@@ -373,7 +401,7 @@
 					});
 
 					$scope.$on("ResizeVirtualScrollContainers", function () {
-						console.log("ResizeVirtualScrollContainers received");
+						//console.log("ResizeVirtualScrollContainers received");
 						displaySetupService.SetPanelBodyWithIdHeight(vm.widget.Id);
 						SetTabBodyHeight(1);
 					});

@@ -66,10 +66,10 @@
 
         <div gridster="vm.gridsterOpts">
             <ul ng-if="vm.widgets">
-                <li ng-repeat="widget in vm.widgets track by widget.Id" gridster-item="widget"  style="border: none;" id="gridster{{widget.Id}}">
+                <li ng-repeat="widget in vm.widgets track by widget.Id" gridster-item="widget" style="border: none;" id="gridster{{widget.Id}}">
                     <div class="panel panel-default" style="height: 100%; overflow-y: hidden;" id="widget-panel-heading{{widget.Id}}" ng-click="vm.LogWidget(widget)">
                         <div class="panel-heading" id="panel-heading-{{widget.Id}}" style="cursor: move; font-size:.9em; padding-top:5px; height:30px; background: {{widget.displaySettings.headingBackground ? widget.displaySettings.headingBackground : 'linear-gradient(to bottom,#dedede, #fefefe)'}};">
-                            
+
 
                             <div ng-if="!widget.WidgetResource.EmbeddedDashboardId" class='btn-toolbar pull-right' style="display: inline-block;">
 
@@ -115,6 +115,9 @@
                             <reports ng-if="widget.WidgetResource.WidgetType.AngularDirectiveName == 'reports'" widget="widget" dashboard="vm.dashboard"></reports>
                             <site-data-stream ng-if="widget.WidgetResource.WidgetType.AngularDirectiveName == 'siteDataStream'" widget="widget" dashboard="vm.dashboard"></site-data-stream>
                             <gs-top-five-alarm-types ng-if="widget.WidgetResource.WidgetType.AngularDirectiveName == 'gsTopFiveAlarmTypes'" widget="widget" dashboard="vm.dashboard"></gs-top-five-alarm-types>
+                            <gs-top-five-alarm-types-by-equipment ng-if="widget.WidgetResource.WidgetType.AngularDirectiveName == 'gsTopFiveAlarmTypesByEquipment'" widget="widget" dashboard="vm.dashboard"></gs-top-five-alarm-types-by-equipment>
+                            <gs-equipment-hours-of-usage ng-if="widget.WidgetResource.WidgetType.AngularDirectiveName == 'gsEquipmentHoursOfUsage'" widget="widget" dashboard="vm.dashboard"></gs-equipment-hours-of-usage>
+                            <gs-equipment-usage ng-if="widget.WidgetResource.WidgetType.AngularDirectiveName == 'gsEquipmentUsage'" widget="widget" dashboard="vm.dashboard"></gs-equipment-usage>
 
                             <!--<dashboard ng-if="widget.WidgetResource.WidgetType.AngularDirectiveName == 'dashboard'" widget="widget" dashboard="widget.WidgetResource.EmbeddedDashboard" dashboard-id="widget.WidgetResource.EmbeddedDashboard.Id"></dashboard>-->
                         </div>

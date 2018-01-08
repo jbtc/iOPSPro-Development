@@ -419,28 +419,29 @@
 							//Delete any WidgetGraphTag rows that might be associated with this widget
 							$q.all(
 
-								//Delete any associated graphtags
-								dataService.GetIOPSCollection("WidgetGraphTags", "WidgetId", widget.Id).then(function (graphTags) {
-									return $q.all(
-										graphTags.select(function (graphTag) {
-											graphTag.Id = -graphTag.Id;
-											return graphTag.$save();
-										})
-									);
-								}),
+								[
+									//Delete any associated graphtags
+									dataService.GetIOPSCollection("WidgetGraphTags", "WidgetId", widget.Id).then(function (graphTags) {
+										return $q.all(
+											graphTags.select(function (graphTag) {
+												graphTag.Id = -graphTag.Id;
+												return graphTag.$save();
+											})
+										);
+									}),
 
-								//Delete any child widgets tied to this one. (Pop-up type widgets)
-								dataService.GetIOPSCollection("Widgets", "ParentWidgetId", widget.Id).then(function (childWidgets) {
-									console.log("Child Widgets to delete = %O", childWidgets);
-									return $q.all(
-										childWidgets.select(function (childWidget) {
-											childWidget.Id = -childWidget.Id;
-											return childWidget.$save();
-										})
-									);
-								})
+									//Delete any child widgets tied to this one. (Pop-up type widgets)
+									dataService.GetIOPSCollection("Widgets", "ParentWidgetId", widget.Id).then(function (childWidgets) {
+										console.log("Child Widgets to delete = %O", childWidgets);
+										return $q.all(
+											childWidgets.select(function (childWidget) {
+												childWidget.Id = -childWidget.Id;
+												return childWidget.$save();
+											})
+										);
+									})
 
-
+								]
 
 
 

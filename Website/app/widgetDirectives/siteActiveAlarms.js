@@ -195,13 +195,16 @@
 
 					function SetLargeFontSize() {
 						vm.widgetDimensions = displaySetupService.GetWidgetPanelBodyDimensions(vm.widget.Id);
-						var hFontSize = vm.widgetDimensions.width * fontFactor;
-						var vFontSize = vm.widgetDimensions.height * fontFactor * 1.5;
+						if (vm.widgetDimensions) {
+							
+							var hFontSize = vm.widgetDimensions.width * fontFactor;
+							var vFontSize = vm.widgetDimensions.height * fontFactor * 1.5;
 
-						var textSize = hFontSize > vFontSize ? vFontSize : hFontSize;
-						vm.largeTextSize = textSize;
-						if (vm.largeTextSize > fontMax) {
-							vm.largeTextSize = fontMax;
+							var textSize = hFontSize > vFontSize ? vFontSize : hFontSize;
+							vm.largeTextSize = textSize;
+							if (vm.largeTextSize > fontMax) {
+								vm.largeTextSize = fontMax;
+							}
 						}
 
 					}
@@ -364,8 +367,11 @@
 					function SetChartSizeLine(widgetId, chart) {
 						//Set the bar chart to be 40% high, 60% wide
 						var widgetBodyDimensions = displaySetupService.GetWidgetPanelBodyDimensions(widgetId);
-						if (chart) {
-							chart.setSize((widgetBodyDimensions.width * .80), (widgetBodyDimensions.height * .40) - 10, false);
+						if (widgetBodyDimensions) {
+							if (chart) {
+								chart.setSize((widgetBodyDimensions.width * .80), (widgetBodyDimensions.height * .40) - 10, false);
+							}
+							
 						}
 					}
 

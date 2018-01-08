@@ -115,19 +115,51 @@
 	width: 100%;
 	z-index: 30;
 	background-color: transparent;
-	-ms-opacity: 0.4;
-	opacity: 0.4;
+	-ms-opacity: 0.8;
+	opacity: 0.8;
 	-ms-align-content: center;
 	-webkit-align-content: center;
 	align-content: center;
 	vertical-align: middle;
 	text-align: center;
-	font-size: 2em;
-	 color: yellow;
+	font-size: 3em;
+	 color: red;
     text-shadow: -1px 0 black, 0 1px black, 1px 0 black, 0 -1px black;
 	display: flex;
     align-items: center;
     justify-content: center;
+}
+
+
+
+.comm-loss-backdrop {
+	position: absolute;
+    top: 0;
+    left: 0;
+	height: 100%;
+	width: 100%;
+	z-index: 30;
+    background: #FFF;
+	-ms-opacity: .7;
+	opacity: .7;
+	-ms-align-content: center;
+	-webkit-align-content: center;
+	align-content: center;
+	vertical-align: middle;
+	text-align: center;
+	font-size: 3em;
+    text-shadow: -1px 0 black, 0 1px black, 1px 0 black, 0 -1px black;
+	display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+
+.comm-loss-message {
+	 color: gray;
+	-ms-opacity: 2;
+	opacity: 2;
+	z-index: 31;
 }
 
 
@@ -140,36 +172,36 @@
 }
 @-moz-keyframes locking-pulse-full {
 	0%      { opacity: 0.1; }
-	50%     { opacity: 1; }
+	50%     { opacity: 2; }
 	100%     { opacity: 0.1; }
 }
 
 @keyframes locking-pulse-full {
 	0%      { opacity: 0.1; }
-	50%     { opacity: 1; }
+	50%     { opacity: 2; }
 	100%     { opacity: 0.1; }
 }
 @-webkit-keyframes locking-pulse-full {
 	0%      { opacity: 0.1; }
-	50%     { opacity: 1; }
+	50%     { opacity: 2; }
 	100%     { opacity: 0.1; }
 }
 
 
 @-moz-keyframes locking-pulse {
 	0%      { opacity: 0.1; }
-	50%     { opacity: 0.3; }
+	50%     { opacity: 2; }
 	100%     { opacity: 0.1; }
 }
 
 @keyframes locking-pulse {
 	0%      { opacity: 0.1; }
-	50%     { opacity: 0.3; }
+	50%     { opacity: 2; }
 	100%     { opacity: 0.1; }
 }
 @-webkit-keyframes locking-pulse {
 	0%      { opacity: 0.1; }
-	50%     { opacity: 0.3; }
+	50%     { opacity: 2; }
 	100%     { opacity: 0.1; }
 }
 
