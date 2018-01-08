@@ -489,6 +489,8 @@
           <Property Name="KepwareSQLTimeDifferenceMSFromCentral" Type="int" />
           <Property Name="HasBaggageHandling" Type="bit" />
           <Property Name="HasGates" Type="bit" />
+          <Property Name="LastReportedDataDate" Type="datetime" />
+          <Property Name="DateLastModified" Type="datetime" />
         </EntityType>
         <EntityType Name="SiteCompany">
           <Key>
@@ -1610,6 +1612,11 @@
           <Parameter Name="endDate" Type="datetime" Mode="In" />
           <Parameter Name="location" Type="varchar" Mode="In" />
         </Function>
+        <Function Name="BHSPercentCBRAPerDay" Aggregate="false" BuiltIn="false" NiladicFunction="false" IsComposable="false" ParameterTypeSemantics="AllowImplicitConversion" Schema="BHS">
+          <Parameter Name="BeginDateTime" Type="datetime" Mode="In" />
+          <Parameter Name="EndDateTime" Type="datetime" Mode="In" />
+          <Parameter Name="SiteId" Type="bigint" Mode="In" />
+        </Function>
         <Function Name="BHSPercentOfFailSafePerDay" Aggregate="false" BuiltIn="false" NiladicFunction="false" IsComposable="false" ParameterTypeSemantics="AllowImplicitConversion" Schema="BHS">
           <Parameter Name="BeginDateTime" Type="datetime" Mode="In" />
           <Parameter Name="EndDateTime" Type="datetime" Mode="In" />
@@ -2487,6 +2494,11 @@
             <Parameter Name="TopNumber" Mode="In" Type="Int32" />
             <Parameter Name="SiteId" Mode="In" Type="Int64" />
           </FunctionImport>
+          <FunctionImport Name="BHSPercentCBRAPerDay" ReturnType="Collection(iOPS_NormalizedModel.BHSPercentCBRAPerDay_Result)">
+            <Parameter Name="BeginDateTime" Mode="In" Type="DateTime" />
+            <Parameter Name="EndDateTime" Mode="In" Type="DateTime" />
+            <Parameter Name="SiteId" Mode="In" Type="Int64" />
+          </FunctionImport>
           </EntityContainer>
         <EntityType Name="AuthorizableActivity">
           <Key>
@@ -2764,6 +2776,8 @@
           <NavigationProperty Name="GSReports" Relationship="iOPS_NormalizedModel.FK_GSReport_Site" FromRole="Site" ToRole="GSReport" />
           <Property Name="HasBaggageHandling" Type="Boolean" />
           <Property Name="HasGates" Type="Boolean" />
+          <Property Name="LastReportedDataDate" Type="DateTime" Precision="3" />
+          <Property Name="DateLastModified" Type="DateTime" Precision="3" />
         </EntityType>
         <EntityType Name="SiteCompany">
           <Key>
@@ -4602,6 +4616,16 @@
           <Property Type="Int32" Name="MinDurationSec" Nullable="true" />
           <Property Type="Int32" Name="AverageDuration" Nullable="true" />
         </ComplexType>
+        <ComplexType Name="BHSPercentCBRAPerDay_Result">
+          <Property Type="Int64" Name="SiteId" Nullable="true" />
+          <Property Type="String" Name="BHSName" Nullable="true" MaxLength="8000" />
+          <Property Type="Int32" Name="TokenCount" Nullable="true" />
+          <Property Type="Int32" Name="TotalCBRABags" Nullable="true" />
+          <Property Type="Decimal" Name="CBRAPercentOfTotal" Nullable="true" Precision="15" Scale="2" />
+          <Property Type="DateTime" Name="MinTimeStamp" Nullable="true" Precision="23" />
+          <Property Type="DateTime" Name="MaxTimeStamp" Nullable="true" Precision="23" />
+          <Property Type="DateTime" Name="Day" Nullable="true" />
+        </ComplexType>
         </Schema>
     </edmx:ConceptualModels>
     <!-- C-S mapping content -->
@@ -4732,6 +4756,8 @@
           <EntitySetMapping Name="Sites">
             <EntityTypeMapping TypeName="iOPS_NormalizedModel.Site">
               <MappingFragment StoreEntitySet="Site">
+                <ScalarProperty Name="DateLastModified" ColumnName="DateLastModified" />
+                <ScalarProperty Name="LastReportedDataDate" ColumnName="LastReportedDataDate" />
                 <ScalarProperty Name="HasGates" ColumnName="HasGates" />
                 <ScalarProperty Name="HasBaggageHandling" ColumnName="HasBaggageHandling" />
                 <ScalarProperty Name="KepwareSQLTimeDifferenceMSFromCentral" ColumnName="KepwareSQLTimeDifferenceMSFromCentral" />
@@ -5851,6 +5877,20 @@
                 <ScalarProperty Name="MaxDurationSec" ColumnName="MaxDurationSec" />
                 <ScalarProperty Name="MinDurationSec" ColumnName="MinDurationSec" />
                 <ScalarProperty Name="AverageDuration" ColumnName="AverageDuration" />
+              </ComplexTypeMapping>
+            </ResultMapping>
+          </FunctionImportMapping>
+          <FunctionImportMapping FunctionImportName="BHSPercentCBRAPerDay" FunctionName="iOPS_NormalizedModel.Store.BHSPercentCBRAPerDay">
+            <ResultMapping>
+              <ComplexTypeMapping TypeName="iOPS_NormalizedModel.BHSPercentCBRAPerDay_Result">
+                <ScalarProperty Name="SiteId" ColumnName="SiteId" />
+                <ScalarProperty Name="BHSName" ColumnName="BHSName" />
+                <ScalarProperty Name="TokenCount" ColumnName="TokenCount" />
+                <ScalarProperty Name="TotalCBRABags" ColumnName="TotalCBRABags" />
+                <ScalarProperty Name="CBRAPercentOfTotal" ColumnName="CBRAPercentOfTotal" />
+                <ScalarProperty Name="MinTimeStamp" ColumnName="MinTimeStamp" />
+                <ScalarProperty Name="MaxTimeStamp" ColumnName="MaxTimeStamp" />
+                <ScalarProperty Name="Day" ColumnName="Day" />
               </ComplexTypeMapping>
             </ResultMapping>
           </FunctionImportMapping>

@@ -623,5 +623,22 @@ namespace iOPS_ODataV4.Models
     
             return ((IObjectContextAdapter)this).ObjectContext.ExecuteFunction<BHSFilterByAlarmTypesbyArea_Result>("BHSFilterByAlarmTypesbyArea", beginTimeParameter, endTimeParameter, alarmTypeListParameter, topNumberParameter, siteIdParameter);
         }
+    
+        public virtual ObjectResult<BHSPercentCBRAPerDay_Result> BHSPercentCBRAPerDay(Nullable<System.DateTime> beginDateTime, Nullable<System.DateTime> endDateTime, Nullable<long> siteId)
+        {
+            var beginDateTimeParameter = beginDateTime.HasValue ?
+                new ObjectParameter("BeginDateTime", beginDateTime) :
+                new ObjectParameter("BeginDateTime", typeof(System.DateTime));
+    
+            var endDateTimeParameter = endDateTime.HasValue ?
+                new ObjectParameter("EndDateTime", endDateTime) :
+                new ObjectParameter("EndDateTime", typeof(System.DateTime));
+    
+            var siteIdParameter = siteId.HasValue ?
+                new ObjectParameter("SiteId", siteId) :
+                new ObjectParameter("SiteId", typeof(long));
+    
+            return ((IObjectContextAdapter)this).ObjectContext.ExecuteFunction<BHSPercentCBRAPerDay_Result>("BHSPercentCBRAPerDay", beginDateTimeParameter, endDateTimeParameter, siteIdParameter);
+        }
     }
 }
