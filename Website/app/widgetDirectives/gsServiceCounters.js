@@ -4,9 +4,9 @@
 
     app.directive('gsServiceCounters',
 		[
-			"dataService", "utilityService", "$state", "hotkeys", "displaySetupService", "$timeout", "$window", "$interval", "signalR", "$odata","$q",
+			"dataService", "utilityService", "$state", "hotkeys", "displaySetupService", "$timeout", "$window", "$interval", "signalR", "$odata", "$q",
 
-			function (dataService, utilityService, $state, hotkeys, displaySetupService, $timeout, $window, $interval, signalR, $odata,$q) {
+			function (dataService, utilityService, $state, hotkeys, displaySetupService, $timeout, $window, $interval, signalR, $odata, $q) {
 
 			    var controller = function ($scope) {
 			        var vm = this;
@@ -33,7 +33,7 @@
 			            obscureGraphics: true
 			        }
 
-			       
+
 
 			        $scope.$on("WidgetResize", function (event, resizedWidgetId) {
 
@@ -57,7 +57,7 @@
 			            console.log("gsTopFiveAlarmTypes Dashboard event. Modified Dashboard = %O", modifiedExpandedDashboard);
 			            if (modifiedExpandedDashboard.Id == vm.dashboard.Id) {
 			                vm.dashboard = modifiedExpandedDashboard;
-			                GetData(); 
+			                GetData();
 			            }
 			        });
 
@@ -73,7 +73,7 @@
 
 			        //Get the site entities for which the user has access.
 			        dataService.GetJBTData().then(function (JBTData) {
-			           
+
 			            vm.JBTData = JBTData;
 			            var userSiteCodes = Global.User.ReaderOf.where(function (s) {
 			                return s.split('.')[0] == 'Site'
@@ -123,16 +123,16 @@
                                  });
 
                              }
-                            
+
                          }
                      });
 
-			        
-			       
+
+
 
 			        function GetData() {
-			         
-			            var stdObsIds = [3782, 13740, 4504, 3819, 12455, 12452, 12374, 3879, 3795, 3808, 4001, 4745, 4002, 4003, 12578, 4074, 4075, 3844, 3789, 3837, 3843, 3770,  3820, 14241,  14388];
+
+			            var stdObsIds = [3782, 13740, 4504, 3819, 12455, 12452, 12374, 3879, 3795, 3808, 4001, 4745, 4002, 4003, 12578, 4074, 4075, 3844, 3789, 3837, 3843, 3770, 3820, 14241, 14388];
 			            var dataCollector = [];
 			            dataService.GetIOPSResource("Tags")
                                                    .select(["Id", "JBTStandardObservationId", "JBTStandardObservationName"])
@@ -140,7 +140,7 @@
                                                    .filter("GateName", vm.GateSystem.Name)
 			                                       .filter($odata.Predicate.or(stdObsIds.select(function (id)
 			                                       { return new $odata.Predicate("JBTStandardObservationId", id) })))
-                            .query().$promise.then(function(tags){
+                            .query().$promise.then(function (tags) {
                                 $q.all(
                                     tags.select(function (tag) {
                                         return dataService.GetIOPSResource("Observations")
@@ -150,32 +150,32 @@
                                                    .filter("BooleanValue", true)
                                                    .count()
                                                    .$promise.then(function (data) {
-                                                         dataCollector.push({ Tag: tag, Count: data.result });
-                                                 });
-                                                })
+                                                       dataCollector.push({ Tag: tag, Count: data.result });
+                                                   });
+                                    })
                                             ).then(function () {
                                                 console.log("Here are the tags =%O", dataCollector);
                                             });
-                                    });
-                             
-                        
-							   
+                            });
 
-							        $(function () {
-							            displaySetupService.SetWidgetPanelBodyDimensions(vm.widget.Id);
-							            
-							        });
-							    
-							    vm.data = dataCollector;
-							    vm.showWidget = true;
-							    vm.widget.displaySettings.headingExtraTitle = GetHeadingExtraTitle();
-							    console.log("In Vm.data  =%O ", vm.data);
 
-							
+
+
+			            $(function () {
+			                displaySetupService.SetWidgetPanelBodyDimensions(vm.widget.Id);
+
+			            });
+
+			            vm.data = dataCollector;
+			            vm.showWidget = true;
+			            vm.widget.displaySettings.headingExtraTitle = GetHeadingExtraTitle();
+			            console.log("In Vm.data  =%O ", vm.data);
+
+
 
 			        }
 
-  
+
 			    };
 
 			    controller.$inject = ["$scope"];
@@ -201,3 +201,4 @@
 		]);
 
 }());
+
