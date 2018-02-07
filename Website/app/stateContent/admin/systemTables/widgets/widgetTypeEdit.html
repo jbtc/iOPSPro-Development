@@ -30,11 +30,22 @@
                             <!-- Name -->
                             <text-input-field model="vm.widgetType.Name"
                                               label-text="Type Name"
-                                              id-text="name"
+                                              id-text="typeName"
                                               bootstrap-label-columns="{{vm.bootstrapLabelColumns}}"
                                               bootstrap-input-columns="{{vm.bootstrapInputColumns}}">
                             </text-input-field>
 
+
+                            <!-- Widget Type Tab Group -->
+                            <div class="form-group">
+                                <label class="col-sm-{{vm.bootstrapLabelColumns}} control-label innovation-right-aligned">
+                                    Tab Group
+                                </label>
+                                <div class="col-sm-{{vm.bootstrapInputColumns}}">
+                                    <label ng-repeat="tg in vm.widgetTypeTabGroups" class="btn btn-default" style="margin: 1px;" ng-model="vm.widgetType.WidgetTypeTabGroupId" uib-btn-radio={{tg.Id}}>{{tg.Name}}</label>
+                                </div>
+                            </div>
+                            
 
                             <!-- Initial Height -->
                             <div class="form-group">

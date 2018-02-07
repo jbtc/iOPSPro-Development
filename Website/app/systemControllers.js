@@ -24,7 +24,7 @@
 		$scope.$on("$destroy",
                 function () {
                 	console.log("Destroyed settings controller");
-					$rootScope.$broadcast("ResizeVirtualScrollContainers", null);
+                	$rootScope.$broadcast("ResizeVirtualScrollContainers", null);
                 });
 
 		console.log("Settings controller widget = %O", vm.widget);
@@ -36,10 +36,10 @@
 			case 'reports':
 			case 'siteActiveAlarms':
 			case 'siteActiveWarnings':
-		    case 'gsTopFiveAlarmTypes':
-		    case 'gsTopFiveAlarmTypesByEquipment':
-		    case 'gsEquipmentUsage':
-		    case 'gsEquipmentHoursOfUsage':
+			case 'gsTopFiveAlarmTypes':
+			case 'gsTopFiveAlarmTypesByEquipment':
+			case 'gsEquipmentUsage':
+			case 'gsEquipmentHoursOfUsage':
 
 				vm.selectSite = true;
 				vm.selectTerminal = vm.selectZone = vm.selectGate = vm.selectAsset = vm.selectBHS = false;
@@ -121,7 +121,7 @@
 		}
 
 		if (vm.selectZone) {
-			
+
 			//Start watching for terminal id changes	
 			$scope.$watch("vm.widget.WidgetResource.TerminalSystemId",
 			function (newValue, oldValue) {
@@ -154,10 +154,10 @@
 
 			console.log("user site codes = %O", userSiteCodes);
 
-			vm.userSites = vm.JBTData.Sites.where(function(site) {
-				return userSiteCodes.any(function(sc) { return sc == site.Name });
+			vm.userSites = vm.JBTData.Sites.where(function (site) {
+				return userSiteCodes.any(function (sc) { return sc == site.Name });
 			})
-			.where(function(s){ return !vm.selectTerminal || s.Systems.any(function(sys){ return sys.TypeId == 1})});
+			.where(function (s) { return !vm.selectTerminal || s.Systems.any(function (sys) { return sys.TypeId == 1 }) });
 
 			console.log("vm.userSites = %O", vm.userSites);
 
@@ -179,7 +179,7 @@
 
 		});
 
-		
+
 		function GetTerminalsForWidgetSite() {
 			if (vm.widget.WidgetResource.SiteId) {
 
@@ -198,7 +198,7 @@
 
 
 
-		
+
 
 		function GetZonesForWidgetTerminal() {
 			if (vm.terminals && vm.widget.WidgetResource.TerminalSystemId) {
@@ -223,7 +223,7 @@
 		}
 
 
-		if (vm.selectGate) {			
+		if (vm.selectGate) {
 			//Start watching for zone id changes	
 			$scope.$watch("vm.widget.WidgetResource.ZoneSystemId",
 			function (newValue, oldValue) {
@@ -264,7 +264,7 @@
 		}
 
 
-		if (vm.selectAsset) {			
+		if (vm.selectAsset) {
 			//Start watching for gate id changes	
 			$scope.$watch("vm.widget.WidgetResource.GateSystemId",
 			function (newValue, oldValue) {
@@ -289,7 +289,7 @@
 
 					if (newValue != oldValue) {
 						vm.previousAssetId = newValue;
-						vm.asset = vm.JBTData.Assets.first(function(a){ return a.Id == newValue});
+						vm.asset = vm.JBTData.Assets.first(function (a) { return a.Id == newValue });
 						SaveWidgetResourceObjectIfChanged();
 					}
 				}
@@ -314,11 +314,11 @@
 				vm.assets = vm.JBTData
 					.Assets
 					.where(function (a) { return a.ParentSystemId == vm.widget.WidgetResource.GateSystemId })
-					.orderBy(function(a){return a.Name});
+					.orderBy(function (a) { return a.Name });
 
 
 				if (vm.previousAssetId) {
-					vm.previousAsset = vm.JBTData.Assets.first(function(a) { return a.Id == vm.previousAssetId });
+					vm.previousAsset = vm.JBTData.Assets.first(function (a) { return a.Id == vm.previousAssetId });
 					console.log("Previous asset present = %O", vm.previousAsset);
 					vm.asset = vm.assets.first(function (a) { return a.Name == vm.previousAsset.Name });
 					vm.widget.WidgetResource.AssetId = vm.asset.Id;
@@ -685,7 +685,7 @@
 	"use strict";
 
 
-	function MenuCtrl($scope, $rootScope, $state, displaySetupService, dataService, $timeout, $q, signalR) {
+	function MenuCtrl($scope, $rootScope, $state, displaySetupService, dataService, $timeout, $q, signalR, hotkeys) {
 		var vm = this;
 		//console.log("MenuCtrl invoked");
 		vm.state = $state;
@@ -706,6 +706,90 @@
 
 
 			});
+
+
+
+		//+Provide for the ability to select the dashboards from the 1,2,3,4,5,6... etc keys.
+		hotkeys.bindTo($scope)
+				.add({
+					combo: 'ctrl+1',
+					allowIn: ['INPUT', 'SELECT', 'TEXTAREA'],
+					callback: function () {
+						event.preventDefault();
+						GoToDashboardByNumber(1);
+					}
+				})
+				.add({
+					combo: 'ctrl+2',
+					allowIn: ['INPUT', 'SELECT', 'TEXTAREA'],
+					callback: function () {
+						event.preventDefault();
+						GoToDashboardByNumber(2);
+					}
+				})
+				.add({
+					combo: 'ctrl+3',
+					allowIn: ['INPUT', 'SELECT', 'TEXTAREA'],
+					callback: function () {
+						event.preventDefault();
+						GoToDashboardByNumber(3);
+					}
+				})
+				.add({
+					combo: 'ctrl+4',
+					allowIn: ['INPUT', 'SELECT', 'TEXTAREA'],
+					callback: function () {
+						event.preventDefault();
+						GoToDashboardByNumber(4);
+					}
+				})
+				.add({
+					combo: 'ctrl+5',
+					allowIn: ['INPUT', 'SELECT', 'TEXTAREA'],
+					callback: function () {
+						event.preventDefault();
+						GoToDashboardByNumber(5);
+					}
+				})
+				.add({
+					combo: 'ctrl+6',
+					allowIn: ['INPUT', 'SELECT', 'TEXTAREA'],
+					callback: function () {
+						event.preventDefault();
+						GoToDashboardByNumber(6);
+					}
+				})
+				.add({
+					combo: 'ctrl+7',
+					allowIn: ['INPUT', 'SELECT', 'TEXTAREA'],
+					callback: function () {
+						event.preventDefault();
+						GoToDashboardByNumber(7);
+					}
+				})
+				.add({
+					combo: 'ctrl+8',
+					allowIn: ['INPUT', 'SELECT', 'TEXTAREA'],
+					callback: function () {
+						event.preventDefault();
+						GoToDashboardByNumber(8);
+					}
+				})
+				.add({
+					combo: 'ctrl+9',
+					allowIn: ['INPUT', 'SELECT', 'TEXTAREA'],
+					callback: function () {
+						event.preventDefault();
+						GoToDashboardByNumber(9);
+					}
+				})
+
+		;
+
+
+		function GoToDashboardByNumber(number) {
+			$state.go("home.app.dashboard", { DashboardId: vm.dashboards.skip(number - 1).first().Id });
+		}
 
 
 		$scope.$on("Dashboard", function (event, dashboard) {
@@ -817,9 +901,9 @@
 
 
 
-		//////////////////////////////////////////////////
-		//Section that provides for dashboard reordering
-		//////////////////////////////////////////////////
+		//---G
+		//+Section that provides for dashboard reordering
+		//---G
 		var fixHelperModified = function (e, tr) {
 			var $originals = tr.children();
 			var $helper = tr.clone();
@@ -860,7 +944,7 @@
 
 
 		};
-
+		//---G
 
 		$timeout(function () {
 			$("#dashboardsTable tbody").sortable({
@@ -1272,6 +1356,7 @@
 				"$timeout",
 				"$q",
 				"signalR",
+				"hotkeys",
 				MenuCtrl
 			]);
 
@@ -3172,7 +3257,7 @@
 	"use strict";
 
 
-	function WidgetTypeEditCtrl($state, $rootScope, $scope, securityService, dataService, $stateParams, utilityService, $timeout, uibButtonConfig, hotkeys, $interval, displaySetupService, signalR) {
+	function WidgetTypeEditCtrl($state, $rootScope, $scope, securityService, dataService, $stateParams, utilityService, $timeout, uibButtonConfig, hotkeys, $interval, displaySetupService, signalR, $q) {
 		var vm = this;
 
 		vm.state = $state;
@@ -3191,32 +3276,27 @@
 		if ($stateParams.WidgetTypeId > 0) {
 			//Existing widget type
 			$q.all([
-				dataService.GetEntityById("WidgetTypes", $stateParams.WidgetTypeId).then(function(data) { vm.widgetType = data }),
-				dataService.GetIOPSCollection("WidgetTypeTabGroups").then(function(data) { vm.widgetTypeTabGroups = data })
-			]).then(function() {
+				dataService.GetEntityById("WidgetTypes", $stateParams.WidgetTypeId).then(function (data) { vm.widgetType = data }),
+				dataService.GetIOPSCollection("WidgetTypeTabGroups").then(function (data) { vm.widgetTypeTabGroups = data })
+			]).then(function () {
 				vm.originalWidgetType = angular.copy(vm.widgetType);
-				vm.panelTitle = "" + vm.widgetType.DataTypeCode + " - " + vm.widgetType.Name;
+				vm.panelTitle = "" + vm.widgetType.CategoryPath + " - " + vm.widgetType.Name;
 
 
 				vm.isAvailableToAdmin = vm.widgetType.IsAvailableToAdmin ? 1 : 0;
 				vm.isAvailableToAll = vm.widgetType.IsAvailableToAll ? 1 : 0;
 				vm.hasSettings = vm.widgetType.HasSettings ? 1 : 0;
 				vm.showScreen = true;
-
+				console.log("widgetTypeEdit Controller = %O", vm);
 
 
 				console.log("vm.widgetType = %O", vm.widgetType);
 
 			});
 
-
-
 			dataService.GetEntityById("WidgetTypes", $stateParams.WidgetTypeId).then(function (wt) {
 				vm.widgetType = wt;
-
 			});
-
-
 
 		} else {
 			vm.widgetType = {
@@ -3226,10 +3306,7 @@
 			vm.panelTitle = "New Widget Type";
 			vm.showScreen = true;
 			console.log("vm.widgetType = %O", vm.widgetType);
-
 		}
-
-
 
 		hotkeys.bindTo($scope)
 		.add({
@@ -3284,6 +3361,7 @@
 				"$interval",
 				"displaySetupService",
 				"signalR",
+				"$q",
 				WidgetTypeEditCtrl
 			]);
 
@@ -3304,6 +3382,7 @@
 		vm.columnWidths = {
 
 			name: 15,
+			tabGroup: 15,
 			description: 25,
 			initialHeight: 8,
 			initialWidth: 8,
@@ -3331,11 +3410,15 @@
 		function GetData() {
 
 			if ($stateParams.Path) {
-				dataService.GetIOPSCollection("WidgetTypes", "CategoryPath", $stateParams.Path).then(function (data) {
-					vm.widgetTypes = data.orderBy(function (w) { return w.DevelopmentPriority });
+				dataService.GetIOPSResource("WidgetTypes")
+				.filter("CategoryPath", $stateParams.Path)
+				.expand("WidgetTypeTabGroup")
+					.query().$promise
+					.then(function (data) {
+						vm.widgetTypes = data.orderBy(function (w) { return w.DevelopmentPriority });
 
-					vm.showPanel = true;
-				});
+						vm.showPanel = true;
+					});
 
 
 			}
@@ -3365,31 +3448,31 @@
 			dataService.GetIOPSResource("WidgetTypes")
 				.expand("WidgetTypeTabGroups")
 				.then(function (dbWt) {
-				vm.dbWt = dbWt;
-				var currentReorderNumber = 0;
-				$('#widgetTypesTable tbody tr').each(function () {
-					var currentItemId = $(this).attr("itemid");
-					currentReorderNumber++;
+					vm.dbWt = dbWt;
+					var currentReorderNumber = 0;
+					$('#widgetTypesTable tbody tr').each(function () {
+						var currentItemId = $(this).attr("itemid");
+						currentReorderNumber++;
 
-					if (vm.dbWt) {
-						vm.dbWt.forEach(function (db) {
-							if (db.Id == currentItemId && db.Ordinal != currentReorderNumber) {
-								db.DevelopmentPriority = currentReorderNumber;
-								db.$save();
-								vm.widgetTypes.forEach(function (item) {
-									if (item.Id == currentItemId) {
-										item.DevelopmentPriority = currentReorderNumber;
-									}
-								});
-							}
+						if (vm.dbWt) {
+							vm.dbWt.forEach(function (db) {
+								if (db.Id == currentItemId && db.Ordinal != currentReorderNumber) {
+									db.DevelopmentPriority = currentReorderNumber;
+									db.$save();
+									vm.widgetTypes.forEach(function (item) {
+										if (item.Id == currentItemId) {
+											item.DevelopmentPriority = currentReorderNumber;
+										}
+									});
+								}
 
-						});
+							});
 
-					}
+						}
+
+					});
 
 				});
-
-			});
 
 
 		};
@@ -3441,8 +3524,8 @@
 
 
 		$scope.$on("WidgetType", function (event, wt) {
-			console.log("Event iOPSUser");
-			vm.widgetTypes = [wt].concat(vm.widgetTypes).distinct(function (a, b) { return a.Id == b.Id }).orderBy(function (wt) { return wt.DevelopmentPriority });
+			console.log("Event WidgetType");
+			GetData();
 
 		});
 
@@ -3887,8 +3970,8 @@
 
 		$scope.$on("$destroy",
         function () {
-            console.log("Destroyed settings controller");
-			$rootScope.$broadcast("ResizeVirtualScrollContainers", null);
+        	console.log("Destroyed settings controller");
+        	$rootScope.$broadcast("ResizeVirtualScrollContainers", null);
         });
 
 
@@ -4070,7 +4153,7 @@
 		//Makes the uib buttons a nice shade of blue.
 		uibButtonConfig.activeClass = 'radio-active';
 
-		$timeout(function() {
+		$timeout(function () {
 			$rootScope.$broadcast("ResizeVirtualScrollContainers", null);
 		}, 1000);
 
@@ -4082,27 +4165,78 @@
 
 		$scope.$on("$destroy",
         function () {
-			$rootScope.$broadcast("ResizeVirtualScrollContainers", null);
+        	$rootScope.$broadcast("ResizeVirtualScrollContainers", null);
         });
+
+
+		vm.SetDefaultNavPill = function(id) {
+			vm.dashboardFromDB.DefaultWidgetTypeTabGroupId = id;
+			vm.dashboardFromDB.$save();
+
+		}
+
+		vm.columnWidths = {
+			name: 35,
+			description: 65
+
+		}
 
 
 		function GetData() {
 
 			//Get the widget types already on the dashboard:
-			dataService.GetIOPSCollection("Widgets", "ParentDashboardId", +$stateParams.DashboardId)
+			dataService.GetIOPSResource("Widgets")
+				.filter("ParentDashboardId", +$stateParams.DashboardId)
+				.query().$promise
 				.then(function (widgetsOnDashboard) {
 					vm.widgetsOnDashboard = widgetsOnDashboard;
 					console.log("widgetsOnDashboard = %O", widgetsOnDashboard);
 
-					dataService.GetIOPSCollection("WidgetTypes").then(function (wt) {
-						vm.widgetTypes = wt
-							.where(function (t) { return t.IsAvailableToAll || (securityService.UserHasAuthorizedActivity("AuthorizedActivity.AdministerSystem") && t.IsAvailableToAdmin); })
-							.orderBy(function (t) { return t.CategoryPath })
-							.thenBy(function (wt) { return wt.Name });
+					$q.all(
+							[
+								dataService.GetIOPSResource("WidgetTypes").expand("WidgetTypeTabGroup").query().$promise.then(function (wt) {
 
-						vm.showScreen = true;
-						displaySetupService.SetPanelDimensions(20);
-					});
+									vm.widgetTypeGroups = wt
+										.where(function (t) {
+											return t.IsAvailableToAll ||
+												(securityService.UserHasAuthorizedActivity("AuthorizedActivity.AdministerSystem") && t.IsAvailableToAdmin);
+										})
+										.groupBy(function (t) { return t.WidgetTypeTabGroup ? t.WidgetTypeTabGroup.Name : 'Misc'})
+										.select(function (g) {
+											return {
+												Name: g.key,
+												WidgetTypeTabGroupId:  g.first() && g.first().WidgetTypeTabGroup && g.first().WidgetTypeTabGroup.Id || 'Misc',
+												WidgetTypes: g.select(function (t) { return t })
+											};
+										});
+
+								}),
+
+								dataService.GetEntityById("Dashboards", +$stateParams.DashboardId).then(function (dashboard) {
+									vm.dashboardFromDB = dashboard;
+								})
+
+
+
+							]
+						).then(function () {
+
+
+							console.log("vm = %O", vm);
+
+							//+If the dashboard does not yet have a default tab group Id, then set it to the first on in the tab groups and save the dashboard to the database.
+							if (!vm.dashboardFromDB.DefaultWidgetTypeTabGroupId) {
+								vm.dashboardFromDB.DefaultWidgetTypeTabGroupId = vm.widgetTypeGroups.first().WidgetTypeTabGroupId;
+								vm.dashboardFromDB.$save();
+
+
+							}
+
+
+							vm.showScreen = true;
+							displaySetupService.SetPanelDimensions(20);
+						});
+
 				});
 
 

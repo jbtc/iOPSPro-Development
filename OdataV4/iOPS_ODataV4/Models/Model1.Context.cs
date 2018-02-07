@@ -681,5 +681,67 @@ namespace iOPS_ODataV4.Models
     
             return ((IObjectContextAdapter)this).ObjectContext.ExecuteFunction<BHSAlarmHistorySSRS_Result>("BHSAlarmHistorySSRS", fromDateParameter, toDateParameter, siteIdParameter, oDataAccessTokenParameter);
         }
+    
+        public virtual ObjectResult<GSTagsUpdatedInLastFiveMinutesByListOfAssetIds_Result> GSTagsUpdatedInLastFiveMinutesByListOfAssetIds(string assetIds)
+        {
+            var assetIdsParameter = assetIds != null ?
+                new ObjectParameter("assetIds", assetIds) :
+                new ObjectParameter("assetIds", typeof(string));
+    
+            return ((IObjectContextAdapter)this).ObjectContext.ExecuteFunction<GSTagsUpdatedInLastFiveMinutesByListOfAssetIds_Result>("GSTagsUpdatedInLastFiveMinutesByListOfAssetIds", assetIdsParameter);
+        }
+    
+        [DbFunction("iOPS_NormalizedEntities", "GSEquipmentUsage_TVF_Query_With_Aggregate")]
+        public virtual IQueryable<GSEquipmentUsage_TVF_Query_With_Aggregate_Result> GSEquipmentUsage_TVF_Query_With_Aggregate(Nullable<System.DateTime> beginTime, Nullable<System.DateTime> endTime, Nullable<long> siteId)
+        {
+            var beginTimeParameter = beginTime.HasValue ?
+                new ObjectParameter("BeginTime", beginTime) :
+                new ObjectParameter("BeginTime", typeof(System.DateTime));
+    
+            var endTimeParameter = endTime.HasValue ?
+                new ObjectParameter("EndTime", endTime) :
+                new ObjectParameter("EndTime", typeof(System.DateTime));
+    
+            var siteIdParameter = siteId.HasValue ?
+                new ObjectParameter("SiteId", siteId) :
+                new ObjectParameter("SiteId", typeof(long));
+    
+            return ((IObjectContextAdapter)this).ObjectContext.CreateQuery<GSEquipmentUsage_TVF_Query_With_Aggregate_Result>("[iOPS_NormalizedEntities].[GSEquipmentUsage_TVF_Query_With_Aggregate](@BeginTime, @EndTime, @SiteId)", beginTimeParameter, endTimeParameter, siteIdParameter);
+        }
+    
+        [DbFunction("iOPS_NormalizedEntities", "GSEquipmentUsage_TVF_Query_Without_Aggregate")]
+        public virtual IQueryable<GSEquipmentUsage_TVF_Query_Without_Aggregate_Result> GSEquipmentUsage_TVF_Query_Without_Aggregate(Nullable<System.DateTime> beginTime, Nullable<System.DateTime> endTime, Nullable<long> siteId)
+        {
+            var beginTimeParameter = beginTime.HasValue ?
+                new ObjectParameter("BeginTime", beginTime) :
+                new ObjectParameter("BeginTime", typeof(System.DateTime));
+    
+            var endTimeParameter = endTime.HasValue ?
+                new ObjectParameter("EndTime", endTime) :
+                new ObjectParameter("EndTime", typeof(System.DateTime));
+    
+            var siteIdParameter = siteId.HasValue ?
+                new ObjectParameter("SiteId", siteId) :
+                new ObjectParameter("SiteId", typeof(long));
+    
+            return ((IObjectContextAdapter)this).ObjectContext.CreateQuery<GSEquipmentUsage_TVF_Query_Without_Aggregate_Result>("[iOPS_NormalizedEntities].[GSEquipmentUsage_TVF_Query_Without_Aggregate](@BeginTime, @EndTime, @SiteId)", beginTimeParameter, endTimeParameter, siteIdParameter);
+        }
+    
+        public virtual ObjectResult<spGSEquipmentUsage_TVF_Query_Result> spGSEquipmentUsage_TVF_Query(Nullable<System.DateTime> beginTime, Nullable<System.DateTime> endTime, Nullable<long> siteId)
+        {
+            var beginTimeParameter = beginTime.HasValue ?
+                new ObjectParameter("BeginTime", beginTime) :
+                new ObjectParameter("BeginTime", typeof(System.DateTime));
+    
+            var endTimeParameter = endTime.HasValue ?
+                new ObjectParameter("EndTime", endTime) :
+                new ObjectParameter("EndTime", typeof(System.DateTime));
+    
+            var siteIdParameter = siteId.HasValue ?
+                new ObjectParameter("SiteId", siteId) :
+                new ObjectParameter("SiteId", typeof(long));
+    
+            return ((IObjectContextAdapter)this).ObjectContext.ExecuteFunction<spGSEquipmentUsage_TVF_Query_Result>("spGSEquipmentUsage_TVF_Query", beginTimeParameter, endTimeParameter, siteIdParameter);
+        }
     }
 }

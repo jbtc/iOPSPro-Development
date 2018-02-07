@@ -4,9 +4,9 @@
 
 	app.directive('terminalOverview',
 		[
-			"dataService", "utilityService", "$state", "hotkeys", "displaySetupService", "$timeout", "$window", "$interval", "signalR", "uibButtonConfig",
+			"dataService", "utilityService", "$state", "hotkeys", "displaySetupService", "$timeout", "$window", "$interval", "signalR", "uibButtonConfig", "$odata", "$q",
 
-			function (dataService, utilityService, $state, hotkeys, displaySetupService, $timeout, $window, $interval, signalR, uibButtonConfig) {
+			function (dataService, utilityService, $state, hotkeys, displaySetupService, $timeout, $window, $interval, signalR, uibButtonConfig, $odata, $q) {
 
 				var controller = function ($scope) {
 					var vm = this;
@@ -26,6 +26,9 @@
 						headingExtraTitle: '',
 						obscureGraphics: true
 					}
+
+
+					
 
 
 
@@ -142,6 +145,14 @@
 								terminalSystemId: vm.widget.WidgetResource.TerminalSystemId
 							}, function (data) {
 
+								var assetIds = data.select(function(d) {
+									return d.AssetId.toString();
+								}).distinct().join(',');
+
+								//console.log("assetIds = %O", assetIds);
+								vm.widget.assetIds = assetIds;
+
+
 								vm.terminalGraphics = data;
 								data.forEach(function (tag) {
 									if (+tag.LastObservationTextValue == +(tag.ValueWhenVisible ? tag.ValueWhenVisible : "99999999")) {
@@ -213,8 +224,6 @@
 						UpdateGraphicsVisibilityForSingleTag(updatedTag);
 					});
 
-
-
 					function UpdateGraphicsVisibilityForSingleTag(updatedTag) {
 
 						if (updatedTag && vm.terminalGraphics) {
@@ -242,15 +251,6 @@
 									} else {
 										tg.showImage = false;
 									}
-
-									if (tg.showImage) {
-										//console.log("Tag set to visible = %O", tg);
-									}
-									if (!tg.showImage) {
-										//console.log("Tag set to invisible = %O", tg);
-									}
-									//console.log("===========================================================");
-									
 								}
 							});
 						}

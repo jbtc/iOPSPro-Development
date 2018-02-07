@@ -147,10 +147,8 @@
 								vm.gpu = null;
 
 								SaveWidgetResourceObjectIfChanged();
-								
-
+								GetGPUAssetForGate();
 							}
-							GetGPUAssetForGate();
 						}
 					});
 

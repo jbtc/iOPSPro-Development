@@ -24,11 +24,11 @@
 
 
 					$scope.$on("WidgetResize.Stop", function (event, resizedWidgetId) {
-						if (vm.widget.Id == resizedWidgetId || resizedWidgetId == 0) {							
-							$interval(function() {
+						if (vm.widget.Id == resizedWidgetId || resizedWidgetId == 0) {
+							$interval(function () {
 								displaySetupService.SetLoneChartSize(vm.widget.Id, vm.chart);
-								
-							},50,20);
+
+							}, 50, 20);
 						}
 					});
 
@@ -92,9 +92,13 @@
 
 					GetChartData();
 
-					//Refresh data on the 15 second system clock tick
-					$scope.$on("System.ClockTick15", function () {
+					vm.updateInterval = $interval(function () {
 						GetChartData();
+					},120000);
+
+					$scope.$on("$destroy", function () {
+						$interval.cancel(vm.updateInterval);
+
 					});
 
 
@@ -198,24 +202,24 @@
 												var chartThis = this;
 
 												hs.htmlExpand(null, {
-																					pageOrigin: {
-																						x: e.pageX || e.clientX,
-																						y: e.pageY || e.clientY
-																					},
-																					headingText: chartThis.y + ' ' + chartThis.category + 's',
-																					maincontentText: "<table class='table table-condensed table-striped' style='font-size: .75em;'>" +
-																										"<tr>" + 
-																											"<td>" +
-																												"Alarm Count" +
-																											"</td>" +
-																											"<td>" +
-																												vm.data.first(function(item){return item.DeviceName == chartThis.category }).AlarmCount + 
-																											"</td>" +
-																										"</tr>" +
-																									"</table>",
-																					width: 150,
-																					height: 250
-																				});
+													pageOrigin: {
+														x: e.pageX || e.clientX,
+														y: e.pageY || e.clientY
+													},
+													headingText: chartThis.y + ' ' + chartThis.category + 's',
+													maincontentText: "<table class='table table-condensed table-striped' style='font-size: .75em;'>" +
+																		"<tr>" +
+																			"<td>" +
+																				"Alarm Count" +
+																			"</td>" +
+																			"<td>" +
+																				vm.data.first(function (item) { return item.DeviceName == chartThis.category }).AlarmCount +
+																			"</td>" +
+																		"</tr>" +
+																	"</table>",
+													width: 150,
+													height: 250
+												});
 
 
 											}
@@ -231,8 +235,11 @@
 						};
 
 						console.log("chartOptions = %O", chartOptions);
+						try {
+							vm.chart = Highcharts.chart('bhsTopFiveJamDevicesWithLongestDuration' + vm.widget.Id, chartOptions);
+						} catch (e) {
 
-						vm.chart = Highcharts.chart('bhsTopFiveJamDevicesWithLongestDuration' + vm.widget.Id, chartOptions);
+						}
 					}
 				};
 

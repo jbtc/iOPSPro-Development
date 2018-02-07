@@ -2,12 +2,12 @@
     <div class="modal-backdrop"></div>
     <div class="modal-holder" autoscroll="false">
         <div>
-            <div ng-show="vm.showScreen" class="panel panel-primary panel-centered-modal-floating" style="width: 80%;">
+            <div ng-show="vm.showScreen" class="panel panel-primary panel-centered-modal-floating" style="width: 50%; overflow: hidden;">
 
 
                 <div class="panel-heading">
                     <div class='btn-toolbar pull-right' style="display: inline-block;">
-                        
+
                         <button ng-click="vm.Close()" class="btn btn-default responsive-button">Close</button>
                     </div>
                     <div class="panel-heading-title">
@@ -20,45 +20,53 @@
                 </div>
 
 
-                <div class="panel-body">
 
-                    <form class="form-horizontal" role="form" name="dashboardForm" id="dashboardForm" novalidate>
-                        <table class="table table-hover table-responsive">
-                            <thead>
-                                <tr>
-                                    <th style="width: {{vm.columnWidths.categoryPath}}%">
-                                        Scope
-                                    </th>
-                                    <th style="width: {{vm.columnWidths.name}}%">
-                                        Name
-                                    </th>
-                                    <th style="width: {{vm.columnWidths.description}}%">
-                                        Description
-                                    </th>
-                                </tr>
-                            </thead>
 
-                            <tbody>
-                                <tr ng-repeat="widgetType in vm.widgetTypes" ng-click="vm.AddWidget(widgetType)" style="cursor: pointer;">
+                <ul class="nav nav-pills panel-tab-nav-button" id="nav-pills-add-widget">
+                    <li ng-repeat="tabGroup in vm.widgetTypeGroups" class="{{(vm.dashboardFromDB.DefaultWidgetTypeTabGroupId == tabGroup.WidgetTypeTabGroupId) ? 'active' : 'xxx'}}"><a data-toggle="pill" ng-click="vm.SetDefaultNavPill(tabGroup.WidgetTypeTabGroupId)" href="#{{tabGroup.Name}}">{{tabGroup.Name}}</a></li>
+                </ul>
 
-                                    <td>
-                                        {{widgetType.CategoryPath}}
-                                    </td>
-                                    <td>
-                                        {{widgetType.Name}}
-                                    </td>
-                                    <td>
-                                        {{widgetType.Description}}
-                                    </td>
-                                </tr>
+                <div class="panel-body" style="overflow: auto;">
 
-                            </tbody>
-                        </table>
-                    </form>
+                    <div ng-repeat="tabGroup in vm.widgetTypeGroups" class="tab-content" id="tab-content{{tabGroup.WidgetTypeTabGroupId}}" style="overflow: hidden; position: absolute; top: 100; left:0; width: 100%;">
+                        <div id="{{tabGroup.Name}}" class="tab-pane fade{{vm.dashboardFromDB.DefaultWidgetTypeTabGroupId == tabGroup.WidgetTypeTabGroupId ? ' in active' : ''}}" style="overflow: auto; height: 100%;">
+                            <table class="table table-hover table-responsive">
+                                <thead>
+                                    <tr>
+                                        <th style="width: {{vm.columnWidths.name}}%">
+                                            Name
+                                        </th>
+                                        <th style="width: {{vm.columnWidths.description}}%">
+                                            Description
+                                        </th>
+                                    </tr>
+                                </thead>
+
+                                <tbody>
+                                    <tr ng-repeat="widgetType in tabGroup.WidgetTypes" ng-click="vm.AddWidget(widgetType)" style="cursor: pointer;">
+
+                                        <td>
+                                            {{widgetType.Name}}
+                                        </td>
+                                        <td>
+                                            {{widgetType.Description}}
+                                        </td>
+                                    </tr>
+
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+
                 </div>
             </div>
+
         </div>
     </div>
 </div>
+
+
+
 
 

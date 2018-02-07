@@ -87,25 +87,29 @@
 
 
 
-						dataService.GetIOPSWebAPIResource("Top5ObservationExceptions")
-							.query({
-								beginDate: vm.dashboard.webApiParameterStartDate,
-								endDate: vm.dashboard.webApiParameterEndDate,
-								siteId: 2
-							}, function (data) {
-								console.log("Top5ObservationExceptions initial data = %O", data);
+					dataService.GetIOPSWebAPIResource("Top5ObservationExceptions")
+						.query({
+							beginDate: vm.dashboard.webApiParameterStartDate,
+							endDate: vm.dashboard.webApiParameterEndDate,
+							siteId: 2
+						}, function (data) {
+							console.log("Top5ObservationExceptions initial data = %O", data);
 
-								
 
-							});
+
+						});
 
 
 
 					GetChartData();
 
-					//Refresh data on the 15 second system clock tick
-					$scope.$on("System.ClockTick15", function () {
+					vm.updateInterval = $interval(function () {
 						GetChartData();
+					},120000);
+
+					$scope.$on("$destroy", function () {
+						$interval.cancel(vm.updateInterval);
+
 					});
 
 
@@ -257,8 +261,11 @@
 						};
 
 						//console.log("chartOptions = %O", chartOptions);
+						try {
+							vm.chart = Highcharts.chart('bhsTopFiveAlarmTypes' + vm.widget.Id, chartOptions);
+						} catch (e) {
 
-						vm.chart = Highcharts.chart('bhsTopFiveAlarmTypes' + vm.widget.Id, chartOptions);
+						}
 					}
 				};
 

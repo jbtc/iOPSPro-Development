@@ -151,6 +151,33 @@
 
 					ReportStep(5);
 
+
+
+
+					function GetAllAssetIdsForDashboard() {
+
+						//console.log("vm = %O", vm);
+						
+							var multiAssetIds = vm.widgets.where(function(w) { return w.assetIds }).selectMany(function(w) {
+								return w.assetIds.split(',');
+							});
+
+
+							//console.log("Dashboard multi asset id list = %O", multiAssetIds);
+
+
+							var assetIdList = vm.widgets.select(function (widget) { return widget.WidgetResource.AssetId })
+								.where(function (assetId) { return assetId })
+								.concat(multiAssetIds)
+								.distinct().join(',');
+
+						//console.log("Dashboard asset id list = %O", assetIdList);
+
+						vm.assetIdList = assetIdList;
+					}
+
+
+
 					function GetDashboardData() {
 						dataService.GetExpandedDashboardById(vm.dashboardId)
 						.then(function (data) {
@@ -175,43 +202,42 @@
 
 
 
-									var assetIdList = widgets.select(function (widget) { return widget.AssetId })
-										.where(function (assetId) { return assetId }).distinct().join(',');
 
-									console.log("Dashboard asset id list = %O", assetIdList);
+
 
 									//dataService.GetAllSignalRObservationFormattedTagsForAssetIdIntoInventoryByListOfAssetIds(assetIdList).then(
 									//	function () {
 
-											vm.widgets = widgets.select(function (w) {
-												return {
-													sizeX: w.Width,
-													sizeY: w.Height,
-													row: w.Row,
-													col: w.Col,
-													prevRow: w.Row,
-													prevCol: w.Col,
-													Id: w.Id,
-													Name: w.Name,
-													WidgetResource: w,
-													HasChanged: false
-												}
-											});
-
-											vm.dashboard.widgets = vm.widgets;
-											//console.log("Dashboard widgets = %O", vm.widgets);
-
-											ReportStep(7);
+									vm.widgets = widgets.select(function (w) {
+										return {
+											sizeX: w.Width,
+											sizeY: w.Height,
+											row: w.Row,
+											col: w.Col,
+											prevRow: w.Row,
+											prevCol: w.Col,
+											Id: w.Id,
+											Name: w.Name,
+											WidgetResource: w,
+											HasChanged: false
+										}
+									});
 
 
-											if (!vm.widget) {
-												//console.log("No widget this invokation");
-												displaySetupService.SetPanelDimensions();
-											} else {
-												displaySetupService.SetWidgetPanelBodyDimensions(vm.widget.Id);
-											}
-											//console.log("Dashboard Widgets = %O", vm.widgets);
-										//});
+									vm.dashboard.widgets = vm.widgets;
+									//console.log("Dashboard widgets = %O", vm.widgets);
+
+									ReportStep(7);
+
+
+									if (!vm.widget) {
+										//console.log("No widget this invokation");
+										displaySetupService.SetPanelDimensions();
+									} else {
+										displaySetupService.SetWidgetPanelBodyDimensions(vm.widget.Id);
+									}
+									//console.log("Dashboard Widgets = %O", vm.widgets);
+									//});
 
 
 
@@ -603,9 +629,12 @@
 
 					vm.saveChangeInterval = $interval(function () {
 						SaveAllChangedWidgets();
-					},
-						1000);
+					},1000);
 
+					vm.saveChangeInterval = $interval(function () {
+						GetAllAssetIdsForDashboard();
+						dataService.RefreshAllSignalRObservationFormattedTagsForAssetIdIntoInventoryByListOfAssetIds(vm.assetIdList);
+					},60000);
 
 					$scope.$on("$destroy", function () {
 						$interval.cancel(vm.saveChangeInterval);
@@ -613,24 +642,26 @@
 					});
 
 					vm.LogWidget = function (widget) {
-						console.log("Clicked Widget data = %O", widget);
+						//console.log("Clicked Widget data = %O", widget);
 					}
 
 					function SaveAllChangedWidgets() {
+						if (vm.widgets) {
 
-						vm.widgets.where(function (w) { return w.col != w.prevCol || w.row != w.prevRow }).forEach(function (widget1) {
-							widget1.WidgetResource.Row = widget1.row;
-							widget1.WidgetResource.Col = widget1.col;
-							widget1.prevCol = widget1.col;
-							widget1.prevRow = widget1.row;
+							vm.widgets.where(function (w) { return w.col != w.prevCol || w.row != w.prevRow }).forEach(function (widget1) {
+								widget1.WidgetResource.Row = widget1.row;
+								widget1.WidgetResource.Col = widget1.col;
+								widget1.prevCol = widget1.col;
+								widget1.prevRow = widget1.row;
 
-							widget1.WidgetResource.Width = widget1.sizeX;
-							widget1.WidgetResource.Height = widget1.sizeY;
+								widget1.WidgetResource.Width = widget1.sizeX;
+								widget1.WidgetResource.Height = widget1.sizeY;
 
-							widget1.WidgetResource.$save().then(function (widget2) {
-								signalR.SignalAllClients("Widget.Updated", widget2);
+								widget1.WidgetResource.$save().then(function (widget2) {
+									signalR.SignalAllClients("Widget.Updated", widget2);
+								});
 							});
-						});
+						}
 
 					}
 

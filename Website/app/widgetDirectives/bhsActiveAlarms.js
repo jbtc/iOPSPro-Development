@@ -33,12 +33,12 @@
 					$scope.$on("WidgetResize.Stop", function (event, resizedWidgetId) {
 						if (vm.widget.Id == resizedWidgetId || resizedWidgetId == 0) {
 
-							$interval(function() {
+							$interval(function () {
 								displaySetupService.SetPanelBodyWithIdHeight(vm.widget.Id);
 								SetChartSizeLine(vm.widget.Id, vm.chart);
 								SetLargeFontSize();
 
-							},50,20);
+							}, 50, 20);
 
 						}
 					});
@@ -46,15 +46,18 @@
 
 					function SetLargeFontSize() {
 						vm.widgetDimensions = displaySetupService.GetWidgetPanelBodyDimensions(vm.widget.Id);
-						var hFontSize = vm.widgetDimensions.width * fontFactor;
-						var vFontSize = vm.widgetDimensions.height * fontFactor * 1.5;
+						if (vm.widgetDimensions) {
 
-						var textSize = hFontSize > vFontSize ? vFontSize : hFontSize;
-						vm.largeTextSize = textSize;
-						if (vm.largeTextSize > fontMax) {
-							vm.largeTextSize = fontMax;
+							var hFontSize = vm.widgetDimensions.width * fontFactor;
+							var vFontSize = vm.widgetDimensions.height * fontFactor * 1.5;
+
+							var textSize = hFontSize > vFontSize ? vFontSize : hFontSize;
+							vm.largeTextSize = textSize;
+							if (vm.largeTextSize > fontMax) {
+								vm.largeTextSize = fontMax;
+							}
 						}
-						
+
 					}
 
 					$scope.$on("Dashboard", function (event, modifiedExpandedDashboard) {
@@ -115,7 +118,7 @@
 					function SetChartSizeLine(widgetId, chart) {
 						//Set the bar chart to be 40% high, 60% wide
 						var widgetBodyDimensions = displaySetupService.GetWidgetPanelBodyDimensions(widgetId);
-						if (chart) {
+						if (chart && widgetBodyDimensions) {
 							chart.setSize((widgetBodyDimensions.width * .80), (widgetBodyDimensions.height * .40) - 10, false);
 						}
 					}
@@ -140,72 +143,77 @@
 					}
 
 					function CreateChart() {
-						vm.chart = Highcharts.chart('containerBhsActiveAlarms' + vm.widget.Id, {
-							chart: {
-								type: 'spline',
+						try {
+							vm.chart = Highcharts.chart('containerBhsActiveAlarms' + vm.widget.Id, {
+								chart: {
+									type: 'spline',
+									animation: false,
+									marginRight: 10,
+									events: {
+										load: function () {
+
+											// set up the updating of the chart each second
+											vm.chartSeries = this.series[0];
+										}
+									}
+								},
 								animation: false,
-								marginRight: 10,
-								events: {
-									load: function () {
-
-										// set up the updating of the chart each second
-										vm.chartSeries = this.series[0];
-									}
-								}
-							},
-							animation: false,
-							credits: { enabled: false },
-							title: {
-								text: (vm.diffDays > 5) ? 'Alarms Per Day' : 'Alarms Per Hour',
-								style: {
-									fontSize: '.8em'
-								}
-							},
-							xAxis: {
-								type: 'datetime',
-								dateTimeLabelFormats: {
-									day: (vm.diffDays > 5) ? '%m/%d' : '%m/%d %H:00',
-									month: '%b \'%y'
-								},
-								labels: {
-									autoRotation: [-10, -20, -30, -40, -50, -60, -70, -80, -90],
-									style: {
-										fontSize: '10px',
-										fontFamily: 'Verdana, sans-serif'
-									}
-								}
-							},
-							yAxis: {
+								credits: { enabled: false },
 								title: {
-									text: ''
+									text: (vm.diffDays > 5) ? 'Alarms Per Day' : 'Alarms Per Hour',
+									style: {
+										fontSize: '.8em'
+									}
 								},
-								plotLines: [{
-									value: 0,
-									width: 1,
-									color: '#808080'
-								}]
-							},
-							tooltip: {
-								formatter: function () {
+								xAxis: {
+									type: 'datetime',
+									dateTimeLabelFormats: {
+										day: (vm.diffDays > 5) ? '%m/%d' : '%m/%d %H:00',
+										month: '%b \'%y'
+									},
+									labels: {
+										autoRotation: [-10, -20, -30, -40, -50, -60, -70, -80, -90],
+										style: {
+											fontSize: '10px',
+											fontFamily: 'Verdana, sans-serif'
+										}
+									}
+								},
+								yAxis: {
+									title: {
+										text: ''
+									},
+									plotLines: [{
+										value: 0,
+										width: 1,
+										color: '#808080'
+									}]
+								},
+								tooltip: {
+									formatter: function () {
 
-									//console.log("Current this = %O", this);
-									return '<b>' + this.series.name + '</b><br/>' +
-										Highcharts.dateFormat(vm.diffDays > 5 ? '%m/%d/%Y' : '%m/%d/%Y %H:00', this.x)
-										+ '<br/>' +
-										Highcharts.numberFormat(this.y, 0) + ' Alarms';
-								}
-							},
-							legend: {
-								enabled: false
-							},
-							exporting: {
-								enabled: true
-							},
-							series: [{
-								name: 'Alarms',
-								data: vm.chartData
-							}]
-						});
+										//console.log("Current this = %O", this);
+										return '<b>' + this.series.name + '</b><br/>' +
+											Highcharts.dateFormat(vm.diffDays > 5 ? '%m/%d/%Y' : '%m/%d/%Y %H:00', this.x)
+											+ '<br/>' +
+											Highcharts.numberFormat(this.y, 0) + ' Alarms';
+									}
+								},
+								legend: {
+									enabled: false
+								},
+								exporting: {
+									enabled: true
+								},
+								series: [{
+									name: 'Alarms',
+									data: vm.chartData
+								}]
+							});
+
+						} catch (e) {
+
+						}
 
 					}
 
@@ -247,7 +255,7 @@
 													});
 
 
-													vm.alarms = data.where(function (a) { return a.TransactionType != 'Inactive' &&  a.Hide == 0 });
+													vm.alarms = data.where(function (a) { return a.TransactionType != 'Inactive' && a.Hide == 0 });
 
 													displaySetupService.SetPanelBodyWithIdHeight(vm.widget.Id);
 

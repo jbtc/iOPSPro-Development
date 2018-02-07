@@ -1,0 +1,162 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<edmx:Edmx Version="3.0" xmlns:edmx="http://schemas.microsoft.com/ado/2009/11/edmx">
+  <!-- EF Runtime content -->
+  <edmx:Runtime>
+    <!-- SSDL content -->
+    <edmx:StorageModels>
+      <Schema Namespace="iOPS_NormalizedModel.Store" Provider="System.Data.SqlClient" ProviderManifestToken="2012" Alias="Self" xmlns:store="http://schemas.microsoft.com/ado/2007/12/edm/EntityStoreSchemaGenerator" xmlns:customannotation="http://schemas.microsoft.com/ado/2013/11/edm/customannotation" xmlns="http://schemas.microsoft.com/ado/2009/11/edm/ssdl">
+        <EntityType Name="ChronologicalRawTagValueLogKepwareReceiver">
+          <Key>
+            <PropertyRef Name="Id" />
+          </Key>
+          <Property Name="Id" Type="bigint" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="ObservationDateTime" Type="datetime" />
+          <Property Name="CreationDate" Type="datetime2" Precision="7" />
+          <Property Name="TagName" Type="varchar" MaxLength="255" />
+          <Property Name="Value" Type="varchar" MaxLength="50" />
+          <Property Name="ETLDate" Type="datetime" />
+          <Property Name="Quality" Type="int" />
+          <Property Name="NotificationLevel" Type="int" />
+        </EntityType>
+        <!--Errors Found During Generation:
+warning 6002: The table/view 'iOPS_Normalized.ETL.ChronologicalRawTagValueLogKepwareReceiverNewProcessor' does not have a primary key defined. The key has been inferred and the definition was created as a read-only table/view.-->
+        <EntityType Name="ChronologicalRawTagValueLogKepwareReceiverNewProcessor">
+          <Key>
+            <PropertyRef Name="Id" />
+          </Key>
+          <Property Name="Id" Type="bigint" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="ObservationDateTime" Type="datetime" />
+          <Property Name="CreationDate" Type="datetime2" Precision="7" />
+          <Property Name="TagName" Type="varchar" MaxLength="255" />
+          <Property Name="Value" Type="varchar" MaxLength="50" />
+          <Property Name="ETLDate" Type="datetime" />
+          <Property Name="Quality" Type="int" />
+          <Property Name="NotificationLevel" Type="int" />
+        </EntityType>
+        <Function Name="ChronologicalRawTagValueLogKepwareReceiverRecord" Aggregate="false" BuiltIn="false" NiladicFunction="false" IsComposable="false" ParameterTypeSemantics="AllowImplicitConversion" Schema="ETL">
+          <Parameter Name="observationDateTime" Type="datetime" Mode="In" />
+          <Parameter Name="CreationDate" Type="datetime2" Mode="In" />
+          <Parameter Name="value" Type="varchar" Mode="In" />
+          <Parameter Name="Quality" Type="int" Mode="In" />
+          <Parameter Name="tagName" Type="varchar" Mode="In" />
+          <Parameter Name="debug" Type="int" Mode="In" />
+          <Parameter Name="NotificationLevel" Type="int" Mode="In" />
+        </Function>
+        <EntityContainer Name="iOPS_NormalizedModelStoreContainer">
+          <EntitySet Name="ChronologicalRawTagValueLogKepwareReceiver" EntityType="Self.ChronologicalRawTagValueLogKepwareReceiver" Schema="ETL" store:Type="Tables" />
+          <EntitySet Name="ChronologicalRawTagValueLogKepwareReceiverNewProcessor" EntityType="Self.ChronologicalRawTagValueLogKepwareReceiverNewProcessor" store:Type="Tables" store:Schema="ETL">
+            <DefiningQuery>SELECT 
+    [ChronologicalRawTagValueLogKepwareReceiverNewProcessor].[Id] AS [Id], 
+    [ChronologicalRawTagValueLogKepwareReceiverNewProcessor].[ObservationDateTime] AS [ObservationDateTime], 
+    [ChronologicalRawTagValueLogKepwareReceiverNewProcessor].[CreationDate] AS [CreationDate], 
+    [ChronologicalRawTagValueLogKepwareReceiverNewProcessor].[TagName] AS [TagName], 
+    [ChronologicalRawTagValueLogKepwareReceiverNewProcessor].[Value] AS [Value], 
+    [ChronologicalRawTagValueLogKepwareReceiverNewProcessor].[ETLDate] AS [ETLDate], 
+    [ChronologicalRawTagValueLogKepwareReceiverNewProcessor].[Quality] AS [Quality], 
+    [ChronologicalRawTagValueLogKepwareReceiverNewProcessor].[NotificationLevel] AS [NotificationLevel]
+    FROM [ETL].[ChronologicalRawTagValueLogKepwareReceiverNewProcessor] AS [ChronologicalRawTagValueLogKepwareReceiverNewProcessor]</DefiningQuery>
+          </EntitySet>
+        </EntityContainer>
+      </Schema>
+    </edmx:StorageModels>
+    <!-- CSDL content -->
+    <edmx:ConceptualModels>
+      <Schema Namespace="iOPS_NormalizedModel" Alias="Self" annotation:UseStrongSpatialTypes="false" xmlns:annotation="http://schemas.microsoft.com/ado/2009/02/edm/annotation" xmlns:customannotation="http://schemas.microsoft.com/ado/2013/11/edm/customannotation" xmlns="http://schemas.microsoft.com/ado/2009/11/edm">
+        <EntityType Name="ChronologicalRawTagValueLogKepwareReceiver">
+          <Key>
+            <PropertyRef Name="Id" />
+          </Key>
+          <Property Name="Id" Type="Int64" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="ObservationDateTime" Type="DateTime" Precision="3" />
+          <Property Name="CreationDate" Type="DateTime" Precision="7" />
+          <Property Name="TagName" Type="String" MaxLength="255" FixedLength="false" Unicode="false" />
+          <Property Name="Value" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
+          <Property Name="ETLDate" Type="DateTime" Precision="3" />
+          <Property Name="Quality" Type="Int32" />
+          <Property Name="NotificationLevel" Type="Int32" />
+        </EntityType>
+        <EntityType Name="ChronologicalRawTagValueLogKepwareReceiverNewProcessor">
+          <Key>
+            <PropertyRef Name="Id" />
+          </Key>
+          <Property Name="Id" Type="Int64" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="ObservationDateTime" Type="DateTime" Precision="3" />
+          <Property Name="CreationDate" Type="DateTime" Precision="7" />
+          <Property Name="TagName" Type="String" MaxLength="255" FixedLength="false" Unicode="false" />
+          <Property Name="Value" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
+          <Property Name="ETLDate" Type="DateTime" Precision="3" />
+          <Property Name="Quality" Type="Int32" />
+          <Property Name="NotificationLevel" Type="Int32" />
+        </EntityType>
+        <EntityContainer Name="iOPS_NormalizedEntities" annotation:LazyLoadingEnabled="true">
+          <EntitySet Name="ChronologicalRawTagValueLogKepwareReceivers" EntityType="Self.ChronologicalRawTagValueLogKepwareReceiver" />
+          <EntitySet Name="ChronologicalRawTagValueLogKepwareReceiverNewProcessors" EntityType="Self.ChronologicalRawTagValueLogKepwareReceiverNewProcessor" />
+          <FunctionImport Name="ChronologicalRawTagValueLogKepwareReceiverRecord">
+            <Parameter Name="observationDateTime" Mode="In" Type="DateTime" />
+            <Parameter Name="CreationDate" Mode="In" Type="DateTime" />
+            <Parameter Name="value" Mode="In" Type="String" />
+            <Parameter Name="Quality" Mode="In" Type="Int32" />
+            <Parameter Name="tagName" Mode="In" Type="String" />
+            <Parameter Name="debug" Mode="In" Type="Int32" />
+            <Parameter Name="NotificationLevel" Mode="In" Type="Int32" />
+          </FunctionImport>
+        </EntityContainer>
+      </Schema>
+    </edmx:ConceptualModels>
+    <!-- C-S mapping content -->
+    <edmx:Mappings>
+      <Mapping Space="C-S" xmlns="http://schemas.microsoft.com/ado/2009/11/mapping/cs">
+        <EntityContainerMapping StorageEntityContainer="iOPS_NormalizedModelStoreContainer" CdmEntityContainer="iOPS_NormalizedEntities">
+          <EntitySetMapping Name="ChronologicalRawTagValueLogKepwareReceivers">
+            <EntityTypeMapping TypeName="iOPS_NormalizedModel.ChronologicalRawTagValueLogKepwareReceiver">
+              <MappingFragment StoreEntitySet="ChronologicalRawTagValueLogKepwareReceiver">
+                <ScalarProperty Name="Id" ColumnName="Id" />
+                <ScalarProperty Name="ObservationDateTime" ColumnName="ObservationDateTime" />
+                <ScalarProperty Name="CreationDate" ColumnName="CreationDate" />
+                <ScalarProperty Name="TagName" ColumnName="TagName" />
+                <ScalarProperty Name="Value" ColumnName="Value" />
+                <ScalarProperty Name="ETLDate" ColumnName="ETLDate" />
+                <ScalarProperty Name="Quality" ColumnName="Quality" />
+                <ScalarProperty Name="NotificationLevel" ColumnName="NotificationLevel" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="ChronologicalRawTagValueLogKepwareReceiverNewProcessors">
+            <EntityTypeMapping TypeName="iOPS_NormalizedModel.ChronologicalRawTagValueLogKepwareReceiverNewProcessor">
+              <MappingFragment StoreEntitySet="ChronologicalRawTagValueLogKepwareReceiverNewProcessor">
+                <ScalarProperty Name="Id" ColumnName="Id" />
+                <ScalarProperty Name="ObservationDateTime" ColumnName="ObservationDateTime" />
+                <ScalarProperty Name="CreationDate" ColumnName="CreationDate" />
+                <ScalarProperty Name="TagName" ColumnName="TagName" />
+                <ScalarProperty Name="Value" ColumnName="Value" />
+                <ScalarProperty Name="ETLDate" ColumnName="ETLDate" />
+                <ScalarProperty Name="Quality" ColumnName="Quality" />
+                <ScalarProperty Name="NotificationLevel" ColumnName="NotificationLevel" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <FunctionImportMapping FunctionImportName="ChronologicalRawTagValueLogKepwareReceiverRecord" FunctionName="iOPS_NormalizedModel.Store.ChronologicalRawTagValueLogKepwareReceiverRecord" />
+        </EntityContainerMapping>
+      </Mapping>
+    </edmx:Mappings>
+  </edmx:Runtime>
+  <!-- EF Designer content (DO NOT EDIT MANUALLY BELOW HERE) -->
+  <Designer xmlns="http://schemas.microsoft.com/ado/2009/11/edmx">
+    <Connection>
+      <DesignerInfoPropertySet>
+        <DesignerProperty Name="MetadataArtifactProcessing" Value="EmbedInOutputAssembly" />
+      </DesignerInfoPropertySet>
+    </Connection>
+    <Options>
+      <DesignerInfoPropertySet>
+        <DesignerProperty Name="ValidateOnBuild" Value="true" />
+        <DesignerProperty Name="EnablePluralization" Value="true" />
+        <DesignerProperty Name="IncludeForeignKeysInModel" Value="true" />
+        <DesignerProperty Name="UseLegacyProvider" Value="false" />
+        <DesignerProperty Name="CodeGenerationStrategy" Value="None" />
+      </DesignerInfoPropertySet>
+    </Options>
+    <!-- Diagram content (shape and connector positions) -->
+    <Diagrams></Diagrams>
+  </Designer>
+</edmx:Edmx>

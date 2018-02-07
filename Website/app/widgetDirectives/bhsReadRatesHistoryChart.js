@@ -48,13 +48,13 @@
 					$scope.$on("WidgetResize.Stop", function (event, resizedWidgetId) {
 
 						if (vm.widget.Id == resizedWidgetId || resizedWidgetId == 0) {
-							
-							$interval(function() {
+
+							$interval(function () {
 								vm.data.forEach(function (item) {
 									SetChartSize(item);
 								});
-								
-							},100,40);
+
+							}, 100, 40);
 						}
 					});
 
@@ -89,7 +89,7 @@
 
 									var formattedData = data
 											.groupBy(function (t) { return t.Location })
-												.orderBy(function(t){return t.key})
+												.orderBy(function (t) { return t.key })
 												.select(function (group) {
 
 													var scannerData = {
@@ -115,8 +115,8 @@
 													//console.log("Scanner Data Grouped = %O", scannerData);
 
 													//Caclculate the total good and bad for the chart being generated and add it as properties to the group.
-													scannerData.totalGoodReads = scannerData.Data.sum(function(item) { return item.GoodReads });
-													scannerData.totalBadReads = scannerData.Data.sum(function(item) { return item.BadReads });
+													scannerData.totalGoodReads = scannerData.Data.sum(function (item) { return item.GoodReads });
+													scannerData.totalBadReads = scannerData.Data.sum(function (item) { return item.BadReads });
 
 													if (!vm.data || refresh) {
 
@@ -163,106 +163,115 @@
 						//If the chart object is already there then just refresh the data.
 
 						//console.log("Chart regen = %O", scannerData.Data.select(function (d) { return { y: d.GoodReads } }));
-						return Highcharts.chart(scannerData.ChartContainerId,
-						{
-							chart: {
-								type: 'area'
+						try {
 
-							},
-							title: {
-								text: scannerData.Scanner + " - Read Rate " + (vm.diffDays > 5 ? "Per Day" : "Per Hour") + ' - ' + scannerData.totalGoodReads + ' Good Reads - ' + scannerData.totalBadReads + ' Bad Reads',
-								style: {
-									fontSize: '.8em'
-								}
-							},
-							animation: false,
-							credits: { enabled: false },
-							xAxis: {
-								//type: 'datetime',
-								dateTimeLabelFormats: {
-									day: (vm.diffDays > 5) ? '%m/%d' : '%m/%d %H:00',
-									month: '%b \'%y'
+							return Highcharts.chart(scannerData.ChartContainerId,
+							{
+								chart: {
+									type: 'area'
+
 								},
-								labels: {
-									autoRotation: [-10, -20, -30, -40, -50, -60, -70, -80, -90],
+								title: {
+									text: scannerData.Scanner + " - Read Rate " + (vm.diffDays > 5 ? "Per Day" : "Per Hour") + ' - ' + scannerData.totalGoodReads + ' Good Reads - ' + scannerData.totalBadReads + ' Bad Reads',
 									style: {
-										fontSize: '10px',
-										fontFamily: 'Verdana, sans-serif'
+										fontSize: '.8em'
 									}
 								},
-								//These are the date or hour entries
-								categories: scannerData.Data.select(function (sd) {
-									return vm.diffDays > 5 ? moment(sd.TimeWindow).format("MM/DD") : moment(sd.TimeWindow).format("MM/DD HH:00");
-								}),
-								tickmarkPlacement: 'on',
-								title: {
-									enabled: false
-								}
-							},
-							yAxis: {
-								title: {
-									text: ''
-								},
-								visible: false
-							},
-							tooltip: {
-								pointFormat: '<span>{series.name}</span>: <b>{point.percentage:.1f}%</b> ({point.y:,.0f} Times)<br/>',
-								split: true,
-								hideDelay: 2000
-							},
-							plotOptions: {
-								series: {
-									animation: false
-								},
-								area: {
-									stacking: 'percent',
-									lineColor: '#ffffff',
-									lineWidth: 1,
-									marker: {
-										lineWidth: 1,
-										lineColor: '#ffffff'
-									}
-								}
-							},
-							legend: {
-								enabled: false
-							},
-							series: [
-								{
-									name: 'Good Reads',
-									data: scannerData.Data.select(function (d) { return { y: d.GoodReads } }),
-									color: {
-										linearGradient: { x1: 0, y1: 0, x2: 0, y2: 1 },
-										stops: [
-											[0, '#bbbbbb'],
-											[1, '#ffffff']
-										]
-									}
-								},
-								{
-									name: 'Failed Reads',
-									data: scannerData.Data.select(function (d) { return { y: d.BadReads } }),
-									color: {
-										linearGradient: { x1: 0, y1: 0, x2: 0, y2: 1 },
-										stops: [
-											[0, '#ff0000'],
-											[1, '#f4a4a4']
-										]
+								animation: false,
+								credits: { enabled: false },
+								xAxis: {
+									//type: 'datetime',
+									dateTimeLabelFormats: {
+										day: (vm.diffDays > 5) ? '%m/%d' : '%m/%d %H:00',
+										month: '%b \'%y'
 									},
+									labels: {
+										autoRotation: [-10, -20, -30, -40, -50, -60, -70, -80, -90],
+										style: {
+											fontSize: '10px',
+											fontFamily: 'Verdana, sans-serif'
+										}
+									},
+									//These are the date or hour entries
+									categories: scannerData.Data.select(function (sd) {
+										return vm.diffDays > 5 ? moment(sd.TimeWindow).format("MM/DD") : moment(sd.TimeWindow).format("MM/DD HH:00");
+									}),
+									tickmarkPlacement: 'on',
+									title: {
+										enabled: false
+									}
+								},
+								yAxis: {
+									title: {
+										text: ''
+									},
+									visible: false
+								},
+								tooltip: {
+									pointFormat: '<span>{series.name}</span>: <b>{point.percentage:.1f}%</b> ({point.y:,.0f} Times)<br/>',
+									split: true,
+									hideDelay: 2000
+								},
+								plotOptions: {
+									series: {
+										animation: false
+									},
+									area: {
+										stacking: 'percent',
+										lineColor: '#ffffff',
+										lineWidth: 1,
+										marker: {
+											lineWidth: 1,
+											lineColor: '#ffffff'
+										}
+									}
+								},
+								legend: {
+									enabled: false
+								},
+								series: [
+									{
+										name: 'Good Reads',
+										data: scannerData.Data.select(function (d) { return { y: d.GoodReads } }),
+										color: {
+											linearGradient: { x1: 0, y1: 0, x2: 0, y2: 1 },
+											stops: [
+												[0, '#bbbbbb'],
+												[1, '#ffffff']
+											]
+										}
+									},
+									{
+										name: 'Failed Reads',
+										data: scannerData.Data.select(function (d) { return { y: d.BadReads } }),
+										color: {
+											linearGradient: { x1: 0, y1: 0, x2: 0, y2: 1 },
+											stops: [
+												[0, '#ff0000'],
+												[1, '#f4a4a4']
+											]
+										},
 
-								}
-							]
+									}
+								]
 
-						});
+							});
+						} catch (e) {
+
+						}
 
 					}
 
 
 					GetChartData(false);
 
-					//Refresh data on the 15 second system clock tick
-					$scope.$on("System.ClockTick15", function () {
-						GetChartData(false);
+					vm.updateInterval = $interval(function() {
+						GetChartData();
+					},120000);
+
+					$scope.$on("$destroy", function () {
+						$interval.cancel(vm.updateInterval);
+
 					});
 
 

@@ -1,4 +1,5 @@
-﻿using System.Web.Http;
+﻿using System.Data.Entity.Infrastructure.Interception;
+using System.Web.Http;
 using System.Web.Http.Cors;
 using System.Web.OData;
 using System.Web.OData.Builder;
@@ -6,6 +7,7 @@ using System.Web.OData.Extensions;
 using System.Web.OData.Query;
 using iOPS_ODataV4.Filters;
 using iOPS_ODataV4.Models;
+using iOPS_ODataV4.Services;
 using iOPS_ODataV4.ViewModels;
 
 namespace iOPS_ODataV4
@@ -76,15 +78,7 @@ namespace iOPS_ODataV4
             builder.EntitySet<ObservationExceptionComment>("ObservationExceptionComments");
             builder.EntitySet<WidgetTypeTabGroup>("WidgetTypeTabGroups");
             
-            //++pfjivbodijfobifjbodijfboidjfboidjfb
-
-
-
-
-
-
-
-
+           
 
             ////+Special section for the login OData route.
             FunctionConfiguration function = builder.Function("login").ReturnsFromEntitySet<iOPSUserViewModel>("users");
@@ -121,7 +115,7 @@ namespace iOPS_ODataV4
             config.EnableCors(cors);
 
 
-
+            DbInterception.Add(new NoLockInterceptor());
 
 
             config.Routes.MapHttpRoute(

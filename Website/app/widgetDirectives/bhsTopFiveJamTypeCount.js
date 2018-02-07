@@ -95,10 +95,15 @@
 
 			        GetChartData();
 
-			        //Refresh data on the 15 second system clock tick
-			        $scope.$on("System.ClockTick15", function () {
-			            GetChartData();
-			        });
+					vm.updateInterval = $interval(function () {
+						GetChartData();
+					},120000);
+
+					$scope.$on("$destroy", function () {
+						$interval.cancel(vm.updateInterval);
+
+					});
+
 
 
 
@@ -260,8 +265,11 @@
 			            };
 
 			            //console.log("chartOptions = %O", chartOptions);
+				        try {				        
+				            vm.chart = Highcharts.chart('bhsTopFiveJamTypeCount' + vm.widget.Id, chartOptions);
+				        } catch (e) {
 
-			            vm.chart = Highcharts.chart('bhsTopFiveJamTypeCount' + vm.widget.Id, chartOptions);
+				        } 
                     }
 			    };
 

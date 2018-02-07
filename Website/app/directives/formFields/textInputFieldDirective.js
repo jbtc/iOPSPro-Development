@@ -19,7 +19,8 @@
 				bootstrapLabelColumns: "@",
 				bootstrapInputColumns: "@",
 				placeholderText: "@",
-				inputWidth: "@"
+				inputWidth: "@",
+				idText: "@"
 			},
 			link: function (scope, element, attrs) {
 				if ('focus' in attrs)

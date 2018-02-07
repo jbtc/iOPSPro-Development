@@ -207,8 +207,9 @@
 					}
 
 					function toFixed(number, fractionSize) {
-						if (number) {						
-							return +(Math.round(+(number.toString() + 'e' + fractionSize)).toString() + 'e' + -fractionSize);
+						if (number) {
+							var returnNumber = +(Math.round(+(number.toString() + 'e' + fractionSize)).toString() + 'e' + -fractionSize);
+							return returnNumber || number;
 						}
 					}
 
@@ -281,7 +282,7 @@
 											.$promise
 											.then(function (data) {
 
-											
+												
 												data.forEach(function (d) {
 													d.Date = utilityService.GetLocalDateFromUTCDate(d.Date);
 												});
@@ -290,12 +291,11 @@
 												var graphTag = vm.GraphTagsData.first(function (td) { return td.TagId == gt.TagId });
 
 												//Check the data to see if it is digital and set the property.
-												graphTag.isDigital = IsDataDigital(data);
 												vm.GraphTagsData
 													.first(function (td) { return td.TagId == gt.TagId })
 													.MarginObservations = data.select(
 													function (obs) {
-														return [obs.Date.getTime(), toFixed(obs.FloatValue, 1)];
+														return [obs.Date.getTime(), toFixed(obs.FloatValue, 1) || 0];
 
 													}).orderBy(function (o) { return o.MillisecondsDate });
 
@@ -326,7 +326,7 @@
 																.where(function(v) { return v.length > 5 })
 																.select(function(valuePair) {
 																	var numericValuePair = valuePair.split(',');
-																	return [+numericValuePair[0], +numericValuePair[1]]
+																	return [+numericValuePair[0], +numericValuePair[1] || 0];
 																});
 
 
@@ -357,6 +357,15 @@
 
 										DisplayLoadingMessage({ number: messageNumber++, message: "Generating Complete Series for: " + gt.Tag.Asset.Site.Name + ' ' + gt.Tag.Asset.System.Name + ' ' + gt.Tag.Asset.Name + ' ' + gt.Tag.JBTStandardObservationName + " " + (time1 - time0)});
 										var time0 = performance.now();
+
+										var dataPairs = gt.AggregateObservations
+											.concat(gt.MarginObservations)
+											.orderBy(function(vp) { return vp[0] });
+
+										console.log("DataPairs = %O", dataPairs);
+
+										gt.isDigital = IsDataDigital(dataPairs);
+
 										var seriesObject = {
 											connectNulls: true,
 											tagId: gt.Tag.Id,
@@ -370,11 +379,14 @@
 												.select(function (o) {
 												vm.pointCount++;
 												return [o[0], gt.isDigital ? (o[1] || 0) + digitalStepValue : toFixed(o[1],1)];
+												//return [o[0], gt.isDigital ? (o[1] || 0) + digitalStepValue : o[1]];
 											})
 										};
 
+
 										seriesObject.name += ' (' + utilityService.FormatNumberWithCommas(seriesObject.data.length) +  ' points)';
 										var time1 = performance.now();
+										console.log("Series Object = %O", seriesObject);
 										DisplayLoadingMessage({ number: messageNumber++, message: "Complete Series Generation Time for: " + seriesObject.name + " " + seriesObject.data.length + " pts = " + (time1 - time0)});
 
 
@@ -389,8 +401,8 @@
 
 									vm.allDataIsDigital = vm.GraphTagsData.all(function (gt) { return gt.isDigital });
 
-									//console.log("WidgetGraphTags Data with observations = %O", vm.GraphTagsData);
-									//console.log("Series Data = %O", vm.seriesData);
+									console.log("WidgetGraphTags Data with observations = %O", vm.GraphTagsData);
+									console.log("Series Data = %O", vm.seriesData);
 									var pointCount = 0;
 
 									vm.seriesData.forEach(function (sd) {
@@ -459,8 +471,15 @@
 
 					function IsDataDigital(observations) {
 						//This will do a distinct on the data, and see if it consists entirely of 0 and 1
-						var distinctData = observations.take(100).distinct(function (a, b) { return a.FloatValue == b.FloatValue });
+						var distinctData = observations.take(100).distinct(function (a, b) { return (a[1] || 0) == (b[1] || 0) });
+						console.log("distinctData = %O", distinctData);
 						return distinctData.length == 2;
+					}
+
+					function IsAggregateDataDigital(observations) {
+						//This will do a distinct on the data, and see if it consists entirely of 0 and 1
+						var distinctData = observations.take(100).distinct(function (a, b) { return a.FloatValue || 0 == b.FloatValue || 0 });
+						return distinctData.length <= 2;
 					}
 
 

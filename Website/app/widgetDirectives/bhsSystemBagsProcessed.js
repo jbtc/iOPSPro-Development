@@ -274,17 +274,26 @@
 						}
 
 						//console.log("chartOptions = %O", chartOptions);
+						try {
+							
+							vm.chart = Highcharts.chart('bhsSystemBagsProcessed' + vm.widget.Id, chartOptions);
+						} catch (e) {
 
-						vm.chart = Highcharts.chart('bhsSystemBagsProcessed' + vm.widget.Id, chartOptions);
+						} 
 
 					}
 
-					//Refresh data on the 15 second system clock tick
-					$scope.$on("System.ClockTick15", function () {
+
+
+
+					vm.updateInterval = $interval(function () {
 						RefreshData();
+					},120000);
+
+					$scope.$on("$destroy", function () {
+						$interval.cancel(vm.updateInterval);
+
 					});
-
-
 
 
 

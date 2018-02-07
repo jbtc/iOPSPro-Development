@@ -150,9 +150,9 @@
 							.query()
 							.$promise
 							.then(function(data) {
-								console.log("Existing child widget = %O", data);
 								if (data.length == 1) {
 
+									console.log("Existing child widget = %O", data);
 
 									var w = data[0];
 
@@ -171,6 +171,7 @@
 
 									switch (tag.AssetName) {
 									case "PCA":
+										console.log("Activating state .pcaSummaryModal");
 										$state.go(".pcaSummaryModal", { widget: vm.childWidget, assetId: tag.AssetId, dashboard: vm.dashboard });
 										break;
 
@@ -347,7 +348,11 @@
 								var assetIds = data.select(function(d) {
 									return d.Asset.Id.toString();
 								}).join(',');
-								console.log("assetIds = %O", assetIds);
+
+								//console.log("assetIds = %O", assetIds);
+								vm.widget.assetIds = assetIds;
+
+
 
 
 
@@ -405,27 +410,24 @@
 									vm.gateTagGroups.forEach(function (gtg) {
 
 											if (gtg.PBBAsset) {
-												gtg.PBBAsset.AlarmActiveTag = dataService.cache.tags.first(function(t){ return +t.AssetId == +gtg.PBBAsset.Id && t.JBTStandardObservationId == 12323});
+												gtg.PBBAsset.AlarmActiveTag = dataService.cache.tags.first(function (t) { return +t.AssetId == +gtg.PBBAsset.Id && t.JBTStandardObservationId == 12323 });
+												gtg.PBBAsset.AlarmActiveTag.ValueWhenActive = gtg.PBBAsset.AlarmActiveTag.ValueWhenActive || "1";
 												gtg.PBBAsset.CommLossTag = dataService.cache.tags.first(function(t){ return +t.AssetId == +gtg.PBBAsset.Id &&  commLossStandardObservationIds.any(function(clso){return clso ==  t.JBTStandardObservationId})});
 											}
 											if (gtg.PCAAsset) {
 												gtg.PCAAsset.AlarmActiveTag = dataService.cache.tags.first(function (t) { return +t.AssetId == +gtg.PCAAsset.Id && t.JBTStandardObservationId == 12324});
+												gtg.PCAAsset.AlarmActiveTag.ValueWhenActive = gtg.PCAAsset.AlarmActiveTag.ValueWhenActive || "1";
 												gtg.PCAAsset.CommLossTag = dataService.cache.tags.first(function(t){ return +t.AssetId == +gtg.PCAAsset.Id &&  commLossStandardObservationIds.any(function(clso){return clso ==  t.JBTStandardObservationId})});
 											}
 											if (gtg.GPUAsset) {
 												gtg.GPUAsset.AlarmActiveTag = dataService.cache.tags.first(function(t){ return +t.AssetId == +gtg.GPUAsset.Id && t.JBTStandardObservationId == 12325});
+												gtg.GPUAsset.AlarmActiveTag.ValueWhenActive = gtg.GPUAsset.AlarmActiveTag.ValueWhenActive || "1";
 												gtg.GPUAsset.CommLossTag = dataService.cache.tags.first(function(t){ return +t.AssetId == +gtg.GPUAsset.Id &&  commLossStandardObservationIds.any(function(clso){return clso ==  t.JBTStandardObservationId})});
 											}
 									});
 
-
 									console.log("vm.gateTagGroups = %O", vm.gateTagGroups);
 									vm.showWidget = true;
-
-
-
-
-
 
 								});
 

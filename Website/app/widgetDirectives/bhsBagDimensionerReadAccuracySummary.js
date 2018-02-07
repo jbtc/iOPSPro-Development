@@ -14,10 +14,6 @@
 					var vm = this;
 					//console.log("bhsBagDimensionerReadAccuracySummary vm.dashboard = %O", vm.dashboard);
 
-					$scope.$on("$destroy", function () {
-						$interval.cancel(vm.updateInterval);
-
-					});
 
 					var fontFactor = .0055;
 					var fontMax = 3;
@@ -79,10 +75,15 @@
 
 					GetData();
 
-					//Refresh data on the 15 second system clock tick
-					$scope.$on("System.ClockTick15", function () {
+					vm.updateInterval = $interval(function() {
 						GetData();
+					},120000);
+
+					$scope.$on("$destroy", function () {
+						$interval.cancel(vm.updateInterval);
+
 					});
+
 
 					$scope.$on("WidgetResize", function (event, resizedWidgetId) {
 						if (vm.widget.Id == resizedWidgetId || resizedWidgetId == 0) {

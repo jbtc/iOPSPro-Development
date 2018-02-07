@@ -371,6 +371,7 @@
           <Property Name="CustomEndDate" Type="datetime" />
           <Property Name="TimeScopeId" Type="bigint" />
           <Property Name="ParentDashboardId" Type="bigint" />
+          <Property Name="DefaultWidgetTypeTabGroupId" Type="bigint" />
         </EntityType>
         <EntityType Name="DashboardTimeScope">
           <Key>
@@ -748,6 +749,7 @@
           </Key>
           <Property Name="Id" Type="bigint" StoreGeneratedPattern="Identity" Nullable="false" />
           <Property Name="Name" Type="varchar" MaxLength="100" />
+          <Property Name="Ordinal" Type="int" />
         </EntityType>
         <EntityType Name="ChronologicalRawTagValueLogKepwareReceiver">
           <Key>
@@ -757,7 +759,7 @@
           <Property Name="ObservationDateTime" Type="datetime" />
           <Property Name="CreationDate" Type="datetime2" Precision="7" />
           <Property Name="TagName" Type="varchar" MaxLength="255" />
-          <Property Name="Value" Type="varchar" MaxLength="50" />
+          <Property Name="Value" Type="varchar" MaxLength="500" />
           <Property Name="ETLDate" Type="datetime" />
           <Property Name="Quality" Type="int" />
           <Property Name="NotificationLevel" Type="int" />
@@ -1787,6 +1789,9 @@
           <Parameter Name="SiteId" Type="bigint" Mode="In" />
           <Parameter Name="ODataAccessToken" Type="varchar" Mode="In" />
         </Function>
+        <Function Name="GSTagsUpdatedInLastFiveMinutesByListOfAssetIds" Aggregate="false" BuiltIn="false" NiladicFunction="false" IsComposable="false" ParameterTypeSemantics="AllowImplicitConversion" Schema="dbo">
+          <Parameter Name="assetIds" Type="varchar" Mode="In" />
+        </Function>
         <Function Name="spTerminalOverviewGraphicsAndTags" Aggregate="false" BuiltIn="false" NiladicFunction="false" IsComposable="false" ParameterTypeSemantics="AllowImplicitConversion" Schema="dbo">
           <Parameter Name="terminalSystemId" Type="bigint" Mode="In" />
         </Function>
@@ -1818,6 +1823,42 @@
             </CollectionType>
           </ReturnType>
         </Function>
+        <Function Name="GSEquipmentUsage_TVF_Query_With_Aggregate" Aggregate="false" BuiltIn="false" NiladicFunction="false" IsComposable="true" ParameterTypeSemantics="AllowImplicitConversion" Schema="GateSystem">
+          <Parameter Name="BeginTime" Type="datetime" Mode="In" />
+          <Parameter Name="EndTime" Type="datetime" Mode="In" />
+          <Parameter Name="SiteId" Type="bigint" Mode="In" />
+          <ReturnType>
+            <CollectionType>
+              <RowType>
+                <Property Name="Gate" Type="nvarchar" MaxLength="100" />
+                <Property Name="PBB Hours" Type="float" Nullable="false" />
+                <Property Name="PCA Hours" Type="float" Nullable="false" />
+                <Property Name="GPU Hours" Type="float" Nullable="false" />
+                <Property Name="PBB Times Used" Type="int" Nullable="false" />
+                <Property Name="PCA Times Used" Type="int" Nullable="false" />
+                <Property Name="GPU Times Used" Type="int" Nullable="false" />
+              </RowType>
+            </CollectionType>
+          </ReturnType>
+        </Function>
+        <Function Name="GSEquipmentUsage_TVF_Query_Without_Aggregate" Aggregate="false" BuiltIn="false" NiladicFunction="false" IsComposable="true" ParameterTypeSemantics="AllowImplicitConversion" Schema="GateSystem">
+          <Parameter Name="BeginTime" Type="datetime" Mode="In" />
+          <Parameter Name="EndTime" Type="datetime" Mode="In" />
+          <Parameter Name="SiteId" Type="bigint" Mode="In" />
+          <ReturnType>
+            <CollectionType>
+              <RowType>
+                <Property Name="Gate" Type="nvarchar" MaxLength="100" />
+                <Property Name="PBB Hours" Type="float" Nullable="false" />
+                <Property Name="PCA Hours" Type="float" Nullable="false" />
+                <Property Name="GPU Hours" Type="float" Nullable="false" />
+                <Property Name="PBB Times Used" Type="int" Nullable="false" />
+                <Property Name="PCA Times Used" Type="int" Nullable="false" />
+                <Property Name="GPU Times Used" Type="int" Nullable="false" />
+              </RowType>
+            </CollectionType>
+          </ReturnType>
+        </Function>
         <Function Name="GSTop5AlarmTypes" Aggregate="false" BuiltIn="false" NiladicFunction="false" IsComposable="false" ParameterTypeSemantics="AllowImplicitConversion" Schema="GateSystem">
           <Parameter Name="BeginTime" Type="datetime" Mode="In" />
           <Parameter Name="EndTime" Type="datetime" Mode="In" />
@@ -1829,6 +1870,11 @@
           <Parameter Name="SiteId" Type="bigint" Mode="In" />
         </Function>
         <Function Name="GSTop5AlarmTypesByEquipment" Aggregate="false" BuiltIn="false" NiladicFunction="false" IsComposable="false" ParameterTypeSemantics="AllowImplicitConversion" Schema="GateSystem">
+          <Parameter Name="BeginTime" Type="datetime" Mode="In" />
+          <Parameter Name="EndTime" Type="datetime" Mode="In" />
+          <Parameter Name="SiteId" Type="bigint" Mode="In" />
+        </Function>
+        <Function Name="spGSEquipmentUsage_TVF_Query" Aggregate="false" BuiltIn="false" NiladicFunction="false" IsComposable="false" ParameterTypeSemantics="AllowImplicitConversion" Schema="GateSystem">
           <Parameter Name="BeginTime" Type="datetime" Mode="In" />
           <Parameter Name="EndTime" Type="datetime" Mode="In" />
           <Parameter Name="SiteId" Type="bigint" Mode="In" />
@@ -2691,6 +2737,24 @@
             <Parameter Name="toDate" Mode="In" Type="DateTime" />
             <Parameter Name="siteId" Mode="In" Type="Int64" />
             <Parameter Name="ODataAccessToken" Mode="In" Type="String" />
+          </FunctionImport>
+          <FunctionImport Name="GSTagsUpdatedInLastFiveMinutesByListOfAssetIds" ReturnType="Collection(iOPS_NormalizedModel.GSTagsUpdatedInLastFiveMinutesByListOfAssetIds_Result)">
+          <Parameter Name="assetIds" Mode="In" Type="String" />
+          </FunctionImport>
+          <FunctionImport Name="GSEquipmentUsage_TVF_Query_With_Aggregate" IsComposable="true" ReturnType="Collection(iOPS_NormalizedModel.GSEquipmentUsage_TVF_Query_With_Aggregate_Result)">
+            <Parameter Name="BeginTime" Mode="In" Type="DateTime" />
+            <Parameter Name="EndTime" Mode="In" Type="DateTime" />
+            <Parameter Name="SiteId" Mode="In" Type="Int64" />
+          </FunctionImport>
+          <FunctionImport Name="GSEquipmentUsage_TVF_Query_Without_Aggregate" IsComposable="true" ReturnType="Collection(iOPS_NormalizedModel.GSEquipmentUsage_TVF_Query_Without_Aggregate_Result)">
+            <Parameter Name="BeginTime" Mode="In" Type="DateTime" />
+            <Parameter Name="EndTime" Mode="In" Type="DateTime" />
+            <Parameter Name="SiteId" Mode="In" Type="Int64" />
+          </FunctionImport>
+          <FunctionImport Name="spGSEquipmentUsage_TVF_Query" ReturnType="Collection(iOPS_NormalizedModel.spGSEquipmentUsage_TVF_Query_Result)">
+            <Parameter Name="BeginTime" Mode="In" Type="DateTime" />
+            <Parameter Name="EndTime" Mode="In" Type="DateTime" />
+            <Parameter Name="SiteId" Mode="In" Type="Int64" />
           </FunctionImport>
           </EntityContainer>
         <EntityType Name="AuthorizableActivity">
@@ -3650,6 +3714,7 @@
           <NavigationProperty Name="DashboardTimeScope" Relationship="iOPS_NormalizedModel.FK_Dashboard_DashboardTimeScope" FromRole="Dashboard" ToRole="DashboardTimeScope" />
           <Property Name="ParentDashboardId" Type="Int64" />
           <NavigationProperty Name="AssociatedWidgets" Relationship="iOPS_NormalizedModel.FK_Widget_Dashboard1" FromRole="Dashboard" ToRole="Widget" />
+          <Property Name="DefaultWidgetTypeTabGroupId" Type="Int64" />
         </EntityType>
         <Association Name="FK_Dashboard_iOPSUser">
           <End Type="iOPS_NormalizedModel.iOPSUser" Role="iOPSUser" Multiplicity="0..1" />
@@ -4662,7 +4727,7 @@
           <Property Name="ObservationDateTime" Type="DateTime" Precision="3" />
           <Property Name="CreationDate" Type="DateTime" Precision="7" />
           <Property Name="TagName" Type="String" MaxLength="255" FixedLength="false" Unicode="false" />
-          <Property Name="Value" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
+          <Property Name="Value" Type="String" MaxLength="500" FixedLength="false" Unicode="false" />
           <Property Name="ETLDate" Type="DateTime" Precision="3" />
           <Property Name="Quality" Type="Int32" />
           <Property Name="NotificationLevel" Type="Int32" />
@@ -4905,6 +4970,7 @@
           <Property Name="Id" Type="Int64" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
           <Property Name="Name" Type="String" MaxLength="100" FixedLength="false" Unicode="false" />
           <NavigationProperty Name="WidgetTypes" Relationship="iOPS_NormalizedModel.FK_WidgetType_WidgetTypeTabGroup" FromRole="WidgetTypeTabGroup" ToRole="WidgetType" />
+          <Property Name="Ordinal" Type="Int32" />
         </EntityType>
         <Association Name="FK_WidgetType_WidgetTypeTabGroup">
           <End Type="iOPS_NormalizedModel.WidgetTypeTabGroup" Role="WidgetTypeTabGroup" Multiplicity="0..1" />
@@ -4945,6 +5011,49 @@
           <Property Type="String" Name="AreaLocation" Nullable="false" MaxLength="13" />
           <Property Type="String" Name="Status" Nullable="true" MaxLength="4" />
           <Property Type="String" Name="AlarmLapse" Nullable="true" MaxLength="8" />
+        </ComplexType>
+        <ComplexType Name="GSTagsUpdatedInLastFiveMinutesByListOfAssetIds_Result">
+          <Property Type="Int64" Name="Id" Nullable="false" />
+          <Property Type="String" Name="Name" Nullable="true" MaxLength="200" />
+          <Property Type="Int64" Name="SiteId" Nullable="true" />
+          <Property Type="DateTime" Name="LastObservationCreationDate" Nullable="true" Precision="23" />
+          <Property Type="DateTime" Name="LastObservationDate" Nullable="true" Precision="23" />
+          <Property Type="Int64" Name="AssetId" Nullable="true" />
+          <Property Type="Int64" Name="LastObservationId" Nullable="true" />
+          <Property Type="Int64" Name="JBTStandardObservationId" Nullable="true" />
+          <Property Type="Boolean" Name="MarkedForDelete" Nullable="true" />
+          <Property Type="String" Name="LastObservationTextValue" Nullable="true" MaxLength="100" />
+          <Property Type="Int32" Name="LastObservationQuality" Nullable="true" />
+          <Property Type="Boolean" Name="IsAlarm" Nullable="true" />
+          <Property Type="Boolean" Name="IsWarning" Nullable="true" />
+          <Property Type="String" Name="ValueWhenActive" Nullable="true" MaxLength="50" />
+        </ComplexType>
+        <ComplexType Name="GSEquipmentUsage_TVF_Query_With_Aggregate_Result">
+          <Property Type="String" Name="Gate" Nullable="true" MaxLength="100" />
+          <Property Type="Double" Name="PBB_Hours" Nullable="false" />
+          <Property Type="Double" Name="PCA_Hours" Nullable="false" />
+          <Property Type="Double" Name="GPU_Hours" Nullable="false" />
+          <Property Type="Int32" Name="PBB_Times_Used" Nullable="false" />
+          <Property Type="Int32" Name="PCA_Times_Used" Nullable="false" />
+          <Property Type="Int32" Name="GPU_Times_Used" Nullable="false" />
+        </ComplexType>
+        <ComplexType Name="GSEquipmentUsage_TVF_Query_Without_Aggregate_Result">
+          <Property Type="String" Name="Gate" Nullable="true" MaxLength="100" />
+          <Property Type="Double" Name="PBB_Hours" Nullable="false" />
+          <Property Type="Double" Name="PCA_Hours" Nullable="false" />
+          <Property Type="Double" Name="GPU_Hours" Nullable="false" />
+          <Property Type="Int32" Name="PBB_Times_Used" Nullable="false" />
+          <Property Type="Int32" Name="PCA_Times_Used" Nullable="false" />
+          <Property Type="Int32" Name="GPU_Times_Used" Nullable="false" />
+        </ComplexType>
+        <ComplexType Name="spGSEquipmentUsage_TVF_Query_Result">
+          <Property Type="String" Name="Gate" Nullable="true" MaxLength="100" />
+          <Property Type="Double" Name="PBB_Hours" Nullable="false" />
+          <Property Type="Double" Name="PCA_Hours" Nullable="false" />
+          <Property Type="Double" Name="GPU_Hours" Nullable="false" />
+          <Property Type="Int32" Name="PBB_Times_Used" Nullable="false" />
+          <Property Type="Int32" Name="PCA_Times_Used" Nullable="false" />
+          <Property Type="Int32" Name="GPU_Times_Used" Nullable="false" />
         </ComplexType>
         </Schema>
     </edmx:ConceptualModels>
@@ -5495,6 +5604,7 @@
           <EntitySetMapping Name="Dashboards">
             <EntityTypeMapping TypeName="iOPS_NormalizedModel.Dashboard">
               <MappingFragment StoreEntitySet="Dashboard">
+                <ScalarProperty Name="DefaultWidgetTypeTabGroupId" ColumnName="DefaultWidgetTypeTabGroupId" />
                 <ScalarProperty Name="ParentDashboardId" ColumnName="ParentDashboardId" />
                 <ScalarProperty Name="TimeScopeId" ColumnName="TimeScopeId" />
                 <ScalarProperty Name="CustomEndDate" ColumnName="CustomEndDate" />
@@ -6280,6 +6390,7 @@
           <EntitySetMapping Name="WidgetTypeTabGroups">
             <EntityTypeMapping TypeName="iOPS_NormalizedModel.WidgetTypeTabGroup">
               <MappingFragment StoreEntitySet="WidgetTypeTabGroup">
+                <ScalarProperty Name="Ordinal" ColumnName="Ordinal" />
                 <ScalarProperty Name="Name" ColumnName="Name" />
                 <ScalarProperty Name="Id" ColumnName="Id" />
               </MappingFragment>
@@ -6314,6 +6425,65 @@
                 <ScalarProperty Name="AreaLocation" ColumnName="AreaLocation" />
                 <ScalarProperty Name="Status" ColumnName="Status" />
                 <ScalarProperty Name="AlarmLapse" ColumnName="AlarmLapse" />
+              </ComplexTypeMapping>
+            </ResultMapping>
+          </FunctionImportMapping>
+          <FunctionImportMapping FunctionImportName="GSTagsUpdatedInLastFiveMinutesByListOfAssetIds" FunctionName="iOPS_NormalizedModel.Store.GSTagsUpdatedInLastFiveMinutesByListOfAssetIds">
+            <ResultMapping>
+              <ComplexTypeMapping TypeName="iOPS_NormalizedModel.GSTagsUpdatedInLastFiveMinutesByListOfAssetIds_Result">
+                <ScalarProperty Name="Id" ColumnName="Id" />
+                <ScalarProperty Name="Name" ColumnName="Name" />
+                <ScalarProperty Name="SiteId" ColumnName="SiteId" />
+                <ScalarProperty Name="LastObservationCreationDate" ColumnName="LastObservationCreationDate" />
+                <ScalarProperty Name="LastObservationDate" ColumnName="LastObservationDate" />
+                <ScalarProperty Name="AssetId" ColumnName="AssetId" />
+                <ScalarProperty Name="LastObservationId" ColumnName="LastObservationId" />
+                <ScalarProperty Name="JBTStandardObservationId" ColumnName="JBTStandardObservationId" />
+                <ScalarProperty Name="MarkedForDelete" ColumnName="MarkedForDelete" />
+                <ScalarProperty Name="LastObservationTextValue" ColumnName="LastObservationTextValue" />
+                <ScalarProperty Name="LastObservationQuality" ColumnName="LastObservationQuality" />
+                <ScalarProperty Name="IsAlarm" ColumnName="IsAlarm" />
+                <ScalarProperty Name="IsWarning" ColumnName="IsWarning" />
+                <ScalarProperty Name="ValueWhenActive" ColumnName="ValueWhenActive" />
+              </ComplexTypeMapping>
+            </ResultMapping>
+          </FunctionImportMapping>
+          <FunctionImportMapping FunctionImportName="GSEquipmentUsage_TVF_Query_With_Aggregate" FunctionName="iOPS_NormalizedModel.Store.GSEquipmentUsage_TVF_Query_With_Aggregate">
+            <ResultMapping>
+              <ComplexTypeMapping TypeName="iOPS_NormalizedModel.GSEquipmentUsage_TVF_Query_With_Aggregate_Result">
+                <ScalarProperty Name="Gate" ColumnName="Gate" />
+                <ScalarProperty Name="PBB_Hours" ColumnName="PBB Hours" />
+                <ScalarProperty Name="PCA_Hours" ColumnName="PCA Hours" />
+                <ScalarProperty Name="GPU_Hours" ColumnName="GPU Hours" />
+                <ScalarProperty Name="PBB_Times_Used" ColumnName="PBB Times Used" />
+                <ScalarProperty Name="PCA_Times_Used" ColumnName="PCA Times Used" />
+                <ScalarProperty Name="GPU_Times_Used" ColumnName="GPU Times Used" />
+              </ComplexTypeMapping>
+            </ResultMapping>
+          </FunctionImportMapping>
+          <FunctionImportMapping FunctionImportName="GSEquipmentUsage_TVF_Query_Without_Aggregate" FunctionName="iOPS_NormalizedModel.Store.GSEquipmentUsage_TVF_Query_Without_Aggregate">
+            <ResultMapping>
+              <ComplexTypeMapping TypeName="iOPS_NormalizedModel.GSEquipmentUsage_TVF_Query_Without_Aggregate_Result">
+                <ScalarProperty Name="Gate" ColumnName="Gate" />
+                <ScalarProperty Name="PBB_Hours" ColumnName="PBB Hours" />
+                <ScalarProperty Name="PCA_Hours" ColumnName="PCA Hours" />
+                <ScalarProperty Name="GPU_Hours" ColumnName="GPU Hours" />
+                <ScalarProperty Name="PBB_Times_Used" ColumnName="PBB Times Used" />
+                <ScalarProperty Name="PCA_Times_Used" ColumnName="PCA Times Used" />
+                <ScalarProperty Name="GPU_Times_Used" ColumnName="GPU Times Used" />
+              </ComplexTypeMapping>
+            </ResultMapping>
+          </FunctionImportMapping>
+          <FunctionImportMapping FunctionImportName="spGSEquipmentUsage_TVF_Query" FunctionName="iOPS_NormalizedModel.Store.spGSEquipmentUsage_TVF_Query">
+            <ResultMapping>
+              <ComplexTypeMapping TypeName="iOPS_NormalizedModel.spGSEquipmentUsage_TVF_Query_Result">
+                <ScalarProperty Name="Gate" ColumnName="Gate" />
+                <ScalarProperty Name="PBB_Hours" ColumnName="PBB Hours" />
+                <ScalarProperty Name="PCA_Hours" ColumnName="PCA Hours" />
+                <ScalarProperty Name="GPU_Hours" ColumnName="GPU Hours" />
+                <ScalarProperty Name="PBB_Times_Used" ColumnName="PBB Times Used" />
+                <ScalarProperty Name="PCA_Times_Used" ColumnName="PCA Times Used" />
+                <ScalarProperty Name="GPU_Times_Used" ColumnName="GPU Times Used" />
               </ComplexTypeMapping>
             </ResultMapping>
           </FunctionImportMapping>

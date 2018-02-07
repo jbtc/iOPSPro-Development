@@ -10,7 +10,7 @@
 
 				var controller = function ($scope) {
 					var vm = this;
-					//console.log("PCA Summary Controller invoked");
+					console.log("PCA Summary Controller invoked");
 
 					function GetHeadingExtraTitle() {
 						//console.log("Getting site heading");
@@ -40,9 +40,9 @@
 						//console.log("Original widget resource = %O", vm.originalWidgetResource);
 						if (!angular.equals(vm.originalWidgetResource, possiblyChangedResource)) {
 
-							//console.log("Saving widget resource........");
-							//console.log("Original WidgetResource = %O", vm.originalWidgetResource);
-							//console.log("Changed WidgetResource = %O", possiblyChangedResource);
+							console.log("Saving widget resource........");
+							console.log("Original WidgetResource = %O", vm.originalWidgetResource);
+							console.log("Changed WidgetResource = %O", possiblyChangedResource);
 							vm.widget.WidgetResource.$save();
 							vm.originalWidgetResource = possiblyChangedResource;
 						}
@@ -56,7 +56,7 @@
 
 					//Get a copy of the user record to determine privs
 					vm.user = Global.User;
-					//console.log("Initial vm.widget = %O", vm.widget);
+					console.log("Initial vm.widget = %O", vm.widget);
 
 
 					//console.log("vm.user = %O", vm.user);
@@ -168,8 +168,8 @@
 							if (newValue != oldValue) {
 								vm.pca = null;
 								SaveWidgetResourceObjectIfChanged();
+								GetPCAAssetForGate();
 							}
-							GetPCAAssetForGate();
 						}
 					});
 
@@ -239,7 +239,7 @@
 					//---G
 					function GetPCAAssetForGate() {
 
-
+						console.log("Entry into GetPCAAssetForGate()");
 						vm.pca = vm.JBTData
 							.Assets
 							.first(function (a) { return a.ParentSystemId == vm.widget.WidgetResource.GateSystemId && a.Name == 'PCA' });
@@ -253,9 +253,10 @@
 						SaveWidgetResourceObjectIfChanged();
 						vm.widget.displaySettings.headingExtraTitle = GetHeadingExtraTitle();
 
+						console.log("Getting tags into inventory");
 						dataService.GetAllSignalRObservationFormattedTagsForAssetIdIntoInventory(vm.pca.Id).then(function () {
 
-
+							console.log("tags into inventory done");
 							vm.AssetGraphics = dataService.cache.assetGraphics.where(function (ag) { return ag.AssetId == vm.pca.Id });
 
 
@@ -268,7 +269,7 @@
 								SetTabBodyHeight(5);
 							}, 50);
 
-							//console.log("Asset Graphics = %O", vm.AssetGraphics);
+							console.log("Asset Graphics = %O", vm.AssetGraphics);
 							vm.pca.Tags.forEach(function (tag) {
 								UpdateGraphicsVisibilityForSingleTag(tag);
 							});
@@ -519,7 +520,7 @@
 							(updatedTag.IsAlarm || updatedTag.IsCritical) &&
 							updatedTag.TagName.indexOf('|') >= 3
 						) {
-							console.log("Alarm Tag Update = " + updatedTag.TagName + "  " + updatedTag.Value);
+							//console.log("Alarm Tag Update = " + updatedTag.TagName + "  " + updatedTag.Value);
 							if (+updatedTag.Value == 1) {
 								if (vm.alarms) {
 									vm.alarms.push(updatedTag);
@@ -542,7 +543,7 @@
 							(updatedTag.IsWarning) &&
 							updatedTag.TagName.indexOf('|') >= 3
 						) {
-							console.log("Warning Tag Update = " + updatedTag.TagName + "  " + updatedTag.Value);
+							//console.log("Warning Tag Update = " + updatedTag.TagName + "  " + updatedTag.Value);
 							if (+updatedTag.Value == 1) {
 								if (vm.warnings) {
 									vm.warnings.push(updatedTag);

@@ -32,9 +32,7 @@
 			vm.panelTitle = vm.widget.Name;
 			vm.panelSubtitle = 'esc to close';
 
-			dataService.GetAllSignalRObservationFormattedTagsForAssetIdIntoInventory(vm.assetId).then(function() {
-				vm.showScreen = true;
-			});
+			vm.showScreen = true;
 
 
 		});

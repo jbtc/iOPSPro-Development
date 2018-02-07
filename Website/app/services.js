@@ -119,6 +119,13 @@
 			$rootScope.$broadcast("System.ClockTick15");
 		}, 15000);
 
+		$interval(function () {
+			$rootScope.$broadcast("System.ClockTick60");
+		}, 60000);
+
+		$interval(function () {
+			$rootScope.$broadcast("System.ClockTick120");
+		}, 120000);
 
 
 		service.GetAuthorizableActivities = function () {
@@ -167,7 +174,7 @@
 		}
 
 		service.SetDashboardDerivedDatesFromDayCount = function (dashboard) {
-			if (dashboard.CustomStartDate && dashboard.CustomEndDate) {
+			if (dashboard && dashboard.CustomStartDate && dashboard.CustomEndDate) {
 
 				dashboard.derivedStartDate = dashboard.CustomStartDate;
 				dashboard.derivedEndDate = dashboard.CustomEndDate;
@@ -749,13 +756,8 @@
 			//Collect whatever data you need for maintaining a cache.
 			//You may elect not to cache any at all.
 
-
-
 			//Then - Announce to the rest of the application that the data service has everything it needs for the app to function.
 			$rootScope.$broadcast("DataService Ready");
-
-
-
 		}
 
 		function GetODataSites() {
@@ -794,9 +796,7 @@
 					maxDate = dbSystems.max(function (system) { return system.DateLastModified });
 				} else {
 					maxDate = new Date("1/1/2017");
-
 				}
-
 
 				//Back it up a bit to catch any overlap.
 				maxDate = (new Date(maxDate));
@@ -893,25 +893,15 @@
 					maxDate = dbCollection.max(function (e) { return e.LastModifiedDate });
 				} else {
 					maxDate = new Date("1/1/2017");
-
 				}
-
-
 
 				maxDate = (new Date(maxDate));
 
 				//maxDate = maxDate.setDate(maxDate.getDate());
 
-
 				console.log(collectionName + " maxDate = %O", maxDate);
 
 				maxDate = utilityService.GetUTCQueryDate(maxDate);
-
-
-
-
-
-
 
 				console.log("OData Query Date for " + collectionName + " maxdate = %O", maxDate);
 
@@ -974,8 +964,8 @@
 		}
 
 
-		//===========================================================================================================
-		//+Convert the signalR formatted string into proper JSON.
+		//---G
+		//++Convert the signalR formatted string into proper JSON.
 		//The signalR messages originating from sql server are coded as a delimited string
 		//The field name/value pairs are separated by a ~, while the field name and its value are separated by an !
 		//Example:
@@ -1049,60 +1039,62 @@
 		}
 
 		service.PlaceTagsIntoInventory = function (tags) {
-			tags.forEach(function (tag) {
+			tags
+				.where(function (t) { return !t.MarkedForDelete })
+				.forEach(function (tag) {
 
-				var site = cache.sites.first(function (s) { return s.Id == tag.SiteId });
+					var site = cache.sites.first(function (s) { return s.Id == tag.SiteId });
 
-				if (!cache.tags.any(function (t) { return t.TagId == tag.Id })) {
-					var signalRData = {
-						DataType: 'DB',
-						PLCUTCDate: !service.dataSourceIsLocal
-							? utilityService.GetUTCDateFromLocalDate(new Date(tag.LastObservationDate))
-							: new Date(tag.LastObservationDate),
-						ObservationUTCDate: service.dataSourceIsLocal
-							? new Date(tag.LastObservationDate)
-							: utilityService.GetUTCDateFromLocalDate(new Date(tag.LastObservationDate)),
+					if (!cache.tags.any(function (t) { return t.TagId == tag.Id })) {
+						var signalRData = {
+							DataType: 'DB',
+							PLCUTCDate: !service.dataSourceIsLocal
+								? utilityService.GetUTCDateFromLocalDate(new Date(tag.LastObservationDate))
+								: new Date(tag.LastObservationDate),
+							ObservationUTCDate: service.dataSourceIsLocal
+								? new Date(tag.LastObservationDate)
+								: utilityService.GetUTCDateFromLocalDate(new Date(tag.LastObservationDate)),
 
-						AssetId: +tag.AssetId,
-						TagId: +tag.Id,
-						SiteId: +tag.SiteId,
-						ObservationId: +tag.LastObservationId,
-						JBTStandardObservationId: +tag.JBTStandardObservationId,
+							AssetId: +tag.AssetId,
+							TagId: +tag.Id,
+							SiteId: +tag.SiteId,
+							ObservationId: +tag.LastObservationId,
+							JBTStandardObservationId: +tag.JBTStandardObservationId,
 
-						SiteName: site ? site.Name : null,
-						TagName: tag.Name,
-						Value: tag.LastObservationTextValue,
-						JBTStandardObservation: cache.jbtStandardObservations.first(function (s) {
-							return s.Id == tag.JBTStandardObservationId;
-						}),
-						IsCritical: tag.IsCritical,
-						IsWarning: tag.IsWarning,
-						IsAlarm: tag.IsAlarm,
-						ValueWhenActive: tag.ValueWhenActive || "1",
-						AssetName: tag.AssetName,
-						GateName: tag.GateName,
-						Severity: tag.IsCritical ? 'Critical' :
-														tag.IsAlarm ? 'Alarm' :
-															tag.IsWarning ? 'Warning' :
-																''
+							SiteName: site ? site.Name : null,
+							TagName: tag.Name,
+							Value: tag.LastObservationTextValue,
+							JBTStandardObservation: cache.jbtStandardObservations.first(function (s) {
+								return s.Id == tag.JBTStandardObservationId;
+							}),
+							IsCritical: tag.IsCritical,
+							IsWarning: tag.IsWarning,
+							IsAlarm: tag.IsAlarm,
+							ValueWhenActive: tag.ValueWhenActive || "1",
+							AssetName: tag.AssetName,
+							GateName: tag.GateName,
+							Severity: tag.IsCritical ? 'Critical' :
+															tag.IsAlarm ? 'Alarm' :
+																tag.IsWarning ? 'Warning' :
+																	''
+						}
+
+						signalRData.PLCUTCDateMS = signalRData.PLCUTCDate.getTime();
+						signalRData.PLCLocalDate = utilityService.GetLocalDateFromUTCDate(signalRData.PLCUTCDate);
+						signalRData.ObservationUTCDateMS = signalRData.ObservationUTCDate.getTime();
+						signalRData.ObservationLocalDate = utilityService.GetLocalDateFromUTCDate(signalRData.ObservationUTCDate);
+
+						AttachShortTagNameToTagData(signalRData);
+
+
+						//console.log("Pre-Load observation to be added to inventory = %O", signalRData);
+
+						LoadSignalRObservationToInventory(signalRData);
+
 					}
 
-					signalRData.PLCUTCDateMS = signalRData.PLCUTCDate.getTime();
-					signalRData.PLCLocalDate = utilityService.GetLocalDateFromUTCDate(signalRData.PLCUTCDate);
-					signalRData.ObservationUTCDateMS = signalRData.ObservationUTCDate.getTime();
-					signalRData.ObservationLocalDate = utilityService.GetLocalDateFromUTCDate(signalRData.ObservationUTCDate);
 
-					AttachShortTagNameToTagData(signalRData);
-
-
-					//console.log("Pre-Load observation to be added to inventory = %O", signalRData);
-
-					LoadSignalRObservationToInventory(signalRData);
-
-				}
-
-
-			});
+				});
 
 		}
 
@@ -1111,8 +1103,8 @@
 
 			var notLoadedAssetIds = ("" + assetIdList).split(',').distinct().where(function (assetId) {
 
-				var asset = cache.assets.first(function(a) { return a.Id == +assetId });
-				return (!alarmsOnly && !asset.AllTagsLoaded) || (alarmsOnly && !asset.AllAlarmTagsLoaded);
+				var asset = cache.assets.first(function (a) { return a.Id == +assetId });
+				return (!alarmsOnly && asset && !asset.AllTagsLoaded) || (alarmsOnly && asset && !asset.AllAlarmTagsLoaded);
 
 			});
 
@@ -1126,7 +1118,7 @@
 
 
 				var baseQuery = service.GetIOPSResource("Tags")
-					.filter($odata.Predicate.or(notLoadedAssetIds.select(function(assetId) {
+					.filter($odata.Predicate.or(notLoadedAssetIds.select(function (assetId) {
 						return new $odata.Predicate("AssetId", +assetId);
 					})));
 
@@ -1134,20 +1126,18 @@
 				var standardIdsToLoad = [12323, 12324, 12325, 4331, 4445, 4765, 12255];
 
 				if (alarmsOnly) {
-					baseQuery = baseQuery.filter($odata.Predicate.or(standardIdsToLoad.select(function(sid){ return new $odata.Predicate("JBTStandardObservationId", sid)})));
+					baseQuery = baseQuery.filter($odata.Predicate.or(standardIdsToLoad.select(function (sid) { return new $odata.Predicate("JBTStandardObservationId", sid) })));
 				}
 
 				return baseQuery.select(["Id", "Name", "SiteId", "LastObservationDate", "LastObservationCreationDate", "AssetId",
-						"LastObservationId", "JBTStandardObservationId",
+						"LastObservationId", "JBTStandardObservationId", "MarkedForDelete",
 						"LastObservationTextValue", "LastObservationQuality", "IsAlarm", "IsWarning", "ValueWhenActive"])
 					.query()
 					.$promise
 					.then(function (data) {
-
-
-
 						data
 							.where(function (tag) { return tag.Name.indexOf('|') > 0 }) //Only the new format tags have pipe symbols in the name.
+							.where(function (t) { return !t.MarkedForDelete })
 							.select(function (tag) {
 
 								var site = cache.sites.first(function (s) { return s.Id == tag.SiteId });
@@ -1207,21 +1197,114 @@
 
 						//Flag the asset as having all of its tags now loaded if it was not just the alarms loaded. 
 						if (asset) {
-							if (!alarmsOnly) {							
-								asset.AllTagsLoaded = true;
+							if (!alarmsOnly) {
+								//asset.AllTagsLoaded = true;
 							}
-							asset.AllAlarmTagsLoaded = true;
+							//asset.AllAlarmTagsLoaded = true;
 						}
 					});
 				});
 			}
 		}
 
+		service.RefreshAllSignalRObservationFormattedTagsForAssetIdIntoInventoryByListOfAssetIds = function (assetIdList) {
+
+
+			//The asset object in the dataService might have already loaded all its tags into the running inventory. If it has, we do nothing.
+
+			var maxDate = new Date();
+			maxDate = maxDate.setDate(maxDate.getDate() - .05);
+				maxDate = utilityService.GetUTCQueryDate(maxDate);
+
+
+			return service.GetIOPSWebAPIResource("GSTagsUpdatedInLastFiveMinutesByListOfAssetIds")
+				.query({
+						assetIds: assetIdList
+					},
+					function(data) {
+						data
+							.where(function(tag) {
+								return tag.Name.indexOf('|') > 0
+							}) //Only the new format tags have pipe symbols in the name.
+							.where(function(t) { return !t.MarkedForDelete })
+							.select(function(tag) {
+
+								var site = cache.sites.first(function(s) { return s.Id == tag.SiteId });
+
+								//console.log("Pre-loaded observation = %O", tag);
+
+								var plcUTCDate = !service.dataSourceIsLocal
+									? utilityService.GetUTCDateFromLocalDate(new Date(tag.LastObservationDate))
+									: new Date(tag.LastObservationDate);
+								var obsCreatedDate = !service.dataSourceIsLocal
+									? utilityService.GetUTCDateFromLocalDate(new Date(tag.LastObservationCreationDate))
+									: new Date(tag.LastObservationCreationDate);
+
+
+								var signalRData = {
+									DataType: 'DB',
+									PLCUTCDate: plcUTCDate,
+									ObservationUTCDate: obsCreatedDate,
+
+									AssetId: +tag.AssetId,
+									TagId: +tag.Id,
+									SiteId: +tag.SiteId,
+									ObservationId: +tag.LastObservationId,
+									JBTStandardObservationId: +tag.JBTStandardObservationId,
+
+									SiteName: site ? site.Name : null,
+									TagName: tag.Name || tag.TagName,
+									Value: tag.LastObservationTextValue,
+									Quality: tag.LastObservationQuality,
+									JBTStandardObservation: cache.jbtStandardObservations.first(function(s) {
+										return s.Id == tag.JBTStandardObservationId
+									}),
+									Severity: tag.IsCritical ? 'Critical' : tag.IsAlarm ? 'Alarm' : tag.IsWarning ? 'Warning' : '',
+									ValueWhenActive: tag.ValueWhenActive || "1"
+
+								}
+
+								signalRData.PLCUTCDateMS = signalRData.PLCUTCDate.getTime();
+								signalRData.PLCLocalDate = utilityService.GetLocalDateFromUTCDate(signalRData.PLCUTCDate);
+								signalRData.ObservationUTCDateMS = signalRData.ObservationUTCDate.getTime();
+								signalRData.ObservationLocalDate = utilityService.GetLocalDateFromUTCDate(signalRData.ObservationUTCDate);
+
+								AttachShortTagNameToTagData(signalRData);
+
+
+								if (signalRData.JBTStandardObservationId == 12245 || signalRData.JBTStandardObservationId == 3792) {
+
+									//console.log("Pre-Load observation to be added to inventory = %O", signalRData);
+								}
+
+								var tag = LoadSignalRObservationToInventory(signalRData);
+
+								if (tag.PreviousObservationId && tag.PreviousObservationId != tag.ObservationId) {
+									//console.log("broadcasting tag update for refresh = %O", tag);
+									$rootScope.$broadcast("dataService.TagUpdate", tag);
+								}
+
+							});
+
+						assetIdList.split(',').forEach(function(assetId) {
+							var asset = cache.assets.first(function(a) { return a.Id == +assetId });
+
+							//Flag the asset as having all of its tags now loaded if it was not just the alarms loaded. 
+							if (asset) {
+								asset.AllTagsLoaded = true;
+							}
+						});
+					});
+		}
 
 		service.GetAllSignalRObservationFormattedTagsForAssetIdIntoInventory = function (assetId) {
 
 
 			var asset = cache.assets.first(function (a) { return a.Id == assetId });
+			
+			if (asset.Tags.length < 40) {
+				asset.AllTagsLoaded = false;
+			}
 
 			if (asset.AllTagsLoaded) {
 				return $q.when(true);
@@ -1239,12 +1322,10 @@
 					.$promise
 					.then(function (data) {
 
-
-
 						//console.log("GetAllSignalRObservationFormattedTagsForAssetIdIntoInventory Data = %O", data);
-
 						data
 							.where(function (tag) { return tag.Name.indexOf('|') > 0 }) //Only the new format tags have pipe symbols in the name.
+							.where(function (t) { return !t.MarkedForDelete })
 							.select(function (tag) {
 
 								var site = cache.sites.first(function (s) { return s.Id == tag.SiteId });
@@ -1347,7 +1428,7 @@
 			signalRData.IsWarning = signalRData.IsWarning == '1';
 			signalRData.IsAlarm = signalRData.IsAlarm == '1';
 			signalRData.IsCritical = signalRData.IsCritical == '1';
-			signalRData.ValueWhenActive = signalRData.ValueWhenActive || "1", 
+			signalRData.ValueWhenActive = signalRData.ValueWhenActive || "1",
 			signalRData.Severity = signalRData.IsCritical ? 'Critical' :
 													signalRData.IsAlarm ? 'Alarm' :
 														signalRData.IsWarning ? 'Warning' :
@@ -1495,7 +1576,7 @@
 					}
 
 
-					if (tag.PLCUTCDateMS <= (newObservation.PLCUTCDateMS + 300000) || true) {
+					if (tag.PLCUTCDateMS <= newObservation.PLCUTCDateMS && tag.ObservationId != newObservation.ObservationId) {
 
 
 						tag.PLCUTCDate = newObservation.PLCUTCDate;
@@ -1504,15 +1585,17 @@
 						tag.ObservationUTCDate = newObservation.ObservationUTCDate;
 						tag.ObservationUTCDateMS = newObservation.ObservationUTCDateMS;
 						tag.ObservationLocalDate = newObservation.ObservationLocalDate;
+						tag.PreviousObservationId = tag.ObservationId;
 						tag.ObservationId = +newObservation.ObservationId;
 						tag.Metadata.Status.LastValueWasHistorical = false;
 						tag.Value = newObservation.Value;
 						tag.ValueWhenActive = newObservation.ValueWhenActive || "1";
 					} else {
-
-						console.log("Tag is historical. Tag in inventory = %O", tag);
-						console.log("Tag is historical. Tag from signalR = %O", newObservation);
-						tag.Metadata.Status.LastValueWasHistorical = true;
+						if (tag.DataType == 'signalR' && tag.ObservationId != newObservation.ObservationId) {							
+							//console.log("Tag is from signalR and is historical. Tag in inventory = %O", tag);
+							//console.log("Tag is from signalR and is historical. Tag from signalR = %O", newObservation);
+							tag.Metadata.Status.LastValueWasHistorical = true;
+						}
 					}
 
 				} else {
@@ -1562,6 +1645,8 @@
 			} else {
 				//console.log("DB version was detected - no broadcast necessary");
 			}
+
+			return tag;
 
 		}
 
@@ -1756,8 +1841,12 @@
 		$interval(function () {
 			//This is a small collection.
 			//It is just a keepalive for the OData source service.
-			GetODataSites();
-		}, 60000);
+			return odataService.GetEntityById("iOPS", "Sites", 1);
+
+
+
+
+		}, 300000);
 
 
 
@@ -1884,7 +1973,9 @@
 		service.SetLoneChartSize = function (widgetId, chart) {
 			var widgetBodyDimensions = service.GetWidgetPanelBodyDimensions(widgetId);
 			service.SetWidgetPanelBodyDimensions(widgetId);
-			chart.setSize((widgetBodyDimensions.width), (widgetBodyDimensions.height - 10), false);
+			if (chart) {
+				chart.setSize((widgetBodyDimensions.width), (widgetBodyDimensions.height - 10), false);
+			}
 
 		}
 
@@ -1900,7 +1991,7 @@
 				//console.log("Panel Heading Element Height = ", panelHeadingElement.offsetHeight);
 				var panelWidth = panelElement.offsetWidth;
 				var widgetContentHeight = panelElement.offsetHeight - panelHeadingElement.offsetHeight;
-				widgetPanelBody.css('height', widgetContentHeight-2);
+				widgetPanelBody.css('height', widgetContentHeight - 2);
 				$("." + widgetId + "-repeater-container").each(function (index, element) {
 					$(element).css('height', +widgetContentHeight - 33);
 					$(element).css('width', +panelWidth - 17);
@@ -2016,7 +2107,7 @@
 				console.log("Element top = " + elementTop);
 				console.log("Setting panel body height = " + panelBodyHeight);
 				$(element).css('height', panelBodyHeight);
-				$(element).css('overflow-y', "scroll");
+				$(element).css('overflow-y', "auto");
 			});
 
 
@@ -2031,7 +2122,7 @@
 				//console.log("Element top = " + elementTop);
 				//console.log("Setting panel body height = " + panelBodyHeight);
 				$(element).css('height', panelBodyHeight);
-				$(element).css('overflow-y', "scroll");
+				$(element).css('overflow-y', "auto");
 			});
 
 			$("#siteMenuBody").each(function (index, element) {
@@ -2086,7 +2177,7 @@
 		}
 
 		$(window).bind('resize',
-			function() {
+			function () {
 				SetPanelBodyHeight();
 				$rootScope.$broadcast("ResizeVirtualScrollContainers", null);
 			});
@@ -3634,6 +3725,12 @@
 		}
 
 		service.GetUTCQueryDate = function (inputDate) {
+			//var newDate = moment(inputDate).add(timeZoneOffsetHoursFromUTC, 'hours');
+			//return translateMomentDateToJavascriptDate(newDate);
+			var newDate = moment(inputDate);
+			return translateMomentDateToJavascriptDate(newDate);
+		}
+		service.GetUTCQueryDateMinutesAgo = function (inputDate) {
 			//var newDate = moment(inputDate).add(timeZoneOffsetHoursFromUTC, 'hours');
 			//return translateMomentDateToJavascriptDate(newDate);
 			var newDate = moment(inputDate);

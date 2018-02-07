@@ -69,10 +69,13 @@
 								if (vm.chartPie) {
 									vm.chartPie.setTitle({ text: utilityService.FormatNumberWithCommas(vm.accurateTicketCounterThroughput) + ' Bags' });
 								} else {
-									$interval(function () {
-										vm.chartPie.setTitle({ text: utilityService.FormatNumberWithCommas(vm.accurateTicketCounterThroughput) + ' Bags' });
+									if (vm.chartPie) {
+										
+										$interval(function () {
+											vm.chartPie.setTitle({ text: utilityService.FormatNumberWithCommas(vm.accurateTicketCounterThroughput) + ' Bags' });
 
-									}, 200, 20);
+										}, 200, 20);
+									}
 								}
 
 								return data;

@@ -12,9 +12,9 @@
 					var vm = this;
 
 
-				    //console.log("BHSPercentCBRAPerDay controller invoked");
+					//console.log("BHSPercentCBRAPerDay controller invoked");
 
-					
+
 
 
 					$scope.$on("WidgetResize", function (event, resizedWidgetId) {
@@ -25,17 +25,17 @@
 					});
 
 					$scope.$on("WidgetResize.Stop", function (event, resizedWidgetId) {
-						if (vm.widget.Id == resizedWidgetId || resizedWidgetId == 0) {							
-							$interval(function() {
+						if (vm.widget.Id == resizedWidgetId || resizedWidgetId == 0) {
+							$interval(function () {
 								displaySetupService.SetLoneChartSize(vm.widget.Id, vm.chart);
-								
-							},50,20);
+
+							}, 50, 20);
 						}
 					});
 
 
 					$scope.$on("Dashboard", function (event, modifiedExpandedDashboard) {
-					    //console.log("BHSPercentCBRAPerDay Dashboard event. Modified Dashboard = %O", modifiedExpandedDashboard);
+						//console.log("BHSPercentCBRAPerDay Dashboard event. Modified Dashboard = %O", modifiedExpandedDashboard);
 						if (modifiedExpandedDashboard.Id == vm.dashboard.Id) {
 							vm.dashboard = modifiedExpandedDashboard;
 							GetChartData(false); //
@@ -52,40 +52,40 @@
 
 
 					function GetChartData(updateOnly) {
-					    dataService.GetIOPSWebAPIResource("BHSPercentCBRAPerDay")
+						dataService.GetIOPSWebAPIResource("BHSPercentCBRAPerDay")
 							.query({
-							    beginDate: vm.dashboard.webApiParameterStartDate,
-							    endDate: vm.dashboard.webApiParameterEndDate,
-							    siteId: 81463
+								beginDate: vm.dashboard.webApiParameterStartDate,
+								endDate: vm.dashboard.webApiParameterEndDate,
+								siteId: 81463
 							}, function (data) {
-							    console.log("BHSPercentCBRAPerDay initial data = %O", data);
+								console.log("BHSPercentCBRAPerDay initial data = %O", data);
 
-							    if (updateOnly) {
-							        //console.log("vm.chart = %O",vm.chart);
-							        data
+								if (updateOnly) {
+									//console.log("vm.chart = %O",vm.chart);
+									data
 										.forEach(function (d) {
-										    //Find the data point that matches the area and bhs name and update THAT ONE to the right data value
-										    vm.chart.series[0].data.first(function (dataPoint) { return dataPoint.category == d.BHSName }).update(d.TotalCBRABags, false);
+											//Find the data point that matches the area and bhs name and update THAT ONE to the right data value
+											vm.chart.series[0].data.first(function (dataPoint) { return dataPoint.category == d.BHSName }).update(d.TotalCBRABags, false);
 										});
-							        vm.chart.redraw();
+									vm.chart.redraw();
 
-							    } else {
+								} else {
 
-							        $(function () {
-							            displaySetupService.SetWidgetPanelBodyDimensions(vm.widget.Id);
-							            //Render the chart
-							            $timeout(function () {
-							                CreateChart(data);
-							                $timeout(function () {
-							                    displaySetupService.SetWidgetPanelBodyDimensions(vm.widget.Id);
-							                    displaySetupService.SetLoneChartSize(vm.widget.Id, vm.chart);
+									$(function () {
+										displaySetupService.SetWidgetPanelBodyDimensions(vm.widget.Id);
+										//Render the chart
+										$timeout(function () {
+											CreateChart(data);
+											$timeout(function () {
+												displaySetupService.SetWidgetPanelBodyDimensions(vm.widget.Id);
+												displaySetupService.SetLoneChartSize(vm.widget.Id, vm.chart);
 
-							                },
+											},
 												50);
-							            }, 50);
-							        });
-							    }
-							    vm.data = data;
+										}, 50);
+									});
+								}
+								vm.data = data;
 
 							});
 
@@ -93,12 +93,15 @@
 
 					GetChartData();
 
-					//Refresh data on the 15 second system clock tick
-					$scope.$on("System.ClockTick15", function () {
+
+					vm.updateInterval = $interval(function() {
 						GetChartData();
+					},120000);
+
+					$scope.$on("$destroy", function () {
+						$interval.cancel(vm.updateInterval);
+
 					});
-
-
 
 
 					function CreateChart(data) {
@@ -123,7 +126,7 @@
 								type: 'category',
 								categories: data.select(function (item) { return item.BHSName }),
 								labels: {
-								   
+
 									autoRotation: [-10, -20, -30, -40, -50, -60, -70, -80, -90],
 									style: {
 										fontSize: '10px',
@@ -169,82 +172,86 @@
 										enabled: true,
 									}
 								},
-								
+
 
 								series: {
-								    cursor: 'pointer',
-								    point: {
-								        events: {
-								            click: function (e) {
-								                console.log("this = %O", this);
-								                console.log("window = %O", window);
-								                var filterCategory = this.category;
-								                var chartThis = this;
-								                dataService.GetIOPSWebAPIResource("BHSPercentCBRAPerDay")
+									cursor: 'pointer',
+									point: {
+										events: {
+											click: function (e) {
+												console.log("this = %O", this);
+												console.log("window = %O", window);
+												var filterCategory = this.category;
+												var chartThis = this;
+												dataService.GetIOPSWebAPIResource("BHSPercentCBRAPerDay")
                                                                .query({
-                                                                   beginDate: vm.dashboard.webApiParameterStartDate,
-                                                                   endDate: vm.dashboard.webApiParameterEndDate,
-                                                                   siteId: 81463
+                                                               	beginDate: vm.dashboard.webApiParameterStartDate,
+                                                               	endDate: vm.dashboard.webApiParameterEndDate,
+                                                               	siteId: 81463
                                                                }, function (data) {
-                                                                   console.log("data from OData Source = %O", angular.copy(data));
+                                                               	console.log("data from OData Source = %O", angular.copy(data));
 
 
-                                                                   hs.htmlExpand(null, {
-                                                                       pageOrigin: {
-                                                                           x: e.pageX || e.clientX,
-                                                                           y: e.pageY || e.clientY
-                                                                       },
+                                                               	hs.htmlExpand(null, {
+                                                               		pageOrigin: {
+                                                               			x: e.pageX || e.clientX,
+                                                               			y: e.pageY || e.clientY
+                                                               		},
 
-                                                                       headingText: 'CBRA Percent of Bags',
-                                                                       maincontentText: "<table class='table table-condensed table-striped' style='font-size: .75em;'>" +
-                                                                                          "<thead>" +
-                                                                                              "<th>Area-Date</th>" +
-                                                                                              "<th>Total Bag Count</th>" +
-                                                                                              "<th>CBRA Bags</th>" +
-                                                                                              "<th>CBRA Percent</th>" +
+                                                               		headingText: 'CBRA Percent of Bags',
+                                                               		maincontentText: "<table class='table table-condensed table-striped' style='font-size: .75em;'>" +
+																					   "<thead>" +
+																						   "<th>Area-Date</th>" +
+																						   "<th>Total Bag Count</th>" +
+																						   "<th>CBRA Bags</th>" +
+																						   "<th>CBRA Percent</th>" +
 
-                                                                                           "</thead>" +
-                                                                                           "<tbody>" +
-                                                                                               data.select(function (d) {
-                                                                                                   return "<tr>" +
-                                                                                                  "<td>"
-                                                                                                  + d.BHSName +
-                                                                                                  "<td>"
-                                                                                                  + d.TokenCount +
-                                                                                                   "<td>"
-                                                                                                  + d.TotalCBRABags +
-                                                                                                   "<td>"
-                                                                                                  + d.CBRAPercentOfTotal +"%"+
-                                                                                                  "</tr>";
-                                                                                               }).join("") +
-                                                                                          "</tbody>" +
-                                                                                       "</table>",
-
-
-                                                                       width: 500,
-                                                                       height: window.outerHeight * .3
+																						"</thead>" +
+																						"<tbody>" +
+																							data.select(function (d) {
+																								return "<tr>" +
+																							   "<td>"
+																							   + d.BHSName +
+																							   "<td>"
+																							   + d.TokenCount +
+																								"<td>"
+																							   + d.TotalCBRABags +
+																								"<td>"
+																							   + d.CBRAPercentOfTotal + "%" +
+																							   "</tr>";
+																							}).join("") +
+																					   "</tbody>" +
+																					"</table>",
 
 
-                                                                   });
+                                                               		width: 500,
+                                                               		height: window.outerHeight * .3
+
+
+                                                               	});
 
 
                                                                });
 
 
-								            }
-								        }
-								    },
-								    marker: {
-								        lineWidth: 1
-								    }
+											}
+										}
+									},
+									marker: {
+										lineWidth: 1
+									}
 								}
 							},
-							series: [{ data: data.select(function (item) { return item.TotalCBRABags}) }]
+							series: [{ data: data.select(function (item) { return item.TotalCBRABags }) }]
 						};
 
 						//console.log("chartOptions = %O", chartOptions);
+						try {
+							vm.chart = Highcharts.chart('bhsPercentBagsToCbra' + vm.widget.Id, chartOptions);
 
-						vm.chart = Highcharts.chart('bhsPercentBagsToCbra' + vm.widget.Id, chartOptions);
+						} catch (e) {
+
+						}
 					}
 				};
 

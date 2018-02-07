@@ -31,10 +31,7 @@
 			vm.gpu = data.Assets.first(function (a) { return a.Id == vm.assetId });
 			vm.panelTitle = vm.widget.Name;
 			vm.panelSubtitle = 'esc to close';
-
-			dataService.GetAllSignalRObservationFormattedTagsForAssetIdIntoInventory(vm.assetId).then(function () {
-				vm.showScreen = true;
-			});
+			vm.showScreen = true;
 
 
 		});

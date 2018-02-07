@@ -66,6 +66,7 @@ Project("{E24C65DC-7377-472B-9ABA-BC803B73C61A}") = "Innovation", "..\Innovation
 		Release.AspNetCompiler.FixedNames = "false"
 		Release.AspNetCompiler.Debug = "False"
 		VWDPort = "59131"
+		SlnRelativePath = "..\Innovation\"
 	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SignalRDatabaseTransmitter", "SignalRDatabaseTransmitter\SignalRDatabaseTransmitter.csproj", "{674DC804-5082-407C-B2D0-DC70A0C3200F}"
@@ -94,6 +95,8 @@ EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "AngularWebsite", "AngularWebsite", "{97C33C13-D0E5-4BE4-BEE1-C90A8B34DFD1}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "UTMB Old Code", "UTMB Old Code", "{FAE66428-BCEA-46DD-8903-280CD6C5B818}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "iOPS-ETL", "iOPS-ETL\iOPS-ETL.csproj", "{E58F2870-742D-4FA9-8588-8C92119A7332}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -277,6 +280,22 @@ Global
 		{5473C567-49F8-4B11-9699-6EFF7295F6E8}.odatatest|Any CPU.Build.0 = Debug|Any CPU
 		{5473C567-49F8-4B11-9699-6EFF7295F6E8}.Release|Any CPU.ActiveCfg = Debug|Any CPU
 		{5473C567-49F8-4B11-9699-6EFF7295F6E8}.Release|Any CPU.Build.0 = Debug|Any CPU
+		{E58F2870-742D-4FA9-8588-8C92119A7332}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E58F2870-742D-4FA9-8588-8C92119A7332}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E58F2870-742D-4FA9-8588-8C92119A7332}.DebugLocal|Any CPU.ActiveCfg = Debug|Any CPU
+		{E58F2870-742D-4FA9-8588-8C92119A7332}.DebugLocal|Any CPU.Build.0 = Debug|Any CPU
+		{E58F2870-742D-4FA9-8588-8C92119A7332}.innovation|Any CPU.ActiveCfg = Release|Any CPU
+		{E58F2870-742D-4FA9-8588-8C92119A7332}.innovation|Any CPU.Build.0 = Release|Any CPU
+		{E58F2870-742D-4FA9-8588-8C92119A7332}.innovationtest|Any CPU.ActiveCfg = Release|Any CPU
+		{E58F2870-742D-4FA9-8588-8C92119A7332}.innovationtest|Any CPU.Build.0 = Release|Any CPU
+		{E58F2870-742D-4FA9-8588-8C92119A7332}.local|Any CPU.ActiveCfg = Release|Any CPU
+		{E58F2870-742D-4FA9-8588-8C92119A7332}.local|Any CPU.Build.0 = Release|Any CPU
+		{E58F2870-742D-4FA9-8588-8C92119A7332}.odataprod|Any CPU.ActiveCfg = Release|Any CPU
+		{E58F2870-742D-4FA9-8588-8C92119A7332}.odataprod|Any CPU.Build.0 = Release|Any CPU
+		{E58F2870-742D-4FA9-8588-8C92119A7332}.odatatest|Any CPU.ActiveCfg = Release|Any CPU
+		{E58F2870-742D-4FA9-8588-8C92119A7332}.odatatest|Any CPU.Build.0 = Release|Any CPU
+		{E58F2870-742D-4FA9-8588-8C92119A7332}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E58F2870-742D-4FA9-8588-8C92119A7332}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -296,5 +315,6 @@ Global
 		{3571525A-18A4-4CFE-A762-7295FDFE8966} = {FAE66428-BCEA-46DD-8903-280CD6C5B818}
 		{674DC804-5082-407C-B2D0-DC70A0C3200F} = {5AA13B71-5A75-4181-87D4-F42957C63B4A}
 		{5473C567-49F8-4B11-9699-6EFF7295F6E8} = {97C33C13-D0E5-4BE4-BEE1-C90A8B34DFD1}
+		{E58F2870-742D-4FA9-8588-8C92119A7332} = {5AA13B71-5A75-4181-87D4-F42957C63B4A}
 	EndGlobalSection
 EndGlobal

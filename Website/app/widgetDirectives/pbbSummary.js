@@ -12,7 +12,7 @@
 					var vm = this;
 
 					function GetHeadingExtraTitle() {
-						if (vm.Asset && vm.Asset.Site && vm.Asset.ParentSystem && vm.Asset.ParentSystem.Name) {						
+						if (vm.Asset && vm.Asset.Site && vm.Asset.ParentSystem && vm.Asset.ParentSystem.Name) {
 							return ' - ' + vm.Asset.Site.Name + ' Gate ' + vm.Asset.ParentSystem.Name + (vm.Asset.ModelGenericName ? ' - ' + vm.Asset.ModelGenericName : '');
 						}
 					}
@@ -63,7 +63,7 @@
 
 					}
 
-					vm.alarmFilterFunction = function(element) {
+					vm.alarmFilterFunction = function (element) {
 						return element.ValueWhenActive == element.Value;
 					};
 
@@ -139,7 +139,7 @@
 					}
 
 
-					vm.scrolledToEnd = function() {
+					vm.scrolledToEnd = function () {
 						console.log("pbb Data Scrolled to end");
 					}
 
@@ -148,7 +148,7 @@
 
 						console.log("Opening settings vm.Asset = %O", vm.Asset);
 						if (!vm.pbb) {
-							$state.go(".widgetSettings", { widget: vm.widget});
+							$state.go(".widgetSettings", { widget: vm.widget });
 						}
 					}
 
@@ -257,7 +257,7 @@
 								}, 100);
 
 
-								
+
 
 
 								//console.log("Asset Graphics = %O", vm.AssetGraphics);
@@ -267,7 +267,7 @@
 
 								vm.atLeastOneGraphicIsVisible = AtLeastOneGraphicIsVisible();
 								vm.widget.displaySettings.obscureGraphics = !AtLeastOneGraphicIsVisible();
-								
+
 								vm.widget.displaySettings.headingExtraTitle = GetHeadingExtraTitle();
 								vm.showWidget = true;
 
@@ -278,12 +278,12 @@
 									vm.warnings = [];
 								}
 
-								vm.pbb.Tags = dataService.cache.tags.where(function(t) { return t.AssetId == vm.pbb.Id });
+								vm.pbb.Tags = dataService.cache.tags.where(function (t) { return t.AssetId == vm.pbb.Id });
 								var commLossStandardObservationIds = [4331, 4445, 4765, 12255];
 
-								vm.alarms = vm.pbb.Tags.where(function (dsTag) { return dsTag.AssetId == vm.widget.WidgetResource.AssetId && dsTag.IsAlarm && !commLossStandardObservationIds.any(function(a){ return a == dsTag.JBTStandardObservationId })});
-								vm.warnings = vm.pbb.Tags.where(function (dsTag) { return dsTag.AssetId == vm.widget.WidgetResource.AssetId && dsTag.IsWarning});
-								vm.commLossTag = vm.pbb.Tags.first(function(t){return commLossStandardObservationIds.any(function(clso){ return clso == t.JBTStandardObservationId})});
+								vm.alarms = vm.pbb.Tags.where(function (dsTag) { return dsTag.AssetId == vm.widget.WidgetResource.AssetId && dsTag.IsAlarm && !commLossStandardObservationIds.any(function (a) { return a == dsTag.JBTStandardObservationId }) });
+								vm.warnings = vm.pbb.Tags.where(function (dsTag) { return dsTag.AssetId == vm.widget.WidgetResource.AssetId && dsTag.IsWarning });
+								vm.commLossTag = vm.pbb.Tags.first(function (t) { return commLossStandardObservationIds.any(function (clso) { return clso == t.JBTStandardObservationId }) });
 
 
 
@@ -309,13 +309,13 @@
 							var tabDimensions = displaySetupService.GetDivDimensionsById("nav-pills" + vm.widget.Id);
 							var heightToSet = 0;
 							if (widgetDimensions) {
-								
+
 								if (vm.widget.WidgetResource.IsModalPopUp) {
 									heightToSet = widgetDimensions.height - tabDimensions.height - 20;
 								} else {
-									heightToSet = widgetDimensions.height - tabDimensions.height-3;	
+									heightToSet = widgetDimensions.height - tabDimensions.height - 3;
 								}
-							
+
 								//console.log("Height to set = " + heightToSet);
 								$("#tab-content" + vm.widget.Id).css('height', heightToSet);
 								$("#repeater-container-data" + vm.widget.Id).css('height', heightToSet);
@@ -332,7 +332,7 @@
 
 					function SetHeadingBackground() {
 
-						if (vm.alarms && vm.alarms.length > 0 && vm.alarms.any(function(a){return a.ValueWhenActive == a.Value})) {
+						if (vm.alarms && vm.alarms.length > 0 && vm.alarms.any(function (a) { return a.ValueWhenActive == a.Value })) {
 
 							vm.widget.displaySettings.headingBackground = 'linear-gradient(to bottom,#FF0000, #FFDDDD)';
 
@@ -376,48 +376,52 @@
 									vm.widget.WidgetResource.SplitLeftPercentage = vm.widget.WidgetResource.SplitLeftPercentage || 50;
 									vm.widget.WidgetResource.SplitRightPercentage = vm.widget.WidgetResource.SplitRightPercentage || 50;
 
+									try {
+										vm.splitter = Split(['#containerData' + vm.widget.Id, '#containerGraphics' + vm.widget.Id],
+											{
+												elementStyle: function (dimension, size, gutterSize) {
+													return {
+														'flex-basis': 'calc(' + size + '% - ' + gutterSize + 'px)'
+													}
+												},
+												gutterStyle: function (dimension, gutterSize) {
+													return {
+														'flex-basis': gutterSize + 'px',
+														'background-image': "url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAUAAAAeCAYAAADkftS9AAAAIklEQVQoU2M4c+bMfxAGAgYYmwGrIIiDjrELjpo5aiZeMwF+yNnOs5KSvgAAAABJRU5ErkJggg==')",
+														'background-repeat': 'no-repeat',
+														'background-position': '50%',
+														'background-color': 'transparent',
+														'cursor': 'col-resize'
+													}
+												},
+												sizes: [vm.widget.WidgetResource.SplitLeftPercentage, vm.widget.WidgetResource.SplitRightPercentage],
+												minSize: 0,
+												onDragEnd: function () {
 
-									vm.splitter = Split(['#containerData' + vm.widget.Id, '#containerGraphics' + vm.widget.Id],
-										{
-											elementStyle: function (dimension, size, gutterSize) {
-												return {
-													'flex-basis': 'calc(' + size + '% - ' + gutterSize + 'px)'
+													var sizes = vm.splitter.getSizes();
+													vm.widget.WidgetResource.SplitLeftPercentage = sizes[0];
+													vm.widget.WidgetResource.SplitRightPercentage = sizes[1];
+
+													SaveWidgetResourceObjectIfChanged();
+													//$interval(function() {
+
+													//	SetTemperatureChartsToContainerSize();
+													//	SetPressureChartsToContainerSize();
+													//},25, 20);
+												},
+												onDrag: function () {
+													//$timeout(function() {
+
+													//	SetTemperatureChartsToContainerSize();
+													//	SetPressureChartsToContainerSize();
+													//});
 												}
-											},
-											gutterStyle: function (dimension, gutterSize) {
-												return {
-													'flex-basis': gutterSize + 'px',
-													'background-image': "url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAUAAAAeCAYAAADkftS9AAAAIklEQVQoU2M4c+bMfxAGAgYYmwGrIIiDjrELjpo5aiZeMwF+yNnOs5KSvgAAAABJRU5ErkJggg==')",
-													'background-repeat': 'no-repeat',
-													'background-position': '50%',
-													'background-color': 'transparent',
-													'cursor': 'col-resize'
-												}
-											},
-											sizes: [vm.widget.WidgetResource.SplitLeftPercentage, vm.widget.WidgetResource.SplitRightPercentage],
-											minSize: 0,
-											onDragEnd: function () {
 
-												var sizes = vm.splitter.getSizes();
-												vm.widget.WidgetResource.SplitLeftPercentage = sizes[0];
-												vm.widget.WidgetResource.SplitRightPercentage = sizes[1];
+											});
 
-												SaveWidgetResourceObjectIfChanged();
-												//$interval(function() {
+									} catch (e) {
 
-												//	SetTemperatureChartsToContainerSize();
-												//	SetPressureChartsToContainerSize();
-												//},25, 20);
-											},
-											onDrag: function () {
-												//$timeout(function() {
-
-												//	SetTemperatureChartsToContainerSize();
-												//	SetPressureChartsToContainerSize();
-												//});
-											}
-
-										});
+									}
 
 								});
 

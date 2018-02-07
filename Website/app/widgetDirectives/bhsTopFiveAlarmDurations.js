@@ -14,7 +14,7 @@
 
 					//console.log("bhsTopFiveAlarmDurations controller invoked");
 
-					
+
 
 					$scope.$on("WidgetResize", function (event, resizedWidgetId) {
 
@@ -25,11 +25,11 @@
 
 
 					$scope.$on("WidgetResize.Stop", function (event, resizedWidgetId) {
-						if (vm.widget.Id == resizedWidgetId || resizedWidgetId == 0) {							
-							$interval(function() {
+						if (vm.widget.Id == resizedWidgetId || resizedWidgetId == 0) {
+							$interval(function () {
 								displaySetupService.SetLoneChartSize(vm.widget.Id, vm.chart);
-								
-							},50,20);
+
+							}, 50, 20);
 						}
 					});
 
@@ -86,9 +86,13 @@
 
 					GetChartData();
 
-					//Refresh data on the 15 second system clock tick
-					$scope.$on("System.ClockTick15", function () {
+					vm.updateInterval = $interval(function() {
 						GetChartData();
+					},120000);
+
+					$scope.$on("$destroy", function () {
+						$interval.cancel(vm.updateInterval);
+
 					});
 
 					function CreateChart(data) {
@@ -154,7 +158,7 @@
 							plotOptions: {
 								stacking: 'normal',
 								bar: {
-									
+
 									dataLabels: {
 										//color: (Highcharts.theme && Highcharts.theme.dataLabelsColor) || 'white',
 										color: 'black',
@@ -186,8 +190,11 @@
 						};
 
 						//console.log("chartOptions = %O", chartOptions);
+						try {
+							vm.chart = Highcharts.chart('bhsTopFiveAlarmDurations' + vm.widget.Id, chartOptions);
+						} catch (e) {
 
-						vm.chart = Highcharts.chart('bhsTopFiveAlarmDurations' + vm.widget.Id, chartOptions);
+						}
 					}
 				};
 

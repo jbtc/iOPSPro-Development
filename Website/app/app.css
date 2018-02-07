@@ -36,6 +36,11 @@ body {
     padding-bottom: 5px; 
     border-bottom: 1px solid lightgray;
 }
+.panel-tab-nav-button {
+    font-size: 1.1em; 
+    padding-bottom: 5px; 
+    border-bottom: 1px solid lightgray;
+}
 
 .graph-select-icon {
     height: 15px; 

@@ -1,8 +1,7 @@
 ﻿"use strict";
 
 
-var odataServerUrl = (document.URL.indexOf("localhost/iops/") > 0 || document.URL.indexOf("localhost/iOPSPro-Development/") > 0) ? "http://localhost/DataServices/ODataV4" :
-	"https://www.iopspro.com/DataServices/ODataV4";
+var odataServerUrl = (document.URL.indexOf("localhost/iops/") > 0 || document.URL.indexOf("localhost/iOPSPro-Development/") > 0) ? "http://localhost/DataServices/ODataV4" : "https://www.iopspro.com/DataServices/ODataV4";
 
 //var odataServerUrl = "https:/7.207.78.73/DataServices/ODataV4";
 //var odataServerUrl = "http://localhost:48773";
@@ -189,7 +188,7 @@ angular.module('app').config(['$routeProvider', '$urlRouterProvider', '$statePro
 					},
 					views: {
 						'contentPane@home.app.dashboard': {
-							templateUrl: "app/widgetDirectives/pcaSummaryModal.html?seq=" + Date.now(),
+							templateUrl: "app/widgetDirectives/pcaSummaryModal.html",
 							controller: "PCASummaryModalCtrl as vm"
 						}
 					}
@@ -204,7 +203,7 @@ angular.module('app').config(['$routeProvider', '$urlRouterProvider', '$statePro
 					},
 					views: {
 						'contentPane@home.app.dashboard': {
-							templateUrl: "app/widgetDirectives/gpuSummaryModal.html?seq=" + Date.now(),
+							templateUrl: "app/widgetDirectives/gpuSummaryModal.html",
 							controller: "GPUSummaryModalCtrl as vm"
 						}
 					}
@@ -219,7 +218,7 @@ angular.module('app').config(['$routeProvider', '$urlRouterProvider', '$statePro
 					},
 					views: {
 						'contentPane@home.app.dashboard': {
-							templateUrl: "app/widgetDirectives/pbbSummaryModal.html?seq=" + Date.now(),
+							templateUrl: "app/widgetDirectives/pbbSummaryModal.html",
 							controller: "PBBSummaryModalCtrl as vm"
 						}
 					}

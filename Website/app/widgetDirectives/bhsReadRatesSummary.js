@@ -14,10 +14,6 @@
 					var vm = this;
 					//console.log("bhsReadRatesSummary vm.dashboard = %O", vm.dashboard);
 
-					$scope.$on("$destroy", function () {
-						$interval.cancel(vm.updateInterval);
-
-					});
 
 					var fontFactor = .003;
 					var fontMax = 8;
@@ -57,23 +53,30 @@
 								vm.overallGoodReadRate = (data[0].PercentGoodReads || 0) + '% - ' + (data[0].GoodReads || 0) + ' Reads';
 								vm.overallFailedReadRate = (data[0].PercentFailedReads || 0) + '% - ' + (data[0].BadReads || 0) + ' Reads';
 								vm.widgetDimensions = displaySetupService.GetWidgetPanelBodyDimensions(vm.widget.Id);
-								vm.largeTextSize = vm.widgetDimensions.width * fontFactor;
-								if (vm.largeTextSize > fontMax) {
-									vm.largeTextSize = fontMax;
+
+								if (vm.widgetDimensions) {
+
+									vm.largeTextSize = vm.widgetDimensions.width * fontFactor;
+									if (vm.largeTextSize > fontMax) {
+										vm.largeTextSize = fontMax;
+									}
+									vm.data = data;
+									displaySetupService.SetPanelBodyWithIdHeight(vm.widget.Id);
 								}
-								vm.data = data;
-								displaySetupService.SetPanelBodyWithIdHeight(vm.widget.Id);
 							});
 						displaySetupService.SetPanelBodyWithIdHeight(vm.widget.Id);
 					}
 
 					GetData();
 
-					//Refresh data on the 15 second system clock tick
-					$scope.$on("System.ClockTick15", function () {
+					vm.updateInterval = $interval(function() {
 						GetData();
-					});
+					},120000);
 
+					$scope.$on("$destroy", function () {
+						$interval.cancel(vm.updateInterval);
+
+					});
 
 					$scope.$on("WidgetResize", function (event, resizedWidgetId) {
 						if (vm.widget.Id == resizedWidgetId || resizedWidgetId == 0) {
@@ -89,8 +92,8 @@
 					$scope.$on("WidgetResize.Stop", function (event, resizedWidgetId) {
 
 						if (vm.widget.Id == resizedWidgetId || resizedWidgetId == 0) {
-							
-							$interval(function() {
+
+							$interval(function () {
 								vm.data.forEach(function (item) {
 									displaySetupService.SetPanelBodyWithIdHeight(vm.widget.Id);
 									vm.widgetDimensions = displaySetupService.GetWidgetPanelBodyDimensions(vm.widget.Id);
@@ -99,8 +102,8 @@
 										vm.largeTextSize = fontMax;
 									}
 								});
-								
-							},50,20);
+
+							}, 50, 20);
 						}
 					});
 

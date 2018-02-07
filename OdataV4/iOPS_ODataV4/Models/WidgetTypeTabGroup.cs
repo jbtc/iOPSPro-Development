@@ -22,6 +22,7 @@ namespace iOPS_ODataV4.Models
     
         public long Id { get; set; }
         public string Name { get; set; }
+        public Nullable<int> Ordinal { get; set; }
     
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<WidgetType> WidgetTypes { get; set; }

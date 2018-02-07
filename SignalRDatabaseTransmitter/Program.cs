@@ -2,11 +2,13 @@
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Data;
+using System.Data.Entity.Infrastructure.Interception;
 using System.Data.SqlTypes;
 using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using iOPS_ODataV4.Services;
 using Microsoft.Samples.SqlServer;
 using Microsoft.AspNet.SignalR.Client;
 using Microsoft.SqlServer.Server;
@@ -19,8 +21,8 @@ namespace SignalRDatabaseTransmitter
     {
         static void Main(string[] args)
         {
+            DbInterception.Add(new NoLockInterceptor());
 
-           
             for (;;)
             {
                 try
@@ -37,7 +39,7 @@ namespace SignalRDatabaseTransmitter
                         }
 
                     }
-                    Task.Delay(10);
+                    Task.Delay(100).Wait();
 
                 }
                 catch (Exception e)
