@@ -1,0 +1,167 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<edmx:Edmx Version="3.0" xmlns:edmx="http://schemas.microsoft.com/ado/2009/11/edmx">
+  <!-- EF Runtime content -->
+  <edmx:Runtime>
+    <!-- SSDL content -->
+    <edmx:StorageModels>
+    <Schema Namespace="FileImageLibraryModel.Store" Provider="System.Data.SqlClient" ProviderManifestToken="2008" Alias="Self" xmlns:store="http://schemas.microsoft.com/ado/2007/12/edm/EntityStoreSchemaGenerator" xmlns:customannotation="http://schemas.microsoft.com/ado/2013/11/edm/customannotation" xmlns="http://schemas.microsoft.com/ado/2009/11/edm/ssdl">
+        <EntityType Name="tblFIL_Master_Image_Index">
+          <Key>
+            <PropertyRef Name="intFIL_Seq_Num" />
+          </Key>
+          <Property Name="intFIL_Seq_Num" Type="bigint" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="numFile_Image_ID" Type="numeric" Precision="19" Scale="0" Nullable="false" />
+          <Property Name="intFIL_Segment_ID" Type="int" />
+          <Property Name="intFIL_Segment_Clustered_ID" Type="bigint" />
+          <Property Name="dtmCreated" Type="datetime" Nullable="false" />
+          <Property Name="intSource" Type="int" Nullable="false" />
+          <Property Name="intApplication_Code" Type="int" Nullable="false" />
+          <Property Name="strFilename" Type="varchar" MaxLength="255" />
+          <Property Name="bitCompressed" Type="bit" />
+          <Property Name="intOriginal_Size" Type="bigint" />
+          <Property Name="intCompressed_Size" Type="bigint" />
+          <Property Name="numCreator_User_ID" Type="numeric" Precision="18" Scale="0" />
+          <Property Name="intGeneration" Type="int" Nullable="false" />
+          <Property Name="intFIL_Prior_Seq_Num" Type="bigint" />
+          <Property Name="intFIL_Later_Seq_Num" Type="bigint" />
+          <Property Name="strMD5_Hex_Signature" Type="varchar" MaxLength="40" />
+          <Property Name="strHierarchy" Type="varchar" MaxLength="3000" />
+          <Property Name="ImageKey" Type="varchar" MaxLength="75" />
+          <Property Name="Description" Type="varchar(max)" />
+          <Property Name="Ordinal" Type="bigint" />
+          <Property Name="ModifierUserMasterId" Type="bigint" />
+          <Property Name="CreatorUserMasterId" Type="bigint" />
+        </EntityType>
+        <Function Name="SYS_Next_Sequence_Number" Aggregate="false" BuiltIn="false" NiladicFunction="false" IsComposable="false" ParameterTypeSemantics="AllowImplicitConversion" Schema="dbo" />
+        <Function Name="Get_Encrypted_File_Image" Aggregate="false" BuiltIn="false" NiladicFunction="false" IsComposable="false" ParameterTypeSemantics="AllowImplicitConversion" Schema="File_Image_Library">
+          <Parameter Name="numFile_Image_ID" Type="bigint" Mode="In" />
+        </Function>
+        <Function Name="Save_Encrypted_File_Image" Aggregate="false" BuiltIn="false" NiladicFunction="false" IsComposable="false" ParameterTypeSemantics="AllowImplicitConversion" Schema="File_Image_Library">
+          <Parameter Name="numFile_Image_ID" Type="decimal" Mode="In" />
+          <Parameter Name="imgImage" Type="varbinary(max)" Mode="In" />
+        </Function>
+        <EntityContainer Name="FileImageLibraryModelStoreContainer">
+          <EntitySet Name="tblFIL_Master_Image_Index" EntityType="Self.tblFIL_Master_Image_Index" Schema="dbo" store:Type="Tables" />
+        </EntityContainer>
+      </Schema></edmx:StorageModels>
+    <!-- CSDL content -->
+    <edmx:ConceptualModels>
+      <Schema Namespace="FileImageLibraryModel" Alias="Self" annotation:UseStrongSpatialTypes="false" xmlns:annotation="http://schemas.microsoft.com/ado/2009/02/edm/annotation" xmlns:customannotation="http://schemas.microsoft.com/ado/2013/11/edm/customannotation" xmlns="http://schemas.microsoft.com/ado/2009/11/edm">
+        <EntityContainer Name="FileImageLibraryEntities" annotation:LazyLoadingEnabled="true">
+          <FunctionImport Name="Get_Encrypted_File_Image" ReturnType="Collection(Binary)">
+          <Parameter Name="numFile_Image_ID" Mode="In" Type="Int64" />
+          </FunctionImport>
+          <FunctionImport Name="Save_Encrypted_File_Image" ReturnType="Collection(FileImageLibraryModel.Save_Encrypted_File_Image_Result)">
+            <Parameter Name="numFile_Image_ID" Mode="In" Type="Decimal" />
+            <Parameter Name="imgImage" Mode="In" Type="Binary" />
+          </FunctionImport>
+          <FunctionImport Name="SYS_Next_Sequence_Number" ReturnType="Collection(Decimal)" />
+          <EntitySet Name="FileImages" EntityType="FileImageLibraryModel.FileImage" />
+        </EntityContainer>
+        <ComplexType Name="Save_Encrypted_File_Image_Result">
+          <Property Type="String" Name="strSQL_Server_Name" Nullable="true" MaxLength="50" />
+          <Property Type="String" Name="strDatabase_Name" Nullable="true" MaxLength="50" />
+          <Property Type="String" Name="strTable_Name" Nullable="true" MaxLength="50" />
+          <Property Type="Int32" Name="intFIL_Segment_ID" Nullable="true" />
+          <Property Type="Decimal" Name="numFile_Image_ID" Nullable="true" Precision="12" Scale="0" />
+          <Property Type="Decimal" Name="intFIL_Segment_Clustered_ID" Nullable="true" Precision="38" Scale="0" />
+        </ComplexType>
+        <EntityType Name="FileImage">
+          <Key>
+            <PropertyRef Name="intFIL_Seq_Num" />
+          </Key>
+          <Property Name="intFIL_Seq_Num" Type="Int64" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="numFile_Image_ID" Type="Decimal" Nullable="false" Precision="19" Scale="0" />
+          <Property Name="intFIL_Segment_ID" Type="Int32" />
+          <Property Name="intFIL_Segment_Clustered_ID" Type="Int64" />
+          <Property Name="dtmCreated" Type="DateTime" Nullable="false" Precision="3" />
+          <Property Name="intSource" Type="Int32" Nullable="false" />
+          <Property Name="intApplication_Code" Type="Int32" Nullable="false" />
+          <Property Name="strFilename" Type="String" MaxLength="255" FixedLength="false" Unicode="false" />
+          <Property Name="bitCompressed" Type="Boolean" />
+          <Property Name="intOriginal_Size" Type="Int64" />
+          <Property Name="intCompressed_Size" Type="Int64" />
+          <Property Name="numCreator_User_ID" Type="Decimal" Precision="18" Scale="0" />
+          <Property Name="intGeneration" Type="Int32" Nullable="false" />
+          <Property Name="intFIL_Prior_Seq_Num" Type="Int64" />
+          <Property Name="intFIL_Later_Seq_Num" Type="Int64" />
+          <Property Name="strMD5_Hex_Signature" Type="String" MaxLength="40" FixedLength="false" Unicode="false" />
+          <Property Name="strHierarchy" Type="String" MaxLength="3000" FixedLength="false" Unicode="false" />
+          <Property Name="ImageKey" Type="String" MaxLength="75" FixedLength="false" Unicode="false" />
+          <Property Name="Description" Type="String" MaxLength="Max" FixedLength="false" Unicode="false" />
+          <Property Name="Ordinal" Type="Int64" />
+          <Property Name="ModifierUserMasterId" Type="Int64" />
+          <Property Name="CreatorUserMasterId" Type="Int64" />
+        </EntityType>
+      </Schema>
+    </edmx:ConceptualModels>
+    <!-- C-S mapping content -->
+    <edmx:Mappings>
+      <Mapping Space="C-S" xmlns="http://schemas.microsoft.com/ado/2009/11/mapping/cs">
+        <EntityContainerMapping StorageEntityContainer="FileImageLibraryModelStoreContainer" CdmEntityContainer="FileImageLibraryEntities">
+          <FunctionImportMapping FunctionImportName="Get_Encrypted_File_Image" FunctionName="FileImageLibraryModel.Store.Get_Encrypted_File_Image" />
+          <FunctionImportMapping FunctionImportName="Save_Encrypted_File_Image" FunctionName="FileImageLibraryModel.Store.Save_Encrypted_File_Image">
+            <ResultMapping>
+              <ComplexTypeMapping TypeName="FileImageLibraryModel.Save_Encrypted_File_Image_Result">
+                <ScalarProperty Name="strSQL_Server_Name" ColumnName="strSQL_Server_Name" />
+                <ScalarProperty Name="strDatabase_Name" ColumnName="strDatabase_Name" />
+                <ScalarProperty Name="strTable_Name" ColumnName="strTable_Name" />
+                <ScalarProperty Name="intFIL_Segment_ID" ColumnName="intFIL_Segment_ID" />
+                <ScalarProperty Name="numFile_Image_ID" ColumnName="numFile_Image_ID" />
+                <ScalarProperty Name="intFIL_Segment_Clustered_ID" ColumnName="intFIL_Segment_Clustered_ID" />
+              </ComplexTypeMapping>
+            </ResultMapping>
+          </FunctionImportMapping>
+          <FunctionImportMapping FunctionImportName="SYS_Next_Sequence_Number" FunctionName="FileImageLibraryModel.Store.SYS_Next_Sequence_Number" />
+          <EntitySetMapping Name="FileImages">
+            <EntityTypeMapping TypeName="FileImageLibraryModel.FileImage">
+              <MappingFragment StoreEntitySet="tblFIL_Master_Image_Index">
+                <ScalarProperty Name="CreatorUserMasterId" ColumnName="CreatorUserMasterId" />
+                <ScalarProperty Name="ModifierUserMasterId" ColumnName="ModifierUserMasterId" />
+                <ScalarProperty Name="Ordinal" ColumnName="Ordinal" />
+                <ScalarProperty Name="Description" ColumnName="Description" />
+                <ScalarProperty Name="ImageKey" ColumnName="ImageKey" />
+                <ScalarProperty Name="strHierarchy" ColumnName="strHierarchy" />
+                <ScalarProperty Name="strMD5_Hex_Signature" ColumnName="strMD5_Hex_Signature" />
+                <ScalarProperty Name="intFIL_Later_Seq_Num" ColumnName="intFIL_Later_Seq_Num" />
+                <ScalarProperty Name="intFIL_Prior_Seq_Num" ColumnName="intFIL_Prior_Seq_Num" />
+                <ScalarProperty Name="intGeneration" ColumnName="intGeneration" />
+                <ScalarProperty Name="numCreator_User_ID" ColumnName="numCreator_User_ID" />
+                <ScalarProperty Name="intCompressed_Size" ColumnName="intCompressed_Size" />
+                <ScalarProperty Name="intOriginal_Size" ColumnName="intOriginal_Size" />
+                <ScalarProperty Name="bitCompressed" ColumnName="bitCompressed" />
+                <ScalarProperty Name="strFilename" ColumnName="strFilename" />
+                <ScalarProperty Name="intApplication_Code" ColumnName="intApplication_Code" />
+                <ScalarProperty Name="intSource" ColumnName="intSource" />
+                <ScalarProperty Name="dtmCreated" ColumnName="dtmCreated" />
+                <ScalarProperty Name="intFIL_Segment_Clustered_ID" ColumnName="intFIL_Segment_Clustered_ID" />
+                <ScalarProperty Name="intFIL_Segment_ID" ColumnName="intFIL_Segment_ID" />
+                <ScalarProperty Name="numFile_Image_ID" ColumnName="numFile_Image_ID" />
+                <ScalarProperty Name="intFIL_Seq_Num" ColumnName="intFIL_Seq_Num" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+        </EntityContainerMapping>
+      </Mapping>
+    </edmx:Mappings>
+  </edmx:Runtime>
+  <!-- EF Designer content (DO NOT EDIT MANUALLY BELOW HERE) -->
+  <Designer xmlns="http://schemas.microsoft.com/ado/2009/11/edmx">
+    <Connection>
+      <DesignerInfoPropertySet>
+        <DesignerProperty Name="MetadataArtifactProcessing" Value="EmbedInOutputAssembly" />
+      </DesignerInfoPropertySet>
+    </Connection>
+    <Options>
+      <DesignerInfoPropertySet>
+        <DesignerProperty Name="ValidateOnBuild" Value="true" />
+        <DesignerProperty Name="EnablePluralization" Value="true" />
+        <DesignerProperty Name="IncludeForeignKeysInModel" Value="true" />
+        <DesignerProperty Name="UseLegacyProvider" Value="false" />
+        <DesignerProperty Name="CodeGenerationStrategy" Value="None" />
+      </DesignerInfoPropertySet>
+    </Options>
+    <!-- Diagram content (shape and connector positions) -->
+    <Diagrams></Diagrams>
+  </Designer>
+</edmx:Edmx>

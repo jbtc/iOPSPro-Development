@@ -1,4 +1,5 @@
-﻿(function () {
+﻿//++Login Ctrl
+(function () {
 	"use strict";
 
 
@@ -11,7 +12,7 @@
 
 		vm.currentUser = {};
 
-		
+
 
 		displaySetupService.suppressAllSiteHeaders = true;
 
@@ -28,7 +29,7 @@
 			securityService.currentUser = null;
 		}
 
-		console.log("Password Change Token = " + utilityService.GetQuerystringParameterByName("pwt"));
+		//console.log("Password Change Token = " + utilityService.GetQuerystringParameterByName("pwt"));
 
 
 
@@ -93,7 +94,7 @@
 		});
 
 		$rootScope.$on("securityService:authenticated", function (event, user) {
-			console.log("LoginCtrl authenticated event received. User = %O", user);
+			//console.log("LoginCtrl authenticated event received. User = %O", user);
 			vm.currentUser = securityService.GetCurrentUser();
 			vm.ShowLoginPanel = false;
 
@@ -177,7 +178,7 @@
 
 
 		vm.LoginUserWithAccessToken = function () {
-			console.log("Processing login via access token...");
+			//console.log("Processing login via access token...");
 			if (vm.PasswordChangeToken == "") {
 				if ((!securityService.GetCurrentUser() || !securityService.GetCurrentUser().ODataAccessToken) && vm.PasswordChangeToken == "") {
 					console.log("No current user found in local store. Seting login panel to be visible.");
@@ -185,7 +186,7 @@
 					return;
 				}
 			}
-			console.log("Processing login via password change token...");
+			//console.log("Processing login via password change token...");
 			securityService.LoginUserWithAccessToken().then(function (data) {
 				if (data && data != "") {
 					vm.pwUser = data;
@@ -216,23 +217,24 @@
 	}
 
 	angular
-			.module("app")
-			.controller("LoginCtrl", [
-				"$scope",
-				"$rootScope",
-				"$state",
-				'store',
-				"$timeout",
-				"securityService",
-				"$sce",
-				"displaySetupService",
-				"utilityService",
-				"dataService",
-				"$interval",
-				"signalR",
-				LoginCtrl
-			]);
+		.module("app")
+		.controller("LoginCtrl", [
+			"$scope",
+			"$rootScope",
+			"$state",
+			'store',
+			"$timeout",
+			"securityService",
+			"$sce",
+			"displaySetupService",
+			"utilityService",
+			"dataService",
+			"$interval",
+			"signalR",
+			LoginCtrl
+		]);
 
 
 
-})();  //Login Ctrl
+})();
+

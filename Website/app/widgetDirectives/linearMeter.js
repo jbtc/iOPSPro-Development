@@ -34,7 +34,6 @@
 						SetRangeFlags();
 					});
 
-					
 
 					function SetCurrentValueLabel() {
 						var label = toFixed(vm.currentValue, 1).toString();

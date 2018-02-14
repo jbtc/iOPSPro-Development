@@ -1,6 +1,4 @@
-﻿/// <reference path="company.js" />
-/// <reference path="~/Scripts/alertify.js-0.3.11/src/alertify.js" />
-/// <reference path="~/Scripts/toastr-master/toastr.js" />
+﻿//++Companies Controller
 (function () {
 	"use strict";
 
@@ -36,7 +34,7 @@
 		function GetData() {
 			dataService.GetIOPSResource("Companies")
 				.expandPredicate("SiteCompanies")
-					.expand("Site")
+				.expand("Site")
 				.finish()
 				.query()
 				.$promise
@@ -45,10 +43,10 @@
 					console.log("Companies = %O", data);
 					vm.companies = data;
 
-					dataService.GetJBTData().then(function(JBTData) {
+					dataService.GetJBTData().then(function (JBTData) {
 
 						//Some of the sites are test ones. This will filter those out.
-						vm.sites = JBTData.Sites.where(function(site) { return site.Name.length < 10 }).orderBy(function(s){return s.Name});
+						vm.sites = JBTData.Sites.where(function (site) { return site.Name.length < 10 }).orderBy(function (s) { return s.Name });
 						vm.JBTData = JBTData;
 					});
 
@@ -71,8 +69,8 @@
 
 			if (
 				vm.JBTData.Assets.any(function (a) { return a.CompanyId == company.Id }) ||
-				vm.JBTData.Systems.any(function (s) { return s.CompanyId == company.Id }) ||
-				company.SiteCompanies.length > 0) {
+					vm.JBTData.Systems.any(function (s) { return s.CompanyId == company.Id }) ||
+					company.SiteCompanies.length > 0) {
 
 				var alertifyMessage = "Company cannot be deleted! ";
 
@@ -89,9 +87,9 @@
 				}
 
 				alertify.alert(alertifyMessage, function (e) {
-					toastr.success(location.Name, "Company was NOT deleted!");
-					return;
-				}
+						toastr.success(location.Name, "Company was NOT deleted!");
+						return;
+					}
 				);
 
 				return;
@@ -131,7 +129,7 @@
 
 			dataService.GetIOPSResource("Companies")
 				.expandPredicate("SiteCompanies")
-					.expand("Site")
+				.expand("Site")
 				.finish()
 				.get(company.Id)
 				.$promise
@@ -142,7 +140,7 @@
 					}).join(", ");
 
 
-					vm.companies = [data].concat(vm.companies).distinct(function(a, b) { return a.Id == b.Id });
+					vm.companies = [data].concat(vm.companies).distinct(function (a, b) { return a.Id == b.Id });
 
 				});
 
@@ -158,17 +156,18 @@
 	}
 
 	angular
-			.module("app")
-			.controller("CompaniesCtrl", [
-				"$scope",
-				"$state",
-				"displaySetupService",
-				"dataService",
-				"signalR",
-                "$interval",
-				CompaniesCtrl
-			]);
+		.module("app")
+		.controller("CompaniesCtrl", [
+			"$scope",
+			"$state",
+			"displaySetupService",
+			"dataService",
+			"signalR",
+			"$interval",
+			CompaniesCtrl
+		]);
 
 
 
 })();
+

@@ -642,7 +642,7 @@
 					});
 
 					vm.LogWidget = function (widget) {
-						//console.log("Clicked Widget data = %O", widget);
+						console.log("Clicked Widget data = %O", widget);
 					}
 
 					function SaveAllChangedWidgets() {

@@ -11,6 +11,8 @@
 				var controller = function ($scope) {
 					var vm = this;
 
+
+					//Used for header font sizes
 					var fontFactor = .01;
 					var fontMax = 20;
 

@@ -1,4 +1,5 @@
-﻿(function () {
+﻿//++PersonEdit Controller
+(function () {
 	"use strict";
 
 
@@ -35,15 +36,15 @@
 
 			//+The Person
 			$stateParams.PersonId > 0 ?
-				dataService.GetIOPSResource("People")
-				.get($stateParams.PersonId)
-				.$promise
-				.then(function (data) {
+			dataService.GetIOPSResource("People")
+			.get($stateParams.PersonId)
+			.$promise
+			.then(function (data) {
 
-					console.log("Person to edit = %O", data);
-					vm.person = data;
+				console.log("Person to edit = %O", data);
+				vm.person = data;
 
-				}) : $q.when(true)
+			}) : $q.when(true)
 
 		]).then(function () {
 
@@ -73,24 +74,24 @@
 
 
 		hotkeys.bindTo($scope)
-		.add({
-			combo: 'ctrl+s',
-			description: 'Save and Close any form data input form',
-			allowIn: ['INPUT', 'SELECT', 'TEXTAREA'],
-			callback: function () {
-				event.preventDefault();
-				vm.Save();
+			.add({
+				combo: 'ctrl+s',
+				description: 'Save and Close any form data input form',
+				allowIn: ['INPUT', 'SELECT', 'TEXTAREA'],
+				callback: function () {
+					event.preventDefault();
+					vm.Save();
 
-			}
-		})
-		.add({
-			combo: 'esc',
-			description: 'Cancel and close any input form',
-			allowIn: ['INPUT', 'SELECT', 'TEXTAREA'],
-			callback: function () {
-				$state.go("^");
-			}
-		});
+				}
+			})
+			.add({
+				combo: 'esc',
+				description: 'Cancel and close any input form',
+				allowIn: ['INPUT', 'SELECT', 'TEXTAREA'],
+				callback: function () {
+					$state.go("^");
+				}
+			});
 
 
 
@@ -128,25 +129,26 @@
 	}
 
 	angular
-			.module("app")
-			.controller("PersonEditCtrl", [
-				"$q",
-				"$state",
-				"$rootScope",
-				"$scope",
-				"securityService",
-				"dataService",
-				"$stateParams",
-				"utilityService",
-				"$timeout",
-				"uibButtonConfig",
-				"hotkeys",
-				"$interval",
-				"displaySetupService",
-				"signalR",
-				PersonEditCtrl
-			]);
+		.module("app")
+		.controller("PersonEditCtrl", [
+			"$q",
+			"$state",
+			"$rootScope",
+			"$scope",
+			"securityService",
+			"dataService",
+			"$stateParams",
+			"utilityService",
+			"$timeout",
+			"uibButtonConfig",
+			"hotkeys",
+			"$interval",
+			"displaySetupService",
+			"signalR",
+			PersonEditCtrl
+		]);
 
 
 
 })();
+

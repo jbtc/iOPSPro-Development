@@ -118,6 +118,10 @@
                             <gs-top-five-alarm-types-by-equipment ng-if="widget.WidgetResource.WidgetType.AngularDirectiveName == 'gsTopFiveAlarmTypesByEquipment'" widget="widget" dashboard="vm.dashboard"></gs-top-five-alarm-types-by-equipment>
                             <gs-equipment-hours-of-usage ng-if="widget.WidgetResource.WidgetType.AngularDirectiveName == 'gsEquipmentHoursOfUsage'" widget="widget" dashboard="vm.dashboard"></gs-equipment-hours-of-usage>
                             <gs-equipment-usage ng-if="widget.WidgetResource.WidgetType.AngularDirectiveName == 'gsEquipmentUsage'" widget="widget" dashboard="vm.dashboard"></gs-equipment-usage>
+                            <bhs-top-five-jam-type-count ng-if="widget.WidgetResource.WidgetType.AngularDirectiveName == 'bhsTopFiveJamTypeCount'" widget="widget" dashboard="vm.dashboard"></bhs-top-five-jam-type-count>
+                            <bhs-percent-bags-to-cbra ng-if="widget.WidgetResource.WidgetType.AngularDirectiveName == 'bhsPercentBagsToCbra'" widget="widget" dashboard="vm.dashboard"></bhs-percent-bags-to-cbra>
+                            <gs-service-counters ng-if="widget.WidgetResource.WidgetType.AngularDirectiveName == 'gsServiceCounters'" widget="widget" dashboard="vm.dashboard"></gs-service-counters>
+                            <modules ng-if="widget.WidgetResource.WidgetType.AngularDirectiveName == 'modules'" widget="widget" dashboard="vm.dashboard"></modules>
 
                             <!--<dashboard ng-if="widget.WidgetResource.WidgetType.AngularDirectiveName == 'dashboard'" widget="widget" dashboard="widget.WidgetResource.EmbeddedDashboard" dashboard-id="widget.WidgetResource.EmbeddedDashboard.Id"></dashboard>-->
                         </div>

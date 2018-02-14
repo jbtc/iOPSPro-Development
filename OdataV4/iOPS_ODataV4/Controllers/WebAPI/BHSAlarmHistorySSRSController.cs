@@ -16,7 +16,7 @@ namespace iOPS_ODataV4.Controllers.WebAPI
             var result = db.BHSAlarmHistorySSRS(beginDate, endDate,siteId,  "87238723r87r2873287tr3." );
 
             return result;
-
+           
 
         }
 

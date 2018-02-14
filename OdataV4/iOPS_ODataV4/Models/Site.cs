@@ -30,6 +30,7 @@ namespace iOPS_ODataV4.Models
             this.Tokens = new HashSet<BHSToken>();
             this.BHSAlarmHistories = new HashSet<BHSAlarmHistory>();
             this.Assets = new HashSet<Asset>();
+            this.SubscriptionSiteUsers = new HashSet<SubscriptionSiteUser>();
         }
     
         public long Id { get; set; }
@@ -72,5 +73,7 @@ namespace iOPS_ODataV4.Models
         public virtual ICollection<BHSAlarmHistory> BHSAlarmHistories { get; set; }
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<Asset> Assets { get; set; }
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
+        public virtual ICollection<SubscriptionSiteUser> SubscriptionSiteUsers { get; set; }
     }
 }

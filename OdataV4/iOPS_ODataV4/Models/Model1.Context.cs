@@ -83,6 +83,11 @@ namespace iOPS_ODataV4.Models
         public virtual DbSet<ObservationExceptionComment> ObservationExceptionComments { get; set; }
         public virtual DbSet<ObservationException> ObservationExceptions { get; set; }
         public virtual DbSet<WidgetTypeTabGroup> WidgetTypeTabGroups { get; set; }
+        public virtual DbSet<Module> Modules { get; set; }
+        public virtual DbSet<Subscription> Subscriptions { get; set; }
+        public virtual DbSet<SubscriptionModule> SubscriptionModules { get; set; }
+        public virtual DbSet<SubscriptionSiteUser> SubscriptionSiteUsers { get; set; }
+        public virtual DbSet<SubscriptionUser> SubscriptionUsers { get; set; }
     
         public virtual ObjectResult<BHSLocationThroughput_Result1> BHSLocationThroughput(Nullable<System.DateTime> beginDate, Nullable<System.DateTime> endDate, string location, Nullable<long> siteId)
         {
@@ -742,6 +747,67 @@ namespace iOPS_ODataV4.Models
                 new ObjectParameter("SiteId", typeof(long));
     
             return ((IObjectContextAdapter)this).ObjectContext.ExecuteFunction<spGSEquipmentUsage_TVF_Query_Result>("spGSEquipmentUsage_TVF_Query", beginTimeParameter, endTimeParameter, siteIdParameter);
+        }
+    
+        public virtual ObjectResult<GSAlarmTagsByListOfAssetIds_Result> GSAlarmTagsByListOfAssetIds(string assetIds)
+        {
+            var assetIdsParameter = assetIds != null ?
+                new ObjectParameter("assetIds", assetIds) :
+                new ObjectParameter("assetIds", typeof(string));
+    
+            return ((IObjectContextAdapter)this).ObjectContext.ExecuteFunction<GSAlarmTagsByListOfAssetIds_Result>("GSAlarmTagsByListOfAssetIds", assetIdsParameter);
+        }
+    
+        public virtual ObjectResult<spGSEquipmentUsageByGate_TVF_Query_Result> spGSEquipmentUsageByGate_TVF_Query(Nullable<System.DateTime> beginTime, Nullable<System.DateTime> endTime, Nullable<long> siteId, string gate)
+        {
+            var beginTimeParameter = beginTime.HasValue ?
+                new ObjectParameter("BeginTime", beginTime) :
+                new ObjectParameter("BeginTime", typeof(System.DateTime));
+    
+            var endTimeParameter = endTime.HasValue ?
+                new ObjectParameter("EndTime", endTime) :
+                new ObjectParameter("EndTime", typeof(System.DateTime));
+    
+            var siteIdParameter = siteId.HasValue ?
+                new ObjectParameter("SiteId", siteId) :
+                new ObjectParameter("SiteId", typeof(long));
+    
+            var gateParameter = gate != null ?
+                new ObjectParameter("Gate", gate) :
+                new ObjectParameter("Gate", typeof(string));
+    
+            return ((IObjectContextAdapter)this).ObjectContext.ExecuteFunction<spGSEquipmentUsageByGate_TVF_Query_Result>("spGSEquipmentUsageByGate_TVF_Query", beginTimeParameter, endTimeParameter, siteIdParameter, gateParameter);
+        }
+    
+        public virtual ObjectResult<GSTagsByListOfAssetIds_Result> GSTagsByListOfAssetIds(string assetIds)
+        {
+            var assetIdsParameter = assetIds != null ?
+                new ObjectParameter("assetIds", assetIds) :
+                new ObjectParameter("assetIds", typeof(string));
+    
+            return ((IObjectContextAdapter)this).ObjectContext.ExecuteFunction<GSTagsByListOfAssetIds_Result>("GSTagsByListOfAssetIds", assetIdsParameter);
+        }
+    
+        [DbFunction("iOPS_NormalizedEntities", "GSOPERATION_PerformanceByGate_Report_TVF_Query")]
+        public virtual IQueryable<GSOPERATION_PerformanceByGate_Report_TVF_Query_Result> GSOPERATION_PerformanceByGate_Report_TVF_Query(string gate, Nullable<System.DateTime> toDate, Nullable<System.DateTime> fromDate, Nullable<long> siteId)
+        {
+            var gateParameter = gate != null ?
+                new ObjectParameter("gate", gate) :
+                new ObjectParameter("gate", typeof(string));
+    
+            var toDateParameter = toDate.HasValue ?
+                new ObjectParameter("toDate", toDate) :
+                new ObjectParameter("toDate", typeof(System.DateTime));
+    
+            var fromDateParameter = fromDate.HasValue ?
+                new ObjectParameter("fromDate", fromDate) :
+                new ObjectParameter("fromDate", typeof(System.DateTime));
+    
+            var siteIdParameter = siteId.HasValue ?
+                new ObjectParameter("SiteId", siteId) :
+                new ObjectParameter("SiteId", typeof(long));
+    
+            return ((IObjectContextAdapter)this).ObjectContext.CreateQuery<GSOPERATION_PerformanceByGate_Report_TVF_Query_Result>("[iOPS_NormalizedEntities].[GSOPERATION_PerformanceByGate_Report_TVF_Query](@gate, @toDate, @fromDate, @SiteId)", gateParameter, toDateParameter, fromDateParameter, siteIdParameter);
         }
     }
 }

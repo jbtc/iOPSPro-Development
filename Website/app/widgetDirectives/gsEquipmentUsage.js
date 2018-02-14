@@ -157,6 +157,7 @@
 
 			        }
 
+			        var x = 67;
 
 
 					vm.updateInterval = $interval(function () {

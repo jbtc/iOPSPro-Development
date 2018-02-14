@@ -51,7 +51,8 @@
 
 			case 'pcaSummary':
 			case 'pbbSummary':
-			case 'gpuSummary':
+		    case 'gpuSummary':
+            case 'gsServiceCounters':
 				vm.selectSite = vm.selectTerminal = vm.selectZone = vm.selectGate = true;
 				vm.selectAsset = false;
 				break;

@@ -114,9 +114,6 @@
 
 
 							vm.tags = data
-								.where(function (t) {
-									return (t.Metadata.UpdateCountDowns.TenSecond > 0);
-								})
 								.where(function(t){return vm.userSites.any(function(s){ return t.SiteId == s.Id})})
 								.where(function (t) {
 									if (vm.searchText == '' || !vm.searchText) {
@@ -125,7 +122,9 @@
 
 
 									return t.TagName.toUpperCase().indexOf(upperSearchText) >= 0 || t.Asset.ParentSystem.Name.toUpperCase().indexOf(upperSearchText) >= 0 || t.JBTStandardObservation.Name.toUpperCase().indexOf(upperSearchText) >= 0;
-								});
+								})
+								.orderByDescending(function (t) { return t.PLCUTCDateMS })
+								.take(100);
 
 							vm.widgetDimensions = displaySetupService.GetWidgetPanelBodyDimensions(vm.widget.Id);
 							displaySetupService.SetPanelBodyWithIdHeight(vm.widget.Id);

@@ -1,6 +1,4 @@
-﻿/// <reference path="company.js" />
-/// <reference path="~/Scripts/alertify.js-0.3.11/src/alertify.js" />
-/// <reference path="~/Scripts/toastr-master/toastr.js" />
+﻿//++People Controller
 (function () {
 	"use strict";
 
@@ -37,9 +35,9 @@
 		function GetData() {
 			dataService.GetIOPSResource("People")
 				.expandPredicate("iOPSUsers")
-					.expandPredicate("SiteDataReaders")
-						.expand("Site")
-					.finish()
+				.expandPredicate("SiteDataReaders")
+				.expand("Site")
+				.finish()
 				.finish()
 				.orderBy("FamilyName")
 				.query()
@@ -100,15 +98,15 @@
 
 			dataService.GetIOPSResource("People")
 				.expandPredicate("iOPSUsers")
-					.expandPredicate("SiteDataReaders")
-						.expand("Site")
-					.finish()
+				.expandPredicate("SiteDataReaders")
+				.expand("Site")
+				.finish()
 				.finish()
 				.get(person.Id)
 				.$promise
 				.then(function (data) {
 
-					vm.people = [data].concat(vm.people).distinct(function(a, b) { return a.Id == b.Id });
+					vm.people = [data].concat(vm.people).distinct(function (a, b) { return a.Id == b.Id });
 
 				});
 
@@ -124,17 +122,18 @@
 	}
 
 	angular
-			.module("app")
-			.controller("PeopleCtrl", [
-				"$scope",
-				"$state",
-				"displaySetupService",
-				"dataService",
-				"signalR",
-                "$interval",
-				PeopleCtrl
-			]);
+		.module("app")
+		.controller("PeopleCtrl", [
+			"$scope",
+			"$state",
+			"displaySetupService",
+			"dataService",
+			"signalR",
+			"$interval",
+			PeopleCtrl
+		]);
 
 
 
 })();
+

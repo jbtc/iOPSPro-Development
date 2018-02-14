@@ -1,6 +1,4 @@
 ﻿"use strict";
-
-
 var odataServerUrl = (document.URL.indexOf("localhost/iops/") > 0 || document.URL.indexOf("localhost/iOPSPro-Development/") > 0) ? "http://localhost/DataServices/ODataV4" : "https://www.iopspro.com/DataServices/ODataV4";
 
 //var odataServerUrl = "https:/7.207.78.73/DataServices/ODataV4";
@@ -9,11 +7,15 @@ var webRoot = document.URL.indexOf("localhost/iops/") > 0 ? "/iops/"
 				: document.URL.indexOf("localhost/iOPSPro-Development") > 0 ? "/iOPSPro-Development/Website/" :
 				"/";
 
+if (!(document.URL.indexOf("localhost/iops/") > 0)) {
+	window.console.log = function() {
+		
+	}
+}
 
 
 var signalRServerUrl = "https://www.iopspro.com/DataServices/SignalR/signalr";
 var Global = {
-	odataServerUrl: "https://test.iopspro.com/DataServices/ODataV4",
 	User: {},
 	webRoot: "/"
 }
@@ -70,6 +72,7 @@ angular.module('app').config(['$httpProvider','$compileProvider','$provide', fun
 
 
 }]);
+
 
 
 angular.module('app').config(['$routeProvider', '$urlRouterProvider', '$stateProvider', function ($routeProvider, $urlRouterProvider, $stateProvider) {

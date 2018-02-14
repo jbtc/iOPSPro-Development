@@ -39,7 +39,7 @@
         <AssociationConnector Association="iOPS_NormalizedModel.FK_Client_ClientType" />
         <EntityTypeShape EntityType="iOPS_NormalizedModel.SystemType" Width="1.5" PointX="18.5" PointY="9.75" />
         <EntityTypeShape EntityType="iOPS_NormalizedModel.Observation" Width="2.25" PointX="35.5" PointY="3.25" />
-        <EntityTypeShape EntityType="iOPS_NormalizedModel.Tag" Width="3.375" PointX="31.125" PointY="0.875" />
+        <EntityTypeShape EntityType="iOPS_NormalizedModel.Tag" Width="3.375" PointX="30.625" PointY="0.5" />
         <AssociationConnector Association="iOPS_NormalizedModel.FK_Observation_Tag" />
         <EntityTypeShape EntityType="iOPS_NormalizedModel.SystemGroup" Width="1.5" PointX="13.75" PointY="9.75" />
         <AssociationConnector Association="iOPS_NormalizedModel.FK_System_Company" />
@@ -129,6 +129,18 @@
         <AssociationConnector Association="iOPS_NormalizedModel.FK_ObservationExceptionComment_Observation" />
         <EntityTypeShape EntityType="iOPS_NormalizedModel.WidgetTypeTabGroup" Width="2.25" PointX="38.625" PointY="25.25" />
         <AssociationConnector Association="iOPS_NormalizedModel.FK_WidgetType_WidgetTypeTabGroup" />
+        <EntityTypeShape EntityType="iOPS_NormalizedModel.Module" Width="2.5" PointX="30.25" PointY="34.5" />
+        <EntityTypeShape EntityType="iOPS_NormalizedModel.Subscription" Width="2.125" PointX="21.875" PointY="32.25" />
+        <EntityTypeShape EntityType="iOPS_NormalizedModel.SubscriptionModule" Width="2.125" PointX="26.375" PointY="32.875" />
+        <EntityTypeShape EntityType="iOPS_NormalizedModel.SubscriptionSiteUser" Width="1.5" PointX="38.625" PointY="18.25" />
+        <EntityTypeShape EntityType="iOPS_NormalizedModel.SubscriptionUser" Width="1.5" PointX="32.625" PointY="30.375" />
+        <AssociationConnector Association="iOPS_NormalizedModel.FK_Subscription_Company" />
+        <AssociationConnector Association="iOPS_NormalizedModel.FK_SubscriptionModule_Module" />
+        <AssociationConnector Association="iOPS_NormalizedModel.FK_SubscriptionSiteUser_Site" />
+        <AssociationConnector Association="iOPS_NormalizedModel.FK_SubscriptionModule_Subscription" />
+        <AssociationConnector Association="iOPS_NormalizedModel.FK_SubscriptionUser_Subscription" />
+        <AssociationConnector Association="iOPS_NormalizedModel.FK_SubscriptionSiteUser_iOPSUser" />
+        <AssociationConnector Association="iOPS_NormalizedModel.FK_SubscriptionUser_iOPSUser" />
         </Diagram>
     </edmx:Diagrams>
   </edmx:Designer>

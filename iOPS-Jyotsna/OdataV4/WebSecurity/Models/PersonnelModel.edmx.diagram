@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<edmx:Edmx Version="3.0" xmlns:edmx="http://schemas.microsoft.com/ado/2009/11/edmx">
+ <!-- EF Designer content (DO NOT EDIT MANUALLY BELOW HERE) -->
+  <edmx:Designer xmlns="http://schemas.microsoft.com/ado/2009/11/edmx">
+    <!-- Diagram content (shape and connector positions) -->
+    <edmx:Diagrams>
+      <Diagram DiagramId="a9025da4070f4005a51c4d887c8a9899" Name="Diagram1">
+        <EntityTypeShape EntityType="PersonnelModel.ADGroup" Width="1.5" PointX="10.625" PointY="6.375" IsExpanded="true" />
+        <EntityTypeShape EntityType="PersonnelModel.Appointment" Width="1.5" PointX="10.625" PointY="2.25" IsExpanded="true" />
+        <EntityTypeShape EntityType="PersonnelModel.BuildingLocation" Width="1.5" PointX="3" PointY="2.375" IsExpanded="true" />
+        <EntityTypeShape EntityType="PersonnelModel.Department" Width="1.5" PointX="13.125" PointY="2.25" IsExpanded="true" />
+        <EntityTypeShape EntityType="PersonnelModel.PhoneNumber" Width="1.5" PointX="3" PointY="4.875" IsExpanded="true" />
+        <EntityTypeShape EntityType="PersonnelModel.Status" Width="1.5" PointX="5" PointY="3.375" IsExpanded="true" />
+        <EntityTypeShape EntityType="PersonnelModel.Student" Width="1.5" PointX="3.25" PointY="7.25" IsExpanded="true" />
+        <EntityTypeShape EntityType="PersonnelModel.UsernameHistory" Width="1.5" PointX="10.5" PointY="8.625" IsExpanded="true" />
+        <AssociationConnector Association="PersonnelModel.FK_Appointment_Department" ManuallyRouted="false" />
+        <EntityTypeShape EntityType="PersonnelModel.Person" Width="1.5" PointX="8" PointY="1.875" />
+        <AssociationConnector Association="PersonnelModel.FK_Appointment_Person" />
+        <AssociationConnector Association="PersonnelModel.FK_BuildingLocation_Person" />
+        <AssociationConnector Association="PersonnelModel.FK_Person_Person" />
+        <AssociationConnector Association="PersonnelModel.FK_PhoneNumber_Person" />
+        <AssociationConnector Association="PersonnelModel.FK_Status_Person" />
+        <AssociationConnector Association="PersonnelModel.FK_Student_Person" />
+        <AssociationConnector Association="PersonnelModel.FK_UsernameHistory_Person" />
+        <AssociationConnector Association="PersonnelModel.PeopleADGroups" />
+      </Diagram>
+    </edmx:Diagrams>
+  </edmx:Designer>
+</edmx:Edmx>

@@ -1,0 +1,165 @@
+﻿<div class="chart-wrapper" style="width:100%; height: 100%" >
+    <div class="chart-inner" style="width:100%; height: 100%">
+        <div ng-show="vm.showWidget" style="display: flex; width: 100%; height: 100%;">
+            <div class="container" id="containerData{{vm.widget.Id}}" style="height 100%; width:{{vm.widget.WidgetResource.SplitLeftPercentage}}%; padding-left: 0; padding-right: 0;">
+
+                <div id="repeater-container-data{{vm.widget.Id}}" ng-show="vm.showTags" class="repeater-container" style="overflow-x: hidden; overflow-y: auto; width: 100%; height: {{vm.widgetDimensions.height - 10}}px;">
+                    <table class="table table-condensed table-striped widget-tag-data-table">
+                        <thead>
+                            <tr>
+                                <th nowrap
+                                    ng-click="vm.SetSortField('JBTStandardObservation.Name')"
+                                    style="width: 100%; cursor: pointer;">
+                                    <div>
+                                        Name
+                                        <span ng-show="vm.widget.displaySettings.tagDataSortField=='-JBTStandardObservation.Name'">
+                                            <i class="fa fa-sort-numeric-desc" title="Click to sort in descending order"></i>
+                                        </span>
+                                        <span ng-show="vm.widget.displaySettings.tagDataSortField=='JBTStandardObservation.Name'">
+                                            <i class="fa fa-sort-numeric-asc" title="Click to sort in ascending order"></i>
+                                        </span>
+                                    </div>
+                                </th>
+                                <th nowrap
+                                    ng-click="vm.SetSortField('PLCLocalDate')">
+                                    <div>
+                                        Date
+                                        <span ng-show="vm.widget.displaySettings.tagDataSortField=='-PLCLocalDate'">
+                                            <i class="fa fa-sort-numeric-desc" title="Click to sort in descending order"></i>
+                                        </span>
+                                        <span ng-show="vm.widget.displaySettings.tagDataSortField=='PLCLocalDate'">
+                                            <i class="fa fa-sort-numeric-asc" title="Click to sort in ascending order"></i>
+                                        </span>
+                                    </div>
+                                </th>
+                                <th>
+                                    Value
+                                </th>
+
+                            </tr>
+                        </thead>
+                        <tbody vs-repeat vs-autoresize vs-scroll-parent=".repeater-container" vs-scrolled-to-end="vm.scrolledToEnd()" style="overflow-y: scroll; height: 100px;">
+                            <tr ng-repeat="tag in vm.pca.Tags | orderBy: vm.widget.displaySettings.tagDataSortField" style="background-color: {{tag.Metadata.Status.LastValueWasHistorical ? 'rgba(173, 173, 173,' : 'rgba(0, 255, 0,'}} .{{tag.Metadata.UpdateCountDowns.OneSecond}});">
+                                <td data-toggle="tooltip" title="{{tag.JBTStandardObservation.Id}}">
+                                    <label ng-click="vm.ProcessTagsToGraph()" class="btn btn-default graph-select-icon" ng-model="vm.tagsToGraph[tag.TagId]" uib-btn-checkbox="{{tag.TagId}}">
+                                        <i class="fa fa-line-chart" aria-hidden="true" title="Add to graph widget" style="cursor: pointer;"></i>
+                                    </label>
+                                    <span>{{tag.JBTStandardObservation.Name}}</span>
+                                <td nowrap>
+                                    {{tag.PLCLocalDate | date:'MM/dd HH:mm:ss'}}
+                                </td>
+                                <td>
+                                    {{tag.Value}}
+
+                                </td>
+                            </tr>
+                        </tbody>
+
+                    </table>
+                </div>
+
+            </div>
+
+
+            <div id="containerEdit{{vm.widget.Id}}" style="height: 100%;">
+                <div style="position: relative; height: 100%; width: 100%;">
+
+                    <div ng-show="vm.showScreen" class="panel panel-primary static-panel">
+
+
+                        <div class="panel-heading">
+                            <div class='btn-toolbar pull-right' style="display: inline-block;">
+                                <button ng-click="vm.Save()" class="btn btn-default responsive-button">Save and Close</button>
+                                <button ui-sref="^" class="btn btn-default responsive-button">Cancel</button>
+                            </div>
+                            <div class="panel-heading-title">
+                                {{vm.panelTitle}}
+                            </div>
+                            <div class="panel-heading-subtitle">
+                                {{vm.panelSubtitle}}
+                            </div>
+
+                        </div>
+
+
+                        <div class="panel-body">
+
+                            <form class="form-horizontal" role="form" name="dashboardForm" id="dashboardForm" novalidate>
+                                <div class="row">
+                                    <!-- Last Name -->
+                                    <text-input-field model="vm.dashboard.Name"
+                                                      label-text="Dashboard Name"
+                                                      id-text="dashboardName"
+                                                      bootstrap-label-columns="{{vm.bootstrapLabelColumns}}"
+                                                      bootstrap-input-columns="{{vm.bootstrapInputColumns}}">
+                                    </text-input-field>
+
+
+                                    <!-- Description -->
+                                    <textarea-input-field label-text="Detailed Description"
+                                                          cols="60"
+                                                          rows="4"
+                                                          bootstrap-label-columns="{{vm.bootstrapLabelColumns}}"
+                                                          bootstrap-input-columns="{{vm.bootstrapInputColumns}}"
+                                                          placeholder-text=""
+                                                          model="vm.dashboard.Description"
+                                                          input-name="inputDescription">
+                                    </textarea-input-field>
+
+
+                                    <!-- Date Range Via Preset Buttons -->
+                                    <div class="form-group">
+                                        <label class="col-sm-{{vm.bootstrapLabelColumns}} control-label innovation-right-aligned">
+                                            Date Range Presets
+                                        </label>
+                                        <div class="col-sm-{{vm.bootstrapInputColumns}}">
+                                            <label ng-repeat="timeWindow in vm.DashboardTimeScopes" style="margin: 1px;" class="btn btn-default" ng-model="vm.dashboard.TimeScopeId" uib-btn-radio={{timeWindow.Id}}>{{timeWindow.Description}}</label>
+                                        </div>
+                                    </div>
+
+
+                                    <!-- Custom Start Date -->
+                                    <text-input-field model="vm.dashboard.CustomStartDate"
+                                                      label-text="Custom Start Date"
+                                                      id-text="dashboardStartDate"
+                                                      input-type="date"
+                                                      bootstrap-label-columns="{{vm.bootstrapLabelColumns}}"
+                                                      bootstrap-input-columns="{{vm.bootstrapInputColumns-4}}">
+                                    </text-input-field>
+
+                                    <!-- Custom End Date -->
+                                    <text-input-field model="vm.dashboard.CustomEndDate"
+                                                      label-text="Custom End Date"
+                                                      id-text="dashboardEndDate"
+                                                      input-type="date"
+                                                      bootstrap-label-columns="{{vm.bootstrapLabelColumns}}"
+                                                      bootstrap-input-columns="{{vm.bootstrapInputColumns-4}}">
+                                    </text-input-field>
+
+
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </div>
+    <div ng-show="vm.widget.displaySettings.commLossTag.Value == '1'" class="comm-loss-backdrop noselect">
+        <div class="comm-loss-message">
+            Communication Lost
+        </div>
+    </div>
+
+</div>
+
+
+
+
+
+
+
+
+
+

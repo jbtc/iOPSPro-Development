@@ -1,4 +1,5 @@
-﻿(function () {
+﻿//++UserEdit Controller
+(function () {
 	"use strict";
 
 
@@ -26,24 +27,24 @@
 				//+An expanded user object from the data service.
 				//It includes the authorized activities, and the enabled sites that the user can read.
 				$stateParams.UserId > 0 ?
-					dataService.GetIOPSResource("iOPSUsers")
-						.expand("Person")
-						.expandPredicate("UserAuthorizedActivities")
-							.expand("AuthorizableActivity")
-						.finish()
-						.expandPredicate("SiteDataReaders")
-							.expand("Site")
-						.finish()
-						.get($stateParams.UserId)
-						.$promise.then(function (user) {
-							vm.user = user;
-							console.log("vm.user = %O", vm.user);
-						}) : $q.when(function () {
-							vm.user = {
-								Id: 0,
-								Person: {}
-							};
-						}),
+				dataService.GetIOPSResource("iOPSUsers")
+				.expand("Person")
+				.expandPredicate("UserAuthorizedActivities")
+				.expand("AuthorizableActivity")
+				.finish()
+				.expandPredicate("SiteDataReaders")
+				.expand("Site")
+				.finish()
+				.get($stateParams.UserId)
+				.$promise.then(function (user) {
+					vm.user = user;
+					console.log("vm.user = %O", vm.user);
+				}) : $q.when(function () {
+					vm.user = {
+						Id: 0,
+						Person: {}
+					};
+				}),
 
 				//+All of the state by state abbreviations for the address field
 				dataService.GetStateAbbreviations().then(function (data) {
@@ -64,7 +65,7 @@
 					vm.authorizableActivities = data;
 				})
 
-		]
+			]
 		).then(function () {
 
 
@@ -121,7 +122,7 @@
 				};
 
 				vm.user.authorizedActivityIds = [];
-				vm.user.SiteDataReaders = [];
+
 				vm.authorizableActivities.forEach(function (aa) {
 					vm.user.authorizedActivityIds[aa.Id] = false;
 				});
@@ -147,25 +148,25 @@
 				});
 
 				$scope.$watch("vm.user.Person.Email",
-									function (newValue, oldValue) {
-										if (newValue) {
-											if (newValue.indexOf("@") > 0) {
-												console.log("New email detected");
-												dataService.GetIOPSCollection("People", "Email", vm.user.Person.Email).then(function(odataPeople) {
-													var odataPersonByEmailLookup = odataPeople.first();
-													if (odataPersonByEmailLookup) {
-														odataPersonByEmailLookup.StateId = !odataPersonByEmailLookup.State ? 1 : vm.unitedStates.first(function (s) { return s.Abbreviation == odataPersonByEmailLookup.State }).Id;
-														vm.user.Person = odataPersonByEmailLookup;
-														utilityService.SetupSelectpickerDropdown($scope, "vm.user.Person.StateId");
-													}
-												});
+					function (newValue, oldValue) {
+						if (newValue) {
+							if (newValue.indexOf("@") > 0) {
+								console.log("New email detected");
+								dataService.GetIOPSCollection("People", "Email", vm.user.Person.Email).then(function (odataPeople) {
+									var odataPersonByEmailLookup = odataPeople.first();
+									if (odataPersonByEmailLookup) {
+										odataPersonByEmailLookup.StateId = !odataPersonByEmailLookup.State ? 1 : vm.unitedStates.first(function (s) { return s.Abbreviation == odataPersonByEmailLookup.State }).Id;
+										vm.user.Person = odataPersonByEmailLookup;
+										utilityService.SetupSelectpickerDropdown($scope, "vm.user.Person.StateId");
+									}
+								});
 
 
-											}
-										}
+							}
+						}
 
 
-									});
+					});
 			}
 
 
@@ -177,24 +178,24 @@
 
 
 		hotkeys.bindTo($scope)
-		.add({
-			combo: 'ctrl+s',
-			description: 'Save and Close any form data input form',
-			allowIn: ['INPUT', 'SELECT', 'TEXTAREA'],
-			callback: function () {
-				event.preventDefault();
-				vm.Save();
+			.add({
+				combo: 'ctrl+s',
+				description: 'Save and Close any form data input form',
+				allowIn: ['INPUT', 'SELECT', 'TEXTAREA'],
+				callback: function () {
+					event.preventDefault();
+					vm.Save();
 
-			}
-		})
-		.add({
-			combo: 'esc',
-			description: 'Cancel and close any input form',
-			allowIn: ['INPUT', 'SELECT', 'TEXTAREA'],
-			callback: function () {
-				$state.go("^");
-			}
-		});
+				}
+			})
+			.add({
+				combo: 'esc',
+				description: 'Cancel and close any input form',
+				allowIn: ['INPUT', 'SELECT', 'TEXTAREA'],
+				callback: function () {
+					$state.go("^");
+				}
+			});
 
 
 
@@ -263,19 +264,19 @@
 				} else {
 					//Add a new person who was not already there by email address.
 					return dataService.AddEntity("People",
-					{
-						GivenName: vm.user.Person.GivenName,
-						MiddleName: vm.user.Person.MiddleName,
-						FamilyName: vm.user.Person.FamilyName,
-						StreetAddress1: vm.user.Person.StreetAddress1,
-						StreetAddress2: vm.user.Person.StreetAddress2,
-						Phone: vm.user.Person.Phone,
-						Email: vm.user.Person.Email,
-						Title: vm.user.Person.Title,
-						City: vm.user.Person.City,
-						State: vm.user.Person.State,
-						ZipCode: vm.user.Person.ZipCode
-					});
+						{
+							GivenName: vm.user.Person.GivenName,
+							MiddleName: vm.user.Person.MiddleName,
+							FamilyName: vm.user.Person.FamilyName,
+							StreetAddress1: vm.user.Person.StreetAddress1,
+							StreetAddress2: vm.user.Person.StreetAddress2,
+							Phone: vm.user.Person.Phone,
+							Email: vm.user.Person.Email,
+							Title: vm.user.Person.Title,
+							City: vm.user.Person.City,
+							State: vm.user.Person.State,
+							ZipCode: vm.user.Person.ZipCode
+						});
 
 				}
 			}).then(function (person) {
@@ -289,12 +290,12 @@
 						u.Active = true;
 						return u.$save();
 					})
-					: dataService.AddEntity("iOPSUsers", { Id: 0, Username: vm.user.Username, PersonId: vm.odataPerson.Id, Active: true })).then(function(user) {
-						vm.odataUser = user;
-						vm.user.Id = vm.odataUser.Id;
-						vm.odataUser.Username = vm.user.Username;
+					: dataService.AddEntity("iOPSUsers", { Id: 0, Username: vm.user.Username, PersonId: vm.odataPerson.Id, Active: true })).then(function (user) {
+					vm.odataUser = user;
+					vm.user.Id = vm.odataUser.Id;
+					vm.odataUser.Username = vm.user.Username;
 
-						SaveRestOfRecord();
+					SaveRestOfRecord();
 				});
 
 			});
@@ -308,87 +309,87 @@
 		function SaveRestOfRecord() {
 			return $q.all([
 
-			//+Promise to reconcile the site data readers items from the DTO enabledSiteIds
-			vm.user.SiteDataReaders
-			? $q.all(
-				//All Sites that are present in the users already enabled set, that are not present in the enabled sites list in the userDTO, as delete promise set.
-				vm.user
-				.SiteDataReaders
-				.where(function (sdr) { return !vm.user.enabledSiteIds[sdr.SiteId] })
-				.select(function (sdrToRemoveFromUser) {
-					return dataService.GetIOPSResource("SiteDataReaders")
-						.filter("iOPSUserId", vm.user.Id)
-						.filter("SiteId", sdrToRemoveFromUser.SiteId)
-						.query().$promise.then(function (data) {
+				//+Promise to reconcile the site data readers items from the DTO enabledSiteIds
+				vm.user.SiteDataReaders
+				? $q.all(
+					//All Sites that are present in the users already enabled set, that are not present in the enabled sites list in the userDTO, as delete promise set.
+					vm.user
+					.SiteDataReaders
+					.where(function (sdr) { return !vm.user.enabledSiteIds[sdr.SiteId] })
+					.select(function (sdrToRemoveFromUser) {
+						return dataService.GetIOPSResource("SiteDataReaders")
+							.filter("iOPSUserId", vm.user.Id)
+							.filter("SiteId", sdrToRemoveFromUser.SiteId)
+							.query().$promise.then(function (data) {
 
-							var sdrToDelete = data.first();
-							sdrToDelete.Id = -sdrToDelete.Id;
+								var sdrToDelete = data.first();
+								sdrToDelete.Id = -sdrToDelete.Id;
 
-							return sdrToDelete.$save();
-						});
-
-
-				})
-			)
-			: $q.when(true),
-
-			$q.all(
-				vm.enabledSiteIdObjects
-				.where(function (en) {
-					return en.Enabled && !vm.user.SiteDataReaders.any(function (sdr) { return sdr.SiteId == en.SiteId })
-				})
-				.select(function (sdrToInsert) {
-
-					return dataService.AddEntity("SiteDataReaders",
-					{
-						Id: 0,
-						SiteId: sdrToInsert.SiteId,
-						iOPSUserId: vm.user.Id
-					});
-				})
-			),
+								return sdrToDelete.$save();
+							});
 
 
-			//+Promise to reconcile the authorized activities
-			$q.all(
-				//Deletions.
-				vm.user.UserAuthorizedActivities
-				? vm.user
-				.UserAuthorizedActivities
-				.where(function (uaa) { return !vm.user.authorizedActivityIds[uaa.AuthorizableActivityId] })
-				.select(function (aaToRemoveFromUser) {
-					return dataService.GetIOPSResource("UserAuthorizedActivities")
-						.filter("iOPSUserId", vm.user.Id)
-						.filter("AuthorizableActivityId", aaToRemoveFromUser.AuthorizableActivityId)
-						.query().$promise.then(function (data) {
+					})
+				)
+				: $q.when(true),
 
-							var aaToDelete = data.first();
-							aaToDelete.Id = -aaToDelete.Id;
+				$q.all(
+					vm.enabledSiteIdObjects
+					.where(function (en) {
+						return en.Enabled && !vm.user.SiteDataReaders.any(function (sdr) { return sdr.SiteId == en.SiteId })
+					})
+					.select(function (sdrToInsert) {
 
-							return aaToDelete.$save();
-						});
-
-
-				})
-				: $q.when(true)
-			),
+						return dataService.AddEntity("SiteDataReaders",
+							{
+								Id: 0,
+								SiteId: sdrToInsert.SiteId,
+								iOPSUserId: vm.user.Id
+							});
+					})
+				),
 
 
-			//Insertions
-			$q.all(
+				//+Promise to reconcile the authorized activities
+				$q.all(
+					//Deletions.
+					vm.user.UserAuthorizedActivities
+					? vm.user
+					.UserAuthorizedActivities
+					.where(function (uaa) { return !vm.user.authorizedActivityIds[uaa.AuthorizableActivityId] })
+					.select(function (aaToRemoveFromUser) {
+						return dataService.GetIOPSResource("UserAuthorizedActivities")
+							.filter("iOPSUserId", vm.user.Id)
+							.filter("AuthorizableActivityId", aaToRemoveFromUser.AuthorizableActivityId)
+							.query().$promise.then(function (data) {
 
-				vm.authorizedActivityIdObjects
+								var aaToDelete = data.first();
+								aaToDelete.Id = -aaToDelete.Id;
+
+								return aaToDelete.$save();
+							});
+
+
+					})
+					: $q.when(true)
+				),
+
+
+				//Insertions
+				$q.all(
+
+					vm.authorizedActivityIdObjects
 					.where(function (aao) { return aao.Enabled && vm.user.UserAuthorizedActivities && !vm.user.UserAuthorizedActivities.any(function (uaa) { return uaa.AuthorizableActivityId == aao.AuthorizableActivityId }) })
 					.select(function (aaToInsert) {
 
 						return dataService.AddEntity("UserAuthorizedActivities",
-						{
-							Id: 0,
-							AuthorizableActivityId: aaToInsert.AuthorizableActivityId,
-							iOPSUserId: vm.user.Id
-						});
+							{
+								Id: 0,
+								AuthorizableActivityId: aaToInsert.AuthorizableActivityId,
+								iOPSUserId: vm.user.Id
+							});
 					})
-			)
+				)
 
 			]).then(function () {
 				signalR.SignalAllClientsInGroup("Admin", "iOPSUser", vm.odataUser);
@@ -399,25 +400,26 @@
 	}
 
 	angular
-			.module("app")
-			.controller("UserEditCtrl", [
-				"$q",
-				"$state",
-				"$rootScope",
-				"$scope",
-				"securityService",
-				"dataService",
-				"$stateParams",
-				"utilityService",
-				"$timeout",
-				"uibButtonConfig",
-				"hotkeys",
-				"$interval",
-				"displaySetupService",
-				"signalR",
-				UserEditCtrl
-			]);
+		.module("app")
+		.controller("UserEditCtrl", [
+			"$q",
+			"$state",
+			"$rootScope",
+			"$scope",
+			"securityService",
+			"dataService",
+			"$stateParams",
+			"utilityService",
+			"$timeout",
+			"uibButtonConfig",
+			"hotkeys",
+			"$interval",
+			"displaySetupService",
+			"signalR",
+			UserEditCtrl
+		]);
 
 
 
 })();
+

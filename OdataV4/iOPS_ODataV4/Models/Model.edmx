@@ -425,6 +425,14 @@
           <Property Name="Description" Type="nvarchar(max)" />
           <Property Name="LastModifiedDate" Type="datetime" />
         </EntityType>
+        <EntityType Name="Module">
+          <Key>
+            <PropertyRef Name="Id" />
+          </Key>
+          <Property Name="Id" Type="bigint" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="Name" Type="varchar" MaxLength="100" />
+          <Property Name="Description" Type="varchar(max)" />
+        </EntityType>
         <EntityType Name="Observation">
           <Key>
             <PropertyRef Name="Id" />
@@ -559,6 +567,48 @@
           <Property Name="Id" Type="bigint" StoreGeneratedPattern="Identity" Nullable="false" />
           <Property Name="Abbreviation" Type="varchar" MaxLength="2" />
           <Property Name="Name" Type="varchar" MaxLength="50" />
+        </EntityType>
+        <EntityType Name="Subscription">
+          <Key>
+            <PropertyRef Name="Id" />
+          </Key>
+          <Property Name="Id" Type="bigint" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="CompanyId" Type="bigint" />
+          <Property Name="InitiationDate" Type="datetime" />
+          <Property Name="ContactPersonId" Type="bigint" />
+          <Property Name="TerminationDate" Type="datetime" />
+          <Property Name="Terms" Type="varchar(max)" />
+        </EntityType>
+        <EntityType Name="SubscriptionModule">
+          <Key>
+            <PropertyRef Name="Id" />
+          </Key>
+          <Property Name="Id" Type="bigint" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="SubscriptionId" Type="bigint" />
+          <Property Name="ModuleId" Type="bigint" />
+          <Property Name="StartDate" Type="datetime" />
+          <Property Name="EndDate" Type="datetime" />
+        </EntityType>
+        <EntityType Name="SubscriptionSiteUser">
+          <Key>
+            <PropertyRef Name="Id" />
+          </Key>
+          <Property Name="Id" Type="bigint" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="SubscriptionId" Type="bigint" />
+          <Property Name="UserId" Type="bigint" />
+          <Property Name="SiteId" Type="bigint" />
+          <Property Name="IsAdmin" Type="bit" />
+        </EntityType>
+        <EntityType Name="SubscriptionUser">
+          <Key>
+            <PropertyRef Name="Id" />
+          </Key>
+          <Property Name="Id" Type="bigint" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="SubscriptionId" Type="bigint" />
+          <Property Name="UserId" Type="bigint" />
+          <Property Name="StartDate" Type="datetime" />
+          <Property Name="EndDate" Type="datetime" />
+          <Property Name="IsAdmin" Type="bit" />
         </EntityType>
         <EntityType Name="System">
           <Key>
@@ -1336,6 +1386,90 @@
             </Dependent>
           </ReferentialConstraint>
         </Association>
+        <Association Name="FK_Subscription_Company">
+          <End Role="Company" Type="Self.Company" Multiplicity="0..1" />
+          <End Role="Subscription" Type="Self.Subscription" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Company">
+              <PropertyRef Name="Id" />
+            </Principal>
+            <Dependent Role="Subscription">
+              <PropertyRef Name="CompanyId" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_SubscriptionModule_Module">
+          <End Role="Module" Type="Self.Module" Multiplicity="0..1" />
+          <End Role="SubscriptionModule" Type="Self.SubscriptionModule" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Module">
+              <PropertyRef Name="Id" />
+            </Principal>
+            <Dependent Role="SubscriptionModule">
+              <PropertyRef Name="ModuleId" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_SubscriptionModule_Subscription">
+          <End Role="Subscription" Type="Self.Subscription" Multiplicity="0..1" />
+          <End Role="SubscriptionModule" Type="Self.SubscriptionModule" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Subscription">
+              <PropertyRef Name="Id" />
+            </Principal>
+            <Dependent Role="SubscriptionModule">
+              <PropertyRef Name="SubscriptionId" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_SubscriptionSiteUser_iOPSUser">
+          <End Role="iOPSUser" Type="Self.iOPSUser" Multiplicity="0..1" />
+          <End Role="SubscriptionSiteUser" Type="Self.SubscriptionSiteUser" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="iOPSUser">
+              <PropertyRef Name="Id" />
+            </Principal>
+            <Dependent Role="SubscriptionSiteUser">
+              <PropertyRef Name="UserId" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_SubscriptionSiteUser_Site">
+          <End Role="Site" Type="Self.Site" Multiplicity="0..1" />
+          <End Role="SubscriptionSiteUser" Type="Self.SubscriptionSiteUser" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Site">
+              <PropertyRef Name="Id" />
+            </Principal>
+            <Dependent Role="SubscriptionSiteUser">
+              <PropertyRef Name="SiteId" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_SubscriptionUser_iOPSUser">
+          <End Role="iOPSUser" Type="Self.iOPSUser" Multiplicity="0..1" />
+          <End Role="SubscriptionUser" Type="Self.SubscriptionUser" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="iOPSUser">
+              <PropertyRef Name="Id" />
+            </Principal>
+            <Dependent Role="SubscriptionUser">
+              <PropertyRef Name="UserId" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_SubscriptionUser_Subscription">
+          <End Role="Subscription" Type="Self.Subscription" Multiplicity="0..1" />
+          <End Role="SubscriptionUser" Type="Self.SubscriptionUser" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Subscription">
+              <PropertyRef Name="Id" />
+            </Principal>
+            <Dependent Role="SubscriptionUser">
+              <PropertyRef Name="SubscriptionId" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
         <Association Name="FK_System_Company">
           <End Role="Company" Type="Self.Company" Multiplicity="0..1" />
           <End Role="System" Type="Self.System" Multiplicity="*" />
@@ -1789,6 +1923,12 @@
           <Parameter Name="SiteId" Type="bigint" Mode="In" />
           <Parameter Name="ODataAccessToken" Type="varchar" Mode="In" />
         </Function>
+        <Function Name="GSAlarmTagsByListOfAssetIds" Aggregate="false" BuiltIn="false" NiladicFunction="false" IsComposable="false" ParameterTypeSemantics="AllowImplicitConversion" Schema="dbo">
+          <Parameter Name="assetIds" Type="varchar" Mode="In" />
+        </Function>
+        <Function Name="GSTagsByListOfAssetIds" Aggregate="false" BuiltIn="false" NiladicFunction="false" IsComposable="false" ParameterTypeSemantics="AllowImplicitConversion" Schema="dbo">
+          <Parameter Name="assetIds" Type="varchar" Mode="In" />
+        </Function>
         <Function Name="GSTagsUpdatedInLastFiveMinutesByListOfAssetIds" Aggregate="false" BuiltIn="false" NiladicFunction="false" IsComposable="false" ParameterTypeSemantics="AllowImplicitConversion" Schema="dbo">
           <Parameter Name="assetIds" Type="varchar" Mode="In" />
         </Function>
@@ -1859,6 +1999,30 @@
             </CollectionType>
           </ReturnType>
         </Function>
+        <Function Name="GSOPERATION_PerformanceByGate_Report_TVF_Query" Aggregate="false" BuiltIn="false" NiladicFunction="false" IsComposable="true" ParameterTypeSemantics="AllowImplicitConversion" Schema="GateSystem">
+          <Parameter Name="gate" Type="nvarchar" Mode="In" />
+          <Parameter Name="toDate" Type="datetime" Mode="In" />
+          <Parameter Name="fromDate" Type="datetime" Mode="In" />
+          <Parameter Name="SiteId" Type="bigint" Mode="In" />
+          <ReturnType>
+            <CollectionType>
+              <RowType>
+                <Property Name="PBBTagId" Type="bigint" Nullable="false" />
+                <Property Name="Dock Time Start" Type="datetime" />
+                <Property Name="Dock Time End" Type="datetime" />
+                <Property Name="Dock Time (Sec)" Type="float" />
+                <Property Name="GPUTagId" Type="bigint" />
+                <Property Name="GPU Start Time" Type="datetime" />
+                <Property Name="GPU Time (Sec)" Type="int" />
+                <Property Name="PCATagId" Type="bigint" />
+                <Property Name="PCA Start Time" Type="datetime" />
+                <Property Name="PCA Time (Sec)" Type="int" />
+                <Property Name="GateName" Type="nvarchar" MaxLength="100" />
+                <Property Name="AreaName" Type="nvarchar" MaxLength="100" />
+              </RowType>
+            </CollectionType>
+          </ReturnType>
+        </Function>
         <Function Name="GSTop5AlarmTypes" Aggregate="false" BuiltIn="false" NiladicFunction="false" IsComposable="false" ParameterTypeSemantics="AllowImplicitConversion" Schema="GateSystem">
           <Parameter Name="BeginTime" Type="datetime" Mode="In" />
           <Parameter Name="EndTime" Type="datetime" Mode="In" />
@@ -1878,6 +2042,12 @@
           <Parameter Name="BeginTime" Type="datetime" Mode="In" />
           <Parameter Name="EndTime" Type="datetime" Mode="In" />
           <Parameter Name="SiteId" Type="bigint" Mode="In" />
+        </Function>
+        <Function Name="spGSEquipmentUsageByGate_TVF_Query" Aggregate="false" BuiltIn="false" NiladicFunction="false" IsComposable="false" ParameterTypeSemantics="AllowImplicitConversion" Schema="GateSystem">
+          <Parameter Name="BeginTime" Type="datetime" Mode="In" />
+          <Parameter Name="EndTime" Type="datetime" Mode="In" />
+          <Parameter Name="SiteId" Type="bigint" Mode="In" />
+          <Parameter Name="Gate" Type="nvarchar" Mode="In" />
         </Function>
         <EntityContainer Name="iOPS_NormalizedModelStoreContainer">
           <EntitySet Name="AlarmHistory" EntityType="Self.AlarmHistory" Schema="BHS" store:Type="Tables" />
@@ -1906,6 +2076,7 @@
           <EntitySet Name="DashboardTimeScope" EntityType="Self.DashboardTimeScope" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="DatabaseMailQueue" EntityType="Self.DatabaseMailQueue" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="JBTStandardObservation" EntityType="Self.JBTStandardObservation" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="Module" EntityType="Self.Module" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="Observation" EntityType="Self.Observation" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="ObservationAggregatedHighChartValue" EntityType="Self.ObservationAggregatedHighChartValue" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="ObservationException" EntityType="Self.ObservationException" Schema="dbo" store:Type="Tables" />
@@ -1917,6 +2088,10 @@
           <EntitySet Name="SiteCompany" EntityType="Self.SiteCompany" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="SiteDataReader" EntityType="Self.SiteDataReader" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="StateAbbreviation" EntityType="Self.StateAbbreviation" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="Subscription" EntityType="Self.Subscription" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="SubscriptionModule" EntityType="Self.SubscriptionModule" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="SubscriptionSiteUser" EntityType="Self.SubscriptionSiteUser" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="SubscriptionUser" EntityType="Self.SubscriptionUser" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="System" EntityType="Self.System" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="SystemGraphic" EntityType="Self.SystemGraphic" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="SystemGraphicVisibleValue" EntityType="Self.SystemGraphicVisibleValue" Schema="dbo" store:Type="Tables" />
@@ -2100,6 +2275,34 @@
             <End Role="Site" EntitySet="Site" />
             <End Role="SiteDataReader" EntitySet="SiteDataReader" />
           </AssociationSet>
+          <AssociationSet Name="FK_Subscription_Company" Association="Self.FK_Subscription_Company">
+            <End Role="Company" EntitySet="Company" />
+            <End Role="Subscription" EntitySet="Subscription" />
+          </AssociationSet>
+          <AssociationSet Name="FK_SubscriptionModule_Module" Association="Self.FK_SubscriptionModule_Module">
+            <End Role="Module" EntitySet="Module" />
+            <End Role="SubscriptionModule" EntitySet="SubscriptionModule" />
+          </AssociationSet>
+          <AssociationSet Name="FK_SubscriptionModule_Subscription" Association="Self.FK_SubscriptionModule_Subscription">
+            <End Role="Subscription" EntitySet="Subscription" />
+            <End Role="SubscriptionModule" EntitySet="SubscriptionModule" />
+          </AssociationSet>
+          <AssociationSet Name="FK_SubscriptionSiteUser_iOPSUser" Association="Self.FK_SubscriptionSiteUser_iOPSUser">
+            <End Role="iOPSUser" EntitySet="iOPSUser" />
+            <End Role="SubscriptionSiteUser" EntitySet="SubscriptionSiteUser" />
+          </AssociationSet>
+          <AssociationSet Name="FK_SubscriptionSiteUser_Site" Association="Self.FK_SubscriptionSiteUser_Site">
+            <End Role="Site" EntitySet="Site" />
+            <End Role="SubscriptionSiteUser" EntitySet="SubscriptionSiteUser" />
+          </AssociationSet>
+          <AssociationSet Name="FK_SubscriptionUser_iOPSUser" Association="Self.FK_SubscriptionUser_iOPSUser">
+            <End Role="iOPSUser" EntitySet="iOPSUser" />
+            <End Role="SubscriptionUser" EntitySet="SubscriptionUser" />
+          </AssociationSet>
+          <AssociationSet Name="FK_SubscriptionUser_Subscription" Association="Self.FK_SubscriptionUser_Subscription">
+            <End Role="Subscription" EntitySet="Subscription" />
+            <End Role="SubscriptionUser" EntitySet="SubscriptionUser" />
+          </AssociationSet>
           <AssociationSet Name="FK_System_Company" Association="Self.FK_System_Company">
             <End Role="Company" EntitySet="Company" />
             <End Role="System" EntitySet="System" />
@@ -2234,6 +2437,8 @@
           <Property Name="PasswordChangeLoginTokenDate" Type="DateTime" Precision="3" />
           <NavigationProperty Name="Dashboards" Relationship="iOPS_NormalizedModel.FK_Dashboard_iOPSUser" FromRole="iOPSUser" ToRole="Dashboard" />
           <NavigationProperty Name="WidgetCustomTagDisplayOrders" Relationship="iOPS_NormalizedModel.FK_WidgetCustomTagDisplayOrder_iOPSUser" FromRole="iOPSUser" ToRole="WidgetCustomTagDisplayOrder" />
+          <NavigationProperty Name="SubscriptionSiteUsers" Relationship="iOPS_NormalizedModel.FK_SubscriptionSiteUser_iOPSUser" FromRole="iOPSUser" ToRole="SubscriptionSiteUser" />
+          <NavigationProperty Name="SubscriptionUsers" Relationship="iOPS_NormalizedModel.FK_SubscriptionUser_iOPSUser" FromRole="iOPSUser" ToRole="SubscriptionUser" />
           </EntityType>
         <EntityContainer Name="iOPS_NormalizedEntities" annotation:LazyLoadingEnabled="true">
           <EntitySet Name="iOPSUsers" EntityType="Self.iOPSUser" />
@@ -2756,6 +2961,57 @@
             <Parameter Name="EndTime" Mode="In" Type="DateTime" />
             <Parameter Name="SiteId" Mode="In" Type="Int64" />
           </FunctionImport>
+          <FunctionImport Name="GSAlarmTagsByListOfAssetIds" ReturnType="Collection(iOPS_NormalizedModel.GSAlarmTagsByListOfAssetIds_Result)">
+          <Parameter Name="assetIds" Mode="In" Type="String" />
+          </FunctionImport>
+          <FunctionImport Name="spGSEquipmentUsageByGate_TVF_Query" ReturnType="Collection(iOPS_NormalizedModel.spGSEquipmentUsageByGate_TVF_Query_Result)">
+            <Parameter Name="BeginTime" Mode="In" Type="DateTime" />
+            <Parameter Name="EndTime" Mode="In" Type="DateTime" />
+            <Parameter Name="SiteId" Mode="In" Type="Int64" />
+            <Parameter Name="Gate" Mode="In" Type="String" />
+          </FunctionImport>
+          <FunctionImport Name="GSTagsByListOfAssetIds" ReturnType="Collection(iOPS_NormalizedModel.GSTagsByListOfAssetIds_Result)">
+          <Parameter Name="assetIds" Mode="In" Type="String" />
+          </FunctionImport>
+          <FunctionImport Name="GSOPERATION_PerformanceByGate_Report_TVF_Query" IsComposable="true" ReturnType="Collection(iOPS_NormalizedModel.GSOPERATION_PerformanceByGate_Report_TVF_Query_Result)">
+            <Parameter Name="gate" Mode="In" Type="String" />
+            <Parameter Name="toDate" Mode="In" Type="DateTime" />
+            <Parameter Name="fromDate" Mode="In" Type="DateTime" />
+            <Parameter Name="SiteId" Mode="In" Type="Int64" />
+          </FunctionImport>
+          <EntitySet Name="Modules" EntityType="iOPS_NormalizedModel.Module" />
+          <EntitySet Name="Subscriptions" EntityType="iOPS_NormalizedModel.Subscription" />
+          <EntitySet Name="SubscriptionModules" EntityType="iOPS_NormalizedModel.SubscriptionModule" />
+          <EntitySet Name="SubscriptionSiteUsers" EntityType="iOPS_NormalizedModel.SubscriptionSiteUser" />
+          <EntitySet Name="SubscriptionUsers" EntityType="iOPS_NormalizedModel.SubscriptionUser" />
+          <AssociationSet Name="FK_Subscription_Company" Association="iOPS_NormalizedModel.FK_Subscription_Company">
+            <End Role="Company" EntitySet="Companies" />
+            <End Role="Subscription" EntitySet="Subscriptions" />
+          </AssociationSet>
+          <AssociationSet Name="FK_SubscriptionModule_Module" Association="iOPS_NormalizedModel.FK_SubscriptionModule_Module">
+            <End Role="Module" EntitySet="Modules" />
+            <End Role="SubscriptionModule" EntitySet="SubscriptionModules" />
+          </AssociationSet>
+          <AssociationSet Name="FK_SubscriptionSiteUser_Site" Association="iOPS_NormalizedModel.FK_SubscriptionSiteUser_Site">
+            <End Role="Site" EntitySet="Sites" />
+            <End Role="SubscriptionSiteUser" EntitySet="SubscriptionSiteUsers" />
+          </AssociationSet>
+          <AssociationSet Name="FK_SubscriptionModule_Subscription" Association="iOPS_NormalizedModel.FK_SubscriptionModule_Subscription">
+            <End Role="Subscription" EntitySet="Subscriptions" />
+            <End Role="SubscriptionModule" EntitySet="SubscriptionModules" />
+          </AssociationSet>
+          <AssociationSet Name="FK_SubscriptionUser_Subscription" Association="iOPS_NormalizedModel.FK_SubscriptionUser_Subscription">
+            <End Role="Subscription" EntitySet="Subscriptions" />
+            <End Role="SubscriptionUser" EntitySet="SubscriptionUsers" />
+          </AssociationSet>
+          <AssociationSet Name="FK_SubscriptionSiteUser_iOPSUser" Association="iOPS_NormalizedModel.FK_SubscriptionSiteUser_iOPSUser">
+            <End Role="iOPSUser" EntitySet="iOPSUsers" />
+            <End Role="SubscriptionSiteUser" EntitySet="SubscriptionSiteUsers" />
+          </AssociationSet>
+          <AssociationSet Name="FK_SubscriptionUser_iOPSUser" Association="iOPS_NormalizedModel.FK_SubscriptionUser_iOPSUser">
+            <End Role="iOPSUser" EntitySet="iOPSUsers" />
+            <End Role="SubscriptionUser" EntitySet="SubscriptionUsers" />
+          </AssociationSet>
           </EntityContainer>
         <EntityType Name="AuthorizableActivity">
           <Key>
@@ -2934,6 +3190,7 @@
           <NavigationProperty Name="Systems" Relationship="iOPS_NormalizedModel.FK_System_Company" FromRole="Company" ToRole="System" />
           <NavigationProperty Name="CustomJBTStandardObservations" Relationship="iOPS_NormalizedModel.FK_CustomJBTStandardObservation_Company" FromRole="Company" ToRole="CustomJBTStandardObservation" />
           <NavigationProperty Name="Assets" Relationship="iOPS_NormalizedModel.FK_Asset_Airport" FromRole="Company" ToRole="Asset" />
+          <NavigationProperty Name="Subscriptions" Relationship="iOPS_NormalizedModel.FK_Subscription_Company" FromRole="Company" ToRole="Subscription" />
         </EntityType>
         <EntityType Name="CompanyContact">
           <Key>
@@ -3034,6 +3291,7 @@
           <Property Name="HasGates" Type="Boolean" />
           <Property Name="LastReportedDataDate" Type="DateTime" Precision="3" />
           <Property Name="DateLastModified" Type="DateTime" Precision="3" />
+          <NavigationProperty Name="SubscriptionSiteUsers" Relationship="iOPS_NormalizedModel.FK_SubscriptionSiteUser_Site" FromRole="Site" ToRole="SubscriptionSiteUser" />
         </EntityType>
         <EntityType Name="SiteCompany">
           <Key>
@@ -5055,6 +5313,205 @@
           <Property Type="Int32" Name="PCA_Times_Used" Nullable="false" />
           <Property Type="Int32" Name="GPU_Times_Used" Nullable="false" />
         </ComplexType>
+        <ComplexType Name="GSAlarmTagsByListOfAssetIds_Result">
+          <Property Type="Int64" Name="Id" Nullable="false" />
+          <Property Type="String" Name="Name" Nullable="true" MaxLength="200" />
+          <Property Type="Int64" Name="SiteId" Nullable="true" />
+          <Property Type="DateTime" Name="LastObservationCreationDate" Nullable="true" Precision="23" />
+          <Property Type="DateTime" Name="LastObservationDate" Nullable="true" Precision="23" />
+          <Property Type="Int64" Name="AssetId" Nullable="true" />
+          <Property Type="Int64" Name="LastObservationId" Nullable="true" />
+          <Property Type="Int64" Name="JBTStandardObservationId" Nullable="true" />
+          <Property Type="Boolean" Name="MarkedForDelete" Nullable="true" />
+          <Property Type="String" Name="LastObservationTextValue" Nullable="true" MaxLength="100" />
+          <Property Type="Int32" Name="LastObservationQuality" Nullable="true" />
+          <Property Type="Boolean" Name="IsAlarm" Nullable="true" />
+          <Property Type="Boolean" Name="IsWarning" Nullable="true" />
+          <Property Type="String" Name="ValueWhenActive" Nullable="true" MaxLength="50" />
+        </ComplexType>
+        <ComplexType Name="spGSEquipmentUsageByGate_TVF_Query_Result">
+          <Property Type="String" Name="Gate" Nullable="true" MaxLength="100" />
+          <Property Type="Double" Name="PBB_Hours" Nullable="false" />
+          <Property Type="Double" Name="PCA_Hours" Nullable="false" />
+          <Property Type="Double" Name="GPU_Hours" Nullable="false" />
+          <Property Type="Int32" Name="PBB_Times_Used" Nullable="false" />
+          <Property Type="Int32" Name="PCA_Times_Used" Nullable="false" />
+          <Property Type="Int32" Name="GPU_Times_Used" Nullable="false" />
+        </ComplexType>
+        <ComplexType Name="GSTagsByListOfAssetIds_Result">
+          <Property Type="Int64" Name="Id" Nullable="false" />
+          <Property Type="String" Name="Name" Nullable="true" MaxLength="200" />
+          <Property Type="Int64" Name="SiteId" Nullable="true" />
+          <Property Type="DateTime" Name="LastObservationCreationDate" Nullable="true" Precision="23" />
+          <Property Type="DateTime" Name="LastObservationDate" Nullable="true" Precision="23" />
+          <Property Type="Int64" Name="AssetId" Nullable="true" />
+          <Property Type="Int64" Name="LastObservationId" Nullable="true" />
+          <Property Type="Int64" Name="JBTStandardObservationId" Nullable="true" />
+          <Property Type="Boolean" Name="MarkedForDelete" Nullable="true" />
+          <Property Type="String" Name="LastObservationTextValue" Nullable="true" MaxLength="100" />
+          <Property Type="Int32" Name="LastObservationQuality" Nullable="true" />
+          <Property Type="Boolean" Name="IsAlarm" Nullable="true" />
+          <Property Type="Boolean" Name="IsWarning" Nullable="true" />
+          <Property Type="String" Name="ValueWhenActive" Nullable="true" MaxLength="50" />
+        </ComplexType>
+        <ComplexType Name="GSOPERATION_PerformanceByGate_Report_TVF_Query_Result">
+          <Property Type="Int64" Name="PBBTagId" Nullable="false" />
+          <Property Type="DateTime" Name="Dock_Time_Start" Nullable="true" Precision="23" />
+          <Property Type="DateTime" Name="Dock_Time_End" Nullable="true" Precision="23" />
+          <Property Type="Double" Name="Dock_Time__Sec_" Nullable="true" />
+          <Property Type="Int64" Name="GPUTagId" Nullable="true" />
+          <Property Type="DateTime" Name="GPU_Start_Time" Nullable="true" Precision="23" />
+          <Property Type="Int32" Name="GPU_Time__Sec_" Nullable="true" />
+          <Property Type="Int64" Name="PCATagId" Nullable="true" />
+          <Property Type="DateTime" Name="PCA_Start_Time" Nullable="true" Precision="23" />
+          <Property Type="Int32" Name="PCA_Time__Sec_" Nullable="true" />
+          <Property Type="String" Name="GateName" Nullable="true" MaxLength="100" />
+          <Property Type="String" Name="AreaName" Nullable="true" MaxLength="100" />
+        </ComplexType>
+        <EntityType Name="Module">
+          <Key>
+            <PropertyRef Name="Id" />
+          </Key>
+          <Property Name="Id" Type="Int64" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="Name" Type="String" MaxLength="100" FixedLength="false" Unicode="false" />
+          <Property Name="Description" Type="String" MaxLength="Max" FixedLength="false" Unicode="false" />
+          <NavigationProperty Name="SubscriptionModules" Relationship="iOPS_NormalizedModel.FK_SubscriptionModule_Module" FromRole="Module" ToRole="SubscriptionModule" />
+        </EntityType>
+        <EntityType Name="Subscription">
+          <Key>
+            <PropertyRef Name="Id" />
+          </Key>
+          <Property Name="Id" Type="Int64" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="CompanyId" Type="Int64" />
+          <Property Name="InitiationDate" Type="DateTime" Precision="3" />
+          <Property Name="ContactPersonId" Type="Int64" />
+          <Property Name="TerminationDate" Type="DateTime" Precision="3" />
+          <Property Name="Terms" Type="String" MaxLength="Max" FixedLength="false" Unicode="false" />
+          <NavigationProperty Name="Company" Relationship="iOPS_NormalizedModel.FK_Subscription_Company" FromRole="Subscription" ToRole="Company" />
+          <NavigationProperty Name="SubscriptionModules" Relationship="iOPS_NormalizedModel.FK_SubscriptionModule_Subscription" FromRole="Subscription" ToRole="SubscriptionModule" />
+          <NavigationProperty Name="SubscriptionUsers" Relationship="iOPS_NormalizedModel.FK_SubscriptionUser_Subscription" FromRole="Subscription" ToRole="SubscriptionUser" />
+        </EntityType>
+        <EntityType Name="SubscriptionModule">
+          <Key>
+            <PropertyRef Name="Id" />
+          </Key>
+          <Property Name="Id" Type="Int64" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="SubscriptionId" Type="Int64" />
+          <Property Name="ModuleId" Type="Int64" />
+          <Property Name="StartDate" Type="DateTime" Precision="3" />
+          <Property Name="EndDate" Type="DateTime" Precision="3" />
+          <NavigationProperty Name="Module" Relationship="iOPS_NormalizedModel.FK_SubscriptionModule_Module" FromRole="SubscriptionModule" ToRole="Module" />
+          <NavigationProperty Name="Subscription" Relationship="iOPS_NormalizedModel.FK_SubscriptionModule_Subscription" FromRole="SubscriptionModule" ToRole="Subscription" />
+        </EntityType>
+        <EntityType Name="SubscriptionSiteUser">
+          <Key>
+            <PropertyRef Name="Id" />
+          </Key>
+          <Property Name="Id" Type="Int64" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="SubscriptionId" Type="Int64" />
+          <Property Name="UserId" Type="Int64" />
+          <Property Name="SiteId" Type="Int64" />
+          <Property Name="IsAdmin" Type="Boolean" />
+          <NavigationProperty Name="Site" Relationship="iOPS_NormalizedModel.FK_SubscriptionSiteUser_Site" FromRole="SubscriptionSiteUser" ToRole="Site" />
+          <NavigationProperty Name="iOPSUser" Relationship="iOPS_NormalizedModel.FK_SubscriptionSiteUser_iOPSUser" FromRole="SubscriptionSiteUser" ToRole="iOPSUser" />
+        </EntityType>
+        <EntityType Name="SubscriptionUser">
+          <Key>
+            <PropertyRef Name="Id" />
+          </Key>
+          <Property Name="Id" Type="Int64" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="SubscriptionId" Type="Int64" />
+          <Property Name="UserId" Type="Int64" />
+          <Property Name="StartDate" Type="DateTime" Precision="3" />
+          <Property Name="EndDate" Type="DateTime" Precision="3" />
+          <Property Name="IsAdmin" Type="Boolean" />
+          <NavigationProperty Name="Subscription" Relationship="iOPS_NormalizedModel.FK_SubscriptionUser_Subscription" FromRole="SubscriptionUser" ToRole="Subscription" />
+          <NavigationProperty Name="iOPSUser" Relationship="iOPS_NormalizedModel.FK_SubscriptionUser_iOPSUser" FromRole="SubscriptionUser" ToRole="iOPSUser" />
+        </EntityType>
+        <Association Name="FK_Subscription_Company">
+          <End Type="iOPS_NormalizedModel.Company" Role="Company" Multiplicity="0..1" />
+          <End Type="iOPS_NormalizedModel.Subscription" Role="Subscription" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Company">
+              <PropertyRef Name="Id" />
+            </Principal>
+            <Dependent Role="Subscription">
+              <PropertyRef Name="CompanyId" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_SubscriptionModule_Module">
+          <End Type="iOPS_NormalizedModel.Module" Role="Module" Multiplicity="0..1" />
+          <End Type="iOPS_NormalizedModel.SubscriptionModule" Role="SubscriptionModule" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Module">
+              <PropertyRef Name="Id" />
+            </Principal>
+            <Dependent Role="SubscriptionModule">
+              <PropertyRef Name="ModuleId" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_SubscriptionSiteUser_Site">
+          <End Type="iOPS_NormalizedModel.Site" Role="Site" Multiplicity="0..1" />
+          <End Type="iOPS_NormalizedModel.SubscriptionSiteUser" Role="SubscriptionSiteUser" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Site">
+              <PropertyRef Name="Id" />
+            </Principal>
+            <Dependent Role="SubscriptionSiteUser">
+              <PropertyRef Name="SiteId" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_SubscriptionModule_Subscription">
+          <End Type="iOPS_NormalizedModel.Subscription" Role="Subscription" Multiplicity="0..1" />
+          <End Type="iOPS_NormalizedModel.SubscriptionModule" Role="SubscriptionModule" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Subscription">
+              <PropertyRef Name="Id" />
+            </Principal>
+            <Dependent Role="SubscriptionModule">
+              <PropertyRef Name="SubscriptionId" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_SubscriptionUser_Subscription">
+          <End Type="iOPS_NormalizedModel.Subscription" Role="Subscription" Multiplicity="0..1" />
+          <End Type="iOPS_NormalizedModel.SubscriptionUser" Role="SubscriptionUser" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Subscription">
+              <PropertyRef Name="Id" />
+            </Principal>
+            <Dependent Role="SubscriptionUser">
+              <PropertyRef Name="SubscriptionId" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_SubscriptionSiteUser_iOPSUser">
+          <End Type="iOPS_NormalizedModel.iOPSUser" Role="iOPSUser" Multiplicity="0..1" />
+          <End Type="iOPS_NormalizedModel.SubscriptionSiteUser" Role="SubscriptionSiteUser" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="iOPSUser">
+              <PropertyRef Name="Id" />
+            </Principal>
+            <Dependent Role="SubscriptionSiteUser">
+              <PropertyRef Name="UserId" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_SubscriptionUser_iOPSUser">
+          <End Type="iOPS_NormalizedModel.iOPSUser" Role="iOPSUser" Multiplicity="0..1" />
+          <End Type="iOPS_NormalizedModel.SubscriptionUser" Role="SubscriptionUser" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="iOPSUser">
+              <PropertyRef Name="Id" />
+            </Principal>
+            <Dependent Role="SubscriptionUser">
+              <PropertyRef Name="UserId" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
         </Schema>
     </edmx:ConceptualModels>
     <!-- C-S mapping content -->
@@ -6487,6 +6944,132 @@
               </ComplexTypeMapping>
             </ResultMapping>
           </FunctionImportMapping>
+          <FunctionImportMapping FunctionImportName="GSAlarmTagsByListOfAssetIds" FunctionName="iOPS_NormalizedModel.Store.GSAlarmTagsByListOfAssetIds">
+            <ResultMapping>
+              <ComplexTypeMapping TypeName="iOPS_NormalizedModel.GSAlarmTagsByListOfAssetIds_Result">
+                <ScalarProperty Name="Id" ColumnName="Id" />
+                <ScalarProperty Name="Name" ColumnName="Name" />
+                <ScalarProperty Name="SiteId" ColumnName="SiteId" />
+                <ScalarProperty Name="LastObservationCreationDate" ColumnName="LastObservationCreationDate" />
+                <ScalarProperty Name="LastObservationDate" ColumnName="LastObservationDate" />
+                <ScalarProperty Name="AssetId" ColumnName="AssetId" />
+                <ScalarProperty Name="LastObservationId" ColumnName="LastObservationId" />
+                <ScalarProperty Name="JBTStandardObservationId" ColumnName="JBTStandardObservationId" />
+                <ScalarProperty Name="MarkedForDelete" ColumnName="MarkedForDelete" />
+                <ScalarProperty Name="LastObservationTextValue" ColumnName="LastObservationTextValue" />
+                <ScalarProperty Name="LastObservationQuality" ColumnName="LastObservationQuality" />
+                <ScalarProperty Name="IsAlarm" ColumnName="IsAlarm" />
+                <ScalarProperty Name="IsWarning" ColumnName="IsWarning" />
+                <ScalarProperty Name="ValueWhenActive" ColumnName="ValueWhenActive" />
+              </ComplexTypeMapping>
+            </ResultMapping>
+          </FunctionImportMapping>
+          <FunctionImportMapping FunctionImportName="spGSEquipmentUsageByGate_TVF_Query" FunctionName="iOPS_NormalizedModel.Store.spGSEquipmentUsageByGate_TVF_Query">
+            <ResultMapping>
+              <ComplexTypeMapping TypeName="iOPS_NormalizedModel.spGSEquipmentUsageByGate_TVF_Query_Result">
+                <ScalarProperty Name="Gate" ColumnName="Gate" />
+                <ScalarProperty Name="PBB_Hours" ColumnName="PBB Hours" />
+                <ScalarProperty Name="PCA_Hours" ColumnName="PCA Hours" />
+                <ScalarProperty Name="GPU_Hours" ColumnName="GPU Hours" />
+                <ScalarProperty Name="PBB_Times_Used" ColumnName="PBB Times Used" />
+                <ScalarProperty Name="PCA_Times_Used" ColumnName="PCA Times Used" />
+                <ScalarProperty Name="GPU_Times_Used" ColumnName="GPU Times Used" />
+              </ComplexTypeMapping>
+            </ResultMapping>
+          </FunctionImportMapping>
+          <FunctionImportMapping FunctionImportName="GSTagsByListOfAssetIds" FunctionName="iOPS_NormalizedModel.Store.GSTagsByListOfAssetIds">
+            <ResultMapping>
+              <ComplexTypeMapping TypeName="iOPS_NormalizedModel.GSTagsByListOfAssetIds_Result">
+                <ScalarProperty Name="Id" ColumnName="Id" />
+                <ScalarProperty Name="Name" ColumnName="Name" />
+                <ScalarProperty Name="SiteId" ColumnName="SiteId" />
+                <ScalarProperty Name="LastObservationCreationDate" ColumnName="LastObservationCreationDate" />
+                <ScalarProperty Name="LastObservationDate" ColumnName="LastObservationDate" />
+                <ScalarProperty Name="AssetId" ColumnName="AssetId" />
+                <ScalarProperty Name="LastObservationId" ColumnName="LastObservationId" />
+                <ScalarProperty Name="JBTStandardObservationId" ColumnName="JBTStandardObservationId" />
+                <ScalarProperty Name="MarkedForDelete" ColumnName="MarkedForDelete" />
+                <ScalarProperty Name="LastObservationTextValue" ColumnName="LastObservationTextValue" />
+                <ScalarProperty Name="LastObservationQuality" ColumnName="LastObservationQuality" />
+                <ScalarProperty Name="IsAlarm" ColumnName="IsAlarm" />
+                <ScalarProperty Name="IsWarning" ColumnName="IsWarning" />
+                <ScalarProperty Name="ValueWhenActive" ColumnName="ValueWhenActive" />
+              </ComplexTypeMapping>
+            </ResultMapping>
+          </FunctionImportMapping>
+          <FunctionImportMapping FunctionImportName="GSOPERATION_PerformanceByGate_Report_TVF_Query" FunctionName="iOPS_NormalizedModel.Store.GSOPERATION_PerformanceByGate_Report_TVF_Query">
+            <ResultMapping>
+              <ComplexTypeMapping TypeName="iOPS_NormalizedModel.GSOPERATION_PerformanceByGate_Report_TVF_Query_Result">
+                <ScalarProperty Name="PBBTagId" ColumnName="PBBTagId" />
+                <ScalarProperty Name="Dock_Time_Start" ColumnName="Dock Time Start" />
+                <ScalarProperty Name="Dock_Time_End" ColumnName="Dock Time End" />
+                <ScalarProperty Name="Dock_Time__Sec_" ColumnName="Dock Time (Sec)" />
+                <ScalarProperty Name="GPUTagId" ColumnName="GPUTagId" />
+                <ScalarProperty Name="GPU_Start_Time" ColumnName="GPU Start Time" />
+                <ScalarProperty Name="GPU_Time__Sec_" ColumnName="GPU Time (Sec)" />
+                <ScalarProperty Name="PCATagId" ColumnName="PCATagId" />
+                <ScalarProperty Name="PCA_Start_Time" ColumnName="PCA Start Time" />
+                <ScalarProperty Name="PCA_Time__Sec_" ColumnName="PCA Time (Sec)" />
+                <ScalarProperty Name="GateName" ColumnName="GateName" />
+                <ScalarProperty Name="AreaName" ColumnName="AreaName" />
+              </ComplexTypeMapping>
+            </ResultMapping>
+          </FunctionImportMapping>
+          <EntitySetMapping Name="Modules">
+            <EntityTypeMapping TypeName="iOPS_NormalizedModel.Module">
+              <MappingFragment StoreEntitySet="Module">
+                <ScalarProperty Name="Description" ColumnName="Description" />
+                <ScalarProperty Name="Name" ColumnName="Name" />
+                <ScalarProperty Name="Id" ColumnName="Id" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="Subscriptions">
+            <EntityTypeMapping TypeName="iOPS_NormalizedModel.Subscription">
+              <MappingFragment StoreEntitySet="Subscription">
+                <ScalarProperty Name="Terms" ColumnName="Terms" />
+                <ScalarProperty Name="TerminationDate" ColumnName="TerminationDate" />
+                <ScalarProperty Name="ContactPersonId" ColumnName="ContactPersonId" />
+                <ScalarProperty Name="InitiationDate" ColumnName="InitiationDate" />
+                <ScalarProperty Name="CompanyId" ColumnName="CompanyId" />
+                <ScalarProperty Name="Id" ColumnName="Id" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="SubscriptionModules">
+            <EntityTypeMapping TypeName="iOPS_NormalizedModel.SubscriptionModule">
+              <MappingFragment StoreEntitySet="SubscriptionModule">
+                <ScalarProperty Name="EndDate" ColumnName="EndDate" />
+                <ScalarProperty Name="StartDate" ColumnName="StartDate" />
+                <ScalarProperty Name="ModuleId" ColumnName="ModuleId" />
+                <ScalarProperty Name="SubscriptionId" ColumnName="SubscriptionId" />
+                <ScalarProperty Name="Id" ColumnName="Id" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="SubscriptionSiteUsers">
+            <EntityTypeMapping TypeName="iOPS_NormalizedModel.SubscriptionSiteUser">
+              <MappingFragment StoreEntitySet="SubscriptionSiteUser">
+                <ScalarProperty Name="IsAdmin" ColumnName="IsAdmin" />
+                <ScalarProperty Name="SiteId" ColumnName="SiteId" />
+                <ScalarProperty Name="UserId" ColumnName="UserId" />
+                <ScalarProperty Name="SubscriptionId" ColumnName="SubscriptionId" />
+                <ScalarProperty Name="Id" ColumnName="Id" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="SubscriptionUsers">
+            <EntityTypeMapping TypeName="iOPS_NormalizedModel.SubscriptionUser">
+              <MappingFragment StoreEntitySet="SubscriptionUser">
+                <ScalarProperty Name="IsAdmin" ColumnName="IsAdmin" />
+                <ScalarProperty Name="EndDate" ColumnName="EndDate" />
+                <ScalarProperty Name="StartDate" ColumnName="StartDate" />
+                <ScalarProperty Name="UserId" ColumnName="UserId" />
+                <ScalarProperty Name="SubscriptionId" ColumnName="SubscriptionId" />
+                <ScalarProperty Name="Id" ColumnName="Id" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
         </EntityContainerMapping>
       </Mapping>
     </edmx:Mappings>

@@ -1,14 +1,22 @@
 [
   {
-    "outputFileName": "app/services/services.min.js",
+    "minify": { "enabled": true },
+    "outputFileName": "app-bundle.js",
     "inputFiles": [
-      "app/services/services.js"
-    ]
-  },
-  {
-    "outputFileName": "Scripts/ODataAngularResources-master/build/odataresources.min.js",
-    "inputFiles": [
-      "Scripts/ODataAngularResources-master/build/odataresources.js"
+      "app/app.js",
+      "app/services/*.js",
+      "app/directives/formFields/*.js",
+      "app/directives/panels/*.js",
+      "app/systemPanelViews/systemIframeCtrl.js",
+      "app/widgetDirectives/*.js",
+      "app/widgetDirectives/adminMaintenance/*.js",
+      "app/stateContent/dashboards/*.js",
+      "app/stateContent/home/*.js",
+      "app/stateContent/login/*.js",
+      "app/stateContent/admin/systemTables/*.js",
+      "app/stateContent/admin/security/*.js",
+      "app/stateContent/admin/systemTables/widgets/*.js",
+      "app/stateContent/admin/dataMonitors/*.js"
     ]
   }
 ]

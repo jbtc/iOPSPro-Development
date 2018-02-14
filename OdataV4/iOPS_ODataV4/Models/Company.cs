@@ -23,6 +23,7 @@ namespace iOPS_ODataV4.Models
             this.Systems = new HashSet<SystemGroup>();
             this.CustomJBTStandardObservations = new HashSet<CustomJBTStandardObservation>();
             this.Assets = new HashSet<Asset>();
+            this.Subscriptions = new HashSet<Subscription>();
         }
     
         public long Id { get; set; }
@@ -48,5 +49,7 @@ namespace iOPS_ODataV4.Models
         public virtual ICollection<CustomJBTStandardObservation> CustomJBTStandardObservations { get; set; }
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<Asset> Assets { get; set; }
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
+        public virtual ICollection<Subscription> Subscriptions { get; set; }
     }
 }

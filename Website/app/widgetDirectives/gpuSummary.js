@@ -12,6 +12,11 @@
 					var vm = this;
 
 					function GetHeadingExtraTitle() {
+
+						var assetSiteName = vm.Asset.Site.Name;
+
+						var assetParentSystemName = vm.Asset.ParentSystem.Name;
+
 						return ' - ' + vm.Asset.Site.Name + ' Gate ' + vm.Asset.ParentSystem.Name + (vm.Asset.ModelGenericName ? ' - ' + vm.Asset.ModelGenericName : '');
 					}
 

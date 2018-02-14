@@ -1,11 +1,12 @@
-﻿(function () {
+﻿//++blank Controller
+(function () {
 	"use strict";
 
 
 	function BlankCtrl($scope, displaySetupService, $interval, dataService) {
 		var vm = this;
 
-		console.log("BlankCtrl invoked");
+		//console.log("BlankCtrl invoked");
 		vm.displaySetupService = displaySetupService;
 
 		vm.loadingMessage = "Is Initializing for Performance ";
@@ -21,22 +22,22 @@
 
 
 		$scope.$on("$destroy",
-                function () {
-                	$interval.cancel(vm.updateInterval);
-					
-        });
+			function () {
+				$interval.cancel(vm.updateInterval);
+
+			});
 
 	}
 
 	angular
-			.module("app")
-			.controller("BlankCtrl", [
-				"$scope",
-                "displaySetupService",
-				"$interval",
-				"dataService",
-				BlankCtrl
-			]);
+		.module("app")
+		.controller("BlankCtrl", [
+			"$scope",
+			"displaySetupService",
+			"$interval",
+			"dataService",
+			BlankCtrl
+		]);
 
 
 

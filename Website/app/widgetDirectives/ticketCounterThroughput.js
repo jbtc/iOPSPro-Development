@@ -58,6 +58,7 @@
 							});
 
 
+
 					dataService.GetIOPSWebAPIResource("BHSTotalSystemThroughput")
 						.query(GetQueryParametersObject(),
 							function (data) {

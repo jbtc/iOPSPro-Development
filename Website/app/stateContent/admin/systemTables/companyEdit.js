@@ -1,4 +1,5 @@
-﻿(function () {
+﻿//++CompanyEdit Controller
+(function () {
 	"use strict";
 
 
@@ -34,7 +35,7 @@
 
 			dataService.GetIOPSResource("Companies")
 				.expandPredicate("SiteCompanies")
-					.expand("Site")
+				.expand("Site")
 				.finish()
 				.get($stateParams.CompanyId)
 				.$promise
@@ -72,24 +73,24 @@
 
 
 		hotkeys.bindTo($scope)
-		.add({
-			combo: 'ctrl+s',
-			description: 'Save and Close any form data input form',
-			allowIn: ['INPUT', 'SELECT', 'TEXTAREA'],
-			callback: function () {
-				event.preventDefault();
-				vm.Save();
+			.add({
+				combo: 'ctrl+s',
+				description: 'Save and Close any form data input form',
+				allowIn: ['INPUT', 'SELECT', 'TEXTAREA'],
+				callback: function () {
+					event.preventDefault();
+					vm.Save();
 
-			}
-		})
-		.add({
-			combo: 'esc',
-			description: 'Cancel and close any input form',
-			allowIn: ['INPUT', 'SELECT', 'TEXTAREA'],
-			callback: function () {
-				$state.go("^");
-			}
-		});
+				}
+			})
+			.add({
+				combo: 'esc',
+				description: 'Cancel and close any input form',
+				allowIn: ['INPUT', 'SELECT', 'TEXTAREA'],
+				callback: function () {
+					$state.go("^");
+				}
+			});
 
 
 
@@ -113,40 +114,40 @@
 
 
 					$q.all(
-							//All Sites that are present in the company already associated set, that are not present in the enabled sites list in the company, as delete promise set.
-							vm.company
-							.SiteCompanies
-							.where(function (sc) { return !vm.company.associatedSiteIds[sc.SiteId] })
-							.select(function (scToRemoveFromCompany) {
-								return dataService.GetIOPSResource("SiteCompanies")
-									.filter("CompanyId", vm.company.Id)
-									.filter("SiteId", scToRemoveFromCompany.SiteId)
-									.query().$promise.then(function (data) {
+						//All Sites that are present in the company already associated set, that are not present in the enabled sites list in the company, as delete promise set.
+						vm.company
+						.SiteCompanies
+						.where(function (sc) { return !vm.company.associatedSiteIds[sc.SiteId] })
+						.select(function (scToRemoveFromCompany) {
+							return dataService.GetIOPSResource("SiteCompanies")
+								.filter("CompanyId", vm.company.Id)
+								.filter("SiteId", scToRemoveFromCompany.SiteId)
+								.query().$promise.then(function (data) {
 
-										var scToDelete = data.first();
-										scToDelete.Id = -scToDelete.Id;
+									var scToDelete = data.first();
+									scToDelete.Id = -scToDelete.Id;
 
-										return scToDelete.$save();
-									});
+									return scToDelete.$save();
+								});
 
 
-							}),
+						}),
 
-							$q.all(
-								associatedSiteIdObjects
-								.where(function (en) {
-									return en.Enabled && !vm.company.SiteCompanies.any(function (sc) { return sc.SiteId == en.SiteId });
-								})
-								.select(function (scToInsert) {
+						$q.all(
+							associatedSiteIdObjects
+							.where(function (en) {
+								return en.Enabled && !vm.company.SiteCompanies.any(function (sc) { return sc.SiteId == en.SiteId });
+							})
+							.select(function (scToInsert) {
 
-									return dataService.AddEntity("SiteCompanies",
+								return dataService.AddEntity("SiteCompanies",
 									{
 										Id: 0,
 										SiteId: scToInsert.SiteId,
 										CompanyId: vm.company.Id
 									});
-								})
-							)
+							})
+						)
 
 					).then(function () {
 						signalR.SignalAllClientsInGroup("Admin", "Company", modCompany);
@@ -163,25 +164,26 @@
 	}
 
 	angular
-			.module("app")
-			.controller("CompanyEditCtrl", [
-				"$q",
-				"$state",
-				"$rootScope",
-				"$scope",
-				"securityService",
-				"dataService",
-				"$stateParams",
-				"utilityService",
-				"$timeout",
-				"uibButtonConfig",
-				"hotkeys",
-				"$interval",
-				"displaySetupService",
-				"signalR",
-				CompanyEditCtrl
-			]);
+		.module("app")
+		.controller("CompanyEditCtrl", [
+			"$q",
+			"$state",
+			"$rootScope",
+			"$scope",
+			"securityService",
+			"dataService",
+			"$stateParams",
+			"utilityService",
+			"$timeout",
+			"uibButtonConfig",
+			"hotkeys",
+			"$interval",
+			"displaySetupService",
+			"signalR",
+			CompanyEditCtrl
+		]);
 
 
 
 })();
+

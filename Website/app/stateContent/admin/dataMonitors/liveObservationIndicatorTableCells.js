@@ -1,10 +1,4 @@
-﻿/// <reference path="tag.js" />
-/// <reference path="~/Scripts/alertify.js-0.3.11/src/alertify.js" />
-/// <reference path="~/Scripts/toastr-master/toastr.js" />
-/// <reference path="~/Scripts/moment.min.js" />
-/// <reference path="~/Scripts/angular-1.5.7/angular.js" />
-/// <reference path="~/Scripts/Highstock-4.2.5/js/highstock-all.js" />
-/// <reference path="~/Scripts/smoothie.js" />
+﻿//++LiveObservationIndicatorTableCells Controller
 (function () {
 	"use strict";
 
@@ -34,9 +28,15 @@
 			vm.messagesPerSecond = dataService.Statistics.SignalR.MessagesPerSecond;
 
 			$scope.$on("$destroy",
-                function () {
-                	$interval.cancel(vm.chartUpdateInterval);
-                });
+				function () {
+					$interval.cancel(vm.chartUpdateInterval);
+					$interval.cancel(vm.dataUpdateInterval);
+				});
+
+
+			vm.dataUpdateInterval = $interval(function () {
+				GetData();
+			}, 100);
 
 
 			vm.chartUpdateInterval = $interval(function () {
@@ -46,7 +46,7 @@
 						y = dataService.Statistics.SignalR.MessagesPerSecond;
 					vm.chartSeries.addPoint([x, y], true, true);
 				}
-
+				GetData();
 			}, 1000);
 
 			//Load the first time for responsiveness.
@@ -73,14 +73,18 @@
 
 		function GetData() {
 
-			dataService.GetCompanies().then(function (data) {
-				data.select(function (c) {
-					if (!c.Tags) {
-						c.Tags = c.Assets.selectMany(function (a) { return a.Tags });
+			dataService.GetSites().then(function (sites) {
+				sites.select(function (site) {
+
+					if (site.Assets) {
+						site.Tags = site.Assets.selectMany(function (a) { return a.Tags });
 					}
 				});
-				vm.companies = data.orderByDescending(function (c) { return c.Tags.length });
+				vm.sites = sites.orderByDescending(function (site) { return site.Tags.length });
+				//console.log("vm.sites = %O", vm.sites);
+
 			});
+
 
 
 		}
@@ -145,7 +149,7 @@
 						time = (new Date()).getTime(),
 						i;
 
-					for (i = -99; i <= 0; i += 1) {
+					for (i = -750; i <= 0; i += 1) {
 						data.push({
 							x: time + i * 1000,
 							y: 0
@@ -163,19 +167,20 @@
 	}
 
 	angular
-            .module("app")
-            .controller("LiveObservationIndicatorTableCellsCtrl", [
-                "$scope",
-                "$state",
-                "displaySetupService",
-                "dataService",
-                "signalR",
-                "$interval",
-                "$timeout",
-                "utilityService",
-                LiveObservationIndicatorTableCellsCtrl
-            ]);
+		.module("app")
+		.controller("LiveObservationIndicatorTableCellsCtrl", [
+			"$scope",
+			"$state",
+			"displaySetupService",
+			"dataService",
+			"signalR",
+			"$interval",
+			"$timeout",
+			"utilityService",
+			LiveObservationIndicatorTableCellsCtrl
+		]);
 
 
 
 })();
+

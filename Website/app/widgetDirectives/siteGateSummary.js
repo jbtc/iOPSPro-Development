@@ -31,7 +31,7 @@
 					vm.showSettings = false;
 
 
-					$timeout(function() {
+					$timeout(function () {
 						//vm.showSettings = true;
 					}, 2000);
 
@@ -88,14 +88,14 @@
 								}).then(function (widget) {
 									signalR.SignalAllClients("WidgetAdded", widget);
 									return true;
-							});
+								});
 						});
 
 					}
 
-					vm.AddWidgetGroupToDashboard = function(group) {
-						vm.AddToDashboard(group.PBBUnitOnTag).then(function() {					
-							vm.AddToDashboard(group.PCAUnitOnTag).then(function() {
+					vm.AddWidgetGroupToDashboard = function (group) {
+						vm.AddToDashboard(group.PBBUnitOnTag).then(function () {
+							vm.AddToDashboard(group.PCAUnitOnTag).then(function () {
 								vm.AddToDashboard(group.GPUUnitOnTag);
 							});
 						});
@@ -105,7 +105,7 @@
 					function GetNextWidgetRowColumn() {
 
 
-						var nonPopUpWidgets = vm.dashboard.widgets.where(function(w) { return !w.IsModalPopUp });
+						var nonPopUpWidgets = vm.dashboard.widgets.where(function (w) { return !w.IsModalPopUp });
 						console.log("nonPopUpWidgets = %O", vm.dashboard.widgets);
 
 						var lowestPoint = nonPopUpWidgets.max(function (w) { return w.row + w.sizeY });
@@ -139,7 +139,7 @@
 					//---G
 					vm.OpenSummaryWidget = function (tag, $event) {
 						console.log("Opening summary widget for tag  %O", tag);
-						
+
 
 						//+Add the child widget if not already in the database.
 
@@ -149,7 +149,7 @@
 							.filter("AssetId", tag.AssetId)
 							.query()
 							.$promise
-							.then(function(data) {
+							.then(function (data) {
 								if (data.length == 1) {
 
 									console.log("Existing child widget = %O", data);
@@ -157,31 +157,31 @@
 									var w = data[0];
 
 									vm.childWidget = {
-											sizeX: w.Width,
-											sizeY: w.Height,
-											row: w.Row,
-											col: w.Col,
-											prevRow: w.Row,
-											prevCol: w.Col,
-											Id: w.Id,
-											Name: w.Name,
-											WidgetResource: w,
-											HasChanged: false
+										sizeX: w.Width,
+										sizeY: w.Height,
+										row: w.Row,
+										col: w.Col,
+										prevRow: w.Row,
+										prevCol: w.Col,
+										Id: w.Id,
+										Name: w.Name,
+										WidgetResource: w,
+										HasChanged: false
 									}
 
 									switch (tag.AssetName) {
-									case "PCA":
-										console.log("Activating state .pcaSummaryModal");
-										$state.go(".pcaSummaryModal", { widget: vm.childWidget, assetId: tag.AssetId, dashboard: vm.dashboard });
-										break;
+										case "PCA":
+											console.log("Activating state .pcaSummaryModal");
+											$state.go(".pcaSummaryModal", { widget: vm.childWidget, assetId: tag.AssetId, dashboard: vm.dashboard });
+											break;
 
-									case "GPU":
-										$state.go(".gpuSummaryModal", { widget: vm.childWidget, assetId: tag.AssetId, dashboard: vm.dashboard });
-										break;
+										case "GPU":
+											$state.go(".gpuSummaryModal", { widget: vm.childWidget, assetId: tag.AssetId, dashboard: vm.dashboard });
+											break;
 
-									case "PBB":
-										$state.go(".pbbSummaryModal", { widget: vm.childWidget, assetId: tag.AssetId, dashboard: vm.dashboard });
-										break;
+										case "PBB":
+											$state.go(".pbbSummaryModal", { widget: vm.childWidget, assetId: tag.AssetId, dashboard: vm.dashboard });
+											break;
 
 									}
 
@@ -222,43 +222,43 @@
 											}
 
 
-											dataService.AddEntity("Widgets", newChildWidget).then(function(w) {
+											dataService.AddEntity("Widgets", newChildWidget).then(function (w) {
 
 												vm.childWidget = {
-														sizeX: w.Width,
-														sizeY: w.Height,
-														row: w.Row,
-														col: w.Col,
-														prevRow: w.Row,
-														prevCol: w.Col,
-														Id: w.Id,
-														Name: w.Name,
-														WidgetResource: w,
-														HasChanged: false
+													sizeX: w.Width,
+													sizeY: w.Height,
+													row: w.Row,
+													col: w.Col,
+													prevRow: w.Row,
+													prevCol: w.Col,
+													Id: w.Id,
+													Name: w.Name,
+													WidgetResource: w,
+													HasChanged: false
 												}
 
 
 												switch (tag.AssetName) {
-												case "PCA":
-													$state.go(".pcaSummaryModal", { widget: vm.childWidget, assetId: tag.AssetId, dashboard: vm.dashboard });
-													break;
+													case "PCA":
+														$state.go(".pcaSummaryModal", { widget: vm.childWidget, assetId: tag.AssetId, dashboard: vm.dashboard });
+														break;
 
-												case "GPU":
-													$state.go(".gpuSummaryModal", { widget: vm.childWidget, assetId: tag.AssetId, dashboard: vm.dashboard });
-													break;
+													case "GPU":
+														$state.go(".gpuSummaryModal", { widget: vm.childWidget, assetId: tag.AssetId, dashboard: vm.dashboard });
+														break;
 
-												case "PBB":
-													$state.go(".pbbSummaryModal", { widget: vm.childWidget, assetId: tag.AssetId, dashboard: vm.dashboard });
-													break;
+													case "PBB":
+														$state.go(".pbbSummaryModal", { widget: vm.childWidget, assetId: tag.AssetId, dashboard: vm.dashboard });
+														break;
 
-												default:
+													default:
 
 												}
 
 
 											});
 
-											
+
 
 										})
 
@@ -283,7 +283,7 @@
 						if (!vm.widgetSite) {
 
 
-							$state.go(".widgetSettings", { widget: vm.widget});
+							$state.go(".widgetSettings", { widget: vm.widget });
 						}
 					}
 
@@ -313,7 +313,7 @@
 						} else {
 
 							if (vm.widget.WidgetResource.SiteId) {
-								vm.widgetSite = vm.JBTData.Sites.first(function(s) { return s.Id == vm.widget.WidgetResource.SiteId });
+								vm.widgetSite = vm.JBTData.Sites.first(function (s) { return s.Id == vm.widget.WidgetResource.SiteId });
 								GetData();
 							}
 						}
@@ -324,83 +324,69 @@
 					//++Data Loading.....
 					//---G
 					function GetData() {
+						vm.showWidget = true;
 
-						dataService.GetIOPSResource("JBTStandardObservations")
-							.filter("Id", 12374)
-							.expandPredicate("Tags")
-								.filter("SiteId", vm.widget.WidgetResource.SiteId)
-								.expandPredicate("Asset")
-									.expandPredicate("Tags")
-										//.filter("JBTStandardObservationId", 2736)
-										.filter($odata.Predicate.or([new $odata.Predicate("JBTStandardObservationId", 2736),new $odata.Predicate("JBTStandardObservationId", 1942), new $odata.Predicate("JBTStandardObservationId", 12484)]))
-									.finish()
-								.finish()
-							.finish()
+						var standardIdsToLoad = [12374, 2736, 1942, 12484, 4331, 4445, 4765, 12255];
+						dataService.GetIOPSResource("Tags")
+							.filter("SiteId", vm.widget.WidgetResource.SiteId) //that belong to the widget site
+							.filter($odata.Predicate.or(standardIdsToLoad.select(function (sid) { return new $odata.Predicate("JBTStandardObservationId", sid) })))
+							.select(["SiteId", "Id", "LastObservationDate", "AssetId", "LastObservationId", "JBTStandardObservationId", "Name", "LastObservationTextValue", "IsCritical", "IsWarning", "IsAlarm", "ValueWhenActive", "AssetName", "GateName"])
+							.orderBy("Name")
 							.query()
 							.$promise
 							.then(function (data) {
 
-								data = data[0].Tags.orderBy(function(t){return t.Name});
 
-								console.log("siteGateSummary data = %O", data);
-
-
-								var assetIds = data.select(function(d) {
-									return d.Asset.Id.toString();
-								}).join(',');
-
-								//console.log("assetIds = %O", assetIds);
-								vm.widget.assetIds = assetIds;
+								dataService.PlaceTagsIntoInventory(data);
 
 
+								console.log("siteGateTags data = %O", data.orderBy(function (t) { return t.GateName }));
 
 
-
-								vm.gateTagGroups = data
-									.select(function (t) {
-										t.dischargeTemperatureTag = t.Asset.Tags.where(function(t2){return t2.JBTStandardObservationId == 2736}).orderByDescending(function(tt) { return tt.LastObservationDate }).first();
-										t.averageAmpsOutTag = t.Asset.Tags.where(function(t2){return t2.JBTStandardObservationId == 1942}).orderByDescending(function(tt) { return tt.LastObservationDate }).first();
-										t.hookupDurationSecondsTag = t.Asset.Tags.where(function(t2){return t2.JBTStandardObservationId == 12484}).orderByDescending(function(tt) { return tt.LastObservationDate }).first();
-
-										return t;
-									})
-									.groupBy(function(t) { return t.GateName })
-									.select(function (g) {
-
-										var pcaForGate = g.where(function (t2) { return t2.AssetName == 'PCA' }).orderByDescending(function (t2) { return t2.LastReportedDate }).first();
-										var gpuForGate = g.where(function (t2) { return t2.AssetName == 'GPU' }).orderByDescending(function (t2) { return t2.LastReportedDate }).first();
-
-										var outputObject = {
-											GateName: g.key,
-											GateSystem: vm.JBTData.Systems.first(function (s) { return s.SiteId == vm.widget.WidgetResource.SiteId && s.TypeId == 3 && s.Name == g.key }),
-											PCAUnitOnTag: g.where(function (t2) { return t2.AssetName == 'PCA' }).orderByDescending(function (t2) { return t2.LastReportedDate }).first(),
-											DischargeTemperatureTag: pcaForGate ?  pcaForGate.dischargeTemperatureTag : null,
-											GPUUnitOnTag: g.where(function(t2){return t2.AssetName == 'GPU'}).orderByDescending(function(t2){return t2.LastReportedDate}).first(),
-											AverageAmpsOutTag: gpuForGate ? gpuForGate.averageAmpsOutTag : null,
-											HookupDurationSecondsTag: gpuForGate ? gpuForGate.hookupDurationSecondsTag : null,
-											PBBUnitOnTag: g.where(function(t2){return t2.AssetName == 'PBB' && t2.JBTStandardObservationId == 12374}).orderByDescending(function(t2){return t2.LastReportedDate}).first()
-										}
-
-										//Needed for tracking alarms
-										outputObject.PBBAsset = vm.JBTData.Assets.first(function(a){return a.Name == 'PBB' && a.ParentSystemId == outputObject.GateSystem.Id});
-										outputObject.PCAAsset = vm.JBTData.Assets.first(function(a){return a.Name == 'PCA' && a.ParentSystemId == outputObject.GateSystem.Id});
-										outputObject.GPUAsset = vm.JBTData.Assets.first(function(a){return a.Name == 'GPU' && a.ParentSystemId == outputObject.GateSystem.Id});
-
-
-
-
-										FormatZeroBlankDisplayValueForTag(outputObject.DischargeTemperatureTag);
-										FormatZeroBlankDisplayValueForTag(outputObject.AverageAmpsOutTag);
-										FormatDurationValue(outputObject.HookupDurationSecondsTag);
-										return outputObject;
-
-									})
-									.orderBy(function(group){ return group.GateName});
+								var assetIds = data.select(function (d) {
+									return d.AssetId.toString();
+								}).distinct()
+								.join(',');
 
 								//+Get all Alarm Tags into the dataservice inventory. The last true parameter will cause the dataService method to only look for alarm tags.
-								dataService.GetAllSignalRObservationFormattedTagsForAssetIdIntoInventoryByListOfAssetIds(assetIds, true).then(function() {
+								dataService.GetAllSignalRObservationFormattedTagsForAssetIdIntoInventoryByListOfAssetIds(assetIds, true).then(function () {
 									console.log("Alarm Tags loaded into inventory");
 
+									//console.log("assetIds = %O", assetIds);
+									vm.widget.assetIds = assetIds;
+									var dataGroupedByGate = data.groupBy(function (t) { return t.GateName });
+									console.log("Grouped by Gate = %O", dataGroupedByGate);
+
+									vm.gateTagGroups = dataGroupedByGate
+										.select(function (g) {
+
+											var pcaAsset = vm.JBTData.Assets.first(function (a) { return a.Id == (g.first(function (t2) { return t2.AssetName == 'PCA' }) ? g.first(function (t2) { return t2.AssetName == 'PCA' }).AssetId : 0) });
+											var pbbAsset = vm.JBTData.Assets.first(function (a) { return a.Id == (g.first(function (t2) { return t2.AssetName == 'PBB' }) ? g.first(function (t2) { return t2.AssetName == 'PBB' }).AssetId : 0)});
+											var gpuAsset = vm.JBTData.Assets.first(function (a) { return a.Id == (g.first(function (t2) { return t2.AssetName == 'GPU' }) ? g.first(function (t2) { return t2.AssetName == 'GPU' }).AssetId : 0) });
+
+
+											var outputObject = {
+												PCAAsset: pcaAsset,
+												PBBAsset: pbbAsset,
+												GPUAsset: gpuAsset,
+												GateName: g.key,
+												GateSystem: vm.JBTData.Systems.first(function (s) { return s.SiteId == vm.widget.WidgetResource.SiteId && s.TypeId == 3 && s.Name == g.key }),
+												PCAUnitOnTag: pcaAsset.Tags.where(function (t) { return t.JBTStandardObservationId == 12374 }).orderByDescending(function (t2) { return t2.ObservationUTCDateMS }).first(),
+												GPUUnitOnTag: gpuAsset.Tags.where(function (t) { return t.JBTStandardObservationId == 12374 }).orderByDescending(function (t2) { return t2.ObservationUTCDateMS }).first(),
+												PBBUnitOnTag: pbbAsset ? pbbAsset.Tags.where(function (t2) { return t2.AssetName == 'PBB' && t2.JBTStandardObservationId == 12374 }).orderByDescending(function (t2) { return t2.ObservationUTCDateMS }).first() : null,
+												DischargeTemperatureTag: pcaAsset.Tags.where(function (t) { return t.JBTStandardObservationId == 2736 }).orderByDescending(function (t2) { return t2.ObservationUTCDateMS }).first(),
+												AverageAmpsOutTag: gpuAsset.Tags.where(function (t) { return t.JBTStandardObservationId == 1942 }).orderByDescending(function (t2) { return t2.ObservationUTCDateMS }).first()
+											}
+
+											FormatZeroBlankDisplayValueForTag(outputObject.DischargeTemperatureTag);
+											FormatZeroBlankDisplayValueForTag(outputObject.AverageAmpsOutTag);
+
+											//	FormatDurationValue(outputObject.HookupDurationSecondsTag);
+
+
+											return outputObject;
+										})
+										.orderBy(function (group) { return group.GateName });
 
 
 									//+Attach the alarms and comm loss tags to the assets on the gate.
@@ -409,26 +395,38 @@
 
 									vm.gateTagGroups.forEach(function (gtg) {
 
-											if (gtg.PBBAsset) {
-												gtg.PBBAsset.AlarmActiveTag = dataService.cache.tags.first(function (t) { return +t.AssetId == +gtg.PBBAsset.Id && t.JBTStandardObservationId == 12323 });
+										if (gtg.PBBAsset) {
+											gtg.PBBAsset.AlarmActiveTag = dataService.cache.tags.first(function (t) { return +t.AssetId == +gtg.PBBAsset.Id && t.JBTStandardObservationId == 12323 });
+											if (gtg.PBBAsset.AlarmActiveTag) {
 												gtg.PBBAsset.AlarmActiveTag.ValueWhenActive = gtg.PBBAsset.AlarmActiveTag.ValueWhenActive || "1";
-												gtg.PBBAsset.CommLossTag = dataService.cache.tags.first(function(t){ return +t.AssetId == +gtg.PBBAsset.Id &&  commLossStandardObservationIds.any(function(clso){return clso ==  t.JBTStandardObservationId})});
+											} else {
+												//console.log("asset %O, has no alarm active tag", gtg.PBBAsset);
 											}
-											if (gtg.PCAAsset) {
-												gtg.PCAAsset.AlarmActiveTag = dataService.cache.tags.first(function (t) { return +t.AssetId == +gtg.PCAAsset.Id && t.JBTStandardObservationId == 12324});
+											gtg.PBBAsset.CommLossTag = dataService.cache.tags.first(function (t) { return +t.AssetId == +gtg.PBBAsset.Id && commLossStandardObservationIds.any(function (clso) { return clso == t.JBTStandardObservationId }) });
+										}
+										if (gtg.PCAAsset) {
+											gtg.PCAAsset.AlarmActiveTag = dataService.cache.tags.first(function (t) { return +t.AssetId == +gtg.PCAAsset.Id && t.JBTStandardObservationId == 12324 });
+											if (gtg.PCAAsset.AlarmActiveTag) {
 												gtg.PCAAsset.AlarmActiveTag.ValueWhenActive = gtg.PCAAsset.AlarmActiveTag.ValueWhenActive || "1";
-												gtg.PCAAsset.CommLossTag = dataService.cache.tags.first(function(t){ return +t.AssetId == +gtg.PCAAsset.Id &&  commLossStandardObservationIds.any(function(clso){return clso ==  t.JBTStandardObservationId})});
+											} else {
+												//console.log("asset %O, has no alarm active tag", gtg.PCAAsset);
 											}
-											if (gtg.GPUAsset) {
-												gtg.GPUAsset.AlarmActiveTag = dataService.cache.tags.first(function(t){ return +t.AssetId == +gtg.GPUAsset.Id && t.JBTStandardObservationId == 12325});
-												gtg.GPUAsset.AlarmActiveTag.ValueWhenActive = gtg.GPUAsset.AlarmActiveTag.ValueWhenActive || "1";
-												gtg.GPUAsset.CommLossTag = dataService.cache.tags.first(function(t){ return +t.AssetId == +gtg.GPUAsset.Id &&  commLossStandardObservationIds.any(function(clso){return clso ==  t.JBTStandardObservationId})});
+											gtg.PCAAsset.CommLossTag = dataService.cache.tags.first(function (t) { return +t.AssetId == +gtg.PCAAsset.Id && commLossStandardObservationIds.any(function (clso) { return clso == t.JBTStandardObservationId }) });
+										}
+										if (gtg.GPUAsset) {
+											gtg.GPUAsset.AlarmActiveTag = dataService.cache.tags.first(function (t) { return +t.AssetId == +gtg.GPUAsset.Id && t.JBTStandardObservationId == 12325 });
+											if (gtg.GPUAsset && gtg.GPUAsset.AlarmActiveTag) {
+												gtg.GPUAsset.AlarmActiveTag.ValueWhenActive = gtg.GPUAsset && gtg.GPUAsset.AlarmActiveTag && gtg.GPUAsset.AlarmActiveTag.ValueWhenActive || "1";
+											} else {
+												//console.log("asset %O, has no alarm active tag", gtg.GPUAsset);
 											}
+											gtg.GPUAsset.CommLossTag = dataService.cache.tags.first(function (t) { return +t.AssetId == +gtg.GPUAsset.Id && commLossStandardObservationIds.any(function (clso) { return clso == t.JBTStandardObservationId }) });
+										}
 									});
 
 									console.log("vm.gateTagGroups = %O", vm.gateTagGroups);
+									displaySetupService.SetPanelBodyWithIdHeight(vm.widget.Id);
 									vm.showWidget = true;
-
 								});
 
 
@@ -442,28 +440,27 @@
 
 					function FormatDurationValue(tag) {
 						if (tag) {
-								tag.DisplayValue = utilityService.SecondsToString(+tag.LastObservationTextValue);
-								//if (+tag.LastObservationTextValue > 0) {
-								//	tag.DisplayValue = utilityService.ToFixed(+tag.LastObservationTextValue, 1);
-								//} else {
-								//	tag.DisplayValue = '';
-								//}
-							}
-							
+							tag.DisplayValue = utilityService.SecondsToString(+tag.LastObservationTextValue);
+							//if (+tag.LastObservationTextValue > 0) {
+							//	tag.DisplayValue = utilityService.ToFixed(+tag.LastObservationTextValue, 1);
+							//} else {
+							//	tag.DisplayValue = '';
+							//}
 						}
-					
+
+					}
+
 					function FormatZeroBlankDisplayValueForTag(tag) {
 						if (tag) {
-								tag.DisplayValue = utilityService.ToFixed(+tag.LastObservationTextValue, 1);
-								//if (+tag.LastObservationTextValue > 0) {
-								//	tag.DisplayValue = utilityService.ToFixed(+tag.LastObservationTextValue, 1);
-								//} else {
-								//	tag.DisplayValue = '';
-								//}
+							if (+tag.Value > 0) {
+								tag.DisplayValue = utilityService.ToFixed(+tag.Value, 1);
+							} else {
+								tag.DisplayValue = '0.0';
 							}
-							
 						}
-					
+
+					}
+
 
 
 
@@ -525,20 +522,21 @@
 
 							vm.gateTagGroups.forEach(function (tg) {
 
-								var tgUpdateTag = tg.PCAUnitOnTag && tg.PCAUnitOnTag.Id == updatedTag.TagId ? tg.PCAUnitOnTag :
-													tg.GPUUnitOnTag && tg.GPUUnitOnTag.Id == updatedTag.TagId ? tg.GPUUnitOnTag :
-													tg.PBBUnitOnTag && tg.PBBUnitOnTag.Id == updatedTag.TagId ? tg.PBBUnitOnTag :
-													tg.DischargeTemperatureTag && tg.DischargeTemperatureTag.Id == updatedTag.TagId ? tg.DischargeTemperatureTag :
-													tg.AverageAmpsOutTag && tg.AverageAmpsOutTag.Id == updatedTag.TagId ? tg.AverageAmpsOutTag :
-													tg.HookupDurationSecondsTag && tg.HookupDurationSecondsTag.Id == updatedTag.TagId ? tg.HookupDurationSecondsTag : null;
-												
+								var tgUpdateTag = tg.PCAUnitOnTag && tg.PCAUnitOnTag.TagId == updatedTag.TagId ? tg.PCAUnitOnTag :
+													tg.GPUUnitOnTag && tg.GPUUnitOnTag.TagId == updatedTag.TagId ? tg.GPUUnitOnTag :
+													tg.PBBUnitOnTag && tg.PBBUnitOnTag.TagId == updatedTag.TagId ? tg.PBBUnitOnTag :
+													tg.DischargeTemperatureTag && tg.DischargeTemperatureTag.TagId == updatedTag.TagId ? tg.DischargeTemperatureTag :
+													tg.AverageAmpsOutTag && tg.AverageAmpsOutTag.TagId == updatedTag.TagId ? tg.AverageAmpsOutTag :
+													tg.HookupDurationSecondsTag && tg.HookupDurationSecondsTag.TagId == updatedTag.TagId ? tg.HookupDurationSecondsTag : null;
+
 								if (tgUpdateTag) {
-									UpdateSelectedGateTagFromSignalR(tgUpdateTag, updatedTag);
+
 									FormatZeroBlankDisplayValueForTag(tgUpdateTag);
 									FormatZeroBlankDisplayValueForTag(tgUpdateTag);
-									if (tg.HookupDurationSecondsTag && tg.HookupDurationSecondsTag.Id == updatedTag.TagId) {									
-										FormatDurationValue(tg.HookupDurationSecondsTag);
-									}
+
+									//if (tg.HookupDurationSecondsTag && tg.HookupDurationSecondsTag.TagId == updatedTag.TagId) {
+									//	FormatDurationValue(tg.HookupDurationSecondsTag);
+									//}
 
 								}
 							});
@@ -554,20 +552,20 @@
 
 					//Update the duration counters each second until the next hard update from signalR
 					vm.durationInterval = $interval(function () {
-							if (vm.gateTagGroups) {
-								
-								vm.gateTagGroups.forEach(function (tg) {
+						if (vm.gateTagGroups) {
 
-									if (tg.HookupDurationSecondsTag && +tg.HookupDurationSecondsTag.LastObservationTextValue > 0) {
-										tg.HookupDurationSecondsTag.LastObservationTextValue = +tg.HookupDurationSecondsTag.LastObservationTextValue;
-										tg.HookupDurationSecondsTag.LastObservationTextValue += 1;
-										FormatDurationValue(tg.HookupDurationSecondsTag);
+							vm.gateTagGroups.forEach(function (tg) {
+
+								if (tg.HookupDurationSecondsTag && +tg.HookupDurationSecondsTag.LastObservationTextValue > 0) {
+									tg.HookupDurationSecondsTag.LastObservationTextValue = +tg.HookupDurationSecondsTag.LastObservationTextValue;
+									tg.HookupDurationSecondsTag.LastObservationTextValue += 1;
+									FormatDurationValue(tg.HookupDurationSecondsTag);
 
 
-									}
-								});
-							}
-						
+								}
+							});
+						}
+
 					}, 1000);
 
 					$scope.$on("$destroy", function () {
@@ -589,13 +587,13 @@
 						//console.log("===========================================================");
 						//console.log("Tag Update from SignalR = ", updatedTag.TagName + " StdObsId = " + updatedTag.JBTStandardObservationId + " Val=" + updatedTag.Value);
 						//console.log("TG Item identified = %O", gateTag);
-								
+
 						gateTag.LastObservationTextValue = updatedTag.Value;
 						gateTag.LastObservationId = updatedTag.LastObservationId;
 						gateTag.LastObservationDate = updatedTag.LastObservationDate;
 
 						//console.log("===========================================================");
-					
+
 					}
 
 				};

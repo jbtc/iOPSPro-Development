@@ -275,7 +275,7 @@
 
                                 .query().$promise.then(function (data) {
 
-                                    flattenedData = data.selectMany(function (tag) { return tag.ObservationExceptions });
+                                    var flattenedData = data.selectMany(function (tag) { return tag.ObservationExceptions });
                                     console.log("flattenedData", flattenedData);
                                     console.log("data from OData Source = %O", angular.copy(data));
 
