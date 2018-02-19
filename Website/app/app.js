@@ -1,7 +1,7 @@
 ﻿"use strict";
 
 
-var odataServerUrl = (document.URL.indexOf("localhost/iops/") > 0 || document.URL.indexOf("localhost/iOPSPro-Development/") > 0) ? "http://localhost/DataServices/ODataV4" : "https://www.iopspro.com/DataServices/ODataV4";
+var odataServerUrl = (document.URL.indexOf("localhost/iops/") > 0 || document.URL.indexOf("xxxlocalhost/iOPSPro-Development/") > 0) ? "http://localhost/DataServices/ODataV4" : "https://www.iopspro.com/DataServices/ODataV4";
 
 //var odataServerUrl = "https:/7.207.78.73/DataServices/ODataV4";
 //var odataServerUrl = "http://localhost:48773";

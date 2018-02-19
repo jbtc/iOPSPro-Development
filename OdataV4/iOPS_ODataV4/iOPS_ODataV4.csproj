@@ -297,6 +297,7 @@
     <Compile Include="Controllers\WebAPI\BHSTop5AlarmTypeLongestDurationController.cs" />
     <Compile Include="Controllers\WebAPI\BHSFilterByAlarmTypesbyAreaController.cs" />
     <Compile Include="Controllers\WebAPI\BHSPercentCBRAPerDayController.cs" />
+    <Compile Include="Controllers\WebAPI\GSEquipmentUsageByGate_TVF_QueryController.cs" />
     <Compile Include="Controllers\WebAPI\GSEquipmentUsage_TVF_QueryController.cs" />
     <Compile Include="Controllers\WebAPI\Top5EquipmentWithMostAlarmsController.cs" />
     <Compile Include="Controllers\WebAPI\Top5ObservationExceptionsController.cs" />

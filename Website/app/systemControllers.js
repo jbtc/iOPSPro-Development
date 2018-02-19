@@ -34,6 +34,7 @@
 		    case 'gsTopFiveAlarmTypesByEquipment':
 		    case 'gsEquipmentUsage':
 		    case 'gsEquipmentHoursOfUsage':
+		    case 'gsEquipmentUtilizationSummary':
 
 				vm.selectSite = true;
 				vm.selectTerminal = vm.selectZone = vm.selectGate = vm.selectAsset = vm.selectBHS = false;
@@ -52,7 +53,8 @@
 			case 'pcaSummary':
 			case 'pbbSummary':
 		    case 'gpuSummary':
-            case 'gsServiceCounters':
+		    case 'gsServiceCounters':
+		   
 				vm.selectSite = vm.selectTerminal = vm.selectZone = vm.selectGate = true;
 				vm.selectAsset = false;
 				break;
