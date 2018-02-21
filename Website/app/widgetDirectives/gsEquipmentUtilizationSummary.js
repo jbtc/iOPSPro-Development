@@ -119,11 +119,13 @@
 
 
 			        function GetChartData(updateOnly) {
+			            var startDate = vm.dashboard.webApiParameterStartDate;
+			            var endDate = vm.dashboard.webApiParameterEndDate;
 
 			            dataService.GetIOPSWebAPIResource("GSEquipmentUsageByGate_TVF_Query")
 						        .query({
-						            beginDate: vm.dashboard.webApiParameterStartDate,
-						            endDate: vm.dashboard.webApiParameterEndDate,
+						            beginDate: startDate,
+						            endDate: endDate,
 						            siteId: vm.widget.WidgetResource.SiteId,
                                     gate:'All'
 
@@ -140,8 +142,8 @@
 
 			            dataService.GetIOPSWebAPIResource("GSEquipmentUsage_TVF_Query")
 							.query({
-							    beginDate: vm.dashboard.webApiParameterStartDate,
-							    endDate: vm.dashboard.webApiParameterEndDate,
+							    beginDate: startDate,
+							    endDate: endDate,
 							    siteId: vm.widget.WidgetResource.SiteId
 							    
 							}, function (data) {
@@ -154,15 +156,26 @@
 							    vm.totalGPUTimesUsed = data.sum(function (item) { return item.GPU_Times_Used });
 
 							    var usagePBB; var usagePCA; var usageGPU;
+							    
+							    var diff;
+							    var today = new Date().toISOString().slice(0, 10);
+							    var startDateString = startDate.toISOString().slice(0, 10);
+							    
+							    if (startDateString == today) {
+							        diff = 1;
+							    }
+							    else
+							        diff = Math.floor((Date.parse(today) - Date.parse(startDateString)) / 86400000);
 
+							    console.log("days total", diff);
 							    if (vm.totalPBBHours != 0)
-							        usagePBB = parseFloat(((vm.totalPBBHours / (24 * vm.PBBGatesPresent))*100).toFixed(2));
+							        usagePBB = parseFloat(((vm.totalPBBHours / (24 * diff * vm.PBBGatesPresent)) * 100).toFixed(2));
 							    else usagePBB = '0%';
 							    if (vm.totalPCAHours != 0)
-							        usagePCA = parseFloat(((vm.totalPCAHours / (24 * vm.PCAGatesPresent))*100).toFixed(2));
+							        usagePCA = parseFloat(((vm.totalPCAHours / (24 * diff * vm.PCAGatesPresent)) * 100).toFixed(2));
 							    else usagePCA = '0%';
 							    if (vm.totalGPUHours != 0)
-							        usageGPU = parseFloat(((vm.totalGPUHours / (24 * vm.GPUGatesPresent))*100).toFixed(2));
+							        usageGPU = parseFloat(((vm.totalGPUHours / (24 * diff * vm.GPUGatesPresent))*100).toFixed(2));
 							    else usageGPU = '0%';
 
 							    vm.usagePBB = usagePBB; vm.usagePCA = usagePCA; vm.usageGPU = usageGPU;
@@ -190,10 +203,15 @@
 
 
 
-			        //Refresh data on the 15 second system clock tick
-			        $scope.$on("System.ClockTick15", function () {
-			            GetChartData(true);
-			        });
+			        //Refresh data 
+			            vm.updateInterval = $interval(function () {
+			                GetChartData();
+			            }, 120000);
+
+			            $scope.$on("$destroy", function () {
+			                $interval.cancel(vm.updateInterval);
+
+			            });
 
 			        function SetChartSizeLine(widgetId, chart) {
 			            //Set the bar chart to be 40% high, 60% wide
