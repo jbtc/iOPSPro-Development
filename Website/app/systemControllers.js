@@ -35,6 +35,7 @@
 		    case 'gsEquipmentUsage':
 		    case 'gsEquipmentHoursOfUsage':
 		    case 'gsEquipmentUtilizationSummary':
+		    case 'pcaDischargePerformance':
 
 				vm.selectSite = true;
 				vm.selectTerminal = vm.selectZone = vm.selectGate = vm.selectAsset = vm.selectBHS = false;

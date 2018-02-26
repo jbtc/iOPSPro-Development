@@ -121,39 +121,39 @@
 			        function GetChartData(updateOnly) {
 			            var startDate = vm.dashboard.webApiParameterStartDate;
 			            var endDate = vm.dashboard.webApiParameterEndDate;
-
-			            dataService.GetIOPSWebAPIResource("GSEquipmentUsageByGate_TVF_Query")
-						        .query({
-						            beginDate: startDate,
-						            endDate: endDate,
-						            siteId: vm.widget.WidgetResource.SiteId,
-                                    gate:'All'
-
-						        }, function (data) {
-
-						            vm.PBBGatesPresent = data.sum(function (item) { return item.PBB_Hours });
-						            vm.PCAGatesPresent = data.sum(function (item) { return item.PCA_Hours });
-						            vm.GPUGatesPresent = data.sum(function (item) { return item.GPU_Hours });
-						            vm.PBBGatesUsed = data.sum(function (item) { return item.PBB_Times_Used });
-						            vm.PCAGatesUsed = data.sum(function (item) { return item.PCA_Times_Used });
-						            vm.GPUGatesUsed = data.sum(function (item) { return item.GPU_Times_Used });
-							    });
-
-
+			            var siteId = vm.widget.WidgetResource.SiteId;
+			            
 			            dataService.GetIOPSWebAPIResource("GSEquipmentUsage_TVF_Query")
 							.query({
 							    beginDate: startDate,
 							    endDate: endDate,
-							    siteId: vm.widget.WidgetResource.SiteId
-							    
-							}, function (data) {
-							
-							    vm.totalPBBHours = data.sum(function (item) { return item.PBB_Hours }).toFixed(2);
-							    vm.totalPCAHours = data.sum(function (item) { return item.PCA_Hours }).toFixed(2);
-							    vm.totalGPUHours = data.sum(function (item) { return item.GPU_Hours }).toFixed(2);
-							    vm.totalPBBTimesUsed = data.sum(function (item) { return item.PBB_Times_Used });
-							    vm.totalPCATimesUsed = data.sum(function (item) { return item.PCA_Times_Used });
-							    vm.totalGPUTimesUsed = data.sum(function (item) { return item.GPU_Times_Used });
+							    siteId: siteId
+
+							}, function (info) {
+							    console.log("GSEquipmentUsage_TVF_Query initial data = %O", info);
+							    vm.totalPBBHours = info.sum(function (item) { return item.PBB_Hours }).toFixed(2);
+							    vm.totalPCAHours = info.sum(function (item) { return item.PCA_Hours }).toFixed(2);
+							    vm.totalGPUHours = info.sum(function (item) { return item.GPU_Hours }).toFixed(2);
+							    vm.totalPBBTimesUsed = info.sum(function (item) { return item.PBB_Times_Used });
+							    vm.totalPCATimesUsed = info.sum(function (item) { return item.PCA_Times_Used });
+							    vm.totalGPUTimesUsed = info.sum(function (item) { return item.GPU_Times_Used });
+							    });
+
+			            dataService.GetIOPSWebAPIResource("GSEquipmentUsageByGate_TVF_Query")
+                               .query({
+                                   beginDate: startDate,
+                                   endDate: endDate,
+                                   siteId: siteId,
+                                   gate:'All'
+
+                               }, function (data) {
+                                   console.log("GSEquipmentUsageByGate_TVF_Query initial data = %O", data);
+                                   vm.PBBGatesPresent = data.sum(function (item) { return item.PBB_Hours });
+                                   vm.PCAGatesPresent = data.sum(function (item) { return item.PCA_Hours });
+                                   vm.GPUGatesPresent = data.sum(function (item) { return item.GPU_Hours });
+                                   vm.PBBGatesUsed = data.sum(function (item) { return item.PBB_Times_Used });
+                                   vm.PCAGatesUsed = data.sum(function (item) { return item.PCA_Times_Used });
+                                   vm.GPUGatesUsed = data.sum(function (item) { return item.GPU_Times_Used });
 
 							    var usagePBB; var usagePCA; var usageGPU;
 							    
@@ -170,20 +170,24 @@
 							    console.log("days total", diff);
 							    if (vm.totalPBBHours != 0)
 							        usagePBB = parseFloat(((vm.totalPBBHours / (24 * diff * vm.PBBGatesPresent)) * 100).toFixed(2));
-							    else usagePBB = '0%';
+							    else usagePBB = 0.00;
 							    if (vm.totalPCAHours != 0)
 							        usagePCA = parseFloat(((vm.totalPCAHours / (24 * diff * vm.PCAGatesPresent)) * 100).toFixed(2));
-							    else usagePCA = '0%';
+							    else usagePCA = 0.00;
 							    if (vm.totalGPUHours != 0)
 							        usageGPU = parseFloat(((vm.totalGPUHours / (24 * diff * vm.GPUGatesPresent))*100).toFixed(2));
-							    else usageGPU = '0%';
+							    else usageGPU = 0.00;
 
 							    vm.usagePBB = usagePBB; vm.usagePCA = usagePCA; vm.usageGPU = usageGPU;
 
 							    vm.chartData = data;
 							   
 
-							   
+							    console.log("vm.usagePBB", vm.usagePBB);
+							    console.log("vm.usagePCA", vm.usagePCA);
+							    console.log("vm.usageGPU", vm.usageGPU);
+
+
 							    $(function () {
 							        displaySetupService.SetWidgetPanelBodyDimensions(vm.widget.Id);
 							        //Render the chart
@@ -194,7 +198,7 @@
 							    });
 							    
 							    vm.data = data;
-							    //vm.showWidget = true;
+							    vm.showWidget = true;
 							    vm.widget.displaySettings.headingExtraTitle = GetHeadingExtraTitle();
 
 							});
