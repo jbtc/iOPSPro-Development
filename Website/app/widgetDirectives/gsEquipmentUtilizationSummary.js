@@ -298,10 +298,8 @@
 			                animation: false,
 			                credits: { enabled: false },
 			                title: {
-			                    text: 'Equipment Hours Of Usage',
-			                    style: {
-			                        fontSize: '.8em'
-			                    }
+			                    text: '',
+			                   
 			                },
 			                //subtitle: {
 			                //	text: ''
@@ -320,24 +318,24 @@
 			                pane: {
 			                    startAngle: 0,
 			                    endAngle: 360,
-			                    background: [{ // Track for Move
+			                    background: [{ 
 			                        outerRadius: '112%',
 			                        innerRadius: '88%',
-			                        backgroundColor: Highcharts.Color(Highcharts.getOptions().colors[0])
+			                        backgroundColor: Highcharts.Color(Highcharts.getOptions().colors[4])
                                         .setOpacity(0.3)
                                         .get(),
 			                        borderWidth: 0
-			                    }, { // Track for Exercise
+			                    }, { 
 			                        outerRadius: '87%',
 			                        innerRadius: '63%',
-			                        backgroundColor: Highcharts.Color(Highcharts.getOptions().colors[1])
+			                        backgroundColor: Highcharts.Color(Highcharts.getOptions().colors[7])
                                         .setOpacity(0.3)
                                         .get(),
 			                        borderWidth: 0
-			                    }, { // Track for Stand
+			                    }, { 
 			                        outerRadius: '62%',
 			                        innerRadius: '38%',
-			                        backgroundColor: Highcharts.Color(Highcharts.getOptions().colors[2])
+			                        backgroundColor: Highcharts.Color(Highcharts.getOptions().colors[8])
                                         .setOpacity(0.3)
                                         .get(),
 			                        borderWidth: 0
@@ -373,7 +371,7 @@
 			                    positioner: function (labelWidth) {
 			                        return {
 			                            x: (this.chart.chartWidth - labelWidth) / 2,
-			                            y: (this.chart.plotHeight / 2) + 15
+			                            y: (this.chart.plotHeight / 2) - 15
 			                        };
 			                    }
 			                },
@@ -382,7 +380,7 @@
 			                series: [{
 			                    name: 'PBB',
 			                    data: [{
-			                        color: Highcharts.getOptions().colors[0],
+			                        color: Highcharts.getOptions().colors[4],
 			                        radius: '112%',
 			                        innerRadius: '88%',
 			                        y: vm.usagePBB
@@ -390,7 +388,7 @@
 			                   }, {
 			                    name: 'GPU',
 			                    data: [{
-			                        color: Highcharts.getOptions().colors[1],
+			                        color: Highcharts.getOptions().colors[7],
 			                        radius: '87%',
 			                        innerRadius: '63%',
 			                        y: vm.usageGPU
@@ -398,7 +396,7 @@
 			                    }, {
 			                    name: 'PCA',
 			                    data: [{
-			                        color: Highcharts.getOptions().colors[2],
+			                        color: Highcharts.getOptions().colors[8],
 			                        radius: '62%',
 			                        innerRadius: '38%',
 			                        y: vm.usagePCA
