@@ -192,15 +192,23 @@
 			            }
 			            else {
 			                var setPointtemp = 0;
-			                if (vm.Heat != "" && vm.HeatTime != "")
-			                    setPointtemp =  parseFloat(vm.Heat);
-			                else if (vm.Cool != "" && vm.CoolTime != "")
-			                    setPointtemp =  parseFloat(vm.Cool);
-			                for (i = 0; i < d.length ; i++) {
-			                    indexVal = c.indexOf(d[i]);
-			                    if (indexVal != null && a[indexVal] == 1 && e[i] > setPointtemp) b[i] = '#ff0000';
-			                    else if (indexVal != null && a[indexVal] == 1 && e[i] <= setPointtemp) b[i] = '#00ff00';
-			                    else b[i] = '#dedede';
+			                if (vm.Heat != "" && vm.HeatTime != "") {
+			                    setPointtemp = parseFloat(vm.Heat);
+			                    for (i = 0; i < d.length ; i++) {
+			                        indexVal = c.indexOf(d[i]);
+			                        if (indexVal != null && a[indexVal] == 1 && e[i] <= setPointtemp) b[i] = '#ff0000';
+			                        else if (indexVal != null && a[indexVal] == 1 && e[i] > setPointtemp) b[i] = '#00ff00';
+			                        else b[i] = '#dedede';
+			                    }
+			                }
+			                else if (vm.Cool != "" && vm.CoolTime != "") {
+			                    setPointtemp = parseFloat(vm.Cool);
+			                    for (i = 0; i < d.length ; i++) {
+			                        indexVal = c.indexOf(d[i]);
+			                        if (indexVal != null && a[indexVal] == 1 && e[i] > setPointtemp) b[i] = 'lightblue';
+			                        else if (indexVal != null && a[indexVal] == 1 && e[i] <= setPointtemp) b[i] = '#00ff00';
+			                        else b[i] = '#dedede';
+			                    }
 			                }
 			            
 			            }
@@ -247,7 +255,12 @@
 			            else if (vm.CoolTime != "" && vm.Cool != "" && vm.HeatTime == "" && vm.Heat == "")
 			                return parseFloat(vm.Cool);
 			        }
-
+			        function GetTempColor() {
+			            if (vm.HeatTime != "" && vm.Heat != "" && vm.CoolTime == "" && vm.Cool == "")
+			                return 'red';
+			            else if (vm.CoolTime != "" && vm.Cool != "" && vm.HeatTime == "" && vm.Heat == "")
+			                return 'lightblue';
+			        }
 			        function CreateChart(data) {
 
 
@@ -278,7 +291,7 @@
 			                yAxis: {
 			                    plotLines: [{
 			                        value: GetTempValue(),
-			                        color: '#ff0000',
+			                        color: GetTempColor(),
 			                        dashStyle: 'solid',
 			                        width: 3
 			                    }],
