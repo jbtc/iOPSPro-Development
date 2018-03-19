@@ -258,6 +258,9 @@
           <Property Name="Program" Type="varchar" MaxLength="50" />
           <Property Name="ModelGenericName" Type="varchar" MaxLength="50" />
           <Property Name="Revision" Type="nvarchar" MaxLength="255" />
+          <Property Name="LastReportedDate" Type="datetime" />
+          <Property Name="LastReportedDateTagId" Type="bigint" />
+          <Property Name="UnitDesignator" Type="varchar" MaxLength="10" />
         </EntityType>
         <EntityType Name="AssetCondition">
           <Key>
@@ -308,6 +311,10 @@
           <Property Name="GoogleMapLatLon" Type="nvarchar" MaxLength="100" />
           <Property Name="CompanyTypeId" Type="bigint" Nullable="false" />
           <Property Name="ODataAccessToken" Type="nvarchar" MaxLength="200" />
+          <Property Name="LastModifiedDate" Type="datetime" />
+          <Property Name="LastModifiedUserId" Type="bigint" />
+          <Property Name="CreationDate" Type="datetime" />
+          <Property Name="CreatorUserId" Type="bigint" />
         </EntityType>
         <EntityType Name="CompanyContact">
           <Key>
@@ -317,6 +324,10 @@
           <Property Name="PersonId" Type="bigint" />
           <Property Name="Role" Type="nvarchar" MaxLength="100" />
           <Property Name="CompanyId" Type="bigint" />
+          <Property Name="LastModifiedDate" Type="datetime" />
+          <Property Name="LastModifiedUserId" Type="bigint" />
+          <Property Name="CreationDate" Type="datetime" />
+          <Property Name="CreatorUserId" Type="bigint" />
         </EntityType>
         <EntityType Name="CompanyDataReader">
           <Key>
@@ -430,8 +441,13 @@
             <PropertyRef Name="Id" />
           </Key>
           <Property Name="Id" Type="bigint" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="Mnemonic" Type="varchar" MaxLength="10" />
           <Property Name="Name" Type="varchar" MaxLength="100" />
           <Property Name="Description" Type="varchar(max)" />
+          <Property Name="LastModifiedDate" Type="datetime" />
+          <Property Name="LastModifiedUserId" Type="bigint" />
+          <Property Name="CreationDate" Type="datetime" />
+          <Property Name="CreatorUserId" Type="bigint" />
         </EntityType>
         <EntityType Name="Observation">
           <Key>
@@ -578,6 +594,10 @@
           <Property Name="ContactPersonId" Type="bigint" />
           <Property Name="TerminationDate" Type="datetime" />
           <Property Name="Terms" Type="varchar(max)" />
+          <Property Name="LastModifiedDate" Type="datetime" />
+          <Property Name="LastModifiedUserId" Type="bigint" />
+          <Property Name="CreationDate" Type="datetime" />
+          <Property Name="CreatorUserId" Type="bigint" />
         </EntityType>
         <EntityType Name="SubscriptionModule">
           <Key>
@@ -588,6 +608,10 @@
           <Property Name="ModuleId" Type="bigint" />
           <Property Name="StartDate" Type="datetime" />
           <Property Name="EndDate" Type="datetime" />
+          <Property Name="LastModifiedDate" Type="datetime" />
+          <Property Name="LastModifiedUserId" Type="bigint" />
+          <Property Name="CreationDate" Type="datetime" />
+          <Property Name="CreatorUserId" Type="bigint" />
         </EntityType>
         <EntityType Name="SubscriptionSiteUser">
           <Key>
@@ -598,6 +622,10 @@
           <Property Name="UserId" Type="bigint" />
           <Property Name="SiteId" Type="bigint" />
           <Property Name="IsAdmin" Type="bit" />
+          <Property Name="LastModifiedDate" Type="datetime" />
+          <Property Name="LastModifiedUserId" Type="bigint" />
+          <Property Name="CreationDate" Type="datetime" />
+          <Property Name="CreatorUserId" Type="bigint" />
         </EntityType>
         <EntityType Name="SubscriptionUser">
           <Key>
@@ -609,6 +637,10 @@
           <Property Name="StartDate" Type="datetime" />
           <Property Name="EndDate" Type="datetime" />
           <Property Name="IsAdmin" Type="bit" />
+          <Property Name="LastModifiedDate" Type="datetime" />
+          <Property Name="LastModifiedUserId" Type="bigint" />
+          <Property Name="CreationDate" Type="datetime" />
+          <Property Name="CreatorUserId" Type="bigint" />
         </EntityType>
         <EntityType Name="System">
           <Key>
@@ -712,6 +744,7 @@
           <Property Name="PreviousReportedDate" Type="datetime" />
           <Property Name="IsDerived" Type="bit" />
           <Property Name="IgnoreWhenTheAssetIsInactive" Type="bit" />
+          <Property Name="D" Type="varchar" MaxLength="674" StoreGeneratedPattern="Computed" />
         </EntityType>
         <EntityType Name="Unit">
           <Key>
@@ -750,6 +783,8 @@
           <Property Name="DefaultNavPill" Type="varchar" MaxLength="20" />
           <Property Name="ParentWidgetId" Type="bigint" />
           <Property Name="IsModalPopUp" Type="bit" />
+          <Property Name="DefaultSearchText" Type="varchar" MaxLength="200" />
+          <Property Name="DefaultIdSelectedForEdit" Type="bigint" />
         </EntityType>
         <EntityType Name="WidgetCustomTagDisplayOrder">
           <Key>
@@ -792,6 +827,9 @@
           <Property Name="IsHiddenSystemType" Type="bit" />
           <Property Name="HasSettings" Type="bit" />
           <Property Name="WidgetTypeTabGroupId" Type="bigint" />
+          <Property Name="CreatorUserId" Type="bigint" />
+          <Property Name="LastModifiedDate" Type="datetime" />
+          <Property Name="LastModifiedUserId" Type="bigint" />
         </EntityType>
         <EntityType Name="WidgetTypeTabGroup">
           <Key>
@@ -1062,6 +1100,30 @@
             </Dependent>
           </ReferentialConstraint>
         </Association>
+        <Association Name="FK_CompanyContact_iOPSUser">
+          <End Role="iOPSUser" Type="Self.iOPSUser" Multiplicity="0..1" />
+          <End Role="CompanyContact" Type="Self.CompanyContact" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="iOPSUser">
+              <PropertyRef Name="Id" />
+            </Principal>
+            <Dependent Role="CompanyContact">
+              <PropertyRef Name="LastModifiedUserId" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_CompanyContact_iOPSUser1">
+          <End Role="iOPSUser" Type="Self.iOPSUser" Multiplicity="0..1" />
+          <End Role="CompanyContact" Type="Self.CompanyContact" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="iOPSUser">
+              <PropertyRef Name="Id" />
+            </Principal>
+            <Dependent Role="CompanyContact">
+              <PropertyRef Name="CreatorUserId" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
         <Association Name="FK_CompanyContact_Person">
           <End Role="Person" Type="Self.Person" Multiplicity="0..1" />
           <End Role="CompanyContact" Type="Self.CompanyContact" Multiplicity="*" />
@@ -1227,6 +1289,30 @@
             </Principal>
             <Dependent Role="JBTStandardObservation">
               <PropertyRef Name="UnitId" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_Module_iOPSUser">
+          <End Role="iOPSUser" Type="Self.iOPSUser" Multiplicity="0..1" />
+          <End Role="Module" Type="Self.Module" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="iOPSUser">
+              <PropertyRef Name="Id" />
+            </Principal>
+            <Dependent Role="Module">
+              <PropertyRef Name="LastModifiedUserId" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_Module_iOPSUser1">
+          <End Role="iOPSUser" Type="Self.iOPSUser" Multiplicity="0..1" />
+          <End Role="Module" Type="Self.Module" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="iOPSUser">
+              <PropertyRef Name="Id" />
+            </Principal>
+            <Dependent Role="Module">
+              <PropertyRef Name="CreatorUserId" />
             </Dependent>
           </ReferentialConstraint>
         </Association>
@@ -1398,6 +1484,54 @@
             </Dependent>
           </ReferentialConstraint>
         </Association>
+        <Association Name="FK_Subscription_iOPSUser">
+          <End Role="iOPSUser" Type="Self.iOPSUser" Multiplicity="0..1" />
+          <End Role="Subscription" Type="Self.Subscription" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="iOPSUser">
+              <PropertyRef Name="Id" />
+            </Principal>
+            <Dependent Role="Subscription">
+              <PropertyRef Name="LastModifiedUserId" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_Subscription_iOPSUser1">
+          <End Role="iOPSUser" Type="Self.iOPSUser" Multiplicity="0..1" />
+          <End Role="Subscription" Type="Self.Subscription" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="iOPSUser">
+              <PropertyRef Name="Id" />
+            </Principal>
+            <Dependent Role="Subscription">
+              <PropertyRef Name="CreatorUserId" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_SubscriptionModule_iOPSUser">
+          <End Role="iOPSUser" Type="Self.iOPSUser" Multiplicity="0..1" />
+          <End Role="SubscriptionModule" Type="Self.SubscriptionModule" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="iOPSUser">
+              <PropertyRef Name="Id" />
+            </Principal>
+            <Dependent Role="SubscriptionModule">
+              <PropertyRef Name="LastModifiedUserId" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_SubscriptionModule_iOPSUser1">
+          <End Role="iOPSUser" Type="Self.iOPSUser" Multiplicity="0..1" />
+          <End Role="SubscriptionModule" Type="Self.SubscriptionModule" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="iOPSUser">
+              <PropertyRef Name="Id" />
+            </Principal>
+            <Dependent Role="SubscriptionModule">
+              <PropertyRef Name="CreatorUserId" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
         <Association Name="FK_SubscriptionModule_Module">
           <End Role="Module" Type="Self.Module" Multiplicity="0..1" />
           <End Role="SubscriptionModule" Type="Self.SubscriptionModule" Multiplicity="*" />
@@ -1431,6 +1565,30 @@
             </Principal>
             <Dependent Role="SubscriptionSiteUser">
               <PropertyRef Name="UserId" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_SubscriptionSiteUser_iOPSUser1">
+          <End Role="iOPSUser" Type="Self.iOPSUser" Multiplicity="0..1" />
+          <End Role="SubscriptionSiteUser" Type="Self.SubscriptionSiteUser" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="iOPSUser">
+              <PropertyRef Name="Id" />
+            </Principal>
+            <Dependent Role="SubscriptionSiteUser">
+              <PropertyRef Name="LastModifiedUserId" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_SubscriptionSiteUser_iOPSUser2">
+          <End Role="iOPSUser" Type="Self.iOPSUser" Multiplicity="0..1" />
+          <End Role="SubscriptionSiteUser" Type="Self.SubscriptionSiteUser" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="iOPSUser">
+              <PropertyRef Name="Id" />
+            </Principal>
+            <Dependent Role="SubscriptionSiteUser">
+              <PropertyRef Name="CreatorUserId" />
             </Dependent>
           </ReferentialConstraint>
         </Association>
@@ -1770,6 +1928,30 @@
             </Dependent>
           </ReferentialConstraint>
         </Association>
+        <Association Name="FK_WidgetType_iOPSUser">
+          <End Role="iOPSUser" Type="Self.iOPSUser" Multiplicity="0..1" />
+          <End Role="WidgetType" Type="Self.WidgetType" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="iOPSUser">
+              <PropertyRef Name="Id" />
+            </Principal>
+            <Dependent Role="WidgetType">
+              <PropertyRef Name="CreatorUserId" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_WidgetType_iOPSUser1">
+          <End Role="iOPSUser" Type="Self.iOPSUser" Multiplicity="0..1" />
+          <End Role="WidgetType" Type="Self.WidgetType" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="iOPSUser">
+              <PropertyRef Name="Id" />
+            </Principal>
+            <Dependent Role="WidgetType">
+              <PropertyRef Name="LastModifiedUserId" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
         <Association Name="FK_WidgetType_WidgetTypeTabGroup">
           <End Role="WidgetTypeTabGroup" Type="Self.WidgetTypeTabGroup" Multiplicity="0..1" />
           <End Role="WidgetType" Type="Self.WidgetType" Multiplicity="*" />
@@ -1926,11 +2108,21 @@
         <Function Name="GSAlarmTagsByListOfAssetIds" Aggregate="false" BuiltIn="false" NiladicFunction="false" IsComposable="false" ParameterTypeSemantics="AllowImplicitConversion" Schema="dbo">
           <Parameter Name="assetIds" Type="varchar" Mode="In" />
         </Function>
+        <Function Name="GSAlarmTagsByListOfAssetIdsCondensed" Aggregate="false" BuiltIn="false" NiladicFunction="false" IsComposable="false" ParameterTypeSemantics="AllowImplicitConversion" Schema="dbo">
+          <Parameter Name="assetIds" Type="varchar" Mode="In" />
+        </Function>
         <Function Name="GSTagsByListOfAssetIds" Aggregate="false" BuiltIn="false" NiladicFunction="false" IsComposable="false" ParameterTypeSemantics="AllowImplicitConversion" Schema="dbo">
+          <Parameter Name="assetIds" Type="varchar" Mode="In" />
+        </Function>
+        <Function Name="GSTagsByListOfAssetIdsCondensed" Aggregate="false" BuiltIn="false" NiladicFunction="false" IsComposable="false" ParameterTypeSemantics="AllowImplicitConversion" Schema="dbo">
           <Parameter Name="assetIds" Type="varchar" Mode="In" />
         </Function>
         <Function Name="GSTagsUpdatedInLastFiveMinutesByListOfAssetIds" Aggregate="false" BuiltIn="false" NiladicFunction="false" IsComposable="false" ParameterTypeSemantics="AllowImplicitConversion" Schema="dbo">
           <Parameter Name="assetIds" Type="varchar" Mode="In" />
+        </Function>
+        <Function Name="GSTagsUpdatedInLastSecondsByListOfAssetIdsCondensed" Aggregate="false" BuiltIn="false" NiladicFunction="false" IsComposable="false" ParameterTypeSemantics="AllowImplicitConversion" Schema="dbo">
+          <Parameter Name="assetIds" Type="varchar" Mode="In" />
+          <Parameter Name="seconds" Type="int" Mode="In" />
         </Function>
         <Function Name="spTerminalOverviewGraphicsAndTags" Aggregate="false" BuiltIn="false" NiladicFunction="false" IsComposable="false" ParameterTypeSemantics="AllowImplicitConversion" Schema="dbo">
           <Parameter Name="terminalSystemId" Type="bigint" Mode="In" />
@@ -2167,6 +2359,14 @@
             <End Role="Company" EntitySet="Company" />
             <End Role="CompanyContact" EntitySet="CompanyContact" />
           </AssociationSet>
+          <AssociationSet Name="FK_CompanyContact_iOPSUser" Association="Self.FK_CompanyContact_iOPSUser">
+            <End Role="iOPSUser" EntitySet="iOPSUser" />
+            <End Role="CompanyContact" EntitySet="CompanyContact" />
+          </AssociationSet>
+          <AssociationSet Name="FK_CompanyContact_iOPSUser1" Association="Self.FK_CompanyContact_iOPSUser1">
+            <End Role="iOPSUser" EntitySet="iOPSUser" />
+            <End Role="CompanyContact" EntitySet="CompanyContact" />
+          </AssociationSet>
           <AssociationSet Name="FK_CompanyContact_Person" Association="Self.FK_CompanyContact_Person">
             <End Role="Person" EntitySet="Person" />
             <End Role="CompanyContact" EntitySet="CompanyContact" />
@@ -2222,6 +2422,14 @@
           <AssociationSet Name="FK_JBTStandardObservation_Unit" Association="Self.FK_JBTStandardObservation_Unit">
             <End Role="Unit" EntitySet="Unit" />
             <End Role="JBTStandardObservation" EntitySet="JBTStandardObservation" />
+          </AssociationSet>
+          <AssociationSet Name="FK_Module_iOPSUser" Association="Self.FK_Module_iOPSUser">
+            <End Role="iOPSUser" EntitySet="iOPSUser" />
+            <End Role="Module" EntitySet="Module" />
+          </AssociationSet>
+          <AssociationSet Name="FK_Module_iOPSUser1" Association="Self.FK_Module_iOPSUser1">
+            <End Role="iOPSUser" EntitySet="iOPSUser" />
+            <End Role="Module" EntitySet="Module" />
           </AssociationSet>
           <AssociationSet Name="FK_Observation_Tag" Association="Self.FK_Observation_Tag">
             <End Role="Tag" EntitySet="Tag" />
@@ -2279,6 +2487,22 @@
             <End Role="Company" EntitySet="Company" />
             <End Role="Subscription" EntitySet="Subscription" />
           </AssociationSet>
+          <AssociationSet Name="FK_Subscription_iOPSUser" Association="Self.FK_Subscription_iOPSUser">
+            <End Role="iOPSUser" EntitySet="iOPSUser" />
+            <End Role="Subscription" EntitySet="Subscription" />
+          </AssociationSet>
+          <AssociationSet Name="FK_Subscription_iOPSUser1" Association="Self.FK_Subscription_iOPSUser1">
+            <End Role="iOPSUser" EntitySet="iOPSUser" />
+            <End Role="Subscription" EntitySet="Subscription" />
+          </AssociationSet>
+          <AssociationSet Name="FK_SubscriptionModule_iOPSUser" Association="Self.FK_SubscriptionModule_iOPSUser">
+            <End Role="iOPSUser" EntitySet="iOPSUser" />
+            <End Role="SubscriptionModule" EntitySet="SubscriptionModule" />
+          </AssociationSet>
+          <AssociationSet Name="FK_SubscriptionModule_iOPSUser1" Association="Self.FK_SubscriptionModule_iOPSUser1">
+            <End Role="iOPSUser" EntitySet="iOPSUser" />
+            <End Role="SubscriptionModule" EntitySet="SubscriptionModule" />
+          </AssociationSet>
           <AssociationSet Name="FK_SubscriptionModule_Module" Association="Self.FK_SubscriptionModule_Module">
             <End Role="Module" EntitySet="Module" />
             <End Role="SubscriptionModule" EntitySet="SubscriptionModule" />
@@ -2288,6 +2512,14 @@
             <End Role="SubscriptionModule" EntitySet="SubscriptionModule" />
           </AssociationSet>
           <AssociationSet Name="FK_SubscriptionSiteUser_iOPSUser" Association="Self.FK_SubscriptionSiteUser_iOPSUser">
+            <End Role="iOPSUser" EntitySet="iOPSUser" />
+            <End Role="SubscriptionSiteUser" EntitySet="SubscriptionSiteUser" />
+          </AssociationSet>
+          <AssociationSet Name="FK_SubscriptionSiteUser_iOPSUser1" Association="Self.FK_SubscriptionSiteUser_iOPSUser1">
+            <End Role="iOPSUser" EntitySet="iOPSUser" />
+            <End Role="SubscriptionSiteUser" EntitySet="SubscriptionSiteUser" />
+          </AssociationSet>
+          <AssociationSet Name="FK_SubscriptionSiteUser_iOPSUser2" Association="Self.FK_SubscriptionSiteUser_iOPSUser2">
             <End Role="iOPSUser" EntitySet="iOPSUser" />
             <End Role="SubscriptionSiteUser" EntitySet="SubscriptionSiteUser" />
           </AssociationSet>
@@ -2403,6 +2635,14 @@
             <End Role="Widget" EntitySet="Widget" />
             <End Role="WidgetGraphTag" EntitySet="WidgetGraphTag" />
           </AssociationSet>
+          <AssociationSet Name="FK_WidgetType_iOPSUser" Association="Self.FK_WidgetType_iOPSUser">
+            <End Role="iOPSUser" EntitySet="iOPSUser" />
+            <End Role="WidgetType" EntitySet="WidgetType" />
+          </AssociationSet>
+          <AssociationSet Name="FK_WidgetType_iOPSUser1" Association="Self.FK_WidgetType_iOPSUser1">
+            <End Role="iOPSUser" EntitySet="iOPSUser" />
+            <End Role="WidgetType" EntitySet="WidgetType" />
+          </AssociationSet>
           <AssociationSet Name="FK_WidgetType_WidgetTypeTabGroup" Association="Self.FK_WidgetType_WidgetTypeTabGroup">
             <End Role="WidgetTypeTabGroup" EntitySet="WidgetTypeTabGroup" />
             <End Role="WidgetType" EntitySet="WidgetType" />
@@ -2439,6 +2679,18 @@
           <NavigationProperty Name="WidgetCustomTagDisplayOrders" Relationship="iOPS_NormalizedModel.FK_WidgetCustomTagDisplayOrder_iOPSUser" FromRole="iOPSUser" ToRole="WidgetCustomTagDisplayOrder" />
           <NavigationProperty Name="SubscriptionSiteUsers" Relationship="iOPS_NormalizedModel.FK_SubscriptionSiteUser_iOPSUser" FromRole="iOPSUser" ToRole="SubscriptionSiteUser" />
           <NavigationProperty Name="SubscriptionUsers" Relationship="iOPS_NormalizedModel.FK_SubscriptionUser_iOPSUser" FromRole="iOPSUser" ToRole="SubscriptionUser" />
+          <NavigationProperty Name="CompanyContacts" Relationship="iOPS_NormalizedModel.FK_CompanyContact_iOPSUser" FromRole="iOPSUser" ToRole="CompanyContact" />
+          <NavigationProperty Name="CompanyContacts1" Relationship="iOPS_NormalizedModel.FK_CompanyContact_iOPSUser1" FromRole="iOPSUser" ToRole="CompanyContact" />
+          <NavigationProperty Name="Modules" Relationship="iOPS_NormalizedModel.FK_Module_iOPSUser" FromRole="iOPSUser" ToRole="Module" />
+          <NavigationProperty Name="Modules1" Relationship="iOPS_NormalizedModel.FK_Module_iOPSUser1" FromRole="iOPSUser" ToRole="Module" />
+          <NavigationProperty Name="Subscriptions" Relationship="iOPS_NormalizedModel.FK_Subscription_iOPSUser" FromRole="iOPSUser" ToRole="Subscription" />
+          <NavigationProperty Name="Subscriptions1" Relationship="iOPS_NormalizedModel.FK_Subscription_iOPSUser1" FromRole="iOPSUser" ToRole="Subscription" />
+          <NavigationProperty Name="SubscriptionModules" Relationship="iOPS_NormalizedModel.FK_SubscriptionModule_iOPSUser" FromRole="iOPSUser" ToRole="SubscriptionModule" />
+          <NavigationProperty Name="SubscriptionModules1" Relationship="iOPS_NormalizedModel.FK_SubscriptionModule_iOPSUser1" FromRole="iOPSUser" ToRole="SubscriptionModule" />
+          <NavigationProperty Name="SubscriptionSiteUsers1" Relationship="iOPS_NormalizedModel.FK_SubscriptionSiteUser_iOPSUser1" FromRole="iOPSUser" ToRole="SubscriptionSiteUser" />
+          <NavigationProperty Name="SubscriptionSiteUsers2" Relationship="iOPS_NormalizedModel.FK_SubscriptionSiteUser_iOPSUser2" FromRole="iOPSUser" ToRole="SubscriptionSiteUser" />
+          <NavigationProperty Name="WidgetTypes" Relationship="iOPS_NormalizedModel.FK_WidgetType_iOPSUser" FromRole="iOPSUser" ToRole="WidgetType" />
+          <NavigationProperty Name="WidgetTypes1" Relationship="iOPS_NormalizedModel.FK_WidgetType_iOPSUser1" FromRole="iOPSUser" ToRole="WidgetType" />
           </EntityType>
         <EntityContainer Name="iOPS_NormalizedEntities" annotation:LazyLoadingEnabled="true">
           <EntitySet Name="iOPSUsers" EntityType="Self.iOPSUser" />
@@ -3012,6 +3264,64 @@
             <End Role="iOPSUser" EntitySet="iOPSUsers" />
             <End Role="SubscriptionUser" EntitySet="SubscriptionUsers" />
           </AssociationSet>
+          <FunctionImport Name="GSTagsByListOfAssetIdsCondensed" ReturnType="Collection(String)">
+          <Parameter Name="assetIds" Mode="In" Type="String" />
+          </FunctionImport>
+          <FunctionImport Name="GSAlarmTagsByListOfAssetIdsCondensed" ReturnType="Collection(String)">
+          <Parameter Name="assetIds" Mode="In" Type="String" />
+          </FunctionImport>
+          <AssociationSet Name="FK_CompanyContact_iOPSUser" Association="iOPS_NormalizedModel.FK_CompanyContact_iOPSUser">
+            <End Role="iOPSUser" EntitySet="iOPSUsers" />
+            <End Role="CompanyContact" EntitySet="CompanyContacts" />
+          </AssociationSet>
+          <AssociationSet Name="FK_CompanyContact_iOPSUser1" Association="iOPS_NormalizedModel.FK_CompanyContact_iOPSUser1">
+            <End Role="iOPSUser" EntitySet="iOPSUsers" />
+            <End Role="CompanyContact" EntitySet="CompanyContacts" />
+          </AssociationSet>
+          <AssociationSet Name="FK_Module_iOPSUser" Association="iOPS_NormalizedModel.FK_Module_iOPSUser">
+            <End Role="iOPSUser" EntitySet="iOPSUsers" />
+            <End Role="Module" EntitySet="Modules" />
+          </AssociationSet>
+          <AssociationSet Name="FK_Module_iOPSUser1" Association="iOPS_NormalizedModel.FK_Module_iOPSUser1">
+            <End Role="iOPSUser" EntitySet="iOPSUsers" />
+            <End Role="Module" EntitySet="Modules" />
+          </AssociationSet>
+          <AssociationSet Name="FK_Subscription_iOPSUser" Association="iOPS_NormalizedModel.FK_Subscription_iOPSUser">
+            <End Role="iOPSUser" EntitySet="iOPSUsers" />
+            <End Role="Subscription" EntitySet="Subscriptions" />
+          </AssociationSet>
+          <AssociationSet Name="FK_Subscription_iOPSUser1" Association="iOPS_NormalizedModel.FK_Subscription_iOPSUser1">
+            <End Role="iOPSUser" EntitySet="iOPSUsers" />
+            <End Role="Subscription" EntitySet="Subscriptions" />
+          </AssociationSet>
+          <AssociationSet Name="FK_SubscriptionModule_iOPSUser" Association="iOPS_NormalizedModel.FK_SubscriptionModule_iOPSUser">
+            <End Role="iOPSUser" EntitySet="iOPSUsers" />
+            <End Role="SubscriptionModule" EntitySet="SubscriptionModules" />
+          </AssociationSet>
+          <AssociationSet Name="FK_SubscriptionModule_iOPSUser1" Association="iOPS_NormalizedModel.FK_SubscriptionModule_iOPSUser1">
+            <End Role="iOPSUser" EntitySet="iOPSUsers" />
+            <End Role="SubscriptionModule" EntitySet="SubscriptionModules" />
+          </AssociationSet>
+          <AssociationSet Name="FK_SubscriptionSiteUser_iOPSUser1" Association="iOPS_NormalizedModel.FK_SubscriptionSiteUser_iOPSUser1">
+            <End Role="iOPSUser" EntitySet="iOPSUsers" />
+            <End Role="SubscriptionSiteUser" EntitySet="SubscriptionSiteUsers" />
+          </AssociationSet>
+          <AssociationSet Name="FK_SubscriptionSiteUser_iOPSUser2" Association="iOPS_NormalizedModel.FK_SubscriptionSiteUser_iOPSUser2">
+            <End Role="iOPSUser" EntitySet="iOPSUsers" />
+            <End Role="SubscriptionSiteUser" EntitySet="SubscriptionSiteUsers" />
+          </AssociationSet>
+          <AssociationSet Name="FK_WidgetType_iOPSUser" Association="iOPS_NormalizedModel.FK_WidgetType_iOPSUser">
+            <End Role="iOPSUser" EntitySet="iOPSUsers" />
+            <End Role="WidgetType" EntitySet="WidgetTypes" />
+          </AssociationSet>
+          <AssociationSet Name="FK_WidgetType_iOPSUser1" Association="iOPS_NormalizedModel.FK_WidgetType_iOPSUser1">
+            <End Role="iOPSUser" EntitySet="iOPSUsers" />
+            <End Role="WidgetType" EntitySet="WidgetTypes" />
+          </AssociationSet>
+          <FunctionImport Name="GSTagsUpdatedInLastSecondsByListOfAssetIdsCondensed" ReturnType="Collection(String)">
+            <Parameter Name="assetIds" Mode="In" Type="String" />
+            <Parameter Name="seconds" Mode="In" Type="Int32" />
+          </FunctionImport>
           </EntityContainer>
         <EntityType Name="AuthorizableActivity">
           <Key>
@@ -3191,6 +3501,10 @@
           <NavigationProperty Name="CustomJBTStandardObservations" Relationship="iOPS_NormalizedModel.FK_CustomJBTStandardObservation_Company" FromRole="Company" ToRole="CustomJBTStandardObservation" />
           <NavigationProperty Name="Assets" Relationship="iOPS_NormalizedModel.FK_Asset_Airport" FromRole="Company" ToRole="Asset" />
           <NavigationProperty Name="Subscriptions" Relationship="iOPS_NormalizedModel.FK_Subscription_Company" FromRole="Company" ToRole="Subscription" />
+          <Property Name="LastModifiedDate" Type="DateTime" Precision="3" />
+          <Property Name="LastModifiedUserId" Type="Int64" />
+          <Property Name="CreationDate" Type="DateTime" Precision="3" />
+          <Property Name="CreatorUserId" Type="Int64" />
         </EntityType>
         <EntityType Name="CompanyContact">
           <Key>
@@ -3202,6 +3516,12 @@
           <Property Name="CompanyId" Type="Int64" />
           <NavigationProperty Name="Company" Relationship="iOPS_NormalizedModel.FK_CompanyContact_Company1" FromRole="CompanyContact" ToRole="Company" />
           <NavigationProperty Name="Person" Relationship="iOPS_NormalizedModel.FK_CompanyContact_Person" FromRole="CompanyContact" ToRole="Person" />
+          <Property Name="LastModifiedDate" Type="DateTime" Precision="3" />
+          <Property Name="LastModifiedUserId" Type="Int64" />
+          <Property Name="CreationDate" Type="DateTime" Precision="3" />
+          <Property Name="CreatorUserId" Type="Int64" />
+          <NavigationProperty Name="LastModifiedUser" Relationship="iOPS_NormalizedModel.FK_CompanyContact_iOPSUser" FromRole="CompanyContact" ToRole="iOPSUser" />
+          <NavigationProperty Name="CreatorUser" Relationship="iOPS_NormalizedModel.FK_CompanyContact_iOPSUser1" FromRole="CompanyContact" ToRole="iOPSUser" />
         </EntityType>
         <EntityType Name="CompanyDataReader">
           <Key>
@@ -3498,6 +3818,7 @@
           <NavigationProperty Name="ObservationExceptions" Relationship="iOPS_NormalizedModel.FK_ObservationException_Tag" FromRole="Tag" ToRole="ObservationException" />
           <Property Name="IsDerived" Type="Boolean" />
           <Property Name="IgnoreWhenTheAssetIsInactive" Type="Boolean" />
+          <Property Name="D" Type="String" MaxLength="674" FixedLength="false" Unicode="false" annotation:StoreGeneratedPattern="Computed" />
         </EntityType>
         <Association Name="FK_Observation_Tag">
           <End Type="iOPS_NormalizedModel.Tag" Role="Tag" Multiplicity="0..1" />
@@ -3707,6 +4028,8 @@
           <Property Name="IsModalPopUp" Type="Boolean" />
           <NavigationProperty Name="ChildWidgets" Relationship="iOPS_NormalizedModel.FK_Widget_Widget" FromRole="Widget" ToRole="Widget1" />
           <NavigationProperty Name="ParentWidget" Relationship="iOPS_NormalizedModel.FK_Widget_Widget" FromRole="Widget1" ToRole="Widget" />
+          <Property Name="DefaultSearchText" Type="String" MaxLength="200" FixedLength="false" Unicode="false" />
+          <Property Name="DefaultIdSelectedForEdit" Type="Int64" />
         </EntityType>
         <EntityType Name="WidgetType">
           <Key>
@@ -3733,6 +4056,11 @@
           <Property Name="HasSettings" Type="Boolean" />
           <Property Name="WidgetTypeTabGroupId" Type="Int64" />
           <NavigationProperty Name="WidgetTypeTabGroup" Relationship="iOPS_NormalizedModel.FK_WidgetType_WidgetTypeTabGroup" FromRole="WidgetType" ToRole="WidgetTypeTabGroup" />
+          <Property Name="CreatorUserId" Type="Int64" />
+          <Property Name="LastModifiedDate" Type="DateTime" Precision="3" />
+          <Property Name="LastModifiedUserId" Type="Int64" />
+          <NavigationProperty Name="CreatorUser" Relationship="iOPS_NormalizedModel.FK_WidgetType_iOPSUser" FromRole="WidgetType" ToRole="iOPSUser" />
+          <NavigationProperty Name="LastModifiedUser" Relationship="iOPS_NormalizedModel.FK_WidgetType_iOPSUser1" FromRole="WidgetType" ToRole="iOPSUser" />
         </EntityType>
         <Association Name="FK_Widget_WidgetType">
           <End Type="iOPS_NormalizedModel.WidgetType" Role="WidgetType" Multiplicity="0..1" />
@@ -4635,6 +4963,9 @@
           <NavigationProperty Name="AssetGraphics" Relationship="iOPS_NormalizedModel.FK_AssetModelImage_Asset" FromRole="Asset" ToRole="AssetGraphic" />
           <Property Name="ModelGenericName" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
           <Property Name="Revision" Type="String" MaxLength="255" FixedLength="false" Unicode="true" />
+          <Property Name="LastReportedDate" Type="DateTime" Precision="3" />
+          <Property Name="LastReportedDateTagId" Type="Int64" />
+          <Property Name="UnitDesignator" Type="String" MaxLength="10" FixedLength="false" Unicode="false" />
         </EntityType>
         <Association Name="FK_Asset_Airport">
           <End Type="iOPS_NormalizedModel.Company" Role="Company" Multiplicity="0..1" />
@@ -5376,6 +5707,13 @@
           <Property Name="Name" Type="String" MaxLength="100" FixedLength="false" Unicode="false" />
           <Property Name="Description" Type="String" MaxLength="Max" FixedLength="false" Unicode="false" />
           <NavigationProperty Name="SubscriptionModules" Relationship="iOPS_NormalizedModel.FK_SubscriptionModule_Module" FromRole="Module" ToRole="SubscriptionModule" />
+          <Property Name="LastModifiedDate" Type="DateTime" Precision="3" />
+          <Property Name="LastModifiedUserId" Type="Int64" />
+          <Property Name="CreationDate" Type="DateTime" Precision="3" />
+          <Property Name="CreatorUserId" Type="Int64" />
+          <NavigationProperty Name="LastModifiedUser" Relationship="iOPS_NormalizedModel.FK_Module_iOPSUser" FromRole="Module" ToRole="iOPSUser" />
+          <NavigationProperty Name="CreatorUser" Relationship="iOPS_NormalizedModel.FK_Module_iOPSUser1" FromRole="Module" ToRole="iOPSUser" />
+          <Property Name="Mnemonic" Type="String" MaxLength="10" FixedLength="false" Unicode="false" />
         </EntityType>
         <EntityType Name="Subscription">
           <Key>
@@ -5390,6 +5728,12 @@
           <NavigationProperty Name="Company" Relationship="iOPS_NormalizedModel.FK_Subscription_Company" FromRole="Subscription" ToRole="Company" />
           <NavigationProperty Name="SubscriptionModules" Relationship="iOPS_NormalizedModel.FK_SubscriptionModule_Subscription" FromRole="Subscription" ToRole="SubscriptionModule" />
           <NavigationProperty Name="SubscriptionUsers" Relationship="iOPS_NormalizedModel.FK_SubscriptionUser_Subscription" FromRole="Subscription" ToRole="SubscriptionUser" />
+          <Property Name="LastModifiedDate" Type="DateTime" Precision="3" />
+          <Property Name="LastModifiedUserId" Type="Int64" />
+          <Property Name="CreationDate" Type="DateTime" Precision="3" />
+          <Property Name="CreatorUserId" Type="Int64" />
+          <NavigationProperty Name="LastModifiedUser" Relationship="iOPS_NormalizedModel.FK_Subscription_iOPSUser" FromRole="Subscription" ToRole="iOPSUser" />
+          <NavigationProperty Name="CreatorUser" Relationship="iOPS_NormalizedModel.FK_Subscription_iOPSUser1" FromRole="Subscription" ToRole="iOPSUser" />
         </EntityType>
         <EntityType Name="SubscriptionModule">
           <Key>
@@ -5402,6 +5746,12 @@
           <Property Name="EndDate" Type="DateTime" Precision="3" />
           <NavigationProperty Name="Module" Relationship="iOPS_NormalizedModel.FK_SubscriptionModule_Module" FromRole="SubscriptionModule" ToRole="Module" />
           <NavigationProperty Name="Subscription" Relationship="iOPS_NormalizedModel.FK_SubscriptionModule_Subscription" FromRole="SubscriptionModule" ToRole="Subscription" />
+          <Property Name="LastModifiedDate" Type="DateTime" Precision="3" />
+          <Property Name="LastModifiedUserId" Type="Int64" />
+          <Property Name="CreationDate" Type="DateTime" Precision="3" />
+          <Property Name="CreatorUserId" Type="Int64" />
+          <NavigationProperty Name="LastModifiedUser" Relationship="iOPS_NormalizedModel.FK_SubscriptionModule_iOPSUser" FromRole="SubscriptionModule" ToRole="iOPSUser" />
+          <NavigationProperty Name="CreatorUser" Relationship="iOPS_NormalizedModel.FK_SubscriptionModule_iOPSUser1" FromRole="SubscriptionModule" ToRole="iOPSUser" />
         </EntityType>
         <EntityType Name="SubscriptionSiteUser">
           <Key>
@@ -5413,7 +5763,13 @@
           <Property Name="SiteId" Type="Int64" />
           <Property Name="IsAdmin" Type="Boolean" />
           <NavigationProperty Name="Site" Relationship="iOPS_NormalizedModel.FK_SubscriptionSiteUser_Site" FromRole="SubscriptionSiteUser" ToRole="Site" />
-          <NavigationProperty Name="iOPSUser" Relationship="iOPS_NormalizedModel.FK_SubscriptionSiteUser_iOPSUser" FromRole="SubscriptionSiteUser" ToRole="iOPSUser" />
+          <NavigationProperty Name="User" Relationship="iOPS_NormalizedModel.FK_SubscriptionSiteUser_iOPSUser" FromRole="SubscriptionSiteUser" ToRole="iOPSUser" />
+          <Property Name="LastModifiedDate" Type="DateTime" Precision="3" />
+          <Property Name="LastModifiedUserId" Type="Int64" />
+          <Property Name="CreationDate" Type="DateTime" Precision="3" />
+          <Property Name="CreatorUserId" Type="Int64" />
+          <NavigationProperty Name="LastModifiedUser" Relationship="iOPS_NormalizedModel.FK_SubscriptionSiteUser_iOPSUser1" FromRole="SubscriptionSiteUser" ToRole="iOPSUser" />
+          <NavigationProperty Name="CreatorUser" Relationship="iOPS_NormalizedModel.FK_SubscriptionSiteUser_iOPSUser2" FromRole="SubscriptionSiteUser" ToRole="iOPSUser" />
         </EntityType>
         <EntityType Name="SubscriptionUser">
           <Key>
@@ -5427,6 +5783,10 @@
           <Property Name="IsAdmin" Type="Boolean" />
           <NavigationProperty Name="Subscription" Relationship="iOPS_NormalizedModel.FK_SubscriptionUser_Subscription" FromRole="SubscriptionUser" ToRole="Subscription" />
           <NavigationProperty Name="iOPSUser" Relationship="iOPS_NormalizedModel.FK_SubscriptionUser_iOPSUser" FromRole="SubscriptionUser" ToRole="iOPSUser" />
+          <Property Name="LastModifiedDate" Type="DateTime" Precision="3" />
+          <Property Name="LastModifiedUserId" Type="Int64" />
+          <Property Name="CreationDate" Type="DateTime" Precision="3" />
+          <Property Name="CreatorUserId" Type="Int64" />
         </EntityType>
         <Association Name="FK_Subscription_Company">
           <End Type="iOPS_NormalizedModel.Company" Role="Company" Multiplicity="0..1" />
@@ -5509,6 +5869,150 @@
             </Principal>
             <Dependent Role="SubscriptionUser">
               <PropertyRef Name="UserId" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_CompanyContact_iOPSUser">
+          <End Type="iOPS_NormalizedModel.iOPSUser" Role="iOPSUser" Multiplicity="0..1" />
+          <End Type="iOPS_NormalizedModel.CompanyContact" Role="CompanyContact" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="iOPSUser">
+              <PropertyRef Name="Id" />
+            </Principal>
+            <Dependent Role="CompanyContact">
+              <PropertyRef Name="LastModifiedUserId" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_CompanyContact_iOPSUser1">
+          <End Type="iOPS_NormalizedModel.iOPSUser" Role="iOPSUser" Multiplicity="0..1" />
+          <End Type="iOPS_NormalizedModel.CompanyContact" Role="CompanyContact" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="iOPSUser">
+              <PropertyRef Name="Id" />
+            </Principal>
+            <Dependent Role="CompanyContact">
+              <PropertyRef Name="CreatorUserId" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_Module_iOPSUser">
+          <End Type="iOPS_NormalizedModel.iOPSUser" Role="iOPSUser" Multiplicity="0..1" />
+          <End Type="iOPS_NormalizedModel.Module" Role="Module" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="iOPSUser">
+              <PropertyRef Name="Id" />
+            </Principal>
+            <Dependent Role="Module">
+              <PropertyRef Name="LastModifiedUserId" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_Module_iOPSUser1">
+          <End Type="iOPS_NormalizedModel.iOPSUser" Role="iOPSUser" Multiplicity="0..1" />
+          <End Type="iOPS_NormalizedModel.Module" Role="Module" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="iOPSUser">
+              <PropertyRef Name="Id" />
+            </Principal>
+            <Dependent Role="Module">
+              <PropertyRef Name="CreatorUserId" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_Subscription_iOPSUser">
+          <End Type="iOPS_NormalizedModel.iOPSUser" Role="iOPSUser" Multiplicity="0..1" />
+          <End Type="iOPS_NormalizedModel.Subscription" Role="Subscription" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="iOPSUser">
+              <PropertyRef Name="Id" />
+            </Principal>
+            <Dependent Role="Subscription">
+              <PropertyRef Name="LastModifiedUserId" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_Subscription_iOPSUser1">
+          <End Type="iOPS_NormalizedModel.iOPSUser" Role="iOPSUser" Multiplicity="0..1" />
+          <End Type="iOPS_NormalizedModel.Subscription" Role="Subscription" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="iOPSUser">
+              <PropertyRef Name="Id" />
+            </Principal>
+            <Dependent Role="Subscription">
+              <PropertyRef Name="CreatorUserId" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_SubscriptionModule_iOPSUser">
+          <End Type="iOPS_NormalizedModel.iOPSUser" Role="iOPSUser" Multiplicity="0..1" />
+          <End Type="iOPS_NormalizedModel.SubscriptionModule" Role="SubscriptionModule" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="iOPSUser">
+              <PropertyRef Name="Id" />
+            </Principal>
+            <Dependent Role="SubscriptionModule">
+              <PropertyRef Name="LastModifiedUserId" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_SubscriptionModule_iOPSUser1">
+          <End Type="iOPS_NormalizedModel.iOPSUser" Role="iOPSUser" Multiplicity="0..1" />
+          <End Type="iOPS_NormalizedModel.SubscriptionModule" Role="SubscriptionModule" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="iOPSUser">
+              <PropertyRef Name="Id" />
+            </Principal>
+            <Dependent Role="SubscriptionModule">
+              <PropertyRef Name="CreatorUserId" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_SubscriptionSiteUser_iOPSUser1">
+          <End Type="iOPS_NormalizedModel.iOPSUser" Role="iOPSUser" Multiplicity="0..1" />
+          <End Type="iOPS_NormalizedModel.SubscriptionSiteUser" Role="SubscriptionSiteUser" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="iOPSUser">
+              <PropertyRef Name="Id" />
+            </Principal>
+            <Dependent Role="SubscriptionSiteUser">
+              <PropertyRef Name="LastModifiedUserId" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_SubscriptionSiteUser_iOPSUser2">
+          <End Type="iOPS_NormalizedModel.iOPSUser" Role="iOPSUser" Multiplicity="0..1" />
+          <End Type="iOPS_NormalizedModel.SubscriptionSiteUser" Role="SubscriptionSiteUser" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="iOPSUser">
+              <PropertyRef Name="Id" />
+            </Principal>
+            <Dependent Role="SubscriptionSiteUser">
+              <PropertyRef Name="CreatorUserId" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_WidgetType_iOPSUser">
+          <End Type="iOPS_NormalizedModel.iOPSUser" Role="iOPSUser" Multiplicity="0..1" />
+          <End Type="iOPS_NormalizedModel.WidgetType" Role="WidgetType" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="iOPSUser">
+              <PropertyRef Name="Id" />
+            </Principal>
+            <Dependent Role="WidgetType">
+              <PropertyRef Name="CreatorUserId" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_WidgetType_iOPSUser1">
+          <End Type="iOPS_NormalizedModel.iOPSUser" Role="iOPSUser" Multiplicity="0..1" />
+          <End Type="iOPS_NormalizedModel.WidgetType" Role="WidgetType" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="iOPSUser">
+              <PropertyRef Name="Id" />
+            </Principal>
+            <Dependent Role="WidgetType">
+              <PropertyRef Name="LastModifiedUserId" />
             </Dependent>
           </ReferentialConstraint>
         </Association>
@@ -5608,6 +6112,10 @@
           <EntitySetMapping Name="Companies">
             <EntityTypeMapping TypeName="iOPS_NormalizedModel.Company">
               <MappingFragment StoreEntitySet="Company">
+                <ScalarProperty Name="CreatorUserId" ColumnName="CreatorUserId" />
+                <ScalarProperty Name="CreationDate" ColumnName="CreationDate" />
+                <ScalarProperty Name="LastModifiedUserId" ColumnName="LastModifiedUserId" />
+                <ScalarProperty Name="LastModifiedDate" ColumnName="LastModifiedDate" />
                 <ScalarProperty Name="ODataAccessToken" ColumnName="ODataAccessToken" />
                 <ScalarProperty Name="CompanyTypeId" ColumnName="CompanyTypeId" />
                 <ScalarProperty Name="GoogleMapLatLon" ColumnName="GoogleMapLatLon" />
@@ -5623,6 +6131,10 @@
           <EntitySetMapping Name="CompanyContacts">
             <EntityTypeMapping TypeName="iOPS_NormalizedModel.CompanyContact">
               <MappingFragment StoreEntitySet="CompanyContact">
+                <ScalarProperty Name="CreatorUserId" ColumnName="CreatorUserId" />
+                <ScalarProperty Name="CreationDate" ColumnName="CreationDate" />
+                <ScalarProperty Name="LastModifiedUserId" ColumnName="LastModifiedUserId" />
+                <ScalarProperty Name="LastModifiedDate" ColumnName="LastModifiedDate" />
                 <ScalarProperty Name="CompanyId" ColumnName="CompanyId" />
                 <ScalarProperty Name="Role" ColumnName="Role" />
                 <ScalarProperty Name="PersonId" ColumnName="PersonId" />
@@ -5735,6 +6247,7 @@
           <EntitySetMapping Name="Tags">
             <EntityTypeMapping TypeName="iOPS_NormalizedModel.Tag">
               <MappingFragment StoreEntitySet="Tag">
+                <ScalarProperty Name="D" ColumnName="D" />
                 <ScalarProperty Name="IgnoreWhenTheAssetIsInactive" ColumnName="IgnoreWhenTheAssetIsInactive" />
                 <ScalarProperty Name="IsDerived" ColumnName="IsDerived" />
                 <ScalarProperty Name="PreviousReportedDate" ColumnName="PreviousReportedDate" />
@@ -5849,6 +6362,8 @@
           <EntitySetMapping Name="Widgets">
             <EntityTypeMapping TypeName="iOPS_NormalizedModel.Widget">
               <MappingFragment StoreEntitySet="Widget">
+                <ScalarProperty Name="DefaultIdSelectedForEdit" ColumnName="DefaultIdSelectedForEdit" />
+                <ScalarProperty Name="DefaultSearchText" ColumnName="DefaultSearchText" />
                 <ScalarProperty Name="IsModalPopUp" ColumnName="IsModalPopUp" />
                 <ScalarProperty Name="ParentWidgetId" ColumnName="ParentWidgetId" />
                 <ScalarProperty Name="DefaultNavPill" ColumnName="DefaultNavPill" />
@@ -5879,6 +6394,9 @@
           <EntitySetMapping Name="WidgetTypes">
             <EntityTypeMapping TypeName="iOPS_NormalizedModel.WidgetType">
               <MappingFragment StoreEntitySet="WidgetType">
+                <ScalarProperty Name="LastModifiedUserId" ColumnName="LastModifiedUserId" />
+                <ScalarProperty Name="LastModifiedDate" ColumnName="LastModifiedDate" />
+                <ScalarProperty Name="CreatorUserId" ColumnName="CreatorUserId" />
                 <ScalarProperty Name="WidgetTypeTabGroupId" ColumnName="WidgetTypeTabGroupId" />
                 <ScalarProperty Name="HasSettings" ColumnName="HasSettings" />
                 <ScalarProperty Name="IsHiddenSystemType" ColumnName="IsHiddenSystemType" />
@@ -6506,6 +7024,9 @@
           <EntitySetMapping Name="Assets">
             <EntityTypeMapping TypeName="iOPS_NormalizedModel.Asset">
               <MappingFragment StoreEntitySet="Asset">
+                <ScalarProperty Name="UnitDesignator" ColumnName="UnitDesignator" />
+                <ScalarProperty Name="LastReportedDateTagId" ColumnName="LastReportedDateTagId" />
+                <ScalarProperty Name="LastReportedDate" ColumnName="LastReportedDate" />
                 <ScalarProperty Name="Revision" ColumnName="Revision" />
                 <ScalarProperty Name="ModelGenericName" ColumnName="ModelGenericName" />
                 <ScalarProperty Name="Program" ColumnName="Program" />
@@ -7018,6 +7539,11 @@
           <EntitySetMapping Name="Modules">
             <EntityTypeMapping TypeName="iOPS_NormalizedModel.Module">
               <MappingFragment StoreEntitySet="Module">
+                <ScalarProperty Name="Mnemonic" ColumnName="Mnemonic" />
+                <ScalarProperty Name="CreatorUserId" ColumnName="CreatorUserId" />
+                <ScalarProperty Name="CreationDate" ColumnName="CreationDate" />
+                <ScalarProperty Name="LastModifiedUserId" ColumnName="LastModifiedUserId" />
+                <ScalarProperty Name="LastModifiedDate" ColumnName="LastModifiedDate" />
                 <ScalarProperty Name="Description" ColumnName="Description" />
                 <ScalarProperty Name="Name" ColumnName="Name" />
                 <ScalarProperty Name="Id" ColumnName="Id" />
@@ -7027,6 +7553,10 @@
           <EntitySetMapping Name="Subscriptions">
             <EntityTypeMapping TypeName="iOPS_NormalizedModel.Subscription">
               <MappingFragment StoreEntitySet="Subscription">
+                <ScalarProperty Name="CreatorUserId" ColumnName="CreatorUserId" />
+                <ScalarProperty Name="CreationDate" ColumnName="CreationDate" />
+                <ScalarProperty Name="LastModifiedUserId" ColumnName="LastModifiedUserId" />
+                <ScalarProperty Name="LastModifiedDate" ColumnName="LastModifiedDate" />
                 <ScalarProperty Name="Terms" ColumnName="Terms" />
                 <ScalarProperty Name="TerminationDate" ColumnName="TerminationDate" />
                 <ScalarProperty Name="ContactPersonId" ColumnName="ContactPersonId" />
@@ -7039,6 +7569,10 @@
           <EntitySetMapping Name="SubscriptionModules">
             <EntityTypeMapping TypeName="iOPS_NormalizedModel.SubscriptionModule">
               <MappingFragment StoreEntitySet="SubscriptionModule">
+                <ScalarProperty Name="CreatorUserId" ColumnName="CreatorUserId" />
+                <ScalarProperty Name="CreationDate" ColumnName="CreationDate" />
+                <ScalarProperty Name="LastModifiedUserId" ColumnName="LastModifiedUserId" />
+                <ScalarProperty Name="LastModifiedDate" ColumnName="LastModifiedDate" />
                 <ScalarProperty Name="EndDate" ColumnName="EndDate" />
                 <ScalarProperty Name="StartDate" ColumnName="StartDate" />
                 <ScalarProperty Name="ModuleId" ColumnName="ModuleId" />
@@ -7050,6 +7584,10 @@
           <EntitySetMapping Name="SubscriptionSiteUsers">
             <EntityTypeMapping TypeName="iOPS_NormalizedModel.SubscriptionSiteUser">
               <MappingFragment StoreEntitySet="SubscriptionSiteUser">
+                <ScalarProperty Name="CreatorUserId" ColumnName="CreatorUserId" />
+                <ScalarProperty Name="CreationDate" ColumnName="CreationDate" />
+                <ScalarProperty Name="LastModifiedUserId" ColumnName="LastModifiedUserId" />
+                <ScalarProperty Name="LastModifiedDate" ColumnName="LastModifiedDate" />
                 <ScalarProperty Name="IsAdmin" ColumnName="IsAdmin" />
                 <ScalarProperty Name="SiteId" ColumnName="SiteId" />
                 <ScalarProperty Name="UserId" ColumnName="UserId" />
@@ -7061,6 +7599,10 @@
           <EntitySetMapping Name="SubscriptionUsers">
             <EntityTypeMapping TypeName="iOPS_NormalizedModel.SubscriptionUser">
               <MappingFragment StoreEntitySet="SubscriptionUser">
+                <ScalarProperty Name="CreatorUserId" ColumnName="CreatorUserId" />
+                <ScalarProperty Name="CreationDate" ColumnName="CreationDate" />
+                <ScalarProperty Name="LastModifiedUserId" ColumnName="LastModifiedUserId" />
+                <ScalarProperty Name="LastModifiedDate" ColumnName="LastModifiedDate" />
                 <ScalarProperty Name="IsAdmin" ColumnName="IsAdmin" />
                 <ScalarProperty Name="EndDate" ColumnName="EndDate" />
                 <ScalarProperty Name="StartDate" ColumnName="StartDate" />
@@ -7070,6 +7612,9 @@
               </MappingFragment>
             </EntityTypeMapping>
           </EntitySetMapping>
+          <FunctionImportMapping FunctionImportName="GSTagsByListOfAssetIdsCondensed" FunctionName="iOPS_NormalizedModel.Store.GSTagsByListOfAssetIdsCondensed" />
+          <FunctionImportMapping FunctionImportName="GSAlarmTagsByListOfAssetIdsCondensed" FunctionName="iOPS_NormalizedModel.Store.GSAlarmTagsByListOfAssetIdsCondensed" />
+          <FunctionImportMapping FunctionImportName="GSTagsUpdatedInLastSecondsByListOfAssetIdsCondensed" FunctionName="iOPS_NormalizedModel.Store.GSTagsUpdatedInLastSecondsByListOfAssetIdsCondensed" />
         </EntityContainerMapping>
       </Mapping>
     </edmx:Mappings>

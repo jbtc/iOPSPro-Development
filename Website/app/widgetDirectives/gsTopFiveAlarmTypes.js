@@ -51,7 +51,7 @@
 
 
 			        $scope.$on("Dashboard", function (event, modifiedExpandedDashboard) {
-			            console.log("gsTopFiveAlarmTypes Dashboard event. Modified Dashboard = %O", modifiedExpandedDashboard);
+			            //console.log("gsTopFiveAlarmTypes Dashboard event. Modified Dashboard = %O", modifiedExpandedDashboard);
 			            if (modifiedExpandedDashboard.Id == vm.dashboard.Id) {
 			                vm.dashboard = modifiedExpandedDashboard;
 			                GetChartData(false); //
@@ -76,7 +76,7 @@
 			            })
 							.select(function (s) { return s.split('.')[1] });
 
-			            console.log("user site codes = %O", userSiteCodes);
+			            //console.log("user site codes = %O", userSiteCodes);
 
 			            vm.userSites = vm.JBTData.Sites.where(function (site) {
 			                return userSiteCodes.any(function (sc) { return sc == site.Name })
@@ -85,7 +85,7 @@
 			            console.log("vm.userSites = %O", vm.userSites);
 					    
 			            if (vm.userSites.length == 1) {
-			                console.log("User only has a single Site");
+			                //console.log("User only has a single Site");
 			                vm.widget.WidgetResource.SiteId = vm.userSites[0].Id;
 			                vm.widgetSite = vm.userSites[0];
 			                GetChartData();
@@ -105,7 +105,7 @@
 					    if (vm.widget.WidgetResource.SiteId && vm.userSites) {
 
 					        vm.widgetSite = vm.userSites.first(function (s) { return s.Id ==vm.widget.WidgetResource.SiteId });
-					        console.log("vm.widget.WidgetResource.SiteId changed. Now = %O", vm.widget);
+					        //console.log("vm.widget.WidgetResource.SiteId changed. Now = %O", vm.widget);
 					        if (oldValue != newValue) {
 					            vm.widget.WidgetResource.$save();
 					            GetChartData();

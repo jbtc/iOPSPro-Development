@@ -27,7 +27,7 @@
 			jbtStandardObservations: [],
 			bhsJamAlarms: [],
 			ready: false
-		
+
 		}
 
 		var operationMetadata = {
@@ -55,7 +55,7 @@
 		//++Intercept all database updates here and integrate into the data structures.
 		$rootScope.$on("AssetModel", function (event, assetModel) {
 
-			console.log("AssetModel change. AssetModel = %O", assetModel);
+			//console.log("AssetModel change. AssetModel = %O", assetModel);
 			cache.assetModels = [assetModel].concat(cache.assetModels).distinct(function (a, b) { return a.Id == b.Id });
 
 
@@ -141,26 +141,26 @@
 				switch (dashboard.DashboardTimeScope.Days) {
 
 					//Special entry for "Yesterday"
-				case -1:
-					d.setHours(0, 0, 0, 0);
+					case -1:
+						d.setHours(0, 0, 0, 0);
 
-					dashboard.derivedEndDate = d;
-					dashboard.derivedStartDate = new Date(new Date(new Date().setDate(d.getDate() - 1)).setHours(0, 0, 0, 0));
+						dashboard.derivedEndDate = d;
+						dashboard.derivedStartDate = new Date(new Date(new Date().setDate(d.getDate() - 1)).setHours(0, 0, 0, 0));
 
-					break;
+						break;
 
-				//Special entry for "Today since midnight"
-				case 0:
-					d.setHours(0, 0, 0, 0);
-					dashboard.derivedStartDate = d;
-					dashboard.derivedEndDate = new Date('1/1/2500');
-					break;
+						//Special entry for "Today since midnight"
+					case 0:
+						d.setHours(0, 0, 0, 0);
+						dashboard.derivedStartDate = d;
+						dashboard.derivedEndDate = new Date('1/1/2500');
+						break;
 
-				default:
-					dashboard.derivedStartDate = new Date(new Date().setDate(new Date().getDate() - dashboard.DashboardTimeScope.Days));
-					dashboard.derivedEndDate = new Date('1/1/2500');
+					default:
+						dashboard.derivedStartDate = new Date(new Date().setDate(new Date().getDate() - dashboard.DashboardTimeScope.Days));
+						dashboard.derivedEndDate = new Date('1/1/2500');
 
-					break;
+						break;
 				}
 
 
@@ -273,7 +273,7 @@
 
 			//++LocalDB Configuration
 			//Get an instance of the localDB and proceed from there.
-			indexedDBService.getDBInstance("iOPS", 43, [
+			indexedDBService.getDBInstance("iOPS", 45, [
 				{
 					dataStoreName: "Companies",
 					keyName: "Id"
@@ -335,7 +335,7 @@
 
 
 			]).then(function (db) {
-				console.log("LocalDB retrieved...");
+				//console.log("LocalDB retrieved...");
 				localDB = db;
 
 				//+Asyncronously and simultaneously load data collections
@@ -699,6 +699,12 @@
 
 		});
 
+		$rootScope.$on("System.signalR Disconnected", function (event, dataObject) {
+			//console.log("System.signalR Disconnected event");
+			service.dataServerConnected = false;
+
+		});
+
 
 
 		//==========================================================================================
@@ -742,7 +748,7 @@
 			//console.log("Getting localdb systems...");
 			return localDB.getById("Systems", 1).then(function (dbData) {
 				dbSystems = dbData ? dbData.Systems : [];
-				console.log("localdb Systems = " + dbSystems.length);
+				//console.log("localdb Systems = " + dbSystems.length);
 				//Get All of the Systems that have changed since the localDB was collected.
 				if (dbSystems.length > 0) {
 					maxDate = dbSystems.max(function (system) { return system.DateLastModified });
@@ -907,17 +913,9 @@
 			UpdateTagFromSignalR(signalRData);
 		});
 
-
-
-
-
-
 		function UpdateTagFromSignalR(data) {
 
 			var signalRTag = GetJsonFromSignalR(data);
-
-
-
 
 
 		}
@@ -976,7 +974,7 @@
 
 					SiteName: site ? site.Name : null,
 					TagName: tag.TagName,
-					GateName: tag.GateName && tag.GateName.replace('.',''),
+					GateName: tag.GateName && tag.GateName.replace('.', ''),
 					Value: tag.LastObservationTextValue,
 					JBTStandardObservation: cache.jbtStandardObservations.first(function (s) {
 						return s.Id == tag.JBTStandardObservationId;
@@ -1060,40 +1058,97 @@
 
 
 		service.GetAllSignalRObservationFormattedTagsForAssetIdIntoInventoryByListOfAssetIds =
-			function(assetIdList, alarmsOnly) {
+			function (assetIdList, alarmsOnly) {
+				//console.log("Loading tags into inventory for list of asset ids = " + assetIdList);
 
-
-				var notLoadedAssetIds = ("" + assetIdList).split(',').distinct().where(function(assetId) {
-
-					var asset = cache.assets.first(function(a) { return a.Id == +assetId });
-					return (!alarmsOnly && asset && !asset.AllTagsLoaded) || (alarmsOnly && asset && !asset.AllAlarmTagsLoaded);
+				var notLoadedAssetIds = ("" + assetIdList).split(',').distinct().where(function (assetId) {
+					if (assetId != "") {					
+						var asset = cache.assets.first(function (a) { return a.Id == +assetId });
+						return (!alarmsOnly && asset && !asset.AllTagsLoaded) || (alarmsOnly && asset && !asset.AllAlarmTagsLoaded);
+					}
 
 				});
 
 				//console.log("notLoadedAssetIds = %O", notLoadedAssetIds);
 				if (notLoadedAssetIds.length == 0) {
+					//console.log("Asset was loaded already");
 					return $q.when(true);
 				}
 
 				//The asset object in the dataService might have already loaded all its tags into the running inventory. If it has, we do nothing.
 				if (notLoadedAssetIds.length > 0) {
 
-					
 
-					return service.GetIOPSWebAPIResource(alarmsOnly ? "GSAlarmTagsByListOfAssetIds" : "GSTagsByListOfAssetIds")
+
+					return service.GetIOPSWebAPIResource(alarmsOnly ? "GSAlarmTagsByListOfAssetIdsCondensed" : "GSTagsByListOfAssetIdsCondensed")
 						.query({
-								assetIds: assetIdList
-							},
-							function(data) {
-								data
-									.where(function(tag) {
-										return tag.Name.indexOf('|') > 0
-									}) //Only the new format tags have pipe symbols in the name.
-									.where(function(t) { return !t.MarkedForDelete })
-									.select(function(tag) {
+							assetIds: assetIdList
+						},
+							function (data) {
+
+
+								console.log("Raw Data = %O", angular.copy(data));
+								if (typeof data[0] == 'string' || data[0] instanceof String) {
+									data = data.select(function (tstring) {
+
+										var tarray = tstring.split('~');
+
+
+
+										//'d' = 
+										//			convert(varchar(50),Id) + '~' +
+										//			Name + '~' +
+										//			coalesce(convert(varchar(50), SiteId),'') + '~' +  
+										//			coalesce(convert(varchar(25),[dbo].[currentTimeMilliseconds](LastObservationCreationDate)),'') + '~' + 
+										//			coalesce(convert(varchar(25),[dbo].[currentTimeMilliseconds](LastObservationDate)),'') + '~' + 
+										//			coalesce(convert(varchar(50), AssetId),'0') + '~' + 
+										//			coalesce(convert(varchar(50), LastObservationId),'0') + '~' +  
+										//			coalesce(convert(varchar(50), JBTStandardObservationId),'') + '~' +  
+										//			coalesce(LastObservationTextValue,'') + '~' + 
+										//			coalesce(convert(varchar(10),LastObservationQuality),'') + '~' +
+										//			coalesce(convert(varchar(1),IsAlarm),'0') + '~' + 
+										//			coalesce(convert(varchar(1),IsWarning),'0') + '~' + 
+										//			coalesce(ValueWhenActive,'1')
+
+
+
+
+
+										return {
+											Id: +tarray[0],
+											Name: tarray[1],
+											SiteId: +tarray[2],
+											LastObservationCreationDate: utilityService.GetUTCDateFromLocalDate(new Date(+tarray[3])),
+											LastObservationDate: utilityService.GetUTCDateFromLocalDate(new Date(+tarray[4])),
+											AssetId: +tarray[5],
+											LastObservationId: +tarray[6],
+											JBTStandardObservationId: +tarray[7],
+											LastObservationTextValue: tarray[8],
+											LastObservationQuality: +tarray[9],
+											IsAlarm: +tarray[10] == 1,
+											IsWarning: +tarray[11] == 1,
+											ValueWhenActive: tarray[12] == '' ? '1' : tarray[12],
+											DataType: 'DB'
+										}
+
+									});
+								}
+
+
+								console.log("Formatted data = %O", angular.copy(data));
+								console.log("Loading tags into inventory Data Arrival = " + data.length + ' tags');
+								console.log("Inventory length = " + cache.tags.length);
+
+								if (data.length > 0) {
+
+									data.select(function (tag) {
 
 										var formattedCacheTagObject = GetStandardCacheTagObjectFromDatabaseFields(tag);
-										var loadedTag = LoadSignalRObservationToInventory(formattedCacheTagObject);
+
+										//Debugging
+										//formattedCacheTagObject.IsTest = true;
+
+										var loadedTag = LoadSignalRObservationToInventory(formattedCacheTagObject, true);
 
 										if (tag.PreviousObservationId && tag.PreviousObservationId != tag.ObservationId) {
 											//console.log("broadcasting tag update for refresh = %O", tag);
@@ -1102,14 +1157,46 @@
 
 									});
 
-								assetIdList.split(',').forEach(function(assetId) {
-									var asset = cache.assets.first(function(a) { return a.Id == +assetId });
+									//Since we were in load only mode, distinctify the cache.tags collection on tagId.
+									cache.tags = cache.tags.distinct(function (a, b) { return a.TagId == b.TagId });
 
-									//Flag the asset as having all of its tags now loaded if it was not just the alarms loaded. 
-									if (asset) {
-										asset.AllTagsLoaded = true;
-									}
-								});
+									console.log("attaching tags to assets and assets assets to tags.");
+
+									assetIdList.split(',').forEach(function (assetId) {
+
+										if (assetId != "") {
+											
+											var cacheAsset = cache.assets.first(function (asset) { return asset.Id == assetId });
+
+											cacheAsset.Tags = cache.tags.where(function (t) { return t.AssetId == cacheAsset.Id });
+
+											cacheAsset.Tags.forEach(function (t) {
+												t.Asset = cacheAsset;
+
+												//Also connect the JBTStandardObservation object.
+												t.JBTStandardObservation = cache.jbtStandardObservations.first(function (s) {
+													return s.Id == t.JBTStandardObservationId
+												});
+											});
+										}
+
+									});
+
+									console.log("Loading tags into inventory for list of asset ids - cache processed");
+									console.log("Inventory length = " + cache.tags.length);
+
+									assetIdList.split(',').forEach(function (assetId) {
+										var asset = cache.assets.first(function (a) { return a.Id == +assetId });
+
+										//Flag the asset as having all of its tags now loaded if it was not just the alarms loaded. 
+										if (asset && !alarmsOnly) {
+											asset.AllTagsLoaded = true;
+										}
+										if (asset && alarmsOnly) {
+											asset.AllAlarmTagsLoaded = true;
+										}
+									});
+								}
 
 
 							}).$promise;
@@ -1121,16 +1208,61 @@
 
 			//The asset object in the dataService might have already loaded all its tags into the running inventory. If it has, we do nothing.
 
-			var maxDate = new Date();
-			maxDate = maxDate.setDate(maxDate.getDate() - .05);
-			maxDate = utilityService.GetUTCQueryDate(maxDate);
+			
 
 
-			return service.GetIOPSWebAPIResource("GSTagsUpdatedInLastFiveMinutesByListOfAssetIds")
+			return service.GetIOPSWebAPIResource("GSTagsUpdatedInLastSecondsByListOfAssetIdsCondensed")
 				.query({
-						assetIds: assetIdList
-					},
+					assetIds: assetIdList,
+					seconds: 120
+				},
 					function (data) {
+
+
+						 data = data.select(function (tstring) {
+
+										var tarray = tstring.split('~');
+
+
+
+										//'d' = 
+										//			convert(varchar(50),Id) + '~' +
+										//			Name + '~' +
+										//			coalesce(convert(varchar(50), SiteId),'') + '~' +  
+										//			coalesce(convert(varchar(25),[dbo].[currentTimeMilliseconds](LastObservationCreationDate)),'') + '~' + 
+										//			coalesce(convert(varchar(25),[dbo].[currentTimeMilliseconds](LastObservationDate)),'') + '~' + 
+										//			coalesce(convert(varchar(50), AssetId),'0') + '~' + 
+										//			coalesce(convert(varchar(50), LastObservationId),'0') + '~' +  
+										//			coalesce(convert(varchar(50), JBTStandardObservationId),'') + '~' +  
+										//			coalesce(LastObservationTextValue,'') + '~' + 
+										//			coalesce(convert(varchar(10),LastObservationQuality),'') + '~' +
+										//			coalesce(convert(varchar(1),IsAlarm),'0') + '~' + 
+										//			coalesce(convert(varchar(1),IsWarning),'0') + '~' + 
+										//			coalesce(ValueWhenActive,'1')
+
+
+
+
+
+										return {
+											Id: +tarray[0],
+											Name: tarray[1],
+											SiteId: +tarray[2],
+											LastObservationCreationDate: utilityService.GetUTCDateFromLocalDate(new Date(+tarray[3])),
+											LastObservationDate: utilityService.GetUTCDateFromLocalDate(new Date(+tarray[4])),
+											AssetId: +tarray[5],
+											LastObservationId: +tarray[6],
+											JBTStandardObservationId: +tarray[7],
+											LastObservationTextValue: tarray[8],
+											LastObservationQuality: +tarray[9],
+											IsAlarm: +tarray[10] == 1,
+											IsWarning: +tarray[11] == 1,
+											ValueWhenActive: tarray[12] == '' ? '1' : tarray[12],
+											DataType: 'DB'
+										}
+
+									});
+						
 						data
 							.where(function (tag) {
 								return tag.Name.indexOf('|') > 0
@@ -1152,10 +1284,6 @@
 						assetIdList.split(',').forEach(function (assetId) {
 							var asset = cache.assets.first(function (a) { return a.Id == +assetId });
 
-							//Flag the asset as having all of its tags now loaded if it was not just the alarms loaded. 
-							if (asset) {
-								asset.AllTagsLoaded = true;
-							}
 						});
 					});
 		}
@@ -1179,7 +1307,8 @@
 				DataType: 'DB',
 				PLCUTCDate: plcUTCDate,
 				ObservationUTCDate: obsCreatedDate,
-
+				IsAlarm: entityFromDatabase.IsAlarm,
+				IsWarning: entityFromDatabase.IsWarning,
 				AssetId: +entityFromDatabase.AssetId,
 				TagId: +entityFromDatabase.Id,
 				SiteId: +entityFromDatabase.SiteId,
@@ -1209,54 +1338,6 @@
 
 		}
 
-		service.GetAllSignalRObservationFormattedTagsForAssetIdIntoInventory = function (assetId) {
-
-
-			var asset = cache.assets.first(function (a) { return a.Id == assetId });
-
-			if (asset.Tags.length < 40) {
-				asset.AllTagsLoaded = false;
-			}
-
-			if (asset.AllTagsLoaded) {
-				return $q.when(true);
-			}
-
-			//The asset object in the dataService might have already loaded all its tags into the running inventory. If it has, we do nothing.
-			if (!asset.AllTagsLoaded) {
-				return service.GetIOPSResource("Tags")
-					//.expand("LastObservation")
-					.filter("AssetId", assetId)
-					.select(["Id", "Name", "SiteId", "LastObservationDate", "LastObservationCreationDate", "AssetId",
-						"LastObservationId", "JBTStandardObservationId",
-						"LastObservationTextValue", "LastObservationQuality", "IsAlarm", "IsWarning", "ValueWhenActive"])
-					.query()
-					.$promise
-					.then(function (data) {
-
-						//console.log("GetAllSignalRObservationFormattedTagsForAssetIdIntoInventory Data = %O", data);
-						data
-							.where(function (tag) { return tag.Name.indexOf('|') > 0 }) //Only the new format tags have pipe symbols in the name.
-							.where(function (t) { return !t.MarkedForDelete })
-							.select(function (tag) {
-
-								var formattedCacheTagObject = GetStandardCacheTagObjectFromDatabaseFields(tag);
-								LoadSignalRObservationToInventory(formattedCacheTagObject);
-
-							});
-					})
-					.then(function () {
-						var asset = cache.assets.first(function (a) { return a.Id == assetId });
-
-						//Flag the asset as having all of its tags now loaded. 
-						if (asset) {
-							asset.AllTagsLoaded = true;
-						}
-					});
-			}
-		}
-
-
 
 
 		service.dataSourceIsLocal = document.URL.indexOf("localhost/iops/") > 0;
@@ -1281,6 +1362,8 @@
 			//}
 
 			signalRData.DataType = 'signalR';
+
+
 			signalRData.PLCUTCDate = new Date(signalRData.PLCUTCDate);
 			signalRData.PLCUTCDateMS = signalRData.PLCUTCDate.getTime();
 			signalRData.PLCLocalDate = utilityService.GetLocalDateFromUTCDate(signalRData.PLCUTCDate);
@@ -1313,6 +1396,11 @@
 		}
 
 		//***G
+
+
+		service.GetAllSignalRObservationFormattedTagsForAssetIdIntoInventory = function (assetId) {
+			return service.GetAllSignalRObservationFormattedTagsForAssetIdIntoInventoryByListOfAssetIds(assetId.toString(), false);
+		}
 
 
 
@@ -1349,7 +1437,7 @@
 				//Check for an observation metadata object. It is the only one with the ObservationCreationDate property
 				if (obj.ObservationUTCDate) {
 
-					var siteReference = cache.sites.first(function(site) { return site.Id == obj.SiteId });
+					var siteReference = cache.sites.first(function (site) { return site.Id == obj.SiteId });
 
 					var sqlOffsetForSite = siteReference ? siteReference.KepwareSQLTimeDifferenceMSFromCentral : 0;
 					obj.Metadata.Statistics.KepwareSQLTimeDifferenceMSFromCentral = sqlOffsetForSite;
@@ -1397,110 +1485,141 @@
 		}
 
 
-		function LoadSignalRObservationToInventory(newObservation) {
-			//+Lo ad the tag represented by the observation into the local inventory of tags.
-			//console.log("Tag = %O", obs);
+		function LoadSignalRObservationToInventory(newObservation, addOnly) {
+			//+Load the tag represented by the observation into the local inventory of tags.
+			if (newObservation.IsTest) {
+				//console.log("Tag = %O", newObservation);
+			}
+			//addOnly = false;
+			var tagThatWasInCache;
+
+
 			if (newObservation.TagId || newObservation.TagName) {
 				//Scan the inventory for it.
 
-
-				if (newObservation.TagId) {
-					//console.log("Checking for tagid");
-					tag = cache.tags.first(function (et) { return et.TagId == newObservation.TagId });
-				}
-
-				if (!tag && newObservation.TagName) {
-					tag = cache.tags.first(function (et) { return et.TagName == newObservation.TagName });
-				}
-				//If we found the tag in the inventory, update it in our cache
-				if (tag) {
-
-					//console.log("Tag found in inventory = %O", tag);
-					if (tag.DataType == 'DB' && newObservation.DataType == 'signalR') {
-						tag.DataType = 'signalR';
-					}
-
-					if (!tag.Observations) {
-
-						tag.Observations = [];
-					}
-					if (!tag.Asset) {
-						//Set the asset object for the tag in the inventory if not yet already set.
-						tag.Asset = cache.assets.first(function (asset) { return asset.Id == tag.AssetId });
-						if (tag.Asset) {
-							//If we found a matching asset then add this tag to the tags collection for the asset.
-							if (!tag.Asset.Tags) {
-								tag.Asset.Tags = [];
-							}
-							tag.Asset.Tags.push(tag);
+				if (!addOnly) {
+					if (newObservation.TagId) {
+						//console.log("Checking for tagid");
+						if (!addOnly) {
+							tagThatWasInCache = cache.tags.first(function (et) { return et.TagId == newObservation.TagId });
 						}
 					}
 
-					tag.LastObservationTextValue = newObservation.Value;
-
-					MetadataCounterUpdate(tag);
-					//console.log("Tag found in inventory (updated Metadata) = %O", tag);
-					if (tag.Asset) {
-						MetadataCounterUpdate(tag.Asset);
-						MetadataCounterUpdate(tag.Asset.Company);
-						MetadataCounterUpdate(tag.Asset.System);
-						MetadataCounterUpdate(tag.Asset.Site);
-					}
-
-
-					if (tag.PLCUTCDateMS <= newObservation.PLCUTCDateMS && tag.ObservationId != newObservation.ObservationId) {
-
-
-						tag.PLCUTCDate = newObservation.PLCUTCDate;
-						tag.PLCUTCDateMS = newObservation.PLCUTCDateMS;
-						tag.PLCLocalDate = newObservation.PLCLocalDate;
-						tag.ObservationUTCDate = newObservation.ObservationUTCDate;
-						tag.ObservationUTCDateMS = newObservation.ObservationUTCDateMS;
-						tag.ObservationLocalDate = newObservation.ObservationLocalDate;
-						tag.PreviousObservationId = tag.ObservationId;
-						tag.ObservationId = +newObservation.ObservationId;
-						tag.Metadata.Status.LastValueWasHistorical = false;
-						tag.Value = newObservation.Value;
-						tag.ValueWhenActive = newObservation.ValueWhenActive || "1";
-					} else {
-						if (tag.DataType == 'signalR' && tag.ObservationId != newObservation.ObservationId) {
-							//console.log("Tag is from signalR and is historical. Tag in inventory = %O", tag);
-							//console.log("Tag is from signalR and is historical. Tag from signalR = %O", newObservation);
-							tag.Metadata.Status.LastValueWasHistorical = true;
+					if (!tag && newObservation.TagName) {
+						if (!addOnly) {
+							tagThatWasInCache = cache.tags.first(function (et) { return et.TagName == newObservation.TagName });
 						}
 					}
 
 				} else {
+					tagThatWasInCache = null;
+				}
+
+				//If we found the tag in the inventory, update it in our cache
+				if (tagThatWasInCache) {
+
+					//console.log("Tag found in inventory = %O", tag);
+					if (tagThatWasInCache.DataType == 'DB' && newObservation.DataType == 'signalR') {
+						tagThatWasInCache.DataType = 'signalR';
+					}
+
+					if (!tagThatWasInCache.Observations) {
+
+						tagThatWasInCache.Observations = [];
+					}
+					if (!tagThatWasInCache.Asset) {
+						//Set the asset object for the tag in the inventory if not yet already set.
+						tagThatWasInCache.Asset = cache.assets.first(function (asset) { return asset.Id == tagThatWasInCache.AssetId });
+						if (tagThatWasInCache.Asset) {
+							//If we found a matching asset then add this tag to the tags collection for the asset.
+							if (!tagThatWasInCache.Asset.Tags) {
+								tagThatWasInCache.Asset.Tags = [];
+							}
+							tagThatWasInCache.Asset.Tags.push(tag);
+						}
+					}
+
+					tagThatWasInCache.LastObservationTextValue = newObservation.Value;
+
+					MetadataCounterUpdate(tagThatWasInCache);
+					//console.log("Tag found in inventory (updated Metadata) = %O", tag);
+					if (tagThatWasInCache.Asset) {
+						//MetadataCounterUpdate(tagThatWasInCache.Asset);
+						//MetadataCounterUpdate(tagThatWasInCache.Asset.Company);
+						//MetadataCounterUpdate(tagThatWasInCache.Asset.System);
+						//MetadataCounterUpdate(tagThatWasInCache.Asset.Site);
+					}
+
+
+					if (tagThatWasInCache.PLCUTCDateMS <= newObservation.PLCUTCDateMS && tagThatWasInCache.ObservationId != newObservation.ObservationId) {
+
+
+						tagThatWasInCache.PLCUTCDate = newObservation.PLCUTCDate;
+						tagThatWasInCache.PLCUTCDateMS = newObservation.PLCUTCDateMS;
+						tagThatWasInCache.PLCLocalDate = newObservation.PLCLocalDate;
+						tagThatWasInCache.ObservationUTCDate = newObservation.ObservationUTCDate;
+						tagThatWasInCache.ObservationUTCDateMS = newObservation.ObservationUTCDateMS;
+						tagThatWasInCache.ObservationLocalDate = newObservation.ObservationLocalDate;
+						tagThatWasInCache.PreviousObservationId = tagThatWasInCache.ObservationId;
+						tagThatWasInCache.ObservationId = +newObservation.ObservationId;
+						tagThatWasInCache.Metadata.Status.LastValueWasHistorical = false;
+						tagThatWasInCache.Value = newObservation.Value;
+						tagThatWasInCache.ValueWhenActive = newObservation.ValueWhenActive || "1";
+
+					} else {
+						if (tagThatWasInCache.DataType == 'signalR' && tagThatWasInCache.ObservationId != newObservation.ObservationId) {
+							//console.log("Tag is from signalR and is historical. Tag in inventory = %O", tag);
+							//console.log("Tag is from signalR and is historical. Tag from signalR = %O", newObservation);
+							tagThatWasInCache.Metadata.Status.LastValueWasHistorical = true;
+						}
+					}
+
+					//Attach the JBTStandardObservation object to the tag.
+					tagThatWasInCache.JBTStandardObservation = cache.jbtStandardObservations.first(function (s) {
+						return s.Id == tagThatWasInCache.JBTStandardObservationId;
+					});
+
+				} else {
 					//We did not find the tag in the inventory.
 					//Add the tag to the cache with an attached metadata object
-					//console.log("Tag NOT found in inventory.....");
+					if (newObservation.IsTest) {
+						//console.log("Tag NOT found in inventory.....");
+					}
+
+
 					AttachBlankMetadataObject(newObservation);
 					//Attach the asset to the tag, and attach the tags collection to the asset - IF the asset is found
-					var asset = cache.assets.first(function (asset) { return asset.Id == +newObservation.AssetId });
 
-					//console.log("Asset Found = %O", asset);
-					if (asset) {
-						if (!asset.Tags) {
-							asset.Tags = [];
+					if (!addOnly) {
+
+						var asset = cache.assets.first(function (asset) { return asset.Id == +newObservation.AssetId });
+
+						//console.log("Asset Found = %O", asset);
+						if (asset) {
+							if (!asset.Tags) {
+								asset.Tags = [];
+							}
+							asset.Tags.unshift(newObservation);
+							asset.Tags = asset.Tags.distinct(function (a, b) { return a.TagId == b.TagId });
+							newObservation.Asset = asset;
 						}
-						asset.Tags.unshift(newObservation);
-						asset.Tags = asset.Tags.distinct(function (a, b) { return a.TagId == b.TagId });
-						newObservation.Asset = asset;
 					}
 
 					var isTag = true;
-					MetadataCounterUpdate(newObservation, isTag);
 
-					if (newObservation.Asset) {
-						MetadataCounterUpdate(newObservation.Asset);
-						MetadataCounterUpdate(newObservation.Asset.Company);
-						MetadataCounterUpdate(newObservation.Asset.System);
-						MetadataCounterUpdate(newObservation.Asset.Site);
+					if (!addOnly) {
+						MetadataCounterUpdate(newObservation, isTag);
+
+						if (newObservation.Asset) {
+							//MetadataCounterUpdate(newObservation.Asset);
+							//MetadataCounterUpdate(newObservation.Asset.Company);
+							//MetadataCounterUpdate(newObservation.Asset.System);
+							//MetadataCounterUpdate(newObservation.Asset.Site);
+						}
+
 					}
 
-
-					cache.tags.push(newObservation);
-					MetadataCounterUpdate(newObservation, true);
+					cache.tags.unshift(newObservation);
 
 					tag = newObservation;
 					//console.log("New Tag Entry = %)",newObservation);
@@ -1510,18 +1629,14 @@
 			}
 			if (!isFinite(newObservation.Value) && newObservation.Value.indexOf('oken:') != 1 && newObservation.Value.indexOf('rue') != 1 && newObservation.Value.indexOf('alse') != 1) {
 				if (Global.User.Username == 'jim') {
-					console.log("Text Observation data Arrived. TagName " + tag.TagName + " --- " + tag.Value);
+					//console.log("Text Observation data Arrived. TagName " + tag.TagName + " --- " + tag.Value);
 				}
 			}
 			if (tag.DataType == 'signalR') {
 
-				//if (tag.TagName.indexOf('B2|B34|') > 0 && tag.TagName.indexOf('AIRCRAFT_DOCKED') > 0) {
-				//	console.log("B34 SignalR data Arrived in dataService - before broadcast = %O", tag);
-				//}
-
-
 				$rootScope.$broadcast("dataService.TagUpdate", tag);
 			} else {
+				//$rootScope.$broadcast("dataService.TagUpdate", tag);
 				//console.log("DB version was detected - no broadcast necessary");
 			}
 
@@ -1618,7 +1733,7 @@
 				}
 			});
 
-			operationMetadata.tagsWithOneSecondCountdowns = operationMetadata.tagsWithOneSecondCountdowns.where(function(t) {
+			operationMetadata.tagsWithOneSecondCountdowns = operationMetadata.tagsWithOneSecondCountdowns.where(function (t) {
 				return t.Metadata.UpdateCountDowns.OneSecond != 0;
 			});
 
@@ -1692,6 +1807,24 @@
 
 
 		}, 300000);
+
+
+		//***G
+		//++Five Second Interval
+		//+Sort the cache.tags collection in order of last received.
+		//+This will make the lookup for frequent items faster.
+		//***G
+		//$interval(function () {
+		//	//This is a small collection.
+		//	//It is just a keepalive for the OData source service.
+		//	return odataService.GetEntityById("iOPS", "Sites", 1);
+
+
+
+
+		//}, 10000);
+
+
 
 
 

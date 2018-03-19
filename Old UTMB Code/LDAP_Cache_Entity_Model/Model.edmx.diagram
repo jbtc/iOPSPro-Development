@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<edmx:Edmx Version="3.0" xmlns:edmx="http://schemas.microsoft.com/ado/2009/11/edmx">
+ <!-- EF Designer content (DO NOT EDIT MANUALLY BELOW HERE) -->
+  <edmx:Designer xmlns="http://schemas.microsoft.com/ado/2009/11/edmx">
+    <!-- Diagram content (shape and connector positions) -->
+    <edmx:Diagrams>
+      <Diagram DiagramId="7aaedb47e22b45dbb7e882a61b1a769b" Name="Diagram1">
+        <EntityTypeShape EntityType="LDAP_Cache.Cache_Statistic" Width="1.5" PointX="5.75" PointY="0.75" />
+        <EntityTypeShape EntityType="LDAP_Cache.HPRDData" Width="1.5" PointX="3.875" PointY="1.125" />
+        <EntityTypeShape EntityType="LDAP_Cache.Status" Width="1.5" PointX="5.75" PointY="5.75" />
+        <EntityTypeShape EntityType="LDAP_Cache.History" Width="1.5" PointX="8.125" PointY="0.5" />
+        <EntityTypeShape EntityType="LDAP_Cache.LocalSetCache" Width="1.5" PointX="10.625" PointY="1.25" />
+        <EntityTypeShape EntityType="LDAP_Cache.Person_Cache" Width="2.25" PointX="0.5" PointY="2.375" />
+        <AssociationConnector Association="LDAP_Cache.FK_HPRDData_Person_Cache" />
+      </Diagram>
+    </edmx:Diagrams>
+  </edmx:Designer>
+</edmx:Edmx>

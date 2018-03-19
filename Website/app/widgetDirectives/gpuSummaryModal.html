@@ -7,6 +7,17 @@
 
                 <div class="panel-heading" style="font-size:.9em; padding-top:3px; padding-left: 5px; height:40px; min-height: 40px; max-height: 40px; background: {{vm.widget.displaySettings.headingBackground ? vm.widget.displaySettings.headingBackground : 'linear-gradient(to bottom,#dedede, #fefefe)'}};">
                     <div class='btn-toolbar pull-right' style="display: inline-block;">
+                        
+                        <input ng-if="vm.widget.displaySettings.headingSearchField"
+                               type="text"
+                               id="searchInput{{widget.Id}}"
+                               name="searchInput"
+                               ng-model="vm.widget.searchText"
+                               ng-model-options="{ debounce: 100 }"
+                               placeholder="Search....."
+                               class="form-control responsive-button"
+                               style="height:20px; width: 200px; display: inline-block; font-size: 1em; margin-bottom: 0;">
+
                         <button ui-sref="^" class="btn btn-default tiny-button responsive-button">Close</button>
                         <button ng-click="vm.AddToDashboard()" class="btn btn-default tiny-button responsive-button">Add to Dashboard</button>
                     </div>
@@ -21,7 +32,7 @@
 
 
                 <div class="panel-body" id="{{vm.widget.Id}}">
-                    <gpu-summary widget="vm.widget" dashboard="vm.dashboard"></gpu-summary>
+                    <gpu-summary widget="vm.widget" dashboard="vm.dashboard"  add-tags-to-graph-function="vm.AddTagsToGraphModal"></gpu-summary>
                 </div>
             </div>
         </div>

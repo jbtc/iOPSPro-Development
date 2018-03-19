@@ -25,7 +25,11 @@
 <div class="panel panel-default" style="background-color: white; margin-bottom: 0; margin-left: 5px; margin-top: 5px;">
     <div class="panel-heading" style="background-color: #dedede; background: linear-gradient(to bottom, #cecece, #fefefe); height: 46px;">
         <div class='btn-toolbar pull-right' style="display: inline-block;">
-            <button ui-sref="home.app.editDashboard({ DashboardId: -1 })" class="btn btn-default responsive-button" style="margin-bottom: 10px; height: 30px;">New</button>
+            <button ui-sref="home.app.editDashboard({ DashboardId: -1 })"
+                    class="btn btn-default responsive-button tiny-button" style="margin-top: -3px;" 
+                    title="Create new dashboard">
+                <i class="fa fa-plus" aria-hidden="true" style="cursor: pointer;"></i>
+            </button>
         </div>
         My Dashboards
     </div>

@@ -240,6 +240,7 @@
 
 		}
 
+		
 
 		service.SetPanelDimensions = function (iterations) {
 			//console.log("displaySetupService - SetPanelDimensions ran");

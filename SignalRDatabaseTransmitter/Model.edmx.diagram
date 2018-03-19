@@ -6,6 +6,7 @@
     <edmx:Diagrams>
       <Diagram DiagramId="0a77e5018a294f6da1476c85481757cb" Name="Diagram1">
         <EntityTypeShape EntityType="iOPS_NormalizedModel.SignalRMessageQueue" Width="1.5" PointX="0.75" PointY="0.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="iOPS_NormalizedModel.SignalRMessage" Width="1.5" PointX="3.375" PointY="0.75" />
       </Diagram>
     </edmx:Diagrams>
   </edmx:Designer>

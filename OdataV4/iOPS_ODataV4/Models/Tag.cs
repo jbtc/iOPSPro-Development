@@ -79,6 +79,7 @@ namespace iOPS_ODataV4.Models
         public Nullable<System.DateTime> PreviousReportedDate { get; set; }
         public Nullable<bool> IsDerived { get; set; }
         public Nullable<bool> IgnoreWhenTheAssetIsInactive { get; set; }
+        public string D { get; set; }
     
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<Observation> Observations { get; set; }

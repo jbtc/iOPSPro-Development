@@ -1,0 +1,42 @@
+﻿<div class="chart-wrapper" style="width:100%; height: 100%">
+    <div class="chart-inner" style="width: 100%; height: 100%">
+        <div style="display: flex; width: 100%; height: 60%;">
+            <div id="gsEquipmentUtilizationSummary{{vm.widget.Id}}" style=" width: 100%; height: 60%;">
+                Loading.....
+            </div>
+        </div>
+        <div style="width: 100%; height: 40%; border-top: 1px solid gray;  overflow-y: auto; ">
+            <div id="{{vm.widget.Id}}"  ng-show="vm.showWidget"  style="width: 100%;">
+                <table id="table{{vm.widget.Id}}" class="table  table-condensed">
+                   
+                    <tbody style="font-size: .9em; overflow-y: scroll;">
+                        <tr class="no-select">
+                            <td nowrap>PBB In Use</td>
+                            <td nowrap>{{vm.PBBGatesUsed}}</td>
+                            <td nowrap>of</td>
+                            <td nowrap>{{vm.PBBGatesPresent}}</td>
+                            <td nowrap>{{vm.totalPBBHours}} Hrs</td>
+                            <td nowrap>{{vm.usagePBB}}%</td>
+                        </tr>
+                        <tr class="no-select">
+                            <td nowrap>400Hz in Use</td>
+                            <td nowrap>{{vm.GPUGatesUsed}}</td>
+                            <td nowrap>of</td>
+                            <td nowrap>{{vm.GPUGatesPresent}}</td>
+                            <td nowrap>{{vm.totalGPUHours}} Hrs</td>
+                            <td nowrap>{{vm.usageGPU}}%</td>
+                        </tr>
+                        <tr class="no-select">
+                            <td nowrap>PCA in Use</td>
+                            <td nowrap>{{vm.PCAGatesUsed}}</td>
+                            <td nowrap>of</td>
+                            <td nowrap>{{vm.PCAGatesPresent}}</td>
+                            <td nowrap>{{vm.totalPCAHours}} Hrs</td>
+                            <td nowrap>{{vm.usagePCA}}%</td>
+                        </tr>
+                        </tbody>
+                    </table>
+             </div>
+        </div>
+    </div>
+</div>

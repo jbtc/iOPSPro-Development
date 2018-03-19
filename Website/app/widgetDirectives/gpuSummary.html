@@ -1,6 +1,6 @@
 ﻿<div class="chart-wrapper" style="width:100%; height: 100%" ng-click="vm.OpenSettingsIfNoAssetAndCloseIfAssetIsPresent()">
     <div class="chart-inner" style="width:100%; height: 100%">
-        <div style="display: flex; width: 100%; height: 100%;" ng-show="vm.gpu">
+        <div style="display: flex; width: 100%; height: 100%;" ng-show="vm.showWidget">
             <div class="container" id="containerData{{vm.widget.Id}}" style="height 100%; width:{{vm.widget.WidgetResource.SplitLeftPercentage}}%; padding-left: 0; padding-right: 0;">
 
                 <ul class="nav nav-pills widget-tab-nav-button" id="nav-pills{{vm.widget.Id}}">
@@ -169,10 +169,10 @@
                     </div>
                     <div id="data{{vm.widget.Id}}" class="tab-pane fade{{vm.widget.WidgetResource.DefaultNavPill == 'Data' ? ' in active' : ''}}" style="overflow: auto;">
                         <div id="repeater-container-data{{vm.widget.Id}}" ng-show="vm.showTags" class="repeater-container" style="overflow-x: hidden; overflow-y: auto; width: 100%; height: {{vm.widgetDimensions.height - 10}}px;">
-                            <table class="table table-condensed table-striped widget-tag-data-table">
+                            <table class="table table-condensed table-striped widget-tag-data-table" style="table-layout: fixed;">
                                 <thead>
                                     <tr>
-                                        <th style="cursor: pointer; width: 100%;"
+                                        <th style="cursor: pointer; width: 50%;"
                                             nowrap
                                             ng-click="vm.SetSortField('JBTStandardObservation.Name')">
                                             <div>
@@ -185,7 +185,7 @@
                                                 </span>
                                             </div>
                                         </th>
-                                        <th nowrap
+                                        <th style="cursor: pointer; width: 30%;"
                                             ng-click="vm.SetSortField('PLCLocalDate')">
                                             <div>
                                                 Date
@@ -197,26 +197,25 @@
                                                 </span>
                                             </div>
                                         </th>
-                                        <th>
+                                        <th style="cursor: pointer; width: 20%;">
                                             Value
                                         </th>
 
                                     </tr>
                                 </thead>
-                                <tbody vs-repeat vs-autoresize vs-scroll-parent=".repeater-container" vs-scrolled-to-end="vm.scrolledToEnd()" style="overflow-y: scroll; height: 100px;">
-                                    <tr ng-repeat="tag in vm.gpu.Tags | orderBy: vm.widget.displaySettings.tagDataSortField" style="background-color: {{tag.Metadata.Status.LastValueWasHistorical ? 'rgba(173, 173, 173,' : 'rgba(0, 255, 0,'}} .{{tag.Metadata.UpdateCountDowns.OneSecond}});">
+                                <tbody vs-repeat vs-scroll-parent=".repeater-container" vs-scrolled-to-end="vm.scrolledToEnd()" style="overflow-y: scroll; height: 100px;">
+                                    <tr ng-repeat="tag in vm.gpu.Tags | filter: vm.tagFilterFunction  | orderBy: vm.widget.displaySettings.tagDataSortField"  ng-click="vm.tagClicked(tag)" style="background-color: {{tag.Metadata.Status.LastValueWasHistorical ? 'rgba(173, 173, 173,' : 'rgba(0, 255, 0,'}} .{{tag.Metadata.UpdateCountDowns.OneSecond}});">
                                         <td>
-                                            <label ng-click="vm.ProcessTagsToGraph()" class="btn btn-default graph-select-icon" ng-model="vm.tagsToGraph[tag.TagId]" uib-btn-checkbox="{{tag.TagId}}">
+                                            <label ng-click="vm.ProcessTagsToGraph()" class="btn btn-default graph-select-icon" ng-model="vm.tagsToGraph[tag.TagId]" uib-btn-checkbox="{{::tag.TagId}}">
                                                 <i class="fa fa-line-chart" aria-hidden="true" title="Add to graph widget" style="cursor: pointer;"></i>
                                             </label>
-                                            <span title="{{tag.JBTStandardObservation.Id}}">{{tag.JBTStandardObservation.Name}}</span>
+                                            <span title="{{::tag.JBTStandardObservation.Id}}">{{::tag.JBTStandardObservation.Name}}</span>
                                         </td>
-                                        <td nowrap>
+                                        <td>
                                             {{tag.PLCLocalDate | date:'MM/dd HH:mm:ss'}}
                                         </td>
                                         <td>
                                             {{tag.Value}}
-
                                         </td>
                                     </tr>
                                 </tbody>
@@ -281,7 +280,7 @@
                                 </thead>
                                 <tbody vs-repeat vs-autoresize vs-scroll-parent=".repeater-container" vs-scrolled-to-end="vm.scrolledToEnd()" style="overflow-y: scroll; height: 100px;">
                                     <tr ng-repeat="alarm in vm.alarms | orderBy: vm.widget.displaySettings.alarmDataSortField | filter: vm.alarmFilterFunction" style="background-color: {{tag.Metadata.Status.LastValueWasHistorical ? 'rgba(173, 173, 173,' : 'rgba(0, 255, 0,'}} .{{tag.Metadata.UpdateCountDowns.OneSecond}});">
-                                        <td nowrap>{{alarm.PLCLocalDate | date:'MM/dd HH:mm:ss'}}</td>
+                                        <td nowrap>{{alarm.PLCLocalDate | date:'MM/dd HH:mm:ss' : UTC}}</td>
                                         <td nowrap><div ng-class="{ 'pulsing': alarm.Severity == 'Critical'}" style="width: 1%;">{{alarm.Severity}}</div></td>
                                         <td nowrap>{{alarm.JBTStandardObservation.Name}}</td>
                                         <td ng-if="vm.canCloseAlarm">
@@ -349,8 +348,8 @@
                                     </tr>
                                 </thead>
                                 <tbody vs-repeat vs-autoresize vs-scroll-parent=".repeater-container" vs-scrolled-to-end="vm.scrolledToEnd()" style="overflow-y: scroll; height: 100px;">
-                                    <tr ng-repeat="warning in vm.warnings | orderBy: vm.widget.displaySettings.warningDataSortField" style="background-color: {{tag.Metadata.Status.LastValueWasHistorical ? 'rgba(173, 173, 173,' : 'rgba(0, 255, 0,'}} .{{tag.Metadata.UpdateCountDowns.OneSecond}});">
-                                        <td nowrap>{{warning.PLCLocalDate | date:'MM/dd HH:mm:ss'}}</td>
+                                    <tr ng-repeat="warning in vm.warnings | orderBy: vm.widget.displaySettings.warningDataSortField | filter:vm.alarmFilterFunction" style="background-color: {{tag.Metadata.Status.LastValueWasHistorical ? 'rgba(173, 173, 173,' : 'rgba(0, 255, 0,'}} .{{tag.Metadata.UpdateCountDowns.OneSecond}});">
+                                        <td nowrap>{{warning.PLCLocalDate | date:'MM/dd HH:mm:ss' : UTC}}</td>
                                         <td nowrap><div ng-class="{ 'pulsing': warning.Severity == 'Critical'}" style="width: 1%;">{{warning.Severity}}</div></td>
                                         <td nowrap>{{warning.JBTStandardObservation.Name}}</td>
                                         <td ng-if="vm.canCloseAlarm">

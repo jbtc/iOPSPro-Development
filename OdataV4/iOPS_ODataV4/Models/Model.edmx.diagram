@@ -4,7 +4,7 @@
   <edmx:Designer xmlns="http://schemas.microsoft.com/ado/2009/11/edmx">
     <!-- Diagram content (shape and connector positions) -->
     <edmx:Diagrams>
-      <Diagram DiagramId="3762e8513e684cdf9d35751661d5ba65" Name="Diagram1" ZoomLevel="63">
+      <Diagram DiagramId="3762e8513e684cdf9d35751661d5ba65" Name="Diagram1" ZoomLevel="82">
         <EntityTypeShape EntityType="iOPS_NormalizedModel.iOPSUser" Width="3.125" PointX="24.75" PointY="18" IsExpanded="true" />
         <EntityTypeShape EntityType="iOPS_NormalizedModel.AuthorizableActivity" Width="2.375" PointX="35.25" PointY="19.25" />
         <EntityTypeShape EntityType="iOPS_NormalizedModel.UserAuthorizedActivity" Width="2.125" PointX="32" PointY="19.25" />
@@ -20,8 +20,8 @@
         <AssociationConnector Association="iOPS_NormalizedModel.FK_iOPSUser_Person" />
         <AssociationConnector Association="iOPS_NormalizedModel.FK_Person_Person" />
         <EntityTypeShape EntityType="iOPS_NormalizedModel.Company" Width="3.5" PointX="19.875" PointY="14.875" />
-        <EntityTypeShape EntityType="iOPS_NormalizedModel.CompanyContact" Width="2.125" PointX="24.75" PointY="15" />
-        <EntityTypeShape EntityType="iOPS_NormalizedModel.CompanyDataReader" Width="2.125" PointX="21" PointY="19.625" />
+        <EntityTypeShape EntityType="iOPS_NormalizedModel.CompanyContact" Width="2.125" PointX="24.75" PointY="14.5" />
+        <EntityTypeShape EntityType="iOPS_NormalizedModel.CompanyDataReader" Width="2.125" PointX="20.875" PointY="20" />
         <AssociationConnector Association="iOPS_NormalizedModel.FK_CompanyContact_Company1" />
         <AssociationConnector Association="iOPS_NormalizedModel.FK_CompanyDataReader_Company" />
         <AssociationConnector Association="iOPS_NormalizedModel.FK_CompanyContact_Person" />
@@ -86,14 +86,14 @@
         <EntityTypeShape EntityType="iOPS_NormalizedModel.BHSDeviceLocationCarrierMap" Width="2.5" PointX="2.5" PointY="7.375" />
         <AssociationConnector Association="iOPS_NormalizedModel.FK_BHSDeviceLocationCarrierMap_BHSCarrier" />
         <AssociationConnector Association="iOPS_NormalizedModel.FK_BHSDeviceLocationCarrierMap_DeviceLocations" />
-        <EntityTypeShape EntityType="iOPS_NormalizedModel.Asset" Width="15.625" PointX="13" PointY="1.375" />
+        <EntityTypeShape EntityType="iOPS_NormalizedModel.Asset" Width="15.625" PointX="13" PointY="0.75" />
         <AssociationConnector Association="iOPS_NormalizedModel.FK_Asset_Airport" />
         <AssociationConnector Association="iOPS_NormalizedModel.FK_Asset_AssetType" />
         <AssociationConnector Association="iOPS_NormalizedModel.FK_Asset_Condition" />
         <AssociationConnector Association="iOPS_NormalizedModel.FK_Asset_Site" />
         <AssociationConnector Association="iOPS_NormalizedModel.FK_Asset_System" />
         <AssociationConnector Association="iOPS_NormalizedModel.FK_Tag_Asset" />
-        <EntityTypeShape EntityType="iOPS_NormalizedModel.WidgetCustomTagDisplayOrder" Width="2.375" PointX="26.5" PointY="23.875" />
+        <EntityTypeShape EntityType="iOPS_NormalizedModel.WidgetCustomTagDisplayOrder" Width="2.375" PointX="26.25" PointY="26.75" />
         <AssociationConnector Association="iOPS_NormalizedModel.FK_WidgetCustomTagDisplayOrder_Widget" />
         <AssociationConnector Association="iOPS_NormalizedModel.FK_WidgetCustomTagDisplayOrder_iOPSUser" />
         <AssociationConnector Association="iOPS_NormalizedModel.FK_WidgetCustomTagDisplayOrder_JBTStandardObservation" />
@@ -129,11 +129,11 @@
         <AssociationConnector Association="iOPS_NormalizedModel.FK_ObservationExceptionComment_Observation" />
         <EntityTypeShape EntityType="iOPS_NormalizedModel.WidgetTypeTabGroup" Width="2.25" PointX="38.625" PointY="25.25" />
         <AssociationConnector Association="iOPS_NormalizedModel.FK_WidgetType_WidgetTypeTabGroup" />
-        <EntityTypeShape EntityType="iOPS_NormalizedModel.Module" Width="2.5" PointX="30.25" PointY="34.5" />
+        <EntityTypeShape EntityType="iOPS_NormalizedModel.Module" Width="2.5" PointX="30.5" PointY="35.875" />
         <EntityTypeShape EntityType="iOPS_NormalizedModel.Subscription" Width="2.125" PointX="21.875" PointY="32.25" />
-        <EntityTypeShape EntityType="iOPS_NormalizedModel.SubscriptionModule" Width="2.125" PointX="26.375" PointY="32.875" />
-        <EntityTypeShape EntityType="iOPS_NormalizedModel.SubscriptionSiteUser" Width="1.5" PointX="38.625" PointY="18.25" />
-        <EntityTypeShape EntityType="iOPS_NormalizedModel.SubscriptionUser" Width="1.5" PointX="32.625" PointY="30.375" />
+        <EntityTypeShape EntityType="iOPS_NormalizedModel.SubscriptionModule" Width="2.125" PointX="27.25" PointY="32.625" />
+        <EntityTypeShape EntityType="iOPS_NormalizedModel.SubscriptionSiteUser" Width="3.125" PointX="38.625" PointY="18.25" />
+        <EntityTypeShape EntityType="iOPS_NormalizedModel.SubscriptionUser" Width="3" PointX="32.75" PointY="31.25" />
         <AssociationConnector Association="iOPS_NormalizedModel.FK_Subscription_Company" />
         <AssociationConnector Association="iOPS_NormalizedModel.FK_SubscriptionModule_Module" />
         <AssociationConnector Association="iOPS_NormalizedModel.FK_SubscriptionSiteUser_Site" />
@@ -141,6 +141,18 @@
         <AssociationConnector Association="iOPS_NormalizedModel.FK_SubscriptionUser_Subscription" />
         <AssociationConnector Association="iOPS_NormalizedModel.FK_SubscriptionSiteUser_iOPSUser" />
         <AssociationConnector Association="iOPS_NormalizedModel.FK_SubscriptionUser_iOPSUser" />
+        <AssociationConnector Association="iOPS_NormalizedModel.FK_CompanyContact_iOPSUser" />
+        <AssociationConnector Association="iOPS_NormalizedModel.FK_CompanyContact_iOPSUser1" />
+        <AssociationConnector Association="iOPS_NormalizedModel.FK_Module_iOPSUser" />
+        <AssociationConnector Association="iOPS_NormalizedModel.FK_Module_iOPSUser1" />
+        <AssociationConnector Association="iOPS_NormalizedModel.FK_Subscription_iOPSUser" />
+        <AssociationConnector Association="iOPS_NormalizedModel.FK_Subscription_iOPSUser1" />
+        <AssociationConnector Association="iOPS_NormalizedModel.FK_SubscriptionModule_iOPSUser" />
+        <AssociationConnector Association="iOPS_NormalizedModel.FK_SubscriptionModule_iOPSUser1" />
+        <AssociationConnector Association="iOPS_NormalizedModel.FK_SubscriptionSiteUser_iOPSUser1" />
+        <AssociationConnector Association="iOPS_NormalizedModel.FK_SubscriptionSiteUser_iOPSUser2" />
+        <AssociationConnector Association="iOPS_NormalizedModel.FK_WidgetType_iOPSUser" />
+        <AssociationConnector Association="iOPS_NormalizedModel.FK_WidgetType_iOPSUser1" />
         </Diagram>
     </edmx:Diagrams>
   </edmx:Designer>

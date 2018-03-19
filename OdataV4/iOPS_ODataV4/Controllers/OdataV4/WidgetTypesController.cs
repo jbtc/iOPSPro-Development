@@ -25,6 +25,8 @@ namespace iOPS_ODataV4.Controllers.OdataV4
     ODataConventionModelBuilder builder = new ODataConventionModelBuilder();
     builder.EntitySet<WidgetType>("WidgetTypes");
     builder.EntitySet<Widget>("Widgets"); 
+    builder.EntitySet<WidgetTypeTabGroup>("WidgetTypeTabGroups"); 
+    builder.EntitySet<iOPSUser>("iOPSUsers"); 
     config.MapODataServiceRoute("odata", "odata", builder.GetEdmModel());
     */
     public class WidgetTypesController : ODataController
@@ -45,7 +47,6 @@ namespace iOPS_ODataV4.Controllers.OdataV4
             return SingleResult.Create(db.WidgetTypes.Where(widgetType => widgetType.Id == key));
         }
 
-       
         // POST: odata/WidgetTypes
         public async Task<IHttpActionResult> Post(WidgetType entity)
         {
@@ -96,7 +97,19 @@ namespace iOPS_ODataV4.Controllers.OdataV4
             return SingleResult.Create(db.WidgetTypes.Where(m => m.Id == key).Select(m => m.WidgetTypeTabGroup));
         }
 
+        // GET: odata/WidgetTypes(5)/CreatorUser
+        [EnableQuery(MaxExpansionDepth = 100)]
+        public SingleResult<iOPSUser> GetCreatorUser([FromODataUri] long key)
+        {
+            return SingleResult.Create(db.WidgetTypes.Where(m => m.Id == key).Select(m => m.CreatorUser));
+        }
 
+        // GET: odata/WidgetTypes(5)/LastModifiedUser
+        [EnableQuery(MaxExpansionDepth = 100)]
+        public SingleResult<iOPSUser> GetLastModifiedUser([FromODataUri] long key)
+        {
+            return SingleResult.Create(db.WidgetTypes.Where(m => m.Id == key).Select(m => m.LastModifiedUser));
+        }
 
         protected override void Dispose(bool disposing)
         {

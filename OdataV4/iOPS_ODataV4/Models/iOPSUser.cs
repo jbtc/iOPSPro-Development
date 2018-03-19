@@ -25,6 +25,18 @@ namespace iOPS_ODataV4.Models
             this.WidgetCustomTagDisplayOrders = new HashSet<WidgetCustomTagDisplayOrder>();
             this.SubscriptionSiteUsers = new HashSet<SubscriptionSiteUser>();
             this.SubscriptionUsers = new HashSet<SubscriptionUser>();
+            this.CompanyContacts = new HashSet<CompanyContact>();
+            this.CompanyContacts1 = new HashSet<CompanyContact>();
+            this.Modules = new HashSet<Module>();
+            this.Modules1 = new HashSet<Module>();
+            this.Subscriptions = new HashSet<Subscription>();
+            this.Subscriptions1 = new HashSet<Subscription>();
+            this.SubscriptionModules = new HashSet<SubscriptionModule>();
+            this.SubscriptionModules1 = new HashSet<SubscriptionModule>();
+            this.SubscriptionSiteUsers1 = new HashSet<SubscriptionSiteUser>();
+            this.SubscriptionSiteUsers2 = new HashSet<SubscriptionSiteUser>();
+            this.WidgetTypes = new HashSet<WidgetType>();
+            this.WidgetTypes1 = new HashSet<WidgetType>();
         }
     
         public long Id { get; set; }
@@ -59,5 +71,29 @@ namespace iOPS_ODataV4.Models
         public virtual ICollection<SubscriptionSiteUser> SubscriptionSiteUsers { get; set; }
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<SubscriptionUser> SubscriptionUsers { get; set; }
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
+        public virtual ICollection<CompanyContact> CompanyContacts { get; set; }
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
+        public virtual ICollection<CompanyContact> CompanyContacts1 { get; set; }
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
+        public virtual ICollection<Module> Modules { get; set; }
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
+        public virtual ICollection<Module> Modules1 { get; set; }
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
+        public virtual ICollection<Subscription> Subscriptions { get; set; }
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
+        public virtual ICollection<Subscription> Subscriptions1 { get; set; }
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
+        public virtual ICollection<SubscriptionModule> SubscriptionModules { get; set; }
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
+        public virtual ICollection<SubscriptionModule> SubscriptionModules1 { get; set; }
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
+        public virtual ICollection<SubscriptionSiteUser> SubscriptionSiteUsers1 { get; set; }
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
+        public virtual ICollection<SubscriptionSiteUser> SubscriptionSiteUsers2 { get; set; }
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
+        public virtual ICollection<WidgetType> WidgetTypes { get; set; }
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
+        public virtual ICollection<WidgetType> WidgetTypes1 { get; set; }
     }
 }

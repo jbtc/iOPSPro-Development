@@ -1,56 +1,59 @@
-﻿<div class="chart-wrapper" style="width:100%; height: 100%" >
+﻿<div class="chart-wrapper" style="width:100%; height: 100%">
     <div class="chart-inner" style="width:100%; height: 100%">
         <div ng-show="vm.showWidget" style="display: flex; width: 100%; height: 100%;">
             <div class="container" id="containerData{{vm.widget.Id}}" style="height 100%; width:{{vm.widget.WidgetResource.SplitLeftPercentage}}%; padding-left: 0; padding-right: 0;">
 
-                <div id="repeater-container-data{{vm.widget.Id}}" ng-show="vm.showTags" class="repeater-container" style="overflow-x: hidden; overflow-y: auto; width: 100%; height: {{vm.widgetDimensions.height - 10}}px;">
+                <div id="repeater-container-data{{vm.widget.Id}}" ng-show="vm.showEntities" class="repeater-container" style="overflow-x: hidden; overflow-y: auto; width: 100%; height: {{vm.widgetDimensions.height - 10}}px;">
                     <table class="table table-condensed table-striped widget-tag-data-table">
                         <thead>
                             <tr>
-                                <th nowrap
-                                    ng-click="vm.SetSortField('JBTStandardObservation.Name')"
-                                    style="width: 100%; cursor: pointer;">
-                                    <div>
-                                        Name
-                                        <span ng-show="vm.widget.displaySettings.tagDataSortField=='-JBTStandardObservation.Name'">
-                                            <i class="fa fa-sort-numeric-desc" title="Click to sort in descending order"></i>
-                                        </span>
-                                        <span ng-show="vm.widget.displaySettings.tagDataSortField=='JBTStandardObservation.Name'">
-                                            <i class="fa fa-sort-numeric-asc" title="Click to sort in ascending order"></i>
-                                        </span>
-                                    </div>
+                                <th style="cursor: default;">
+                                    Mnemonic
                                 </th>
-                                <th nowrap
-                                    ng-click="vm.SetSortField('PLCLocalDate')">
-                                    <div>
-                                        Date
-                                        <span ng-show="vm.widget.displaySettings.tagDataSortField=='-PLCLocalDate'">
-                                            <i class="fa fa-sort-numeric-desc" title="Click to sort in descending order"></i>
-                                        </span>
-                                        <span ng-show="vm.widget.displaySettings.tagDataSortField=='PLCLocalDate'">
-                                            <i class="fa fa-sort-numeric-asc" title="Click to sort in ascending order"></i>
-                                        </span>
-                                    </div>
+                                <th style="cursor: default;">
+                                    Name
                                 </th>
-                                <th>
-                                    Value
+                                <th style="cursor: default;">
+                                    Description
                                 </th>
-
+                                <th style="cursor: default;" ng-hide="vm.listPaneWidth < vm.columnHideWidth1">
+                                    Created By
+                                </th>
+                                <th style="cursor: default;" ng-hide="vm.listPaneWidth < vm.columnHideWidth1">
+                                    Last Modified By
+                                </th>
+                                <th style="width: 55px; text-align: right;">
+                                    &nbsp;
+                                </th>
                             </tr>
                         </thead>
-                        <tbody vs-repeat vs-autoresize vs-scroll-parent=".repeater-container" vs-scrolled-to-end="vm.scrolledToEnd()" style="overflow-y: scroll; height: 100px;">
-                            <tr ng-repeat="tag in vm.pca.Tags | orderBy: vm.widget.displaySettings.tagDataSortField" style="background-color: {{tag.Metadata.Status.LastValueWasHistorical ? 'rgba(173, 173, 173,' : 'rgba(0, 255, 0,'}} .{{tag.Metadata.UpdateCountDowns.OneSecond}});">
-                                <td data-toggle="tooltip" title="{{tag.JBTStandardObservation.Id}}">
-                                    <label ng-click="vm.ProcessTagsToGraph()" class="btn btn-default graph-select-icon" ng-model="vm.tagsToGraph[tag.TagId]" uib-btn-checkbox="{{tag.TagId}}">
-                                        <i class="fa fa-line-chart" aria-hidden="true" title="Add to graph widget" style="cursor: pointer;"></i>
-                                    </label>
-                                    <span>{{tag.JBTStandardObservation.Name}}</span>
-                                <td nowrap>
-                                    {{tag.PLCLocalDate | date:'MM/dd HH:mm:ss'}}
+                        <tbody vs-repeatxxx vs-autoresize vs-scroll-parent=".repeater-container" vs-scrolled-to-end="vm.scrolledToEnd()" style="overflow-y: scroll; height: 100px;">
+                            <tr ng-repeat="entity in vm.entities | filter: vm.widget.searchText track by $index "
+                                style="font-size: 1.2em; background: {{vm.entity && vm.entity.Id == entity.Id ? 'whitesmoke' : 'white'}}">
+                                <td style="cursor: pointer; font-weight: bold; font-size: larger;" ng-click="vm.selectEntity(entity)">
+                                    {{entity.Mnemonic}}
                                 </td>
-                                <td>
-                                    {{tag.Value}}
+                                <td style="cursor: pointer; font-weight: bold;" ng-click="vm.selectEntity(entity)">
+                                    {{entity.Name}}
+                                </td>
+                                <td style="cursor: pointer;" ng-click="vm.selectEntity(entity)">
+                                    {{entity.Description}}
+                                </td>
 
+                                <td style="cursor: pointer;" ng-click="vm.selectEntity(entity)"  ng-hide="vm.listPaneWidth < vm.columnHideWidth1">
+                                    {{entity.CreatorUser.Person.GivenName}} {{entity.CreatorUser.Person.FamilyName}}
+                                    <div style="color: gainsboro;">{{entity.CreationDate | date:'MM/dd HH:mm:ss.ss'}}</div>
+                                </td>
+                                <td style="cursor: pointer;" ng-click="vm.selectEntity(entity)"  ng-hide="vm.listPaneWidth < vm.columnHideWidth1">
+                                    {{entity.LastModifiedUser.Person.GivenName}} {{entity.LastModifiedUser.Person.FamilyName}}
+                                    <div style="color: gainsboro;">{{entity.LastModifiedDate | date:'MM/dd HH:mm:ss.ss'}}</div>
+                                </td>
+                                <td style="width: 55px; text-align: right;">
+                                    <a class="btn btn-default"
+                                       ng-click="vm.delete(entity)"
+                                       style="width: 25px; padding-left: 3px; padding-right: 3px; padding-top: 0; padding-bottom: 0;">
+                                        <i class="fa fa-times" aria-hidden="true" title="Delete {{vm.entityName}}" style="color: red"></i>
+                                    </a>
                                 </td>
                             </tr>
                         </tbody>
@@ -61,97 +64,80 @@
             </div>
 
 
-            <div id="containerEdit{{vm.widget.Id}}" style="height: 100%;">
+            <div id="containerEdit{{vm.widget.Id}}" style="border-left: 1px solid lightgray; height: 100%; width:{{vm.widget.WidgetResource.SplitRightPercentage}}%;">
                 <div style="position: relative; height: 100%; width: 100%;">
 
-                    <div ng-show="vm.showScreen" class="panel panel-primary static-panel">
+                    <div ng-show="vm.showEditPane" class="panel panel-primary static-panel widget-edit-panel">
 
 
-                        <div class="panel-heading">
+                        <div class="panel-heading-widget-edit-pane"
+                             id="panel-heading-edit-{{vm.widget.Id}}">
+
+
                             <div class='btn-toolbar pull-right' style="display: inline-block;">
-                                <button ng-click="vm.Save()" class="btn btn-default responsive-button">Save and Close</button>
-                                <button ui-sref="^" class="btn btn-default responsive-button">Cancel</button>
-                            </div>
-                            <div class="panel-heading-title">
-                                {{vm.panelTitle}}
-                            </div>
-                            <div class="panel-heading-subtitle">
-                                {{vm.panelSubtitle}}
-                            </div>
 
+
+                                <button ng-click="vm.saveEntity()" class="btn btn-default responsive-button tiny-button" style="margin-top: -3px;" title="Save">
+                                    <i class="fa fa-save" aria-hidden="true" style="cursor: pointer;"></i>
+                                </button>
+
+                                <button ng-click="vm.cancelSaveEntity()" class="btn btn-default responsive-button tiny-button" style="margin-top: -3px;" title="Cancel">
+                                    <i class="fa fa-times" aria-hidden="true" style="cursor: pointer;"></i>
+                                </button>
+
+                            </div>
+                            {{vm.editPanelTitle}}
                         </div>
 
 
-                        <div class="panel-body">
+                        <div class="panel-body" id="widget-edit-pane-panel-body{{vm.widget.Id}}">
 
-                            <form class="form-horizontal" role="form" name="dashboardForm" id="dashboardForm" novalidate>
+                            <form class="form-horizontal" role="form" name="{{vm.widget.Id}}-{{vm.entityName}}EditForm" id="{{vm.widget.Id}}-{{vm.entityName}}Form" novalidate>
                                 <div class="row">
-                                    <!-- Last Name -->
-                                    <text-input-field model="vm.dashboard.Name"
-                                                      label-text="Dashboard Name"
-                                                      id-text="dashboardName"
-                                                      bootstrap-label-columns="{{vm.bootstrapLabelColumns}}"
-                                                      bootstrap-input-columns="{{vm.bootstrapInputColumns}}">
-                                    </text-input-field>
+                                    <!-- Mnemonic -->
+                                    <widget-text-input-field model="vm.editModel.Mnemonic"
+                                                             label-text="Mnemonic"
+                                                             id-text="{{vm.widget.Id}}-{{vm.entityName}}-{{vm.focusFieldName}}"
+                                                             bootstrap-label-columns="{{vm.bootstrapLabelColumns}}"
+                                                             bootstrap-input-columns="{{vm.bootstrapInputColumns}}">
+                                    </widget-text-input-field>
+
+
+                                    <!-- Name -->
+                                    <widget-text-input-field model="vm.editModel.Name"
+                                                             label-text="Name"
+                                                             id-text="{{vm.widget.Id}}-{{vm.entityName}}-Name"
+                                                             bootstrap-label-columns="{{vm.bootstrapLabelColumns}}"
+                                                             bootstrap-input-columns="{{vm.bootstrapInputColumns}}">
+                                    </widget-text-input-field>
 
 
                                     <!-- Description -->
-                                    <textarea-input-field label-text="Detailed Description"
-                                                          cols="60"
-                                                          rows="4"
-                                                          bootstrap-label-columns="{{vm.bootstrapLabelColumns}}"
-                                                          bootstrap-input-columns="{{vm.bootstrapInputColumns}}"
-                                                          placeholder-text=""
-                                                          model="vm.dashboard.Description"
-                                                          input-name="inputDescription">
-                                    </textarea-input-field>
-
-
-                                    <!-- Date Range Via Preset Buttons -->
-                                    <div class="form-group">
-                                        <label class="col-sm-{{vm.bootstrapLabelColumns}} control-label innovation-right-aligned">
-                                            Date Range Presets
-                                        </label>
-                                        <div class="col-sm-{{vm.bootstrapInputColumns}}">
-                                            <label ng-repeat="timeWindow in vm.DashboardTimeScopes" style="margin: 1px;" class="btn btn-default" ng-model="vm.dashboard.TimeScopeId" uib-btn-radio={{timeWindow.Id}}>{{timeWindow.Description}}</label>
-                                        </div>
-                                    </div>
-
-
-                                    <!-- Custom Start Date -->
-                                    <text-input-field model="vm.dashboard.CustomStartDate"
-                                                      label-text="Custom Start Date"
-                                                      id-text="dashboardStartDate"
-                                                      input-type="date"
-                                                      bootstrap-label-columns="{{vm.bootstrapLabelColumns}}"
-                                                      bootstrap-input-columns="{{vm.bootstrapInputColumns-4}}">
-                                    </text-input-field>
-
-                                    <!-- Custom End Date -->
-                                    <text-input-field model="vm.dashboard.CustomEndDate"
-                                                      label-text="Custom End Date"
-                                                      id-text="dashboardEndDate"
-                                                      input-type="date"
-                                                      bootstrap-label-columns="{{vm.bootstrapLabelColumns}}"
-                                                      bootstrap-input-columns="{{vm.bootstrapInputColumns-4}}">
-                                    </text-input-field>
+                                    <widget-textarea-input-field label-text="Description"
+                                                                 rows="6"
+                                                                 id-text="{{vm.widget.Id}}-Description"
+                                                                 bootstrap-label-columns="{{vm.bootstrapLabelColumns}}"
+                                                                 bootstrap-input-columns="{{vm.bootstrapInputColumns}}"
+                                                                 placeholder-text=""
+                                                                 model="vm.editModel.Description"
+                                                                 input-name="inputDescription">
+                                    </widget-textarea-input-field>
 
 
                                 </div>
                             </form>
                         </div>
+                        <div ng-if="!vm.showEditPane" id="edit-pane-backdrop-{{vm.widget.Id}}" class="widget-edit-pane-backdrop noselect" style="font-size: 1em; text-align: left;">
+                            <div style="width: 100%; color: gray;">
+                                <i class="fa fa-arrow-left" aria-hidden="true"></i>
+                                Select {{vm.entityName}} to Edit
+                            </div>
+                        </div>
                     </div>
-
                 </div>
             </div>
         </div>
     </div>
-    <div ng-show="vm.widget.displaySettings.commLossTag.Value == '1'" class="comm-loss-backdrop noselect">
-        <div class="comm-loss-message">
-            Communication Lost
-        </div>
-    </div>
-
 </div>
 
 

@@ -7,17 +7,18 @@ var webRoot = document.URL.indexOf("localhost/iops/") > 0 ? "/iops/"
 				: document.URL.indexOf("localhost/iOPSPro-Development") > 0 ? "/iOPSPro-Development/Website/" :
 				"/";
 
-if (!(document.URL.indexOf("localhost/iops/") > 0)) {
-	window.console.log = function() {
+//if (!(document.URL.indexOf("localhost/iops/") > 0)) {
+//	window.console.log = function() {
 		
-	}
-}
+//	}
+//}
 
 
 var signalRServerUrl = "https://www.iopspro.com/DataServices/SignalR/signalr";
 var Global = {
 	User: {},
-	webRoot: "/"
+	webRoot: "/",
+	SignalR: {}
 }
 
 

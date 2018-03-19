@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<edmx:Edmx Version="3.0" xmlns:edmx="http://schemas.microsoft.com/ado/2009/11/edmx">
+ <!-- EF Designer content (DO NOT EDIT MANUALLY BELOW HERE) -->
+  <edmx:Designer xmlns="http://schemas.microsoft.com/ado/2009/11/edmx">
+    <!-- Diagram content (shape and connector positions) -->
+    <edmx:Diagrams>
+      <Diagram DiagramId="ce799d23593b415a986b1e54607f4c2c" Name="Diagram1" ZoomLevel="74">
+        <EntityTypeShape EntityType="EISTOOLSModel.HPRDData" Width="1.5" PointX="6.375" PointY="3.75" />
+        <EntityTypeShape EntityType="EISTOOLSModel.EISUsernameHistory" Width="1.5" PointX="0.75" PointY="0.75" />
+        <EntityTypeShape EntityType="EISTOOLSModel.Everybody" Width="2.625" PointX="2.75" PointY="0.75" />
+        <EntityTypeShape EntityType="EISTOOLSModel.Instructor" Width="1.5" PointX="6.375" PointY="0.75" />
+        <EntityTypeShape EntityType="EISTOOLSModel.PrincipalInvestigator" Width="1.5" PointX="8.375" PointY="0.75" />
+        <EntityTypeShape EntityType="EISTOOLSModel.ADMemberCatche" Width="2.875" PointX="9.25" PointY="3.875" />
+        <EntityTypeShape EntityType="EISTOOLSModel.ReportsTo" Width="1.5" PointX="8.375" PointY="8.75" />
+        <EntityTypeShape EntityType="EISTOOLSModel.EISTimekeeperDepartment" Width="3.125" PointX="10.375" PointY="0.75" />
+        <EntityTypeShape EntityType="EISTOOLSModel.EXEMPT" Width="1.5" PointX="10.375" PointY="8.75" />
+        <EntityTypeShape EntityType="EISTOOLSModel.PostionNumber" Width="1.5" PointX="10.375" PointY="10.75" />
+        <EntityTypeShape EntityType="EISTOOLSModel.SHIFTELIGIBLE" Width="1.5" PointX="6.375" PointY="11.75" />
+      </Diagram>
+    </edmx:Diagrams>
+  </edmx:Designer>
+</edmx:Edmx>

@@ -28,6 +28,7 @@ namespace SignalRDatabaseTransmitter
         }
     
         public virtual DbSet<SignalRMessageQueue> SignalRMessageQueues { get; set; }
+        public virtual DbSet<SignalRMessage> SignalRMessages { get; set; }
     
         public virtual ObjectResult<HarvestSignalRMessageQueue_Result> HarvestSignalRMessageQueue()
         {

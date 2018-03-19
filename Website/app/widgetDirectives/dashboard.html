@@ -77,6 +77,27 @@
                                 <button ng-if="widget.tagsToGraph" ng-click="vm.AddTagsToSpecificWidgetGraph(widget)" class="btn btn-default responsive-button tiny-button" style="margin-top: -3px;" title="Add the selected data to this graph">
                                     + <i class="fa fa-line-chart" aria-hidden="true" style="cursor: pointer;"></i>
                                 </button>
+                                
+                               
+                                <input ng-if="widget.displaySettings.headingSearchField"
+                                       type="text"
+                                       id="searchInput{{widget.Id}}"
+                                       name="searchInput"
+                                       ng-model="widget.searchText"
+                                       ng-model-options="{ debounce: 100 }"
+                                       placeholder="Search....."
+                                       class="form-control responsive-button"
+                                       style="height:20px; width: 200px; display: inline-block; font-size: 1em; margin-bottom: 0;">
+                                
+
+                                <button ng-if="widget.displaySettings.headingPlusButton" 
+                                        ng-click="widget.displaySettings.addEntityFunction()" 
+                                        class="btn btn-default responsive-button tiny-button" style="margin-top: -3px;" 
+                                        title="{{widget.displaySettings.headingPlusButtonTitle}}">
+                                    <i class="fa fa-plus" aria-hidden="true" style="cursor: pointer;"></i>
+                                </button>
+
+
 
                                 <i ng-if="widget.WidgetResource.WidgetType.HasSettings" ng-click="vm.openSettingsDash($event, widget)" class="fa fa-cog" aria-hidden="true" style="cursor: pointer; padding: 4px;"></i>
 
@@ -122,6 +143,10 @@
                             <bhs-percent-bags-to-cbra ng-if="widget.WidgetResource.WidgetType.AngularDirectiveName == 'bhsPercentBagsToCbra'" widget="widget" dashboard="vm.dashboard"></bhs-percent-bags-to-cbra>
                             <gs-service-counters ng-if="widget.WidgetResource.WidgetType.AngularDirectiveName == 'gsServiceCounters'" widget="widget" dashboard="vm.dashboard"></gs-service-counters>
                             <modules ng-if="widget.WidgetResource.WidgetType.AngularDirectiveName == 'modules'" widget="widget" dashboard="vm.dashboard"></modules>
+                            <companies ng-if="widget.WidgetResource.WidgetType.AngularDirectiveName == 'companies'" widget="widget" dashboard="vm.dashboard"></companies>
+                            <gs-equipment-utilization-summary ng-if="widget.WidgetResource.WidgetType.AngularDirectiveName == 'gsEquipmentUtilizationSummary'" widget="widget" dashboard="vm.dashboard"></gs-equipment-utilization-summary>
+                            <pca-discharge-performance ng-if="widget.WidgetResource.WidgetType.AngularDirectiveName == 'pcaDischargePerformance'" widget="widget" dashboard="vm.dashboard"></pca-discharge-performance>
+                            
 
                             <!--<dashboard ng-if="widget.WidgetResource.WidgetType.AngularDirectiveName == 'dashboard'" widget="widget" dashboard="widget.WidgetResource.EmbeddedDashboard" dashboard-id="widget.WidgetResource.EmbeddedDashboard.Id"></dashboard>-->
                         </div>

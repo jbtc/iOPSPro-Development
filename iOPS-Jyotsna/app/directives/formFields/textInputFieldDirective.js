@@ -4,7 +4,7 @@
 	"use strict";
 
 	angular.module("app")
-		.directive("textInputField", function ()
+		.directive("textInputField", function ($compile)
 		{
 		return {
 			restrict: 'E',
@@ -20,7 +20,24 @@
 				bootstrapInputColumns: "@",
 				placeholderText: "@",
 				inputWidth: "@"
+			},
+			link: function (scope, element, attrs) {
+				if ('focus' in attrs)
+				{
+					element.find("input").attr('focus', 'true');
+					$compile(element)(scope);
+
+					
+				}
+				if ('inputWidth' in attrs) {
+					//console.log("inputWidth found");
+					element.find("input").css('width', scope.inputWidth);
+					$compile(element)(scope);
+
+
+				}
 			}
+
 		};
 	});
 

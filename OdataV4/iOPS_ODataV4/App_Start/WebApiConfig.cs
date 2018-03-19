@@ -77,8 +77,10 @@ namespace iOPS_ODataV4
             builder.EntitySet<ObservationException>("ObservationExceptions");
             builder.EntitySet<ObservationExceptionComment>("ObservationExceptionComments");
             builder.EntitySet<WidgetTypeTabGroup>("WidgetTypeTabGroups");
-            
-           
+            builder.EntitySet<Module>("Modules");
+            builder.EntitySet<SubscriptionModule>("SubscriptionModules");
+
+
 
             ////+Special section for the login OData route.
             FunctionConfiguration function = builder.Function("login").ReturnsFromEntitySet<iOPSUserViewModel>("users");

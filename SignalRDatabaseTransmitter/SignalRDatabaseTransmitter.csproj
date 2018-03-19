@@ -87,6 +87,9 @@
     <Compile Include="NoLockInterceptor.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="SignalRMessage.cs">
+      <DependentUpon>Model.tt</DependentUpon>
+    </Compile>
     <Compile Include="SignalRMessageQueue.cs">
       <DependentUpon>Model.tt</DependentUpon>
     </Compile>

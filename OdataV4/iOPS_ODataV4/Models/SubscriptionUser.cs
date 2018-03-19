@@ -20,6 +20,10 @@ namespace iOPS_ODataV4.Models
         public Nullable<System.DateTime> StartDate { get; set; }
         public Nullable<System.DateTime> EndDate { get; set; }
         public Nullable<bool> IsAdmin { get; set; }
+        public Nullable<System.DateTime> LastModifiedDate { get; set; }
+        public Nullable<long> LastModifiedUserId { get; set; }
+        public Nullable<System.DateTime> CreationDate { get; set; }
+        public Nullable<long> CreatorUserId { get; set; }
     
         public virtual Subscription Subscription { get; set; }
         public virtual iOPSUser iOPSUser { get; set; }

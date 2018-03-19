@@ -4,11 +4,19 @@
 
 	function GPUSummaryModalCtrl($q, $state, $rootScope, $scope, securityService, dataService, $stateParams, utilityService, $timeout, uibButtonConfig, hotkeys, $interval, displaySetupService, signalR) {
 
-
-		console.log("GPUSummaryModalCtrl invoked");
-
-
 		var vm = this;
+
+
+		vm.AddTagsToGraphModal = function (tagObjectCollectionFromWidget) {
+			vm.dashboard.tagsToGraph = tagObjectCollectionFromWidget.concat(vm.dashboard.tagsToGraph).distinct(function (a, b) { return a.TagId == b.TagId }).where(function (t) { return t.Enabled });
+			console.log("Dashboard vm.dashboard.tagsToGraph = %O", vm.dashboard.tagsToGraph);
+			if (vm.dashboard.tagsToGraph.length > 0) {
+				$rootScope.$broadcast("Dashboard.TagsToGraph", vm.dashboard.tagsToGraph);
+			} else {
+				$rootScope.$broadcast("Dashboard.TagsToGraph", null);
+			}
+		}
+
 
 		vm.state = $state;
 
@@ -71,7 +79,6 @@
 		}
 
 
-
 		hotkeys.bindTo($scope)
 		.add({
 			combo: 'esc',
@@ -82,6 +89,7 @@
 			}
 		});
 
+		console.log("GPUSummaryModalCtrl invoked = %O", vm);
 
 	}
 

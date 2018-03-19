@@ -5,6 +5,15 @@
     <!-- SSDL content -->
     <edmx:StorageModels>
     <Schema Namespace="iOPS_NormalizedModel.Store" Provider="System.Data.SqlClient" ProviderManifestToken="2012" Alias="Self" xmlns:store="http://schemas.microsoft.com/ado/2007/12/edm/EntityStoreSchemaGenerator" xmlns:customannotation="http://schemas.microsoft.com/ado/2013/11/edm/customannotation" xmlns="http://schemas.microsoft.com/ado/2009/11/edm/ssdl">
+        <EntityType Name="SignalRMessage">
+          <Key>
+            <PropertyRef Name="Id" />
+          </Key>
+          <Property Name="Id" Type="bigint" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="GroupCode" Type="varchar" MaxLength="200" />
+          <Property Name="Code" Type="varchar" MaxLength="200" />
+          <Property Name="Message" Type="varchar" MaxLength="5000" />
+        </EntityType>
         <EntityType Name="SignalRMessageQueue">
           <Key>
             <PropertyRef Name="Id" />
@@ -16,6 +25,7 @@
         </EntityType>
         <Function Name="HarvestSignalRMessageQueue" Aggregate="false" BuiltIn="false" NiladicFunction="false" IsComposable="false" ParameterTypeSemantics="AllowImplicitConversion" Schema="dbo" />
         <EntityContainer Name="iOPS_NormalizedModelStoreContainer">
+          <EntitySet Name="SignalRMessage" EntityType="Self.SignalRMessage" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="SignalRMessageQueue" EntityType="Self.SignalRMessageQueue" Schema="dbo" store:Type="Tables" />
         </EntityContainer>
       </Schema></edmx:StorageModels>
@@ -34,6 +44,7 @@
         <EntityContainer Name="iOPS_NormalizedEntities" annotation:LazyLoadingEnabled="true">
           <EntitySet Name="SignalRMessageQueues" EntityType="Self.SignalRMessageQueue" />
           <FunctionImport Name="HarvestSignalRMessageQueue" ReturnType="Collection(iOPS_NormalizedModel.HarvestSignalRMessageQueue_Result)" />
+          <EntitySet Name="SignalRMessages" EntityType="iOPS_NormalizedModel.SignalRMessage" />
         </EntityContainer>
         <ComplexType Name="HarvestSignalRMessageQueue_Result">
           <Property Type="Int64" Name="Id" Nullable="false" />
@@ -41,6 +52,15 @@
           <Property Type="String" Name="Code" Nullable="true" MaxLength="200" />
           <Property Type="String" Name="Message" Nullable="true" MaxLength="5000" />
         </ComplexType>
+        <EntityType Name="SignalRMessage">
+          <Key>
+            <PropertyRef Name="Id" />
+          </Key>
+          <Property Name="Id" Type="Int64" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="GroupCode" Type="String" MaxLength="200" FixedLength="false" Unicode="false" />
+          <Property Name="Code" Type="String" MaxLength="200" FixedLength="false" Unicode="false" />
+          <Property Name="Message" Type="String" MaxLength="5000" FixedLength="false" Unicode="false" />
+        </EntityType>
       </Schema>
     </edmx:ConceptualModels>
     <!-- C-S mapping content -->
@@ -67,6 +87,16 @@
               </ComplexTypeMapping>
             </ResultMapping>
           </FunctionImportMapping>
+          <EntitySetMapping Name="SignalRMessages">
+            <EntityTypeMapping TypeName="iOPS_NormalizedModel.SignalRMessage">
+              <MappingFragment StoreEntitySet="SignalRMessage">
+                <ScalarProperty Name="Message" ColumnName="Message" />
+                <ScalarProperty Name="Code" ColumnName="Code" />
+                <ScalarProperty Name="GroupCode" ColumnName="GroupCode" />
+                <ScalarProperty Name="Id" ColumnName="Id" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
         </EntityContainerMapping>
       </Mapping>
     </edmx:Mappings>

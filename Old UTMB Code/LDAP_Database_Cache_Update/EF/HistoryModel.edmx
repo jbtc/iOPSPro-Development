@@ -1,0 +1,723 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<edmx:Edmx Version="3.0" xmlns:edmx="http://schemas.microsoft.com/ado/2009/11/edmx">
+  <!-- EF Runtime content -->
+  <edmx:Runtime>
+    <!-- SSDL content -->
+    <edmx:StorageModels>
+    <Schema Namespace="EISTOOLSModel.Store" Provider="System.Data.SqlClient" ProviderManifestToken="2012" Alias="Self" xmlns:store="http://schemas.microsoft.com/ado/2007/12/edm/EntityStoreSchemaGenerator" xmlns:customannotation="http://schemas.microsoft.com/ado/2013/11/edm/customannotation" xmlns="http://schemas.microsoft.com/ado/2009/11/edm/ssdl">
+        <EntityType Name="ADMemberCatche">
+          <Key>
+            <PropertyRef Name="id" />
+          </Key>
+          <Property Name="homemdb" Type="varchar" MaxLength="50" />
+          <Property Name="isAccountDisabled" Type="bit" Nullable="false" />
+          <Property Name="uid" Type="varchar" MaxLength="255" Nullable="false" />
+          <Property Name="userdn" Type="varchar" MaxLength="200" Nullable="false" />
+          <Property Name="utmbuuid" Type="int" Nullable="false" />
+          <Property Name="whenchanged" Type="datetime" Nullable="false" />
+          <Property Name="id" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="samaccountname" Type="varchar" MaxLength="255" />
+          <Property Name="objectclass" Type="varchar" MaxLength="255" />
+          <Property Name="objectcategory" Type="varchar" MaxLength="255" />
+          <Property Name="objectguid" Type="uniqueidentifier" />
+          <Property Name="userAccountControl" Type="int" />
+          <Property Name="cn" Type="varchar" MaxLength="255" />
+        </EntityType>
+        <EntityType Name="HPRDData">
+          <Key>
+            <PropertyRef Name="E1_MASTER_ID" />
+          </Key>
+          <Property Name="E1_MASTER_ID" Type="int" Nullable="false" />
+          <Property Name="E1_PERS_UNIQUE_ID" Type="nvarchar" MaxLength="25" Nullable="false" />
+          <Property Name="DATE_OF_BIRTH" Type="datetime2" Precision="7" />
+          <Property Name="EMPLID" Type="nvarchar" MaxLength="11" Nullable="false" />
+          <Property Name="E1_STUDNT_ID" Type="nvarchar" MaxLength="11" Nullable="false" />
+          <Property Name="DEPTID" Type="nvarchar" MaxLength="10" Nullable="false" />
+          <Property Name="E1_NON_U_DEPT" Type="nvarchar" MaxLength="10" Nullable="false" />
+          <Property Name="E1_IS_ACTIVE_EE" Type="nvarchar" MaxLength="1" Nullable="false" />
+          <Property Name="E1_IS_ACTIVE_STDNT" Type="nvarchar" MaxLength="1" Nullable="false" />
+          <Property Name="E1_USERID" Type="nvarchar" MaxLength="254" Nullable="false" />
+          <Property Name="E1_NAME_FORMAL" Type="nvarchar" MaxLength="254" Nullable="false" />
+          <Property Name="E1_PREFERRED_NAME" Type="nvarchar" MaxLength="254" Nullable="false" />
+          <Property Name="FIRST_NAME" Type="nvarchar" MaxLength="30" Nullable="false" />
+          <Property Name="LAST_NAME" Type="nvarchar" MaxLength="30" Nullable="false" />
+          <Property Name="MIDDLE_NAME" Type="nvarchar" MaxLength="30" Nullable="false" />
+          <Property Name="E1_NON_U_TYPE" Type="nvarchar" MaxLength="3" Nullable="false" />
+          <Property Name="E1_EXPIRE_DT" Type="datetime2" Precision="7" />
+          <Property Name="E1_SIGN_DT" Type="datetime2" Precision="7" />
+          <Property Name="E1_OU" Type="nvarchar" MaxLength="3" Nullable="false" />
+          <Property Name="E1_OWNER" Type="nvarchar" MaxLength="25" Nullable="false" />
+          <Property Name="LASTUPDOPRID" Type="nvarchar" MaxLength="30" Nullable="false" />
+          <Property Name="LASTUPDDTTM" Type="datetime2" Precision="7" />
+        </EntityType>
+        <EntityType Name="EXEMPT">
+          <Key>
+            <PropertyRef Name="MasterID" />
+          </Key>
+          <Property Name="MasterID" Type="int" Nullable="false" />
+        </EntityType>
+        <EntityType Name="Instructors">
+          <Key>
+            <PropertyRef Name="MasterID" />
+          </Key>
+          <Property Name="MasterID" Type="int" Nullable="false" />
+        </EntityType>
+        <EntityType Name="PostionNumber">
+          <Key>
+            <PropertyRef Name="MasterID" />
+          </Key>
+          <Property Name="MasterID" Type="int" Nullable="false" />
+          <Property Name="PostionNumber" Type="varchar" MaxLength="10" Nullable="false" />
+        </EntityType>
+        <EntityType Name="PrincipalInvestigators">
+          <Key>
+            <PropertyRef Name="MasterID" />
+          </Key>
+          <Property Name="MasterID" Type="int" Nullable="false" />
+        </EntityType>
+        <EntityType Name="ReportsTo">
+          <Key>
+            <PropertyRef Name="MasterID" />
+            <PropertyRef Name="ReportsToMasterID" />
+          </Key>
+          <Property Name="MasterID" Type="int" Nullable="false" />
+          <Property Name="ReportsToMasterID" Type="int" Nullable="false" />
+        </EntityType>
+        <EntityType Name="SHIFTELIGIBLE">
+          <Key>
+            <PropertyRef Name="MasterID" />
+          </Key>
+          <Property Name="MasterID" Type="int" Nullable="false" />
+        </EntityType>
+        <EntityType Name="TimekeeperDepartments">
+          <Key>
+            <PropertyRef Name="Id" />
+          </Key>
+          <Property Name="PeopleSoftDepartmentID" Type="varchar" MaxLength="100" />
+          <Property Name="MasterId" Type="int" />
+          <Property Name="Id" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+        </EntityType>
+        <!--Errors Found During Generation:
+warning 6002: The table/view 'LDAP_Person_Cache.Personnel.UsernameHistory' does not have a primary key defined. The key has been inferred and the definition was created as a read-only table/view.-->
+        <EntityType Name="UsernameHistory">
+          <Key>
+            <PropertyRef Name="OLDUSERNAME" />
+          </Key>
+          <Property Name="MASTERID" Type="nvarchar" MaxLength="10" />
+          <Property Name="OLDUSERNAME" Type="nvarchar" MaxLength="20" Nullable="false" />
+          <Property Name="DATERETIRED" Type="datetime" />
+          <Property Name="NEWUSERNAME" Type="nvarchar" MaxLength="20" />
+        </EntityType>
+        <!--Errors Found During Generation:
+warning 6002: The table/view 'LDAP_Person_Cache.Personnel.Everybody' does not have a primary key defined. The key has been inferred and the definition was created as a read-only table/view.-->
+        <EntityType Name="Everybody">
+          <Key>
+            <PropertyRef Name="utmbuuid" />
+            <PropertyRef Name="utmbExtEmployeeNumber" />
+          </Key>
+          <Property Name="uid" Type="nvarchar" MaxLength="20" />
+          <Property Name="cn" Type="nvarchar" MaxLength="80" />
+          <Property Name="description" Type="varchar" MaxLength="1000" />
+          <Property Name="displayName" Type="varchar" MaxLength="100" />
+          <Property Name="eduPersonOrgDN" Type="varchar" MaxLength="50" />
+          <Property Name="eduPersonPrimaryAffiliation" Type="varchar" MaxLength="10" />
+          <Property Name="eduPersonPrimaryOrgUnitDN" Type="varchar" MaxLength="100" />
+          <Property Name="eduPersonPrincipalName" Type="varchar" MaxLength="20" />
+          <Property Name="title" Type="nvarchar" MaxLength="120" />
+          <Property Name="mail" Type="nvarchar" MaxLength="20" />
+          <Property Name="telephonenumber" Type="nvarchar" MaxLength="50" />
+          <Property Name="utmbDOB" Type="datetime" />
+          <Property Name="utmbCardNum" Type="nvarchar" MaxLength="200" />
+          <Property Name="utmbdrno" Type="nvarchar" MaxLength="80" />
+          <Property Name="utmbPSCode" Type="nvarchar" MaxLength="20" />
+          <Property Name="utmbemployeestatus" Type="int" />
+          <Property Name="utmbstudentstatus" Type="int" />
+          <Property Name="utmbnonustatus" Type="int" />
+          <Property Name="utmbuuid" Type="int" Nullable="false" />
+          <Property Name="employeeNumber" Type="int" />
+          <Property Name="utmbapptid" Type="nvarchar" MaxLength="1000" />
+          <Property Name="utmbapptjobclass" Type="nvarchar" MaxLength="1000" />
+          <Property Name="utmbapptjobcode" Type="nvarchar" MaxLength="2000" />
+          <Property Name="utmbapptdepartmentname" Type="nvarchar" MaxLength="2000" />
+          <Property Name="utmbapptpsdeptid" Type="nvarchar" MaxLength="1000" />
+          <Property Name="utmbapptprimaryjobindicator" Type="nvarchar" MaxLength="500" />
+          <Property Name="sn" Type="nvarchar" MaxLength="80" />
+          <Property Name="organizationName" Type="varchar" MaxLength="50" />
+          <Property Name="preferredLanguage" Type="varchar" MaxLength="50" />
+          <Property Name="givenname" Type="nvarchar" MaxLength="80" />
+          <Property Name="homePhone" Type="varchar" MaxLength="50" />
+          <Property Name="homePostalAddress" Type="varchar" MaxLength="150" />
+          <Property Name="initials" Type="nvarchar" MaxLength="10" />
+          <Property Name="utmbLibAccess" Type="int" />
+          <Property Name="utmbExpGradDate" Type="varchar" MaxLength="200" />
+          <Property Name="utmbFERPAPub" Type="varchar" MaxLength="1" />
+          <Property Name="utmbGradDate" Type="varchar" MaxLength="20" />
+          <Property Name="utmbPNUM" Type="varchar" MaxLength="10" />
+          <Property Name="utmbPrefix" Type="varchar" MaxLength="10" />
+          <Property Name="utmbPublish" Type="varchar" MaxLength="1" />
+          <Property Name="utmbSchoolProgram" Type="varchar" MaxLength="10" />
+          <Property Name="utmbSRID" Type="varchar" MaxLength="10" />
+          <Property Name="utmbStudStanding" Type="varchar" MaxLength="10" />
+          <Property Name="utmbVDeliveryRoute" Type="varchar" MaxLength="1" />
+          <Property Name="utmbMdPhd" Type="varchar" MaxLength="1" />
+          <Property Name="utmbJobCode" Type="varchar" MaxLength="5" />
+          <Property Name="utmbPSDeptName" Type="varchar" MaxLength="100" />
+          <Property Name="facimileTelephoneNumber" Type="varchar" MaxLength="50" />
+          <Property Name="Pager" Type="varchar" MaxLength="50" />
+          <Property Name="Mobile" Type="varchar" MaxLength="50" />
+          <Property Name="utmbBldgCode" Type="varchar" MaxLength="10" />
+          <Property Name="utmbBldgName" Type="varchar" MaxLength="100" />
+          <Property Name="roomNumber" Type="varchar" MaxLength="50" />
+          <Property Name="utmbvFax" Type="varchar" MaxLength="50" />
+          <Property Name="utmbvPhone" Type="varchar" MaxLength="50" />
+          <Property Name="utmbvpager" Type="varchar" MaxLength="50" />
+          <Property Name="utmbvmobile" Type="varchar" MaxLength="50" />
+          <Property Name="utmbBID" Type="varchar" MaxLength="20" />
+          <Property Name="utmb4Digits" Type="int" />
+          <Property Name="utmbSchool" Type="varchar" MaxLength="60" />
+          <Property Name="utmbPreferredName" Type="varchar" MaxLength="50" />
+          <Property Name="utmbSuffix" Type="varchar" MaxLength="10" />
+          <Property Name="utmbMailRoute" Type="varchar" MaxLength="50" />
+          <Property Name="utmbDeliveryRoute" Type="varchar" MaxLength="50" />
+          <Property Name="utmbvBuilding" Type="varchar" MaxLength="50" />
+          <Property Name="utmbvRoom" Type="varchar" MaxLength="50" />
+          <Property Name="utmbvMailRoute" Type="varchar" MaxLength="50" />
+          <Property Name="utmbADLastLogin" Type="datetime" />
+          <Property Name="Active_AD_User" Type="int" />
+          <Property Name="Active_Exchange_User" Type="int" />
+          <Property Name="utmbapptbegindate" Type="varchar" MaxLength="2000" />
+          <Property Name="utmbapptjobtitle" Type="varchar" MaxLength="2000" />
+          <Property Name="utmbapptterminationdate" Type="varchar" MaxLength="2000" />
+          <Property Name="utmbapptbusinessunit" Type="varchar" MaxLength="2000" />
+          <Property Name="utmbapptpositionnumber" Type="varchar" MaxLength="500" />
+          <Property Name="utmbapptpercenttime" Type="varchar" MaxLength="500" />
+          <Property Name="utmblastmodified" Type="datetime" />
+          <Property Name="utmbExtEmployeeNumber" Type="int" Nullable="false" />
+        </EntityType>
+        <EntityContainer Name="EISTOOLSModelStoreContainer">
+          <EntitySet Name="ADMemberCatche" EntityType="Self.ADMemberCatche" Schema="API" store:Type="Tables" />
+          <EntitySet Name="HPRDData" EntityType="Self.HPRDData" Schema="LDAP" store:Type="Tables" />
+          <EntitySet Name="EXEMPT" EntityType="Self.EXEMPT" Schema="Personnel" store:Type="Tables" />
+          <EntitySet Name="Instructors" EntityType="Self.Instructors" Schema="Personnel" store:Type="Tables" />
+          <EntitySet Name="PostionNumber" EntityType="Self.PostionNumber" Schema="Personnel" store:Type="Tables" />
+          <EntitySet Name="PrincipalInvestigators" EntityType="Self.PrincipalInvestigators" Schema="Personnel" store:Type="Tables" />
+          <EntitySet Name="ReportsTo" EntityType="Self.ReportsTo" Schema="Personnel" store:Type="Tables" />
+          <EntitySet Name="SHIFTELIGIBLE" EntityType="Self.SHIFTELIGIBLE" Schema="Personnel" store:Type="Tables" />
+          <EntitySet Name="TimekeeperDepartments" EntityType="Self.TimekeeperDepartments" Schema="Personnel" store:Type="Tables" />
+          <EntitySet Name="UsernameHistory" EntityType="Self.UsernameHistory" store:Type="Tables" store:Schema="Personnel">
+            <DefiningQuery>SELECT 
+    [UsernameHistory].[MASTERID] AS [MASTERID], 
+    [UsernameHistory].[OLDUSERNAME] AS [OLDUSERNAME], 
+    [UsernameHistory].[DATERETIRED] AS [DATERETIRED], 
+    [UsernameHistory].[NEWUSERNAME] AS [NEWUSERNAME]
+    FROM [Personnel].[UsernameHistory] AS [UsernameHistory]</DefiningQuery>
+          </EntitySet>
+          <EntitySet Name="Everybody" EntityType="Self.Everybody" store:Type="Views" store:Schema="Personnel">
+            <DefiningQuery>SELECT 
+    [Everybody].[uid] AS [uid], 
+    [Everybody].[cn] AS [cn], 
+    [Everybody].[description] AS [description], 
+    [Everybody].[displayName] AS [displayName], 
+    [Everybody].[eduPersonOrgDN] AS [eduPersonOrgDN], 
+    [Everybody].[eduPersonPrimaryAffiliation] AS [eduPersonPrimaryAffiliation], 
+    [Everybody].[eduPersonPrimaryOrgUnitDN] AS [eduPersonPrimaryOrgUnitDN], 
+    [Everybody].[eduPersonPrincipalName] AS [eduPersonPrincipalName], 
+    [Everybody].[title] AS [title], 
+    [Everybody].[mail] AS [mail], 
+    [Everybody].[telephonenumber] AS [telephonenumber], 
+    [Everybody].[utmbDOB] AS [utmbDOB], 
+    [Everybody].[utmbCardNum] AS [utmbCardNum], 
+    [Everybody].[utmbdrno] AS [utmbdrno], 
+    [Everybody].[utmbPSCode] AS [utmbPSCode], 
+    [Everybody].[utmbemployeestatus] AS [utmbemployeestatus], 
+    [Everybody].[utmbstudentstatus] AS [utmbstudentstatus], 
+    [Everybody].[utmbnonustatus] AS [utmbnonustatus], 
+    [Everybody].[utmbuuid] AS [utmbuuid], 
+    [Everybody].[employeeNumber] AS [employeeNumber], 
+    [Everybody].[utmbapptid] AS [utmbapptid], 
+    [Everybody].[utmbapptjobclass] AS [utmbapptjobclass], 
+    [Everybody].[utmbapptjobcode] AS [utmbapptjobcode], 
+    [Everybody].[utmbapptdepartmentname] AS [utmbapptdepartmentname], 
+    [Everybody].[utmbapptpsdeptid] AS [utmbapptpsdeptid], 
+    [Everybody].[utmbapptprimaryjobindicator] AS [utmbapptprimaryjobindicator], 
+    [Everybody].[sn] AS [sn], 
+    [Everybody].[organizationName] AS [organizationName], 
+    [Everybody].[preferredLanguage] AS [preferredLanguage], 
+    [Everybody].[givenname] AS [givenname], 
+    [Everybody].[homePhone] AS [homePhone], 
+    [Everybody].[homePostalAddress] AS [homePostalAddress], 
+    [Everybody].[initials] AS [initials], 
+    [Everybody].[utmbLibAccess] AS [utmbLibAccess], 
+    [Everybody].[utmbExpGradDate] AS [utmbExpGradDate], 
+    [Everybody].[utmbFERPAPub] AS [utmbFERPAPub], 
+    [Everybody].[utmbGradDate] AS [utmbGradDate], 
+    [Everybody].[utmbPNUM] AS [utmbPNUM], 
+    [Everybody].[utmbPrefix] AS [utmbPrefix], 
+    [Everybody].[utmbPublish] AS [utmbPublish], 
+    [Everybody].[utmbSchoolProgram] AS [utmbSchoolProgram], 
+    [Everybody].[utmbSRID] AS [utmbSRID], 
+    [Everybody].[utmbStudStanding] AS [utmbStudStanding], 
+    [Everybody].[utmbVDeliveryRoute] AS [utmbVDeliveryRoute], 
+    [Everybody].[utmbMdPhd] AS [utmbMdPhd], 
+    [Everybody].[utmbJobCode] AS [utmbJobCode], 
+    [Everybody].[utmbPSDeptName] AS [utmbPSDeptName], 
+    [Everybody].[facimileTelephoneNumber] AS [facimileTelephoneNumber], 
+    [Everybody].[Pager] AS [Pager], 
+    [Everybody].[Mobile] AS [Mobile], 
+    [Everybody].[utmbBldgCode] AS [utmbBldgCode], 
+    [Everybody].[utmbBldgName] AS [utmbBldgName], 
+    [Everybody].[roomNumber] AS [roomNumber], 
+    [Everybody].[utmbvFax] AS [utmbvFax], 
+    [Everybody].[utmbvPhone] AS [utmbvPhone], 
+    [Everybody].[utmbvpager] AS [utmbvpager], 
+    [Everybody].[utmbvmobile] AS [utmbvmobile], 
+    [Everybody].[utmbBID] AS [utmbBID], 
+    [Everybody].[utmb4Digits] AS [utmb4Digits], 
+    [Everybody].[utmbSchool] AS [utmbSchool], 
+    [Everybody].[utmbPreferredName] AS [utmbPreferredName], 
+    [Everybody].[utmbSuffix] AS [utmbSuffix], 
+    [Everybody].[utmbMailRoute] AS [utmbMailRoute], 
+    [Everybody].[utmbDeliveryRoute] AS [utmbDeliveryRoute], 
+    [Everybody].[utmbvBuilding] AS [utmbvBuilding], 
+    [Everybody].[utmbvRoom] AS [utmbvRoom], 
+    [Everybody].[utmbvMailRoute] AS [utmbvMailRoute], 
+    [Everybody].[utmbADLastLogin] AS [utmbADLastLogin], 
+    [Everybody].[Active_AD_User] AS [Active_AD_User], 
+    [Everybody].[Active_Exchange_User] AS [Active_Exchange_User], 
+    [Everybody].[utmbapptbegindate] AS [utmbapptbegindate], 
+    [Everybody].[utmbapptjobtitle] AS [utmbapptjobtitle], 
+    [Everybody].[utmbapptterminationdate] AS [utmbapptterminationdate], 
+    [Everybody].[utmbapptbusinessunit] AS [utmbapptbusinessunit], 
+    [Everybody].[utmbapptpositionnumber] AS [utmbapptpositionnumber], 
+    [Everybody].[utmbapptpercenttime] AS [utmbapptpercenttime], 
+    [Everybody].[utmblastmodified] AS [utmblastmodified], 
+    [Everybody].[utmbExtEmployeeNumber] AS [utmbExtEmployeeNumber]
+    FROM [Personnel].[Everybody] AS [Everybody]</DefiningQuery>
+          </EntitySet>
+        </EntityContainer>
+      </Schema></edmx:StorageModels>
+    <!-- CSDL content -->
+    <edmx:ConceptualModels>
+      <Schema Namespace="EISTOOLSModel" Alias="Self" annotation:UseStrongSpatialTypes="false" xmlns:annotation="http://schemas.microsoft.com/ado/2009/02/edm/annotation" xmlns:customannotation="http://schemas.microsoft.com/ado/2013/11/edm/customannotation" xmlns="http://schemas.microsoft.com/ado/2009/11/edm">
+        <EntityContainer Name="EISTOOLSEntities" annotation:LazyLoadingEnabled="true">
+          <EntitySet Name="HPRDDatas" EntityType="EISTOOLSModel.HPRDData" />
+          <EntitySet Name="EISUsernameHistories" EntityType="EISTOOLSModel.EISUsernameHistory" />
+          <EntitySet Name="Everybodies" EntityType="EISTOOLSModel.Everybody" />
+          <EntitySet Name="Instructors" EntityType="EISTOOLSModel.Instructor" />
+          <EntitySet Name="PrincipalInvestigators" EntityType="EISTOOLSModel.PrincipalInvestigator" />
+          <EntitySet Name="ADMemberCatches" EntityType="EISTOOLSModel.ADMemberCatche" />
+          <EntitySet Name="ReportsToes" EntityType="EISTOOLSModel.ReportsTo" />
+          <EntitySet Name="EISTimekeeperDepartments" EntityType="EISTOOLSModel.EISTimekeeperDepartment" />
+          <EntitySet Name="EXEMPTs" EntityType="EISTOOLSModel.EXEMPT" />
+          <EntitySet Name="PostionNumbers" EntityType="EISTOOLSModel.PostionNumber" />
+          <EntitySet Name="SHIFTELIGIBLEs" EntityType="EISTOOLSModel.SHIFTELIGIBLE" />
+        </EntityContainer>
+        <EntityType Name="HPRDData">
+          <Key>
+            <PropertyRef Name="E1_MASTER_ID" />
+          </Key>
+          <Property Name="E1_MASTER_ID" Type="Int32" Nullable="false" />
+          <Property Name="E1_PERS_UNIQUE_ID" Type="String" Nullable="false" MaxLength="25" FixedLength="false" Unicode="true" />
+          <Property Name="DATE_OF_BIRTH" Type="DateTime" Precision="7" />
+          <Property Name="EMPLID" Type="String" Nullable="false" MaxLength="11" FixedLength="false" Unicode="true" />
+          <Property Name="E1_STUDNT_ID" Type="String" Nullable="false" MaxLength="11" FixedLength="false" Unicode="true" />
+          <Property Name="DEPTID" Type="String" Nullable="false" MaxLength="10" FixedLength="false" Unicode="true" />
+          <Property Name="E1_NON_U_DEPT" Type="String" Nullable="false" MaxLength="10" FixedLength="false" Unicode="true" />
+          <Property Name="E1_IS_ACTIVE_EE" Type="String" Nullable="false" MaxLength="1" FixedLength="false" Unicode="true" />
+          <Property Name="E1_IS_ACTIVE_STDNT" Type="String" Nullable="false" MaxLength="1" FixedLength="false" Unicode="true" />
+          <Property Name="E1_USERID" Type="String" Nullable="false" MaxLength="254" FixedLength="false" Unicode="true" />
+          <Property Name="E1_NAME_FORMAL" Type="String" Nullable="false" MaxLength="254" FixedLength="false" Unicode="true" />
+          <Property Name="E1_PREFERRED_NAME" Type="String" Nullable="false" MaxLength="254" FixedLength="false" Unicode="true" />
+          <Property Name="FIRST_NAME" Type="String" Nullable="false" MaxLength="30" FixedLength="false" Unicode="true" />
+          <Property Name="LAST_NAME" Type="String" Nullable="false" MaxLength="30" FixedLength="false" Unicode="true" />
+          <Property Name="MIDDLE_NAME" Type="String" Nullable="false" MaxLength="30" FixedLength="false" Unicode="true" />
+          <Property Name="E1_NON_U_TYPE" Type="String" Nullable="false" MaxLength="3" FixedLength="false" Unicode="true" />
+          <Property Name="E1_EXPIRE_DT" Type="DateTime" Precision="7" />
+          <Property Name="E1_SIGN_DT" Type="DateTime" Precision="7" />
+          <Property Name="E1_OU" Type="String" Nullable="false" MaxLength="3" FixedLength="false" Unicode="true" />
+          <Property Name="E1_OWNER" Type="String" Nullable="false" MaxLength="25" FixedLength="false" Unicode="true" />
+          <Property Name="LASTUPDOPRID" Type="String" Nullable="false" MaxLength="30" FixedLength="false" Unicode="true" />
+          <Property Name="LASTUPDDTTM" Type="DateTime" Precision="7" />
+        </EntityType>
+        <EntityType Name="EISUsernameHistory">
+          <Key>
+            <PropertyRef Name="OLDUSERNAME" />
+          </Key>
+          <Property Name="MASTERID" Type="String" MaxLength="10" FixedLength="false" Unicode="true" />
+          <Property Name="OLDUSERNAME" Type="String" Nullable="false" MaxLength="20" FixedLength="false" Unicode="true" />
+          <Property Name="DATERETIRED" Type="DateTime" Precision="3" />
+          <Property Name="NEWUSERNAME" Type="String" MaxLength="20" FixedLength="false" Unicode="true" />
+        </EntityType>
+        <EntityType Name="Everybody">
+          <Key>
+            <PropertyRef Name="utmbuuid" />
+            <PropertyRef Name="utmbExtEmployeeNumber" />
+          </Key>
+          <Property Name="uid" Type="String" MaxLength="20" FixedLength="false" Unicode="true" />
+          <Property Name="cn" Type="String" MaxLength="80" FixedLength="false" Unicode="true" />
+          <Property Name="description" Type="String" MaxLength="1000" FixedLength="false" Unicode="false" />
+          <Property Name="displayName" Type="String" MaxLength="100" FixedLength="false" Unicode="false" />
+          <Property Name="eduPersonOrgDN" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
+          <Property Name="eduPersonPrimaryAffiliation" Type="String" MaxLength="10" FixedLength="false" Unicode="false" />
+          <Property Name="eduPersonPrimaryOrgUnitDN" Type="String" MaxLength="100" FixedLength="false" Unicode="false" />
+          <Property Name="eduPersonPrincipalName" Type="String" MaxLength="20" FixedLength="false" Unicode="false" />
+          <Property Name="title" Type="String" MaxLength="120" FixedLength="false" Unicode="true" />
+          <Property Name="mail" Type="String" MaxLength="20" FixedLength="false" Unicode="true" />
+          <Property Name="telephonenumber" Type="String" MaxLength="50" FixedLength="false" Unicode="true" />
+          <Property Name="utmbDOB" Type="DateTime" Precision="3" />
+          <Property Name="utmbCardNum" Type="String" MaxLength="200" FixedLength="false" Unicode="true" />
+          <Property Name="utmbdrno" Type="String" MaxLength="80" FixedLength="false" Unicode="true" />
+          <Property Name="utmbPSCode" Type="String" MaxLength="20" FixedLength="false" Unicode="true" />
+          <Property Name="utmbemployeestatus" Type="Int32" />
+          <Property Name="utmbstudentstatus" Type="Int32" />
+          <Property Name="utmbnonustatus" Type="Int32" />
+          <Property Name="utmbuuid" Type="Int32" Nullable="false" />
+          <Property Name="employeeNumber" Type="Int32" />
+          <Property Name="utmbapptid" Type="String" MaxLength="1000" FixedLength="false" Unicode="true" />
+          <Property Name="utmbapptjobclass" Type="String" MaxLength="1000" FixedLength="false" Unicode="true" />
+          <Property Name="utmbapptjobcode" Type="String" MaxLength="2000" FixedLength="false" Unicode="true" />
+          <Property Name="utmbapptdepartmentname" Type="String" MaxLength="2000" FixedLength="false" Unicode="true" />
+          <Property Name="utmbapptpsdeptid" Type="String" MaxLength="1000" FixedLength="false" Unicode="true" />
+          <Property Name="utmbapptprimaryjobindicator" Type="String" MaxLength="500" FixedLength="false" Unicode="true" />
+          <Property Name="sn" Type="String" MaxLength="80" FixedLength="false" Unicode="true" />
+          <Property Name="organizationName" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
+          <Property Name="preferredLanguage" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
+          <Property Name="givenname" Type="String" MaxLength="80" FixedLength="false" Unicode="true" />
+          <Property Name="homePhone" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
+          <Property Name="homePostalAddress" Type="String" MaxLength="150" FixedLength="false" Unicode="false" />
+          <Property Name="initials" Type="String" MaxLength="10" FixedLength="false" Unicode="true" />
+          <Property Name="utmbLibAccess" Type="Int32" />
+          <Property Name="utmbExpGradDate" Type="String" MaxLength="200" FixedLength="false" Unicode="false" />
+          <Property Name="utmbFERPAPub" Type="String" MaxLength="1" FixedLength="false" Unicode="false" />
+          <Property Name="utmbGradDate" Type="String" MaxLength="20" FixedLength="false" Unicode="false" />
+          <Property Name="utmbPNUM" Type="String" MaxLength="10" FixedLength="false" Unicode="false" />
+          <Property Name="utmbPrefix" Type="String" MaxLength="10" FixedLength="false" Unicode="false" />
+          <Property Name="utmbPublish" Type="String" MaxLength="1" FixedLength="false" Unicode="false" />
+          <Property Name="utmbSchoolProgram" Type="String" MaxLength="10" FixedLength="false" Unicode="false" />
+          <Property Name="utmbSRID" Type="String" MaxLength="10" FixedLength="false" Unicode="false" />
+          <Property Name="utmbStudStanding" Type="String" MaxLength="10" FixedLength="false" Unicode="false" />
+          <Property Name="utmbVDeliveryRoute" Type="String" MaxLength="1" FixedLength="false" Unicode="false" />
+          <Property Name="utmbMdPhd" Type="String" MaxLength="1" FixedLength="false" Unicode="false" />
+          <Property Name="utmbJobCode" Type="String" MaxLength="5" FixedLength="false" Unicode="false" />
+          <Property Name="utmbPSDeptName" Type="String" MaxLength="100" FixedLength="false" Unicode="false" />
+          <Property Name="facimileTelephoneNumber" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
+          <Property Name="Pager" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
+          <Property Name="Mobile" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
+          <Property Name="utmbBldgCode" Type="String" MaxLength="10" FixedLength="false" Unicode="false" />
+          <Property Name="utmbBldgName" Type="String" MaxLength="100" FixedLength="false" Unicode="false" />
+          <Property Name="roomNumber" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
+          <Property Name="utmbvFax" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
+          <Property Name="utmbvPhone" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
+          <Property Name="utmbvpager" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
+          <Property Name="utmbvmobile" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
+          <Property Name="utmbBID" Type="String" MaxLength="20" FixedLength="false" Unicode="false" />
+          <Property Name="utmb4Digits" Type="Int32" />
+          <Property Name="utmbSchool" Type="String" MaxLength="60" FixedLength="false" Unicode="false" />
+          <Property Name="utmbPreferredName" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
+          <Property Name="utmbSuffix" Type="String" MaxLength="10" FixedLength="false" Unicode="false" />
+          <Property Name="utmbMailRoute" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
+          <Property Name="utmbDeliveryRoute" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
+          <Property Name="utmbvBuilding" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
+          <Property Name="utmbvRoom" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
+          <Property Name="utmbvMailRoute" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
+          <Property Name="utmbADLastLogin" Type="DateTime" Precision="3" />
+          <Property Name="Active_AD_User" Type="Int32" />
+          <Property Name="Active_Exchange_User" Type="Int32" />
+          <Property Name="utmbapptbegindate" Type="String" MaxLength="2000" FixedLength="false" Unicode="false" />
+          <Property Name="utmbapptjobtitle" Type="String" MaxLength="2000" FixedLength="false" Unicode="false" />
+          <Property Name="utmbapptterminationdate" Type="String" MaxLength="2000" FixedLength="false" Unicode="false" />
+          <Property Name="utmbapptbusinessunit" Type="String" MaxLength="2000" FixedLength="false" Unicode="false" />
+          <Property Name="utmbapptpositionnumber" Type="String" MaxLength="500" FixedLength="false" Unicode="false" />
+          <Property Name="utmbapptpercenttime" Type="String" MaxLength="500" FixedLength="false" Unicode="false" />
+          <Property Name="utmblastmodified" Type="DateTime" Precision="3" />
+          <Property Name="utmbExtEmployeeNumber" Type="Int32" Nullable="false" />
+        </EntityType>
+        <EntityType Name="Instructor">
+          <Key>
+            <PropertyRef Name="MasterID" />
+          </Key>
+          <Property Name="MasterID" Type="Int32" Nullable="false" />
+        </EntityType>
+        <EntityType Name="PrincipalInvestigator">
+          <Key>
+            <PropertyRef Name="MasterID" />
+          </Key>
+          <Property Name="MasterID" Type="Int32" Nullable="false" />
+        </EntityType>
+        <EntityType Name="ADMemberCatche">
+          <Key>
+            <PropertyRef Name="id" />
+          </Key>
+          <Property Name="homemdb" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
+          <Property Name="isAccountDisabled" Type="Boolean" Nullable="false" />
+          <Property Name="uid" Type="String" Nullable="false" MaxLength="255" FixedLength="false" Unicode="false" />
+          <Property Name="userdn" Type="String" Nullable="false" MaxLength="200" FixedLength="false" Unicode="false" />
+          <Property Name="utmbuuid" Type="Int32" Nullable="false" />
+          <Property Name="whenchanged" Type="DateTime" Nullable="false" Precision="3" />
+          <Property Name="id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="samaccountname" Type="String" MaxLength="255" FixedLength="false" Unicode="false" />
+          <Property Name="objectclass" Type="String" MaxLength="255" FixedLength="false" Unicode="false" />
+          <Property Name="objectcategory" Type="String" MaxLength="255" FixedLength="false" Unicode="false" />
+          <Property Name="objectguid" Type="Guid" />
+          <Property Name="userAccountControl" Type="Int32" />
+          <Property Name="cn" Type="String" MaxLength="255" FixedLength="false" Unicode="false" />
+        </EntityType>
+        <EntityType Name="ReportsTo">
+          <Key>
+            <PropertyRef Name="MasterID" />
+            <PropertyRef Name="ReportsToMasterID" />
+          </Key>
+          <Property Name="MasterID" Type="Int32" Nullable="false" />
+          <Property Name="ReportsToMasterID" Type="Int32" Nullable="false" />
+        </EntityType>
+        <EntityType Name="EISTimekeeperDepartment">
+          <Key>
+            <PropertyRef Name="Id" />
+          </Key>
+          <Property Name="PeopleSoftDepartmentID" Type="String" MaxLength="100" FixedLength="false" Unicode="false" />
+          <Property Name="MasterId" Type="Int32" />
+          <Property Name="Id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+        </EntityType>
+        <EntityType Name="EXEMPT">
+          <Key>
+            <PropertyRef Name="MasterID" />
+          </Key>
+          <Property Name="MasterID" Type="Int32" Nullable="false" />
+        </EntityType>
+        <EntityType Name="PostionNumber">
+          <Key>
+            <PropertyRef Name="MasterID" />
+          </Key>
+          <Property Name="MasterID" Type="Int32" Nullable="false" />
+          <Property Name="PostionNumber1" Type="String" Nullable="false" MaxLength="10" FixedLength="false" Unicode="false" />
+        </EntityType>
+        <EntityType Name="SHIFTELIGIBLE">
+          <Key>
+            <PropertyRef Name="MasterID" />
+          </Key>
+          <Property Name="MasterID" Type="Int32" Nullable="false" />
+        </EntityType>
+      </Schema>
+    </edmx:ConceptualModels>
+    <!-- C-S mapping content -->
+    <edmx:Mappings>
+      <Mapping Space="C-S" xmlns="http://schemas.microsoft.com/ado/2009/11/mapping/cs">
+        <EntityContainerMapping StorageEntityContainer="EISTOOLSModelStoreContainer" CdmEntityContainer="EISTOOLSEntities">
+          <EntitySetMapping Name="HPRDDatas">
+            <EntityTypeMapping TypeName="EISTOOLSModel.HPRDData">
+              <MappingFragment StoreEntitySet="HPRDData">
+                <ScalarProperty Name="LASTUPDDTTM" ColumnName="LASTUPDDTTM" />
+                <ScalarProperty Name="LASTUPDOPRID" ColumnName="LASTUPDOPRID" />
+                <ScalarProperty Name="E1_OWNER" ColumnName="E1_OWNER" />
+                <ScalarProperty Name="E1_OU" ColumnName="E1_OU" />
+                <ScalarProperty Name="E1_SIGN_DT" ColumnName="E1_SIGN_DT" />
+                <ScalarProperty Name="E1_EXPIRE_DT" ColumnName="E1_EXPIRE_DT" />
+                <ScalarProperty Name="E1_NON_U_TYPE" ColumnName="E1_NON_U_TYPE" />
+                <ScalarProperty Name="MIDDLE_NAME" ColumnName="MIDDLE_NAME" />
+                <ScalarProperty Name="LAST_NAME" ColumnName="LAST_NAME" />
+                <ScalarProperty Name="FIRST_NAME" ColumnName="FIRST_NAME" />
+                <ScalarProperty Name="E1_PREFERRED_NAME" ColumnName="E1_PREFERRED_NAME" />
+                <ScalarProperty Name="E1_NAME_FORMAL" ColumnName="E1_NAME_FORMAL" />
+                <ScalarProperty Name="E1_USERID" ColumnName="E1_USERID" />
+                <ScalarProperty Name="E1_IS_ACTIVE_STDNT" ColumnName="E1_IS_ACTIVE_STDNT" />
+                <ScalarProperty Name="E1_IS_ACTIVE_EE" ColumnName="E1_IS_ACTIVE_EE" />
+                <ScalarProperty Name="E1_NON_U_DEPT" ColumnName="E1_NON_U_DEPT" />
+                <ScalarProperty Name="DEPTID" ColumnName="DEPTID" />
+                <ScalarProperty Name="E1_STUDNT_ID" ColumnName="E1_STUDNT_ID" />
+                <ScalarProperty Name="EMPLID" ColumnName="EMPLID" />
+                <ScalarProperty Name="DATE_OF_BIRTH" ColumnName="DATE_OF_BIRTH" />
+                <ScalarProperty Name="E1_PERS_UNIQUE_ID" ColumnName="E1_PERS_UNIQUE_ID" />
+                <ScalarProperty Name="E1_MASTER_ID" ColumnName="E1_MASTER_ID" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="EISUsernameHistories">
+            <EntityTypeMapping TypeName="EISTOOLSModel.EISUsernameHistory">
+              <MappingFragment StoreEntitySet="UsernameHistory">
+                <ScalarProperty Name="NEWUSERNAME" ColumnName="NEWUSERNAME" />
+                <ScalarProperty Name="DATERETIRED" ColumnName="DATERETIRED" />
+                <ScalarProperty Name="OLDUSERNAME" ColumnName="OLDUSERNAME" />
+                <ScalarProperty Name="MASTERID" ColumnName="MASTERID" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="Everybodies">
+            <EntityTypeMapping TypeName="EISTOOLSModel.Everybody">
+              <MappingFragment StoreEntitySet="Everybody">
+                <ScalarProperty Name="utmbExtEmployeeNumber" ColumnName="utmbExtEmployeeNumber" />
+                <ScalarProperty Name="utmblastmodified" ColumnName="utmblastmodified" />
+                <ScalarProperty Name="utmbapptpercenttime" ColumnName="utmbapptpercenttime" />
+                <ScalarProperty Name="utmbapptpositionnumber" ColumnName="utmbapptpositionnumber" />
+                <ScalarProperty Name="utmbapptbusinessunit" ColumnName="utmbapptbusinessunit" />
+                <ScalarProperty Name="utmbapptterminationdate" ColumnName="utmbapptterminationdate" />
+                <ScalarProperty Name="utmbapptjobtitle" ColumnName="utmbapptjobtitle" />
+                <ScalarProperty Name="utmbapptbegindate" ColumnName="utmbapptbegindate" />
+                <ScalarProperty Name="Active_Exchange_User" ColumnName="Active_Exchange_User" />
+                <ScalarProperty Name="Active_AD_User" ColumnName="Active_AD_User" />
+                <ScalarProperty Name="utmbADLastLogin" ColumnName="utmbADLastLogin" />
+                <ScalarProperty Name="utmbvMailRoute" ColumnName="utmbvMailRoute" />
+                <ScalarProperty Name="utmbvRoom" ColumnName="utmbvRoom" />
+                <ScalarProperty Name="utmbvBuilding" ColumnName="utmbvBuilding" />
+                <ScalarProperty Name="utmbDeliveryRoute" ColumnName="utmbDeliveryRoute" />
+                <ScalarProperty Name="utmbMailRoute" ColumnName="utmbMailRoute" />
+                <ScalarProperty Name="utmbSuffix" ColumnName="utmbSuffix" />
+                <ScalarProperty Name="utmbPreferredName" ColumnName="utmbPreferredName" />
+                <ScalarProperty Name="utmbSchool" ColumnName="utmbSchool" />
+                <ScalarProperty Name="utmb4Digits" ColumnName="utmb4Digits" />
+                <ScalarProperty Name="utmbBID" ColumnName="utmbBID" />
+                <ScalarProperty Name="utmbvmobile" ColumnName="utmbvmobile" />
+                <ScalarProperty Name="utmbvpager" ColumnName="utmbvpager" />
+                <ScalarProperty Name="utmbvPhone" ColumnName="utmbvPhone" />
+                <ScalarProperty Name="utmbvFax" ColumnName="utmbvFax" />
+                <ScalarProperty Name="roomNumber" ColumnName="roomNumber" />
+                <ScalarProperty Name="utmbBldgName" ColumnName="utmbBldgName" />
+                <ScalarProperty Name="utmbBldgCode" ColumnName="utmbBldgCode" />
+                <ScalarProperty Name="Mobile" ColumnName="Mobile" />
+                <ScalarProperty Name="Pager" ColumnName="Pager" />
+                <ScalarProperty Name="facimileTelephoneNumber" ColumnName="facimileTelephoneNumber" />
+                <ScalarProperty Name="utmbPSDeptName" ColumnName="utmbPSDeptName" />
+                <ScalarProperty Name="utmbJobCode" ColumnName="utmbJobCode" />
+                <ScalarProperty Name="utmbMdPhd" ColumnName="utmbMdPhd" />
+                <ScalarProperty Name="utmbVDeliveryRoute" ColumnName="utmbVDeliveryRoute" />
+                <ScalarProperty Name="utmbStudStanding" ColumnName="utmbStudStanding" />
+                <ScalarProperty Name="utmbSRID" ColumnName="utmbSRID" />
+                <ScalarProperty Name="utmbSchoolProgram" ColumnName="utmbSchoolProgram" />
+                <ScalarProperty Name="utmbPublish" ColumnName="utmbPublish" />
+                <ScalarProperty Name="utmbPrefix" ColumnName="utmbPrefix" />
+                <ScalarProperty Name="utmbPNUM" ColumnName="utmbPNUM" />
+                <ScalarProperty Name="utmbGradDate" ColumnName="utmbGradDate" />
+                <ScalarProperty Name="utmbFERPAPub" ColumnName="utmbFERPAPub" />
+                <ScalarProperty Name="utmbExpGradDate" ColumnName="utmbExpGradDate" />
+                <ScalarProperty Name="utmbLibAccess" ColumnName="utmbLibAccess" />
+                <ScalarProperty Name="initials" ColumnName="initials" />
+                <ScalarProperty Name="homePostalAddress" ColumnName="homePostalAddress" />
+                <ScalarProperty Name="homePhone" ColumnName="homePhone" />
+                <ScalarProperty Name="givenname" ColumnName="givenname" />
+                <ScalarProperty Name="preferredLanguage" ColumnName="preferredLanguage" />
+                <ScalarProperty Name="organizationName" ColumnName="organizationName" />
+                <ScalarProperty Name="sn" ColumnName="sn" />
+                <ScalarProperty Name="utmbapptprimaryjobindicator" ColumnName="utmbapptprimaryjobindicator" />
+                <ScalarProperty Name="utmbapptpsdeptid" ColumnName="utmbapptpsdeptid" />
+                <ScalarProperty Name="utmbapptdepartmentname" ColumnName="utmbapptdepartmentname" />
+                <ScalarProperty Name="utmbapptjobcode" ColumnName="utmbapptjobcode" />
+                <ScalarProperty Name="utmbapptjobclass" ColumnName="utmbapptjobclass" />
+                <ScalarProperty Name="utmbapptid" ColumnName="utmbapptid" />
+                <ScalarProperty Name="employeeNumber" ColumnName="employeeNumber" />
+                <ScalarProperty Name="utmbuuid" ColumnName="utmbuuid" />
+                <ScalarProperty Name="utmbnonustatus" ColumnName="utmbnonustatus" />
+                <ScalarProperty Name="utmbstudentstatus" ColumnName="utmbstudentstatus" />
+                <ScalarProperty Name="utmbemployeestatus" ColumnName="utmbemployeestatus" />
+                <ScalarProperty Name="utmbPSCode" ColumnName="utmbPSCode" />
+                <ScalarProperty Name="utmbdrno" ColumnName="utmbdrno" />
+                <ScalarProperty Name="utmbCardNum" ColumnName="utmbCardNum" />
+                <ScalarProperty Name="utmbDOB" ColumnName="utmbDOB" />
+                <ScalarProperty Name="telephonenumber" ColumnName="telephonenumber" />
+                <ScalarProperty Name="mail" ColumnName="mail" />
+                <ScalarProperty Name="title" ColumnName="title" />
+                <ScalarProperty Name="eduPersonPrincipalName" ColumnName="eduPersonPrincipalName" />
+                <ScalarProperty Name="eduPersonPrimaryOrgUnitDN" ColumnName="eduPersonPrimaryOrgUnitDN" />
+                <ScalarProperty Name="eduPersonPrimaryAffiliation" ColumnName="eduPersonPrimaryAffiliation" />
+                <ScalarProperty Name="eduPersonOrgDN" ColumnName="eduPersonOrgDN" />
+                <ScalarProperty Name="displayName" ColumnName="displayName" />
+                <ScalarProperty Name="description" ColumnName="description" />
+                <ScalarProperty Name="cn" ColumnName="cn" />
+                <ScalarProperty Name="uid" ColumnName="uid" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="Instructors">
+            <EntityTypeMapping TypeName="EISTOOLSModel.Instructor">
+              <MappingFragment StoreEntitySet="Instructors">
+                <ScalarProperty Name="MasterID" ColumnName="MasterID" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="PrincipalInvestigators">
+            <EntityTypeMapping TypeName="EISTOOLSModel.PrincipalInvestigator">
+              <MappingFragment StoreEntitySet="PrincipalInvestigators">
+                <ScalarProperty Name="MasterID" ColumnName="MasterID" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="ADMemberCatches">
+            <EntityTypeMapping TypeName="EISTOOLSModel.ADMemberCatche">
+              <MappingFragment StoreEntitySet="ADMemberCatche">
+                <ScalarProperty Name="cn" ColumnName="cn" />
+                <ScalarProperty Name="userAccountControl" ColumnName="userAccountControl" />
+                <ScalarProperty Name="objectguid" ColumnName="objectguid" />
+                <ScalarProperty Name="objectcategory" ColumnName="objectcategory" />
+                <ScalarProperty Name="objectclass" ColumnName="objectclass" />
+                <ScalarProperty Name="samaccountname" ColumnName="samaccountname" />
+                <ScalarProperty Name="id" ColumnName="id" />
+                <ScalarProperty Name="whenchanged" ColumnName="whenchanged" />
+                <ScalarProperty Name="utmbuuid" ColumnName="utmbuuid" />
+                <ScalarProperty Name="userdn" ColumnName="userdn" />
+                <ScalarProperty Name="uid" ColumnName="uid" />
+                <ScalarProperty Name="isAccountDisabled" ColumnName="isAccountDisabled" />
+                <ScalarProperty Name="homemdb" ColumnName="homemdb" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="ReportsToes">
+            <EntityTypeMapping TypeName="EISTOOLSModel.ReportsTo">
+              <MappingFragment StoreEntitySet="ReportsTo">
+                <ScalarProperty Name="ReportsToMasterID" ColumnName="ReportsToMasterID" />
+                <ScalarProperty Name="MasterID" ColumnName="MasterID" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="EISTimekeeperDepartments">
+            <EntityTypeMapping TypeName="EISTOOLSModel.EISTimekeeperDepartment">
+              <MappingFragment StoreEntitySet="TimekeeperDepartments">
+                <ScalarProperty Name="Id" ColumnName="Id" />
+                <ScalarProperty Name="MasterId" ColumnName="MasterId" />
+                <ScalarProperty Name="PeopleSoftDepartmentID" ColumnName="PeopleSoftDepartmentID" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="EXEMPTs">
+            <EntityTypeMapping TypeName="EISTOOLSModel.EXEMPT">
+              <MappingFragment StoreEntitySet="EXEMPT">
+                <ScalarProperty Name="MasterID" ColumnName="MasterID" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="PostionNumbers">
+            <EntityTypeMapping TypeName="EISTOOLSModel.PostionNumber">
+              <MappingFragment StoreEntitySet="PostionNumber">
+                <ScalarProperty Name="PostionNumber1" ColumnName="PostionNumber" />
+                <ScalarProperty Name="MasterID" ColumnName="MasterID" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="SHIFTELIGIBLEs">
+            <EntityTypeMapping TypeName="EISTOOLSModel.SHIFTELIGIBLE">
+              <MappingFragment StoreEntitySet="SHIFTELIGIBLE">
+                <ScalarProperty Name="MasterID" ColumnName="MasterID" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+        </EntityContainerMapping>
+      </Mapping>
+    </edmx:Mappings>
+  </edmx:Runtime>
+  <!-- EF Designer content (DO NOT EDIT MANUALLY BELOW HERE) -->
+  <Designer xmlns="http://schemas.microsoft.com/ado/2009/11/edmx">
+    <Connection>
+      <DesignerInfoPropertySet>
+        <DesignerProperty Name="MetadataArtifactProcessing" Value="EmbedInOutputAssembly" />
+      </DesignerInfoPropertySet>
+    </Connection>
+    <Options>
+      <DesignerInfoPropertySet>
+        <DesignerProperty Name="ValidateOnBuild" Value="true" />
+        <DesignerProperty Name="EnablePluralization" Value="true" />
+        <DesignerProperty Name="IncludeForeignKeysInModel" Value="true" />
+        <DesignerProperty Name="UseLegacyProvider" Value="false" />
+        <DesignerProperty Name="CodeGenerationStrategy" Value="None" />
+      </DesignerInfoPropertySet>
+    </Options>
+    <!-- Diagram content (shape and connector positions) -->
+    <Diagrams></Diagrams>
+  </Designer>
+</edmx:Edmx>

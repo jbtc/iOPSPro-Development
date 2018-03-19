@@ -7,17 +7,18 @@ var webRoot = document.URL.indexOf("localhost/iops/") > 0 ? "/iops/"
 				: document.URL.indexOf("localhost/iOPSPro-Development") > 0 ? "/iOPSPro-Development/Website/" :
 				"/";
 
-if (!(document.URL.indexOf("localhost/iops/") > 0)) {
-	window.console.log = function() {
+//if (!(document.URL.indexOf("localhost/iops/") > 0)) {
+//	window.console.log = function() {
 		
-	}
-}
+//	}
+//}
 
 
 var signalRServerUrl = "https://www.iopspro.com/DataServices/SignalR/signalr";
 var Global = {
 	User: {},
-	webRoot: "/"
+	webRoot: "/",
+	SignalR: {}
 }
 
 
@@ -647,7 +648,7 @@ angular.module('app').config(['$routeProvider', '$urlRouterProvider', '$statePro
 			jbtStandardObservations: [],
 			bhsJamAlarms: [],
 			ready: false
-		
+
 		}
 
 		var operationMetadata = {
@@ -675,7 +676,7 @@ angular.module('app').config(['$routeProvider', '$urlRouterProvider', '$statePro
 		//++Intercept all database updates here and integrate into the data structures.
 		$rootScope.$on("AssetModel", function (event, assetModel) {
 
-			console.log("AssetModel change. AssetModel = %O", assetModel);
+			//console.log("AssetModel change. AssetModel = %O", assetModel);
 			cache.assetModels = [assetModel].concat(cache.assetModels).distinct(function (a, b) { return a.Id == b.Id });
 
 
@@ -761,26 +762,26 @@ angular.module('app').config(['$routeProvider', '$urlRouterProvider', '$statePro
 				switch (dashboard.DashboardTimeScope.Days) {
 
 					//Special entry for "Yesterday"
-				case -1:
-					d.setHours(0, 0, 0, 0);
+					case -1:
+						d.setHours(0, 0, 0, 0);
 
-					dashboard.derivedEndDate = d;
-					dashboard.derivedStartDate = new Date(new Date(new Date().setDate(d.getDate() - 1)).setHours(0, 0, 0, 0));
+						dashboard.derivedEndDate = d;
+						dashboard.derivedStartDate = new Date(new Date(new Date().setDate(d.getDate() - 1)).setHours(0, 0, 0, 0));
 
-					break;
+						break;
 
-				//Special entry for "Today since midnight"
-				case 0:
-					d.setHours(0, 0, 0, 0);
-					dashboard.derivedStartDate = d;
-					dashboard.derivedEndDate = new Date('1/1/2500');
-					break;
+						//Special entry for "Today since midnight"
+					case 0:
+						d.setHours(0, 0, 0, 0);
+						dashboard.derivedStartDate = d;
+						dashboard.derivedEndDate = new Date('1/1/2500');
+						break;
 
-				default:
-					dashboard.derivedStartDate = new Date(new Date().setDate(new Date().getDate() - dashboard.DashboardTimeScope.Days));
-					dashboard.derivedEndDate = new Date('1/1/2500');
+					default:
+						dashboard.derivedStartDate = new Date(new Date().setDate(new Date().getDate() - dashboard.DashboardTimeScope.Days));
+						dashboard.derivedEndDate = new Date('1/1/2500');
 
-					break;
+						break;
 				}
 
 
@@ -893,7 +894,7 @@ angular.module('app').config(['$routeProvider', '$urlRouterProvider', '$statePro
 
 			//++LocalDB Configuration
 			//Get an instance of the localDB and proceed from there.
-			indexedDBService.getDBInstance("iOPS", 43, [
+			indexedDBService.getDBInstance("iOPS", 45, [
 				{
 					dataStoreName: "Companies",
 					keyName: "Id"
@@ -955,7 +956,7 @@ angular.module('app').config(['$routeProvider', '$urlRouterProvider', '$statePro
 
 
 			]).then(function (db) {
-				console.log("LocalDB retrieved...");
+				//console.log("LocalDB retrieved...");
 				localDB = db;
 
 				//+Asyncronously and simultaneously load data collections
@@ -1319,6 +1320,12 @@ angular.module('app').config(['$routeProvider', '$urlRouterProvider', '$statePro
 
 		});
 
+		$rootScope.$on("System.signalR Disconnected", function (event, dataObject) {
+			//console.log("System.signalR Disconnected event");
+			service.dataServerConnected = false;
+
+		});
+
 
 
 		//==========================================================================================
@@ -1362,7 +1369,7 @@ angular.module('app').config(['$routeProvider', '$urlRouterProvider', '$statePro
 			//console.log("Getting localdb systems...");
 			return localDB.getById("Systems", 1).then(function (dbData) {
 				dbSystems = dbData ? dbData.Systems : [];
-				console.log("localdb Systems = " + dbSystems.length);
+				//console.log("localdb Systems = " + dbSystems.length);
 				//Get All of the Systems that have changed since the localDB was collected.
 				if (dbSystems.length > 0) {
 					maxDate = dbSystems.max(function (system) { return system.DateLastModified });
@@ -1527,17 +1534,9 @@ angular.module('app').config(['$routeProvider', '$urlRouterProvider', '$statePro
 			UpdateTagFromSignalR(signalRData);
 		});
 
-
-
-
-
-
 		function UpdateTagFromSignalR(data) {
 
 			var signalRTag = GetJsonFromSignalR(data);
-
-
-
 
 
 		}
@@ -1596,7 +1595,7 @@ angular.module('app').config(['$routeProvider', '$urlRouterProvider', '$statePro
 
 					SiteName: site ? site.Name : null,
 					TagName: tag.TagName,
-					GateName: tag.GateName && tag.GateName.replace('.',''),
+					GateName: tag.GateName && tag.GateName.replace('.', ''),
 					Value: tag.LastObservationTextValue,
 					JBTStandardObservation: cache.jbtStandardObservations.first(function (s) {
 						return s.Id == tag.JBTStandardObservationId;
@@ -1680,40 +1679,97 @@ angular.module('app').config(['$routeProvider', '$urlRouterProvider', '$statePro
 
 
 		service.GetAllSignalRObservationFormattedTagsForAssetIdIntoInventoryByListOfAssetIds =
-			function(assetIdList, alarmsOnly) {
+			function (assetIdList, alarmsOnly) {
+				//console.log("Loading tags into inventory for list of asset ids = " + assetIdList);
 
-
-				var notLoadedAssetIds = ("" + assetIdList).split(',').distinct().where(function(assetId) {
-
-					var asset = cache.assets.first(function(a) { return a.Id == +assetId });
-					return (!alarmsOnly && asset && !asset.AllTagsLoaded) || (alarmsOnly && asset && !asset.AllAlarmTagsLoaded);
+				var notLoadedAssetIds = ("" + assetIdList).split(',').distinct().where(function (assetId) {
+					if (assetId != "") {					
+						var asset = cache.assets.first(function (a) { return a.Id == +assetId });
+						return (!alarmsOnly && asset && !asset.AllTagsLoaded) || (alarmsOnly && asset && !asset.AllAlarmTagsLoaded);
+					}
 
 				});
 
 				//console.log("notLoadedAssetIds = %O", notLoadedAssetIds);
 				if (notLoadedAssetIds.length == 0) {
+					//console.log("Asset was loaded already");
 					return $q.when(true);
 				}
 
 				//The asset object in the dataService might have already loaded all its tags into the running inventory. If it has, we do nothing.
 				if (notLoadedAssetIds.length > 0) {
 
-					
 
-					return service.GetIOPSWebAPIResource(alarmsOnly ? "GSAlarmTagsByListOfAssetIds" : "GSTagsByListOfAssetIds")
+
+					return service.GetIOPSWebAPIResource(alarmsOnly ? "GSAlarmTagsByListOfAssetIdsCondensed" : "GSTagsByListOfAssetIdsCondensed")
 						.query({
-								assetIds: assetIdList
-							},
-							function(data) {
-								data
-									.where(function(tag) {
-										return tag.Name.indexOf('|') > 0
-									}) //Only the new format tags have pipe symbols in the name.
-									.where(function(t) { return !t.MarkedForDelete })
-									.select(function(tag) {
+							assetIds: assetIdList
+						},
+							function (data) {
+
+
+								console.log("Raw Data = %O", angular.copy(data));
+								if (typeof data[0] == 'string' || data[0] instanceof String) {
+									data = data.select(function (tstring) {
+
+										var tarray = tstring.split('~');
+
+
+
+										//'d' = 
+										//			convert(varchar(50),Id) + '~' +
+										//			Name + '~' +
+										//			coalesce(convert(varchar(50), SiteId),'') + '~' +  
+										//			coalesce(convert(varchar(25),[dbo].[currentTimeMilliseconds](LastObservationCreationDate)),'') + '~' + 
+										//			coalesce(convert(varchar(25),[dbo].[currentTimeMilliseconds](LastObservationDate)),'') + '~' + 
+										//			coalesce(convert(varchar(50), AssetId),'0') + '~' + 
+										//			coalesce(convert(varchar(50), LastObservationId),'0') + '~' +  
+										//			coalesce(convert(varchar(50), JBTStandardObservationId),'') + '~' +  
+										//			coalesce(LastObservationTextValue,'') + '~' + 
+										//			coalesce(convert(varchar(10),LastObservationQuality),'') + '~' +
+										//			coalesce(convert(varchar(1),IsAlarm),'0') + '~' + 
+										//			coalesce(convert(varchar(1),IsWarning),'0') + '~' + 
+										//			coalesce(ValueWhenActive,'1')
+
+
+
+
+
+										return {
+											Id: +tarray[0],
+											Name: tarray[1],
+											SiteId: +tarray[2],
+											LastObservationCreationDate: utilityService.GetUTCDateFromLocalDate(new Date(+tarray[3])),
+											LastObservationDate: utilityService.GetUTCDateFromLocalDate(new Date(+tarray[4])),
+											AssetId: +tarray[5],
+											LastObservationId: +tarray[6],
+											JBTStandardObservationId: +tarray[7],
+											LastObservationTextValue: tarray[8],
+											LastObservationQuality: +tarray[9],
+											IsAlarm: +tarray[10] == 1,
+											IsWarning: +tarray[11] == 1,
+											ValueWhenActive: tarray[12] == '' ? '1' : tarray[12],
+											DataType: 'DB'
+										}
+
+									});
+								}
+
+
+								console.log("Formatted data = %O", angular.copy(data));
+								console.log("Loading tags into inventory Data Arrival = " + data.length + ' tags');
+								console.log("Inventory length = " + cache.tags.length);
+
+								if (data.length > 0) {
+
+									data.select(function (tag) {
 
 										var formattedCacheTagObject = GetStandardCacheTagObjectFromDatabaseFields(tag);
-										var loadedTag = LoadSignalRObservationToInventory(formattedCacheTagObject);
+
+										//Debugging
+										//formattedCacheTagObject.IsTest = true;
+
+										var loadedTag = LoadSignalRObservationToInventory(formattedCacheTagObject, true);
 
 										if (tag.PreviousObservationId && tag.PreviousObservationId != tag.ObservationId) {
 											//console.log("broadcasting tag update for refresh = %O", tag);
@@ -1722,14 +1778,46 @@ angular.module('app').config(['$routeProvider', '$urlRouterProvider', '$statePro
 
 									});
 
-								assetIdList.split(',').forEach(function(assetId) {
-									var asset = cache.assets.first(function(a) { return a.Id == +assetId });
+									//Since we were in load only mode, distinctify the cache.tags collection on tagId.
+									cache.tags = cache.tags.distinct(function (a, b) { return a.TagId == b.TagId });
 
-									//Flag the asset as having all of its tags now loaded if it was not just the alarms loaded. 
-									if (asset) {
-										asset.AllTagsLoaded = true;
-									}
-								});
+									console.log("attaching tags to assets and assets assets to tags.");
+
+									assetIdList.split(',').forEach(function (assetId) {
+
+										if (assetId != "") {
+											
+											var cacheAsset = cache.assets.first(function (asset) { return asset.Id == assetId });
+
+											cacheAsset.Tags = cache.tags.where(function (t) { return t.AssetId == cacheAsset.Id });
+
+											cacheAsset.Tags.forEach(function (t) {
+												t.Asset = cacheAsset;
+
+												//Also connect the JBTStandardObservation object.
+												t.JBTStandardObservation = cache.jbtStandardObservations.first(function (s) {
+													return s.Id == t.JBTStandardObservationId
+												});
+											});
+										}
+
+									});
+
+									console.log("Loading tags into inventory for list of asset ids - cache processed");
+									console.log("Inventory length = " + cache.tags.length);
+
+									assetIdList.split(',').forEach(function (assetId) {
+										var asset = cache.assets.first(function (a) { return a.Id == +assetId });
+
+										//Flag the asset as having all of its tags now loaded if it was not just the alarms loaded. 
+										if (asset && !alarmsOnly) {
+											asset.AllTagsLoaded = true;
+										}
+										if (asset && alarmsOnly) {
+											asset.AllAlarmTagsLoaded = true;
+										}
+									});
+								}
 
 
 							}).$promise;
@@ -1741,16 +1829,61 @@ angular.module('app').config(['$routeProvider', '$urlRouterProvider', '$statePro
 
 			//The asset object in the dataService might have already loaded all its tags into the running inventory. If it has, we do nothing.
 
-			var maxDate = new Date();
-			maxDate = maxDate.setDate(maxDate.getDate() - .05);
-			maxDate = utilityService.GetUTCQueryDate(maxDate);
+			
 
 
-			return service.GetIOPSWebAPIResource("GSTagsUpdatedInLastFiveMinutesByListOfAssetIds")
+			return service.GetIOPSWebAPIResource("GSTagsUpdatedInLastSecondsByListOfAssetIdsCondensed")
 				.query({
-						assetIds: assetIdList
-					},
+					assetIds: assetIdList,
+					seconds: 120
+				},
 					function (data) {
+
+
+						 data = data.select(function (tstring) {
+
+										var tarray = tstring.split('~');
+
+
+
+										//'d' = 
+										//			convert(varchar(50),Id) + '~' +
+										//			Name + '~' +
+										//			coalesce(convert(varchar(50), SiteId),'') + '~' +  
+										//			coalesce(convert(varchar(25),[dbo].[currentTimeMilliseconds](LastObservationCreationDate)),'') + '~' + 
+										//			coalesce(convert(varchar(25),[dbo].[currentTimeMilliseconds](LastObservationDate)),'') + '~' + 
+										//			coalesce(convert(varchar(50), AssetId),'0') + '~' + 
+										//			coalesce(convert(varchar(50), LastObservationId),'0') + '~' +  
+										//			coalesce(convert(varchar(50), JBTStandardObservationId),'') + '~' +  
+										//			coalesce(LastObservationTextValue,'') + '~' + 
+										//			coalesce(convert(varchar(10),LastObservationQuality),'') + '~' +
+										//			coalesce(convert(varchar(1),IsAlarm),'0') + '~' + 
+										//			coalesce(convert(varchar(1),IsWarning),'0') + '~' + 
+										//			coalesce(ValueWhenActive,'1')
+
+
+
+
+
+										return {
+											Id: +tarray[0],
+											Name: tarray[1],
+											SiteId: +tarray[2],
+											LastObservationCreationDate: utilityService.GetUTCDateFromLocalDate(new Date(+tarray[3])),
+											LastObservationDate: utilityService.GetUTCDateFromLocalDate(new Date(+tarray[4])),
+											AssetId: +tarray[5],
+											LastObservationId: +tarray[6],
+											JBTStandardObservationId: +tarray[7],
+											LastObservationTextValue: tarray[8],
+											LastObservationQuality: +tarray[9],
+											IsAlarm: +tarray[10] == 1,
+											IsWarning: +tarray[11] == 1,
+											ValueWhenActive: tarray[12] == '' ? '1' : tarray[12],
+											DataType: 'DB'
+										}
+
+									});
+						
 						data
 							.where(function (tag) {
 								return tag.Name.indexOf('|') > 0
@@ -1772,10 +1905,6 @@ angular.module('app').config(['$routeProvider', '$urlRouterProvider', '$statePro
 						assetIdList.split(',').forEach(function (assetId) {
 							var asset = cache.assets.first(function (a) { return a.Id == +assetId });
 
-							//Flag the asset as having all of its tags now loaded if it was not just the alarms loaded. 
-							if (asset) {
-								asset.AllTagsLoaded = true;
-							}
 						});
 					});
 		}
@@ -1799,7 +1928,8 @@ angular.module('app').config(['$routeProvider', '$urlRouterProvider', '$statePro
 				DataType: 'DB',
 				PLCUTCDate: plcUTCDate,
 				ObservationUTCDate: obsCreatedDate,
-
+				IsAlarm: entityFromDatabase.IsAlarm,
+				IsWarning: entityFromDatabase.IsWarning,
 				AssetId: +entityFromDatabase.AssetId,
 				TagId: +entityFromDatabase.Id,
 				SiteId: +entityFromDatabase.SiteId,
@@ -1829,54 +1959,6 @@ angular.module('app').config(['$routeProvider', '$urlRouterProvider', '$statePro
 
 		}
 
-		service.GetAllSignalRObservationFormattedTagsForAssetIdIntoInventory = function (assetId) {
-
-
-			var asset = cache.assets.first(function (a) { return a.Id == assetId });
-
-			if (asset.Tags.length < 40) {
-				asset.AllTagsLoaded = false;
-			}
-
-			if (asset.AllTagsLoaded) {
-				return $q.when(true);
-			}
-
-			//The asset object in the dataService might have already loaded all its tags into the running inventory. If it has, we do nothing.
-			if (!asset.AllTagsLoaded) {
-				return service.GetIOPSResource("Tags")
-					//.expand("LastObservation")
-					.filter("AssetId", assetId)
-					.select(["Id", "Name", "SiteId", "LastObservationDate", "LastObservationCreationDate", "AssetId",
-						"LastObservationId", "JBTStandardObservationId",
-						"LastObservationTextValue", "LastObservationQuality", "IsAlarm", "IsWarning", "ValueWhenActive"])
-					.query()
-					.$promise
-					.then(function (data) {
-
-						//console.log("GetAllSignalRObservationFormattedTagsForAssetIdIntoInventory Data = %O", data);
-						data
-							.where(function (tag) { return tag.Name.indexOf('|') > 0 }) //Only the new format tags have pipe symbols in the name.
-							.where(function (t) { return !t.MarkedForDelete })
-							.select(function (tag) {
-
-								var formattedCacheTagObject = GetStandardCacheTagObjectFromDatabaseFields(tag);
-								LoadSignalRObservationToInventory(formattedCacheTagObject);
-
-							});
-					})
-					.then(function () {
-						var asset = cache.assets.first(function (a) { return a.Id == assetId });
-
-						//Flag the asset as having all of its tags now loaded. 
-						if (asset) {
-							asset.AllTagsLoaded = true;
-						}
-					});
-			}
-		}
-
-
 
 
 		service.dataSourceIsLocal = document.URL.indexOf("localhost/iops/") > 0;
@@ -1901,6 +1983,8 @@ angular.module('app').config(['$routeProvider', '$urlRouterProvider', '$statePro
 			//}
 
 			signalRData.DataType = 'signalR';
+
+
 			signalRData.PLCUTCDate = new Date(signalRData.PLCUTCDate);
 			signalRData.PLCUTCDateMS = signalRData.PLCUTCDate.getTime();
 			signalRData.PLCLocalDate = utilityService.GetLocalDateFromUTCDate(signalRData.PLCUTCDate);
@@ -1933,6 +2017,11 @@ angular.module('app').config(['$routeProvider', '$urlRouterProvider', '$statePro
 		}
 
 		//***G
+
+
+		service.GetAllSignalRObservationFormattedTagsForAssetIdIntoInventory = function (assetId) {
+			return service.GetAllSignalRObservationFormattedTagsForAssetIdIntoInventoryByListOfAssetIds(assetId.toString(), false);
+		}
 
 
 
@@ -1969,7 +2058,7 @@ angular.module('app').config(['$routeProvider', '$urlRouterProvider', '$statePro
 				//Check for an observation metadata object. It is the only one with the ObservationCreationDate property
 				if (obj.ObservationUTCDate) {
 
-					var siteReference = cache.sites.first(function(site) { return site.Id == obj.SiteId });
+					var siteReference = cache.sites.first(function (site) { return site.Id == obj.SiteId });
 
 					var sqlOffsetForSite = siteReference ? siteReference.KepwareSQLTimeDifferenceMSFromCentral : 0;
 					obj.Metadata.Statistics.KepwareSQLTimeDifferenceMSFromCentral = sqlOffsetForSite;
@@ -2017,110 +2106,141 @@ angular.module('app').config(['$routeProvider', '$urlRouterProvider', '$statePro
 		}
 
 
-		function LoadSignalRObservationToInventory(newObservation) {
-			//+Lo ad the tag represented by the observation into the local inventory of tags.
-			//console.log("Tag = %O", obs);
+		function LoadSignalRObservationToInventory(newObservation, addOnly) {
+			//+Load the tag represented by the observation into the local inventory of tags.
+			if (newObservation.IsTest) {
+				//console.log("Tag = %O", newObservation);
+			}
+			//addOnly = false;
+			var tagThatWasInCache;
+
+
 			if (newObservation.TagId || newObservation.TagName) {
 				//Scan the inventory for it.
 
-
-				if (newObservation.TagId) {
-					//console.log("Checking for tagid");
-					tag = cache.tags.first(function (et) { return et.TagId == newObservation.TagId });
-				}
-
-				if (!tag && newObservation.TagName) {
-					tag = cache.tags.first(function (et) { return et.TagName == newObservation.TagName });
-				}
-				//If we found the tag in the inventory, update it in our cache
-				if (tag) {
-
-					//console.log("Tag found in inventory = %O", tag);
-					if (tag.DataType == 'DB' && newObservation.DataType == 'signalR') {
-						tag.DataType = 'signalR';
-					}
-
-					if (!tag.Observations) {
-
-						tag.Observations = [];
-					}
-					if (!tag.Asset) {
-						//Set the asset object for the tag in the inventory if not yet already set.
-						tag.Asset = cache.assets.first(function (asset) { return asset.Id == tag.AssetId });
-						if (tag.Asset) {
-							//If we found a matching asset then add this tag to the tags collection for the asset.
-							if (!tag.Asset.Tags) {
-								tag.Asset.Tags = [];
-							}
-							tag.Asset.Tags.push(tag);
+				if (!addOnly) {
+					if (newObservation.TagId) {
+						//console.log("Checking for tagid");
+						if (!addOnly) {
+							tagThatWasInCache = cache.tags.first(function (et) { return et.TagId == newObservation.TagId });
 						}
 					}
 
-					tag.LastObservationTextValue = newObservation.Value;
-
-					MetadataCounterUpdate(tag);
-					//console.log("Tag found in inventory (updated Metadata) = %O", tag);
-					if (tag.Asset) {
-						MetadataCounterUpdate(tag.Asset);
-						MetadataCounterUpdate(tag.Asset.Company);
-						MetadataCounterUpdate(tag.Asset.System);
-						MetadataCounterUpdate(tag.Asset.Site);
-					}
-
-
-					if (tag.PLCUTCDateMS <= newObservation.PLCUTCDateMS && tag.ObservationId != newObservation.ObservationId) {
-
-
-						tag.PLCUTCDate = newObservation.PLCUTCDate;
-						tag.PLCUTCDateMS = newObservation.PLCUTCDateMS;
-						tag.PLCLocalDate = newObservation.PLCLocalDate;
-						tag.ObservationUTCDate = newObservation.ObservationUTCDate;
-						tag.ObservationUTCDateMS = newObservation.ObservationUTCDateMS;
-						tag.ObservationLocalDate = newObservation.ObservationLocalDate;
-						tag.PreviousObservationId = tag.ObservationId;
-						tag.ObservationId = +newObservation.ObservationId;
-						tag.Metadata.Status.LastValueWasHistorical = false;
-						tag.Value = newObservation.Value;
-						tag.ValueWhenActive = newObservation.ValueWhenActive || "1";
-					} else {
-						if (tag.DataType == 'signalR' && tag.ObservationId != newObservation.ObservationId) {
-							//console.log("Tag is from signalR and is historical. Tag in inventory = %O", tag);
-							//console.log("Tag is from signalR and is historical. Tag from signalR = %O", newObservation);
-							tag.Metadata.Status.LastValueWasHistorical = true;
+					if (!tag && newObservation.TagName) {
+						if (!addOnly) {
+							tagThatWasInCache = cache.tags.first(function (et) { return et.TagName == newObservation.TagName });
 						}
 					}
 
 				} else {
+					tagThatWasInCache = null;
+				}
+
+				//If we found the tag in the inventory, update it in our cache
+				if (tagThatWasInCache) {
+
+					//console.log("Tag found in inventory = %O", tag);
+					if (tagThatWasInCache.DataType == 'DB' && newObservation.DataType == 'signalR') {
+						tagThatWasInCache.DataType = 'signalR';
+					}
+
+					if (!tagThatWasInCache.Observations) {
+
+						tagThatWasInCache.Observations = [];
+					}
+					if (!tagThatWasInCache.Asset) {
+						//Set the asset object for the tag in the inventory if not yet already set.
+						tagThatWasInCache.Asset = cache.assets.first(function (asset) { return asset.Id == tagThatWasInCache.AssetId });
+						if (tagThatWasInCache.Asset) {
+							//If we found a matching asset then add this tag to the tags collection for the asset.
+							if (!tagThatWasInCache.Asset.Tags) {
+								tagThatWasInCache.Asset.Tags = [];
+							}
+							tagThatWasInCache.Asset.Tags.push(tag);
+						}
+					}
+
+					tagThatWasInCache.LastObservationTextValue = newObservation.Value;
+
+					MetadataCounterUpdate(tagThatWasInCache);
+					//console.log("Tag found in inventory (updated Metadata) = %O", tag);
+					if (tagThatWasInCache.Asset) {
+						//MetadataCounterUpdate(tagThatWasInCache.Asset);
+						//MetadataCounterUpdate(tagThatWasInCache.Asset.Company);
+						//MetadataCounterUpdate(tagThatWasInCache.Asset.System);
+						//MetadataCounterUpdate(tagThatWasInCache.Asset.Site);
+					}
+
+
+					if (tagThatWasInCache.PLCUTCDateMS <= newObservation.PLCUTCDateMS && tagThatWasInCache.ObservationId != newObservation.ObservationId) {
+
+
+						tagThatWasInCache.PLCUTCDate = newObservation.PLCUTCDate;
+						tagThatWasInCache.PLCUTCDateMS = newObservation.PLCUTCDateMS;
+						tagThatWasInCache.PLCLocalDate = newObservation.PLCLocalDate;
+						tagThatWasInCache.ObservationUTCDate = newObservation.ObservationUTCDate;
+						tagThatWasInCache.ObservationUTCDateMS = newObservation.ObservationUTCDateMS;
+						tagThatWasInCache.ObservationLocalDate = newObservation.ObservationLocalDate;
+						tagThatWasInCache.PreviousObservationId = tagThatWasInCache.ObservationId;
+						tagThatWasInCache.ObservationId = +newObservation.ObservationId;
+						tagThatWasInCache.Metadata.Status.LastValueWasHistorical = false;
+						tagThatWasInCache.Value = newObservation.Value;
+						tagThatWasInCache.ValueWhenActive = newObservation.ValueWhenActive || "1";
+
+					} else {
+						if (tagThatWasInCache.DataType == 'signalR' && tagThatWasInCache.ObservationId != newObservation.ObservationId) {
+							//console.log("Tag is from signalR and is historical. Tag in inventory = %O", tag);
+							//console.log("Tag is from signalR and is historical. Tag from signalR = %O", newObservation);
+							tagThatWasInCache.Metadata.Status.LastValueWasHistorical = true;
+						}
+					}
+
+					//Attach the JBTStandardObservation object to the tag.
+					tagThatWasInCache.JBTStandardObservation = cache.jbtStandardObservations.first(function (s) {
+						return s.Id == tagThatWasInCache.JBTStandardObservationId;
+					});
+
+				} else {
 					//We did not find the tag in the inventory.
 					//Add the tag to the cache with an attached metadata object
-					//console.log("Tag NOT found in inventory.....");
+					if (newObservation.IsTest) {
+						//console.log("Tag NOT found in inventory.....");
+					}
+
+
 					AttachBlankMetadataObject(newObservation);
 					//Attach the asset to the tag, and attach the tags collection to the asset - IF the asset is found
-					var asset = cache.assets.first(function (asset) { return asset.Id == +newObservation.AssetId });
 
-					//console.log("Asset Found = %O", asset);
-					if (asset) {
-						if (!asset.Tags) {
-							asset.Tags = [];
+					if (!addOnly) {
+
+						var asset = cache.assets.first(function (asset) { return asset.Id == +newObservation.AssetId });
+
+						//console.log("Asset Found = %O", asset);
+						if (asset) {
+							if (!asset.Tags) {
+								asset.Tags = [];
+							}
+							asset.Tags.unshift(newObservation);
+							asset.Tags = asset.Tags.distinct(function (a, b) { return a.TagId == b.TagId });
+							newObservation.Asset = asset;
 						}
-						asset.Tags.unshift(newObservation);
-						asset.Tags = asset.Tags.distinct(function (a, b) { return a.TagId == b.TagId });
-						newObservation.Asset = asset;
 					}
 
 					var isTag = true;
-					MetadataCounterUpdate(newObservation, isTag);
 
-					if (newObservation.Asset) {
-						MetadataCounterUpdate(newObservation.Asset);
-						MetadataCounterUpdate(newObservation.Asset.Company);
-						MetadataCounterUpdate(newObservation.Asset.System);
-						MetadataCounterUpdate(newObservation.Asset.Site);
+					if (!addOnly) {
+						MetadataCounterUpdate(newObservation, isTag);
+
+						if (newObservation.Asset) {
+							//MetadataCounterUpdate(newObservation.Asset);
+							//MetadataCounterUpdate(newObservation.Asset.Company);
+							//MetadataCounterUpdate(newObservation.Asset.System);
+							//MetadataCounterUpdate(newObservation.Asset.Site);
+						}
+
 					}
 
-
-					cache.tags.push(newObservation);
-					MetadataCounterUpdate(newObservation, true);
+					cache.tags.unshift(newObservation);
 
 					tag = newObservation;
 					//console.log("New Tag Entry = %)",newObservation);
@@ -2130,18 +2250,14 @@ angular.module('app').config(['$routeProvider', '$urlRouterProvider', '$statePro
 			}
 			if (!isFinite(newObservation.Value) && newObservation.Value.indexOf('oken:') != 1 && newObservation.Value.indexOf('rue') != 1 && newObservation.Value.indexOf('alse') != 1) {
 				if (Global.User.Username == 'jim') {
-					console.log("Text Observation data Arrived. TagName " + tag.TagName + " --- " + tag.Value);
+					//console.log("Text Observation data Arrived. TagName " + tag.TagName + " --- " + tag.Value);
 				}
 			}
 			if (tag.DataType == 'signalR') {
 
-				//if (tag.TagName.indexOf('B2|B34|') > 0 && tag.TagName.indexOf('AIRCRAFT_DOCKED') > 0) {
-				//	console.log("B34 SignalR data Arrived in dataService - before broadcast = %O", tag);
-				//}
-
-
 				$rootScope.$broadcast("dataService.TagUpdate", tag);
 			} else {
+				//$rootScope.$broadcast("dataService.TagUpdate", tag);
 				//console.log("DB version was detected - no broadcast necessary");
 			}
 
@@ -2238,7 +2354,7 @@ angular.module('app').config(['$routeProvider', '$urlRouterProvider', '$statePro
 				}
 			});
 
-			operationMetadata.tagsWithOneSecondCountdowns = operationMetadata.tagsWithOneSecondCountdowns.where(function(t) {
+			operationMetadata.tagsWithOneSecondCountdowns = operationMetadata.tagsWithOneSecondCountdowns.where(function (t) {
 				return t.Metadata.UpdateCountDowns.OneSecond != 0;
 			});
 
@@ -2312,6 +2428,24 @@ angular.module('app').config(['$routeProvider', '$urlRouterProvider', '$statePro
 
 
 		}, 300000);
+
+
+		//***G
+		//++Five Second Interval
+		//+Sort the cache.tags collection in order of last received.
+		//+This will make the lookup for frequent items faster.
+		//***G
+		//$interval(function () {
+		//	//This is a small collection.
+		//	//It is just a keepalive for the OData source service.
+		//	return odataService.GetEntityById("iOPS", "Sites", 1);
+
+
+
+
+		//}, 10000);
+
+
 
 
 
@@ -2629,6 +2763,7 @@ angular.module('app').config(['$routeProvider', '$urlRouterProvider', '$statePro
 
 		}
 
+		
 
 		service.SetPanelDimensions = function (iterations) {
 			//console.log("displaySetupService - SetPanelDimensions ran");
@@ -3250,30 +3385,39 @@ angular.module('app').config(['$routeProvider', '$urlRouterProvider', '$statePro
 		};
 
 
-
-		$rootScope.$on("signalR.Reconnect", function (event, obj) {
+		$rootScope.$on("System.signalR Connected", function (event, obj) {
 			//For some reason (like putting your system to sleep) the signalR service disconnected.
 			//On reconnection, join the appropriate groups.
-			JoinUserSignalRGroups();
+
+			$timeout(function () {
+
+				JoinUserSignalRGroups();
+			}, 50);
 		});
 
-		$interval(function () {
-			JoinUserSignalRGroups();
-		}, 3000);
+		//$interval(function () {
+		//	JoinUserSignalRGroups();
+		//}, 3000);
 
 		function JoinUserSignalRGroups() {
-			if (Global.User && Global.User.AuthorizedActivities) {
-				if (Global.User.AuthorizedActivities.contains("AuthorizedActivity.AdministerSystem")) {
-					signalR.JoinGroup("Admin");
-				}
+			if (Global.SignalR && Global.SignalR.Status == "Connected") {
+				
+				if (Global.User && Global.User.AuthorizedActivities) {
+					if (Global.User.AuthorizedActivities.contains("AuthorizedActivity.AdministerSystem")) {
+						signalR.JoinGroup("Admin");
+					}
 
-				Global.User.ReaderOf.forEach(function (ro) {
-					var site = ro.replace('Site.', '')
-					//console.log("User ReaderOf Sites site = to join = %O", site);
-					signalR.JoinGroup(site);
-				});
+					Global.User.ReaderOf.forEach(function (ro) {
+						var site = ro.replace('Site.', '')
+						//console.log("User ReaderOf Sites site = to join = %O", site);
+						signalR.JoinGroup(site);
+					});
+				}
 			}
 		}
+
+
+
 
 
 		service.LoginUserWithAccessToken = function (accessToken) {
@@ -3312,6 +3456,7 @@ angular.module('app').config(['$routeProvider', '$urlRouterProvider', '$statePro
 						store.set('currentUser', data);
 						Global.User = data;
 					}
+
 
 					JoinUserSignalRGroups();
 					$rootScope.$broadcast('securityService:authenticated', service.currentUser);
@@ -3441,7 +3586,7 @@ angular.module('app').config(['$routeProvider', '$urlRouterProvider', '$statePro
 				service.connected = false;
 				HubStart();
 			}
-		}, 1000);
+		}, 10000);
 
 
 		function GetUserByClientId(clientId) {
@@ -3470,10 +3615,16 @@ angular.module('app').config(['$routeProvider', '$urlRouterProvider', '$statePro
 		var messageCount = 0;
 		var lastGroupName = "";
 
-		//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-		//Angular SignalR central station. This is the only point of connection with SignalR in this entire Angular application.
-		//Angular will simply broadcast the SignalR messages and data to anybody who is listening.
-		//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+
+
+		//***G
+		//++Angular SignalR central station. This is the only point of connection with SignalR in this entire Angular application.
+		//+Angular will simply broadcast the SignalR messages and data to anybody who is listening.
+		//---G
+
+		//---B
+
 		signalRHub.client.SignalRNotification = function (code, dataObject, callerConnectionId, groupName) {
 
 			//if (messageCount++ % 1 == 0) {
@@ -3515,6 +3666,7 @@ angular.module('app').config(['$routeProvider', '$urlRouterProvider', '$statePro
 
 				}
 
+			//---B
 			case "System.AlertMessage":
 				fromUser = GetUserByClientId(callerConnectionId);
 				console.log("Alert Message from user = %O", fromUser);
@@ -3539,9 +3691,10 @@ angular.module('app').config(['$routeProvider', '$urlRouterProvider', '$statePro
 				}
 				break;
 
+			//---B
 			case "System.ClientConnectionEstablished":
 
-				console.log("ngEvent: System.ClientConnectionEstablished Data:%O", dataObject);
+				//console.log("ngEvent: System.ClientConnectionEstablished Data:%O", dataObject);
 				SaveUserByClientId(callerConnectionId, dataObject);
 
 				//Tell the new user about us in response.
@@ -3551,10 +3704,11 @@ angular.module('app').config(['$routeProvider', '$urlRouterProvider', '$statePro
 				$rootScope.$broadcast(code, dataObject);
 				break;
 
+			//---B
 			case "System.ClientLogout":
 
-				console.log("ngEvent: System.ClientLogout Data:%O", dataObject);
-				console.log("Our ClientId = " + $.connection.hub.id);
+				//console.log("ngEvent: System.ClientLogout Data:%O", dataObject);
+				//console.log("Our ClientId = " + $.connection.hub.id);
 				if (dataObject) {
 
 					RemoveUserByClientId(dataObject.ClientId);
@@ -3567,9 +3721,10 @@ angular.module('app').config(['$routeProvider', '$urlRouterProvider', '$statePro
 				}
 				break;
 
+			//---B
 			case "System.SignalR.ClientDisconnected":
 
-				console.log("ngEvent: System.ClientDisconnected Data:%O", dataObject);
+				//console.log("ngEvent: System.ClientDisconnected Data:%O", dataObject);
 				//The dataObject IS the clientID in this case.
 				RemoveUserByClientId(dataObject.ClientId);
 				ConsoleLogAllConnectedClients();
@@ -3577,6 +3732,9 @@ angular.module('app').config(['$routeProvider', '$urlRouterProvider', '$statePro
 				//Tell the rest of the system about it, in case some application wants to listen in on client disconnection events.
 				$rootScope.$broadcast(code, dataObject);
 				break;
+
+			//---B
+			
 
 			case "System.OnLineReportResponse":
 
@@ -3594,10 +3752,12 @@ angular.module('app').config(['$routeProvider', '$urlRouterProvider', '$statePro
 				break;
 
 
+			//---B
 			case "System.ReportLockedEntities":
 				service.SignalSpecificClient(callerConnectionId, "System.LockedEntitiesReport", service.OdataLockedEntities);
 				break;
 
+			//---B
 			case "System.LockedEntitiesReport":
 				dataObject.forEach(function (lockEntry) {
 					AddEntityLockEntryToLocalList(lockEntry);
@@ -3605,6 +3765,7 @@ angular.module('app').config(['$routeProvider', '$urlRouterProvider', '$statePro
 				console.log("Current Locked Entities = %O", service.OdataLockedEntities);
 				break;
 
+			//---B
 			case "System.EntityLocked":
 
 				AddEntityLockEntryToLocalList(dataObject);
@@ -3612,7 +3773,7 @@ angular.module('app').config(['$routeProvider', '$urlRouterProvider', '$statePro
 				$rootScope.$broadcast("System.EntityLocked", dataObject);
 				break;
 
-
+			//---B
 			case "System.EntityUnlocked":
 				//Remove it from our locked list
 				RemoveEntityLockEntryFromLocalList(dataObject);
@@ -3625,6 +3786,7 @@ angular.module('app').config(['$routeProvider', '$urlRouterProvider', '$statePro
 
 
 
+			//---B
 			default:
 				//console.log("Broadcasting..");
 				$rootScope.$broadcast(code, dataObject);
@@ -3639,7 +3801,7 @@ angular.module('app').config(['$routeProvider', '$urlRouterProvider', '$statePro
 		/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 
-
+		
 		function GetEntityLockingDataObject(odataSource, collection, Id) {
 			return { odataSource: odataSource, collection: collection, Id: parseInt(Id), lockingClientId: service.Me.ClientId };
 		}
@@ -3651,6 +3813,9 @@ angular.module('app').config(['$routeProvider', '$urlRouterProvider', '$statePro
 			AddEntityLockEntryToLocalList(entityLockData);
 			service.SignalAllClients("System.EntityLocked", entityLockData);
 		}
+
+
+		
 
 		function AddEntityLockEntryToLocalList(lockEntry) {
 
@@ -3761,12 +3926,14 @@ angular.module('app').config(['$routeProvider', '$urlRouterProvider', '$statePro
 					DateLoggedInFormatted: moment(u.DateLoggedIn).format("YYYY-MM-DD HH:mm:ss")
 
 				};
-
 			}
 			return null;
 		}
 
-
+		//***G
+		//++Public Methods for Controllers and Directives to Use
+		//***G
+		//---B
 		service.SignalAllClients = function (code, item) {
 			//Signal down the chain locally. 
 			//console.log("Broadcasting " + code);
@@ -3774,6 +3941,7 @@ angular.module('app').config(['$routeProvider', '$urlRouterProvider', '$statePro
 			return service.SignalOnlyOtherClients(code, item);
 		}
 
+		//---B
 		service.SignalAllClientsInGroup = function (groupName, code, item) {
 			//Signal down the chain locally. 
 			console.log("Broadcasting " + code);
@@ -3781,108 +3949,39 @@ angular.module('app').config(['$routeProvider', '$urlRouterProvider', '$statePro
 			return service.SignalOnlyOtherClientsInGroup(groupName, code, item);
 		}
 
+		//---B
 		service.SignalOnlyOtherClients = function (code, item) {
 			//console.log("Sending SignalR to all clients. Code = " + code + " object = %O", item);
-			var deferred = $q.defer();
-			$.connection.hub.start({ transport: ["webSockets", "serverSentEvents", "longPolling"] })
-				.done(function () {
-					var connId = $.connection.hub.id;
-
-
-					//Signal everybody else.
-					LocalLogOut(code, item);
-					return signalRHub.server.notifyOtherClients(code, item);
-
-				})
-				.fail(function (error) {
-					console.log("SignalR Error " + error);
-					deferred.reject("SignalR Error " + error);
-				});
-
-			return deferred.promise;
+			return signalRHub.server.notifyOtherClients(code, item);
 		}
 
+		//---B
 		service.SignalOnlyOtherClientsInGroup = function (groupName, code, item) {
 			//console.log("Sending SignalR to all clients. Code = " + code + " object = %O", item);
-			var deferred = $q.defer();
-
-			$.connection.hub.start({ transport: ["webSockets", "serverSentEvents", "longPolling"] })
-				.done(function () {
-					var connId = $.connection.hub.id;
-
-					//Signal everybody else.
-					LocalLogOut(code, item);
-					return signalRHub.server.notifyOtherClientsInGroup(groupName, code, item);
-
-				})
-				.fail(function (error) {
-					console.log("SignalR Error " + error);
-					deferred.reject("SignalR Error");
-				});
-			return deferred.promise;
+			return signalRHub.server.notifyOtherClientsInGroup(groupName, code, item);
 		}
 
-
+		//---B
 		service.JoinGroup = function (groupName) {
-
-			var deferred = $q.defer();
-
-			$.connection.hub.start({ transport: ["webSockets", "serverSentEvents", "longPolling"] })
-				.done(function () {
-					var connId = $.connection.hub.id;
-
-
-					signalRHub.server.joinGroup(groupName).then(function () {
-						deferred.resolve();
-					});
-					//console.log("Joined signalR Group " + groupName);
-
-				})
-				.fail(function (error) {
-					console.log("SignalR Error " + error);
-					deferred.reject("Could not start signalR Hub");
-				});
-
-			return deferred.promise;
+			return signalRHub.server.joinGroup(groupName).then(function () {
+				console.log("Joined signalR Group " + groupName);
+			});
 		}
+
+		//---B
 		service.LeaveGroup = function (groupName) {
-
-			var deferred = $q.defer();
-
-			$.connection.hub.start({ transport: ["webSockets", "serverSentEvents", "longPolling"] })
-				.done(function () {
-					var connId = $.connection.hub.id;
-
-
-					//Signal everybody else.
-					return signalRHub.server.leaveGroup(groupName);
-
-				})
-				.fail(function (error) {
-					console.log("SignalR Error " + error);
-					deferred.reject("SignalR Error " + error);
-				});
-
-			return deferred.promise;
+			return signalRHub.server.leaveGroup(groupName).then(function () {
+				//console.log("Left signalR Group " + groupName);
+			});
 		}
 
+		//---B
 		service.SignalSpecificClient = function (clientId, code, item) {
 			//console.log("Local->Client " + clientId +  " Code:" + code + " Data:%O", item);
-			var deferred = $q.defer();
-
-			$.connection.hub.start({ transport: ["webSockets", "serverSentEvents", "longPolling"] })
-				.done(function () {
-					var connId = $.connection.hub.id;
-					LocalLogOut(code, item);
-					return signalRHub.server.notifySpecificClient(clientId, code, item);
-				})
-				.fail(function (error) {
-					console.log("SignalR Error " + error);
-					deferred.reject("SignalR Error " + error);
-				});
-			return deferred.promise;
+			return signalRHub.server.notifySpecificClient(clientId, code, item);
 		}
 
+		//---B
 		service.SendEmail = function (emailData) {
 			console.log("Sending Email.....");
 			$.connection.hub.start({ transport: ["webSockets", "serverSentEvents", "longPolling"] })
@@ -3899,21 +3998,38 @@ angular.module('app').config(['$routeProvider', '$urlRouterProvider', '$statePro
 			//console.log("hub = %O", $.connection.hub);
 		}
 
+		//---B
 		service.SignalClientsForLogout = function () {
 			service.SignalAllClients("System.ClientLogout", GetClientDataObject());
 		}
+		//***G
+		//++End Of Public Methods for Controllers and Directives to Use
+		//***G
+
 
 		$window.onbeforeunload = service.SignalClientsForLogout;
 
 		$.connection.hub.stateChanged(function (state) {
 			var stateConversion = { 0: 'connecting', 1: 'connected', 2: 'reconnecting', 4: 'disconnected' };
-			//console.log('SignalR state changed from: ' + stateConversion[state.oldState] + ' to: ' + stateConversion[state.newState]);
+			console.log('SignalR state changed from: ' + stateConversion[state.oldState] + ' to: ' + stateConversion[state.newState]);
 			service.connectionState = stateConversion[state.newState];
 			if (service.connectionState == "connected") {
 				$rootScope.$broadcast("System.signalR Connected");
+				if (Global.SignalR) {
+					Global.SignalR.Status = "Connected";
+				}
+
+			}
+			if (service.connectionState == "disconnected") {
+				$rootScope.$broadcast("System.signalR Disconnected");
+				if (Global.SignalR) {					
+					Global.SignalR.Status = "Disconnected";
+				}
 			}
 
 		});
+
+		service.connectionState = "";
 
 		//Conduct a signalR round trip timing test
 		function SignalRPerformanceTest() {
@@ -3929,9 +4045,9 @@ angular.module('app').config(['$routeProvider', '$urlRouterProvider', '$statePro
 			console.log("SignalR Trip Time = " + (performance.now() - startTime) / 2);
 		});
 
-		//IMPORTANT!!!! - This has to be defined AFTER THE HUB IS DEFINED - PLACE THE START FUNCTION NEAR THE END OF THE SERVICE DEFINITION - WHERE IT IS NOW -     DO NOT MOVE IT TO THE TOP.
+		//++IMPORTANT!!!! - This has to be defined AFTER THE HUB IS DEFINED - PLACE THE START FUNCTION NEAR THE END OF THE SERVICE DEFINITION - WHERE IT IS NOW -     DO NOT MOVE IT TO THE TOP.
 		function HubStart() {
-			$.connection.hub.start({ withCredentials: false, transport: ["webSockets", "serverSentEvents", "longPolling"] })
+			$.connection.hub.start({ withCredentials: false, transport: [ "webSockets", "serverSentEvents", "longPolling"] })
 
 				.done(function () {
 					//console.log("SignalR start is done.");
@@ -3942,10 +4058,19 @@ angular.module('app').config(['$routeProvider', '$urlRouterProvider', '$statePro
 						if (dataObject) {
 							service.Me = dataObject;
 							SaveUserByClientId(dataObject.ClientId, dataObject);
+							var u = store.get('currentUser');
+							Global.SignalR = {
+								ClientId: $.connection.hub.id,
+								DateLoggedIn: u.DateLoggedIn,
+								DateLoggedInFormatted: moment(u.DateLoggedIn).format("YYYY-MM-DD HH:mm:ss")
+							}
 
 							service.SignalAllClients("System.ClientConnectionEstablished", GetClientDataObject());
 						}
 						//$interval(SignalRPerformanceTest,500);
+						service.connectionState = "connected";
+						Global.SignalR.Status = "Connected";
+						$rootScope.$broadcast("System.signalR Connected");
 						SignalRPerformanceTest();
 					}
 
@@ -4307,6 +4432,37 @@ angular.module('app').config(['$routeProvider', '$urlRouterProvider', '$statePro
 
 
 }());	//UtilityService
+
+(function () {
+
+	"use strict";
+
+	angular.module("app")
+		.directive('faSuspendable', function () {
+			return {
+				link: function (scope) {
+					// Heads up: this might break is suspend/resume called out of order
+					// or if watchers are added while suspended
+					var watchers;
+
+					scope.$on('suspend', function () {
+						watchers = scope.$$watchers;
+						scope.$$watchers = [];
+					});
+
+					scope.$on('resume', function () {
+						if (watchers)
+							scope.$$watchers = watchers;
+
+						// discard our copy of the watchers
+						watchers = void 0;
+					});
+				}
+			};
+		});
+
+}());
+
 
 (function ()
 {
@@ -4921,6 +5077,72 @@ angular.module('app')
 				}
 			};
 		});
+
+}());
+
+
+(function ()
+{
+
+	"use strict";
+
+	angular.module("app")
+		.directive("widgetTextareaInputField", function ()
+		{
+		return {
+			restrict: 'E',
+			templateUrl: "app/directives/formFields/widgetTextareaInputFieldTemplate.html?" + Date.now(),
+			replace: true,
+
+			scope: {				//Create a new isolated scope for the directive contents being placed into the dom and set the labelText scope property 
+				labelText: "@",
+				cols: "@",
+				rows: "@",
+				idText: "@",
+				placeholderText: "@",
+				model: "=",
+				inputName: "@",
+				bootstrapLabelColumns: "@",
+				bootstrapInputColumns: "@"
+			},
+			link: function (scope, element)
+			{
+
+				element[0].focus();
+			}
+		};
+	});
+
+}());
+
+
+(function ()
+{
+
+	"use strict";
+
+	angular.module("app")
+		.directive("widgetTextInputField", function ()
+		{
+		return {
+			restrict: 'E',
+			templateUrl: "app/directives/formFields/widgetTextInput.html?" + Date.now,
+			replace: true,
+			priority: 10000,
+			scope: {				//Create a new isolated scope for the directive contents being placed into the dom and set the labelText scope property 
+				labelText: "@",
+				model: "=",
+				idText: "@",
+				inputName: "@",
+				inputType: "@",
+				bootstrapLabelColumns: "@",
+				bootstrapInputColumns: "@",
+				placeholderText: "@",
+				inputWidth: "@"
+			}
+
+		};
+	});
 
 }());
 
@@ -10743,7 +10965,7 @@ angular.module('app')
 									//dataService.GetAllSignalRObservationFormattedTagsForAssetIdIntoInventoryByListOfAssetIds(assetIdList).then(
 									//	function () {
 
-									vm.widgets = widgets.select(function (w) {
+									var dashboardWidgets = widgets.select(function (w) {
 										return {
 											sizeX: w.Width,
 											sizeY: w.Height,
@@ -10759,7 +10981,27 @@ angular.module('app')
 									});
 
 
-									vm.dashboard.widgets = vm.widgets;
+
+
+
+									//+Collect all of the asset Ids in any widget in the dashboard and collect all of the Tags for thos assets all at once.
+									var assetIdList = dashboardWidgets.where(function(w) { return w.WidgetResource.AssetId }).select(function (w) { return w.WidgetResource.AssetId + "" }).join(',');
+
+
+									console.log("Dashboard assetId list = " + assetIdList);
+
+
+
+									dataService.GetAllSignalRObservationFormattedTagsForAssetIdIntoInventoryByListOfAssetIds(assetIdList, false).then(function() {
+										vm.widgets = dashboardWidgets;
+
+
+
+										vm.dashboard.widgets = vm.widgets;
+										//console.log("Dashboard widgets = %O", vm.widgets);
+										
+									});
+
 									//console.log("Dashboard widgets = %O", vm.widgets);
 
 									ReportStep(7);
@@ -10989,18 +11231,19 @@ angular.module('app')
 												return graphTag.$save();
 											})
 										);
-									}),
+									})
+									//,
 
 									//Delete any child widgets tied to this one. (Pop-up type widgets)
-									dataService.GetIOPSCollection("Widgets", "ParentWidgetId", widget.Id).then(function (childWidgets) {
-										console.log("Child Widgets to delete = %O", childWidgets);
-										return $q.all(
-											childWidgets.select(function (childWidget) {
-												childWidget.Id = -childWidget.Id;
-												return childWidget.$save();
-											})
-										);
-									})
+									//dataService.GetIOPSCollection("Widgets", "ParentWidgetId", widget.Id).then(function (childWidgets) {
+									//	console.log("Child Widgets to delete = %O", childWidgets);
+									//	return $q.all(
+									//		childWidgets.select(function (childWidget) {
+									//			childWidget.Id = -childWidget.Id;
+									//			return childWidget.$save();
+									//		})
+									//	);
+									//})
 
 								]
 
@@ -11343,18 +11586,14 @@ angular.module('app')
 
 	app.directive('gpuSummary',
 		[
-			"dataService", "utilityService", "$state", "hotkeys", "displaySetupService", "$timeout", "$window", "$interval", "signalR", "uibButtonConfig",
+			"$rootScope", "dataService", "utilityService", "$state", "hotkeys", "displaySetupService", "$timeout", "$window", "$interval", "signalR", "uibButtonConfig",
 
-			function (dataService, utilityService, $state, hotkeys, displaySetupService, $timeout, $window, $interval, signalR, uibButtonConfig) {
+			function ($rootScope, dataService, utilityService, $state, hotkeys, displaySetupService, $timeout, $window, $interval, signalR, uibButtonConfig) {
 
 				var controller = function ($scope) {
 					var vm = this;
-
+					//console.log("gpuSummary controller = %O", vm);
 					function GetHeadingExtraTitle() {
-
-						var assetSiteName = vm.Asset.Site.Name;
-
-						var assetParentSystemName = vm.Asset.ParentSystem.Name;
 
 						return ' - ' + vm.Asset.Site.Name + ' Gate ' + vm.Asset.ParentSystem.Name + (vm.Asset.ModelGenericName ? ' - ' + vm.Asset.ModelGenericName : '');
 					}
@@ -11368,11 +11607,12 @@ angular.module('app')
 						warningsDataSortField: '-PLCLocalDate',
 						headingExtraTitle: '',
 						obscureGraphics: true,
-						commLossTag: false
+						commLossTag: false,
+						headingSearchField: true
 				}
 
 					vm.scrolledToEnd = function () {
-						console.log("gpu Data Scrolled to end");
+						//console.log("gpu Data Scrolled to end");
 					}
 
 					vm.originalWidgetResource = angular.copy(vm.widget.WidgetResource);
@@ -11381,9 +11621,9 @@ angular.module('app')
 						var possiblyChangedResource = angular.copy(vm.widget.WidgetResource);
 						if (!angular.equals(vm.originalWidgetResource, possiblyChangedResource)) {
 
-							console.log("Saving widget resource........");
-							console.log("Original WidgetResource = %O", vm.originalWidgetResource);
-							console.log("Changed WidgetResource = %O", possiblyChangedResource);
+							//console.log("Saving widget resource........");
+							//console.log("Original WidgetResource = %O", vm.originalWidgetResource);
+							//console.log("Changed WidgetResource = %O", possiblyChangedResource);
 							vm.widget.WidgetResource.$save();
 							vm.originalWidgetResource = possiblyChangedResource;
 						}
@@ -11436,7 +11676,7 @@ angular.module('app')
 
 					vm.OpenSettingsIfNoAssetAndCloseIfAssetIsPresent = function () {
 
-						console.log("Opening settings vm.Asset = %O", vm.Asset);
+						//console.log("Opening settings vm.Asset = %O", vm.Asset);
 
 
 						if (!vm.gpu) {
@@ -11455,14 +11695,40 @@ angular.module('app')
 						});
 
 						//Call the function that the dashboard provided with the collection of tags to add to the possible new widget
-						vm.addTagsToGraphFunction()(vm.tagsToGraphObjects);
+						console.log("vm in vm.ProcessTagsToGraph = %O", vm);
+
+						vm.dashboard.tagsToGraph = vm.tagsToGraphObjects.concat(vm.dashboard.tagsToGraph).distinct(function (a, b) { return a.TagId == b.TagId }).where(function (t) { return t.Enabled });
+						console.log("Dashboard vm.dashboard.tagsToGraph = %O", vm.dashboard.tagsToGraph);
+						if (vm.dashboard.tagsToGraph.length > 0) {
+							$rootScope.$broadcast("Dashboard.TagsToGraph", vm.dashboard.tagsToGraph);
+						} else {
+							$rootScope.$broadcast("Dashboard.TagsToGraph", null);
+						}
 
 						return;
-
 					}
 
 
+					vm.tagFilterFunction = function (element) {
+						if ((vm.widget.searchText || '') != '') {
+							return element.JBTStandardObservation.Name.toLowerCase().indexOf((vm.widget.searchText || '').toLowerCase()) > -1;
+						} else {
+							return true;
+						}
+					};
 
+					$scope.$watch("vm.widget.searchText",
+						function (newValue, oldValue) {
+
+							//If any of the entities have an Id attribute, then this is editing an existing value.
+							//send the changes to all other browsers as they press the keys.
+							if ((oldValue || '') != (newValue || '')) {
+								console.log("searchText change = Old = " + oldValue + " New = " + newValue);
+								vm.widget.WidgetResource.DefaultSearchText = newValue;
+								SaveWidgetResourceObjectIfChanged();
+								signalR.SignalAllClientsInGroup("Admin", vm.widget.Id + " SearchText Modification", vm.widget.searchText);
+							}
+						});
 
 
 					//Get the site entities for which the user has access.
@@ -11571,7 +11837,6 @@ angular.module('app')
 								vm.widget.displaySettings.headingExtraTitle = GetHeadingExtraTitle();
 								vm.GenerateVoltsCharts();
 								vm.GenerateAmpsCharts();
-								vm.showWidget = true;
 
 								var commLossStandardObservationIds = [4331, 4445, 4765, 12255];
 
@@ -11580,7 +11845,7 @@ angular.module('app')
 								vm.commLossTag = vm.gpu.Tags.first(function(t){return commLossStandardObservationIds.any(function(clso){ return clso == t.JBTStandardObservationId})});
 
 								vm.widget.displaySettings.commLossTag = vm.commLossTag;
-								console.log("CommLossTag = %O", vm.commLossTag);
+								//console.log("CommLossTag = %O", vm.commLossTag);
 
 								//dataService.GetIOPSResource("ObservationExceptions")
 								//	.filter("AssetId", vm.widget.WidgetResource.AssetId)
@@ -11595,6 +11860,14 @@ angular.module('app')
 								//		//console.log("vm.warnings = %O", vm.warnings);
 
 								//	});
+
+								vm.widget.searchText = vm.widget.WidgetResource.DefaultSearchText || '';
+
+
+								$timeout(function () {
+									vm.showWidget = true;
+								}, 200);
+
 
 							});
 						});
@@ -11630,14 +11903,23 @@ angular.module('app')
 
 
 
+					vm.tagClicked = function(tag) {
+						console.log("tag clicked = %O", tag);
+					}
+
+					
+
+
 					function SetHeadingBackground() {
-						if (vm.alarms && vm.alarms.length > 0 && vm.alarms.any(function(a){return a.ValueWhenActive == a.Value})) {
+						if (vm.alarms && vm.alarms.length > 0 && vm.alarms.any(function (a) { return a.ValueWhenActive == a.Value })) {
 
 							vm.widget.displaySettings.headingBackground = 'linear-gradient(to bottom,#FF0000, #FFDDDD)';
 
 
 							return;
 						}
+
+
 
 						//+Commented out the yellow header on warnings present - Can put back in if needed.
 						//if(vm.warnings && vm.warnings.length > 0) {
@@ -11647,8 +11929,8 @@ angular.module('app')
 
 						//	return;
 						//}
-
-						if (AtLeastOneGraphicIsVisible()) {
+						
+						if (AtLeastOneGraphicIsVisible() && (!vm.commLossTag || vm.commLossTag.Value != "1")) {
 							vm.widget.displaySettings.headingBackground = 'linear-gradient(to bottom,#3eff3e, #eefeee)';
 						} else {
 							vm.widget.displaySettings.headingBackground = 'linear-gradient(to bottom,#dedede, #fefefe)';
@@ -11793,6 +12075,7 @@ angular.module('app')
 						UpdatePhaseCVoltsOutLinearMeter(updatedTag);
 						UpdateVoltsInAverageLinearMeter(updatedTag);
 						UpdateVoltsOutAverageLinearMeter(updatedTag);
+						SetHeadingBackground();
 					});
 
 
@@ -11837,8 +12120,7 @@ angular.module('app')
 						//console.log("vm.widget = %O", vm.widget);
 
 						vm.widget.displaySettings.obscureGraphics = !AtLeastOneGraphicIsVisible();
-						SetHeadingBackground();
-
+						
 
 					}
 
@@ -12152,7 +12434,7 @@ angular.module('app')
 
 				return {
 					restrict: 'E', //Default for 1.3+
-					templateUrl: "app/widgetDirectives/gpuSummary.html?" + Date.now(),
+					templateUrl: "app/widgetDirectives/gpuSummary.html",
 
 					scope: {
 
@@ -12177,11 +12459,19 @@ angular.module('app')
 
 	function GPUSummaryModalCtrl($q, $state, $rootScope, $scope, securityService, dataService, $stateParams, utilityService, $timeout, uibButtonConfig, hotkeys, $interval, displaySetupService, signalR) {
 
-
-		console.log("GPUSummaryModalCtrl invoked");
-
-
 		var vm = this;
+
+
+		vm.AddTagsToGraphModal = function (tagObjectCollectionFromWidget) {
+			vm.dashboard.tagsToGraph = tagObjectCollectionFromWidget.concat(vm.dashboard.tagsToGraph).distinct(function (a, b) { return a.TagId == b.TagId }).where(function (t) { return t.Enabled });
+			console.log("Dashboard vm.dashboard.tagsToGraph = %O", vm.dashboard.tagsToGraph);
+			if (vm.dashboard.tagsToGraph.length > 0) {
+				$rootScope.$broadcast("Dashboard.TagsToGraph", vm.dashboard.tagsToGraph);
+			} else {
+				$rootScope.$broadcast("Dashboard.TagsToGraph", null);
+			}
+		}
+
 
 		vm.state = $state;
 
@@ -12244,7 +12534,6 @@ angular.module('app')
 		}
 
 
-
 		hotkeys.bindTo($scope)
 		.add({
 			combo: 'esc',
@@ -12255,6 +12544,7 @@ angular.module('app')
 			}
 		});
 
+		console.log("GPUSummaryModalCtrl invoked = %O", vm);
 
 	}
 
@@ -13010,6 +13300,442 @@ angular.module('app')
 
     var app = angular.module('app');
 
+    app.directive('gsEquipmentUtilizationSummary',
+		[
+			"dataService", "utilityService", "$state", "hotkeys", "displaySetupService", "$timeout", "$window", "$interval", "signalR", "$odata",
+
+			function (dataService, utilityService, $state, hotkeys, displaySetupService, $timeout, $window, $interval, signalR, $odata) {
+
+			    var controller = function ($scope) {
+			        var vm = this;
+
+
+			        console.log("gsEquipmentUtilizationSummary controller invoked. vm = %O", vm);
+			        function GetHeadingExtraTitle() {
+			            vm.widgetSite = vm.userSites.first(function (s) {
+			                return s.Id == vm.widget.WidgetResource.SiteId
+
+			            });
+
+			            if (vm.widgetSite) {
+			                return ' - ' + vm.widgetSite.Name;
+			            }
+			        }
+
+			        vm.widget.headingBackground = 'linear-gradient(to bottom,#dedede, #fefefe)';
+
+
+			        vm.widget.displaySettings = {
+			            headingBackground: 'linear-gradient(to bottom,#dedede, #fefefe)',
+			            headingExtraTitle: '',
+			            obscureGraphics: true
+			        }
+
+			        $scope.$on("WidgetResize", function (event, resizedWidgetId) {
+
+			            if (vm.widget.Id == resizedWidgetId || resizedWidgetId == 0) {
+			                displaySetupService.SetPanelBodyWithIdHeight(vm.widget.Id);
+			                SetChartSizeLine(vm.widget.Id, vm.chart);
+			            }
+			        });
+
+
+			        $scope.$on("WidgetResize.Stop", function (event, resizedWidgetId) {
+			            if (vm.widget.Id == resizedWidgetId || resizedWidgetId == 0) {
+			                $interval(function () {
+			                    displaySetupService.SetPanelBodyWithIdHeight(vm.widget.Id);
+			                    SetChartSizeLine(vm.widget.Id, vm.chart);
+
+			                }, 50, 20);
+			            }
+			        });
+
+
+			        $scope.$on("Dashboard", function (event, modifiedExpandedDashboard) {
+			            console.log("gsEquipmentUtilizationSummary Dashboard event. Modified Dashboard = %O", modifiedExpandedDashboard);
+			            if (modifiedExpandedDashboard.Id == vm.dashboard.Id) {
+			                vm.dashboard = modifiedExpandedDashboard;
+			                GetChartData(); //
+			            }
+			        });
+
+			        vm.state = $state;
+
+			        Highcharts.setOptions({
+			            global: {
+			                useUTC: false
+			            }
+			        });
+
+
+
+			        //Get the site entities for which the user has access.
+			        dataService.GetJBTData().then(function (JBTData) {
+			            vm.JBTData = JBTData;
+			            var userSiteCodes = Global.User.ReaderOf.where(function (s) {
+			                return s.split('.')[0] == 'Site'
+
+			            })
+							.select(function (s) { return s.split('.')[1] });
+
+			            console.log("user site codes = %O", userSiteCodes);
+
+			            vm.userSites = vm.JBTData.Sites.where(function (site) {
+			                return userSiteCodes.any(function (sc) { return sc == site.Name })
+			            });
+
+			            console.log("vm.userSites = %O", vm.userSites);
+
+			            if (vm.userSites.length == 1) {
+			                console.log("User only has a single Site");
+			                vm.widget.WidgetResource.SiteId = vm.userSites[0].Id;
+			                vm.widgetSite = vm.userSites[0];
+			                GetChartData();
+			            } else {
+
+			                if (vm.widget.WidgetResource.SiteId) {
+			                    GetChartData();
+			                }
+			            }
+			            vm.widget.displaySettings.headingExtraTitle = GetHeadingExtraTitle();
+			        });
+
+
+			        //Start watching for site id changes	
+			        $scope.$watch("vm.widget.WidgetResource.SiteId",
+					function (newValue, oldValue) {
+					    if (vm.widget.WidgetResource.SiteId && vm.userSites) {
+
+					        vm.widgetSite = vm.userSites.first(function (s) { return s.Id == vm.widget.WidgetResource.SiteId });
+					        console.log("vm.widget.WidgetResource.SiteId changed. Now = %O", vm.widget);
+					        if (oldValue != newValue) {
+					            vm.widget.WidgetResource.$save();
+					            GetChartData();
+					        }
+					    }
+					});
+
+
+			        function GetChartData(updateOnly) {
+			            var startDate = vm.dashboard.webApiParameterStartDate;
+			            var endDate = vm.dashboard.webApiParameterEndDate;
+			            var siteId = vm.widget.WidgetResource.SiteId;
+			            
+			            dataService.GetIOPSWebAPIResource("GSEquipmentUsage_TVF_Query")
+							.query({
+							    beginDate: startDate,
+							    endDate: endDate,
+							    siteId: siteId
+
+							}, function (info) {
+							    console.log("GSEquipmentUsage_TVF_Query initial data = %O", info);
+							    vm.totalPBBHours = info.sum(function (item) { return item.PBB_Hours }).toFixed(2);
+							    vm.totalPCAHours = info.sum(function (item) { return item.PCA_Hours }).toFixed(2);
+							    vm.totalGPUHours = info.sum(function (item) { return item.GPU_Hours }).toFixed(2);
+							    vm.totalPBBTimesUsed = info.sum(function (item) { return item.PBB_Times_Used });
+							    vm.totalPCATimesUsed = info.sum(function (item) { return item.PCA_Times_Used });
+							    vm.totalGPUTimesUsed = info.sum(function (item) { return item.GPU_Times_Used });
+							    });
+
+			            dataService.GetIOPSWebAPIResource("GSEquipmentUsageByGate_TVF_Query")
+                               .query({
+                                   beginDate: startDate,
+                                   endDate: endDate,
+                                   siteId: siteId,
+                                   gate:'All'
+
+                               }, function (data) {
+                                   console.log("GSEquipmentUsageByGate_TVF_Query initial data = %O", data);
+                                   vm.PBBGatesPresent = data.sum(function (item) { return item.PBB_Hours });
+                                   vm.PCAGatesPresent = data.sum(function (item) { return item.PCA_Hours });
+                                   vm.GPUGatesPresent = data.sum(function (item) { return item.GPU_Hours });
+                                   vm.PBBGatesUsed = data.sum(function (item) { return item.PBB_Times_Used });
+                                   vm.PCAGatesUsed = data.sum(function (item) { return item.PCA_Times_Used });
+                                   vm.GPUGatesUsed = data.sum(function (item) { return item.GPU_Times_Used });
+
+							    var usagePBB; var usagePCA; var usageGPU;
+							    
+							    var diff;
+							    var today = new Date().toISOString().slice(0, 10);
+							    var startDateString = startDate.toISOString().slice(0, 10);
+							    
+							    if (startDateString == today) {
+							        diff = 1;
+							    }
+							    else
+							        diff = Math.floor((Date.parse(today) - Date.parse(startDateString)) / 86400000);
+
+							    console.log("days total", diff);
+							    if (vm.totalPBBHours != 0)
+							        usagePBB = parseFloat(((vm.totalPBBHours / (24 * diff * vm.PBBGatesPresent)) * 100).toFixed(2));
+							    else usagePBB = 0.00;
+							    if (vm.totalPCAHours != 0)
+							        usagePCA = parseFloat(((vm.totalPCAHours / (24 * diff * vm.PCAGatesPresent)) * 100).toFixed(2));
+							    else usagePCA = 0.00;
+							    if (vm.totalGPUHours != 0)
+							        usageGPU = parseFloat(((vm.totalGPUHours / (24 * diff * vm.GPUGatesPresent))*100).toFixed(2));
+							    else usageGPU = 0.00;
+
+							    vm.usagePBB = usagePBB; vm.usagePCA = usagePCA; vm.usageGPU = usageGPU;
+
+							    vm.chartData = data;
+							   
+
+							    console.log("vm.usagePBB", vm.usagePBB);
+							    console.log("vm.usagePCA", vm.usagePCA);
+							    console.log("vm.usageGPU", vm.usageGPU);
+
+
+							    $(function () {
+							        displaySetupService.SetWidgetPanelBodyDimensions(vm.widget.Id);
+							        //Render the chart
+							        $timeout(function () {
+							            CreateChart(data);
+							            SetChartSizeLine(vm.widget.Id, vm.chart);
+							        }, 100);
+							    });
+							    
+							    vm.data = data;
+							    vm.showWidget = true;
+							    vm.widget.displaySettings.headingExtraTitle = GetHeadingExtraTitle();
+
+							});
+
+			        }
+
+
+
+			        //Refresh data 
+			            vm.updateInterval = $interval(function () {
+			                GetChartData();
+			            }, 120000);
+
+			            $scope.$on("$destroy", function () {
+			                $interval.cancel(vm.updateInterval);
+
+			            });
+
+			        function SetChartSizeLine(widgetId, chart) {
+			            //Set the bar chart to be 40% high, 60% wide
+			            var widgetBodyDimensions = displaySetupService.GetWidgetPanelBodyDimensions(widgetId);
+			            if (chart) {
+			                chart.setSize((widgetBodyDimensions.width * .99), (widgetBodyDimensions.height * .65) - 10, false);
+			            }
+			        }
+			        function renderIcons() {
+
+			            
+			            if (!this.series[0].icon) {
+			                this.series[0].icon = this.renderer.path(['M', -8, 0, 'L', 8, 0, 'M', 0, -8, 'L', 8, 0, 0, 8])
+                                .attr({
+                                    'stroke': '#303030',
+                                    'stroke-linecap': 'round',
+                                    'stroke-linejoin': 'round',
+                                    'stroke-width': 2,
+                                    'zIndex': 10
+                                })
+                                .add(this.series[2].group);
+			            }
+			            this.series[0].icon.translate(
+                            this.chartWidth / 2 - 10,
+                            this.plotHeight / 2 - this.series[0].points[0].shapeArgs.innerR -
+                                (this.series[0].points[0].shapeArgs.r - this.series[0].points[0].shapeArgs.innerR) / 2
+                        );
+
+			            
+			            if (!this.series[1].icon) {
+			                this.series[1].icon = this.renderer.path(
+                                ['M', -8, 0, 'L', 8, 0, 'M', 0, -8, 'L', 8, 0, 0, 8,
+                                    'M', 8, -8, 'L', 16, 0, 8, 8]
+                                )
+                                .attr({
+                                    'stroke': '#ffffff',
+                                    'stroke-linecap': 'round',
+                                    'stroke-linejoin': 'round',
+                                    'stroke-width': 2,
+                                    'zIndex': 10
+                                })
+                                .add(this.series[2].group);
+			            }
+			            this.series[1].icon.translate(
+                            this.chartWidth / 2 - 10,
+                            this.plotHeight / 2 - this.series[1].points[0].shapeArgs.innerR -
+                                (this.series[1].points[0].shapeArgs.r - this.series[1].points[0].shapeArgs.innerR) / 2
+                        );
+
+			           
+			            if (!this.series[2].icon) {
+			                this.series[2].icon = this.renderer.path(['M', 0, 8, 'L', 0, -8, 'M', -8, 0, 'L', 0, -8, 8, 0])
+                                .attr({
+                                    'stroke': '#303030',
+                                    'stroke-linecap': 'round',
+                                    'stroke-linejoin': 'round',
+                                    'stroke-width': 2,
+                                    'zIndex': 10
+                                })
+                                .add(this.series[2].group);
+			            }
+
+			            this.series[2].icon.translate(
+                            this.chartWidth / 2 - 10,
+                            this.plotHeight / 2 - this.series[2].points[0].shapeArgs.innerR -
+                                (this.series[2].points[0].shapeArgs.r - this.series[2].points[0].shapeArgs.innerR) / 2
+                        );
+			        }
+			        function CreateChart(data) {
+
+
+			            var chartOptions = {
+			                chart: {
+			                    type: 'solidgauge',
+			                    events: {
+			                        render: renderIcons
+			                    },
+			                    renderTo: "gsEquipmentUtilizationSummary" + vm.widget.Id
+			                },
+			                animation: false,
+			                credits: { enabled: false },
+			                title: {
+			                    text: '',
+			                   
+			                },
+			                //subtitle: {
+			                //	text: ''
+			                //},
+			                //xAxis: {
+			                //    type: 'category',
+			                //    categories: ['PBB', 'GPU', 'PCA'],
+			                //    labels: {
+			                //        style: {
+			                //            fontSize: '10px',
+			                //            wordWrap: 'break word',
+			                //            fontFamily: 'Verdana, sans-serif'
+			                //        }
+			                //    },
+			                //},
+			                pane: {
+			                    startAngle: 0,
+			                    endAngle: 360,
+			                    background: [{ 
+			                        outerRadius: '112%',
+			                        innerRadius: '88%',
+			                        backgroundColor: Highcharts.Color(Highcharts.getOptions().colors[4])
+                                        .setOpacity(0.3)
+                                        .get(),
+			                        borderWidth: 0
+			                    }, { 
+			                        outerRadius: '87%',
+			                        innerRadius: '63%',
+			                        backgroundColor: Highcharts.Color(Highcharts.getOptions().colors[7])
+                                        .setOpacity(0.3)
+                                        .get(),
+			                        borderWidth: 0
+			                    }, { 
+			                        outerRadius: '62%',
+			                        innerRadius: '38%',
+			                        backgroundColor: Highcharts.Color(Highcharts.getOptions().colors[8])
+                                        .setOpacity(0.3)
+                                        .get(),
+			                        borderWidth: 0
+			                    }]
+			                },
+			                yAxis: {
+			                    min: 0,
+			                    max: 100,
+			                    lineWidth: 0,
+			                    tickPositions: []
+			                },
+			                
+			                plotOptions: {
+			                    solidgauge: {
+			                        dataLabels: {
+			                            enabled: false
+			                        },
+			                        linecap: 'round',
+			                        stickyTracking: false,
+			                        rounded: true
+			                    },
+
+
+			                },
+			                tooltip: {
+			                    borderWidth: 0,
+			                    backgroundColor: 'none',
+			                    shadow: false,
+			                    style: {
+			                        fontSize: '8px'
+			                    },
+			                    pointFormat: '{series.name}<br><span style="font-size:2em; color: {point.color}; font-weight: bold">{point.y}%</span>',
+			                    positioner: function (labelWidth) {
+			                        return {
+			                            x: (this.chart.chartWidth - labelWidth) / 2,
+			                            y: (this.chart.plotHeight / 2) - 15
+			                        };
+			                    }
+			                },
+			             
+			               
+			                series: [{
+			                    name: 'PBB',
+			                    data: [{
+			                        color: Highcharts.getOptions().colors[4],
+			                        radius: '112%',
+			                        innerRadius: '88%',
+			                        y: vm.usagePBB
+			                    }]
+			                   }, {
+			                    name: 'GPU',
+			                    data: [{
+			                        color: Highcharts.getOptions().colors[7],
+			                        radius: '87%',
+			                        innerRadius: '63%',
+			                        y: vm.usageGPU
+			                     }]
+			                    }, {
+			                    name: 'PCA',
+			                    data: [{
+			                        color: Highcharts.getOptions().colors[8],
+			                        radius: '62%',
+			                        innerRadius: '38%',
+			                        y: vm.usagePCA
+			                     }]
+			                }]
+			            };
+
+			            console.log("chartOptions = %O", chartOptions);
+
+			            vm.chart = Highcharts.chart('gsEquipmentUtilizationSummary' + vm.widget.Id, chartOptions);
+			        }
+			    };
+
+			    controller.$inject = ["$scope"];
+
+			    return {
+			        restrict: 'E', //Default for 1.3+
+			        templateUrl: "app/widgetDirectives/gsEquipmentUtilizationSummary.html?" + Date.now(),
+
+			        scope: {
+
+			            dashboard: "=",
+			            widget: "=",
+			            signalUpdateFunction: "&",
+			            setPanelHeadingColorFunction: "&",
+			            mode: "@"
+			        },
+
+			        controllerAs: 'vm',
+			        controller: controller,
+			        bindToController: true //required in 1.3+ with controllerAs
+			    };
+			}
+		]);
+
+}());
+
+(function () {
+
+    var app = angular.module('app');
+
     app.directive('gsServiceCounters',
 		[
 			"dataService", "utilityService", "$state", "hotkeys", "displaySetupService", "$timeout", "$window", "$interval", "signalR", "$odata", "$q",
@@ -13264,7 +13990,7 @@ angular.module('app')
 
 
 			        $scope.$on("Dashboard", function (event, modifiedExpandedDashboard) {
-			            console.log("gsTopFiveAlarmTypes Dashboard event. Modified Dashboard = %O", modifiedExpandedDashboard);
+			            //console.log("gsTopFiveAlarmTypes Dashboard event. Modified Dashboard = %O", modifiedExpandedDashboard);
 			            if (modifiedExpandedDashboard.Id == vm.dashboard.Id) {
 			                vm.dashboard = modifiedExpandedDashboard;
 			                GetChartData(false); //
@@ -13289,7 +14015,7 @@ angular.module('app')
 			            })
 							.select(function (s) { return s.split('.')[1] });
 
-			            console.log("user site codes = %O", userSiteCodes);
+			            //console.log("user site codes = %O", userSiteCodes);
 
 			            vm.userSites = vm.JBTData.Sites.where(function (site) {
 			                return userSiteCodes.any(function (sc) { return sc == site.Name })
@@ -13298,7 +14024,7 @@ angular.module('app')
 			            console.log("vm.userSites = %O", vm.userSites);
 					    
 			            if (vm.userSites.length == 1) {
-			                console.log("User only has a single Site");
+			                //console.log("User only has a single Site");
 			                vm.widget.WidgetResource.SiteId = vm.userSites[0].Id;
 			                vm.widgetSite = vm.userSites[0];
 			                GetChartData();
@@ -13318,7 +14044,7 @@ angular.module('app')
 					    if (vm.widget.WidgetResource.SiteId && vm.userSites) {
 
 					        vm.widgetSite = vm.userSites.first(function (s) { return s.Id ==vm.widget.WidgetResource.SiteId });
-					        console.log("vm.widget.WidgetResource.SiteId changed. Now = %O", vm.widget);
+					        //console.log("vm.widget.WidgetResource.SiteId changed. Now = %O", vm.widget);
 					        if (oldValue != newValue) {
 					            vm.widget.WidgetResource.$save();
 					            GetChartData();
@@ -14248,9 +14974,9 @@ angular.module('app')
 
 	app.directive('pbbSummary',
 		[
-			"dataService", "utilityService", "$state", "hotkeys", "displaySetupService", "$timeout", "$window", "$interval", "signalR", "uibButtonConfig",
+			"$rootScope", "dataService", "utilityService", "$state", "hotkeys", "displaySetupService", "$timeout", "$window", "$interval", "signalR", "uibButtonConfig",
 
-			function (dataService, utilityService, $state, hotkeys, displaySetupService, $timeout, $window, $interval, signalR, uibButtonConfig) {
+			function ($rootScope, dataService, utilityService, $state, hotkeys, displaySetupService, $timeout, $window, $interval, signalR, uibButtonConfig) {
 
 				var controller = function ($scope) {
 					var vm = this;
@@ -14267,7 +14993,9 @@ angular.module('app')
 						alarmDataSortField: '-PLCLocalDate',
 						warningsDataSortField: '-PLCLocalDate',
 						headingExtraTitle: '',
-						obscureGraphics: true
+						obscureGraphics: true,
+						headingSearchField: true
+
 					}
 
 					vm.originalWidgetResource = angular.copy(vm.widget.WidgetResource);
@@ -14276,13 +15004,26 @@ angular.module('app')
 						var possiblyChangedResource = angular.copy(vm.widget.WidgetResource);
 						if (!angular.equals(vm.originalWidgetResource, possiblyChangedResource)) {
 
-							console.log("Saving widget resource........");
-							console.log("Original WidgetResource = %O", vm.originalWidgetResource);
-							console.log("Changed WidgetResource = %O", possiblyChangedResource);
+							//console.log("Saving widget resource........");
+							//console.log("Original WidgetResource = %O", vm.originalWidgetResource);
+							//console.log("Changed WidgetResource = %O", possiblyChangedResource);
 							vm.widget.WidgetResource.$save();
 							vm.originalWidgetResource = possiblyChangedResource;
 						}
 					}
+
+					$scope.$watch("vm.widget.searchText",
+						function (newValue, oldValue) {
+
+							//If any of the entities have an Id attribute, then this is editing an existing value.
+							//send the changes to all other browsers as they press the keys.
+							if ((oldValue || '') != (newValue || '')) {
+								console.log("searchText change = Old = " + oldValue + " New = " + newValue);
+								vm.widget.WidgetResource.DefaultSearchText = newValue;
+								SaveWidgetResourceObjectIfChanged();
+								signalR.SignalAllClientsInGroup("Admin", vm.widget.Id + " SearchText Modification", vm.widget.searchText);
+							}
+						});
 
 					vm.SetDefaultNavPillAlarms = function () {
 						$timeout(function () {
@@ -14310,6 +15051,23 @@ angular.module('app')
 					vm.alarmFilterFunction = function (element) {
 						return element.ValueWhenActive == element.Value;
 					};
+
+
+
+				
+					vm.tagFilterFunction = function (element) {
+						if ((vm.widget.searchText || '') != '' && element.JBTStandardObservation && element.JBTStandardObservation.Name) {
+
+							return element.JBTStandardObservation.Name.toLowerCase().indexOf((vm.widget.searchText || '').toLowerCase()) > -1;
+						} else {
+							if (element.JBTStandardObservation) {
+								return true;
+							} else {
+								return false;
+							}
+						}
+					};
+
 
 
 
@@ -14390,7 +15148,7 @@ angular.module('app')
 
 					vm.OpenSettingsIfNoAssetAndCloseIfAssetIsPresent = function () {
 
-						console.log("Opening settings vm.Asset = %O", vm.Asset);
+						//console.log("Opening settings vm.Asset = %O", vm.Asset);
 						if (!vm.pbb) {
 							$state.go(".widgetSettings", { widget: vm.widget });
 						}
@@ -14408,11 +15166,20 @@ angular.module('app')
 						});
 
 						//Call the function that the dashboard provided with the collection of tags to add to the possible new widget
-						vm.addTagsToGraphFunction()(vm.tagsToGraphObjects);
+						console.log("vm in vm.ProcessTagsToGraph = %O", vm);
+
+						vm.dashboard.tagsToGraph = vm.tagsToGraphObjects.concat(vm.dashboard.tagsToGraph).distinct(function (a, b) { return a.TagId == b.TagId }).where(function (t) { return t.Enabled });
+						console.log("Dashboard vm.dashboard.tagsToGraph = %O", vm.dashboard.tagsToGraph);
+						if (vm.dashboard.tagsToGraph.length > 0) {
+							$rootScope.$broadcast("Dashboard.TagsToGraph", vm.dashboard.tagsToGraph);
+						} else {
+							$rootScope.$broadcast("Dashboard.TagsToGraph", null);
+						}
 
 						return;
 
 					}
+
 
 
 
@@ -14438,7 +15205,7 @@ angular.module('app')
 					function (newValue, oldValue) {
 						if (vm.widget.WidgetResource.GateSystemId) {
 
-							console.log("vm.widget.WidgetResource.GateSystemId changed. Now = %O", vm.widget);
+							//console.log("vm.widget.WidgetResource.GateSystemId changed. Now = %O", vm.widget);
 
 							if (newValue != oldValue) {
 								vm.pbb = null;
@@ -14509,11 +15276,12 @@ angular.module('app')
 									UpdateGraphicsVisibilityForSingleTag(tag);
 								});
 
+								vm.pbb.Tags = vm.pbb.Tags.distinct(function(a, b) { return a.TagId == b.TagId });
+
 								vm.atLeastOneGraphicIsVisible = AtLeastOneGraphicIsVisible();
 								vm.widget.displaySettings.obscureGraphics = !AtLeastOneGraphicIsVisible();
 
 								vm.widget.displaySettings.headingExtraTitle = GetHeadingExtraTitle();
-								vm.showWidget = true;
 
 								if (!vm.alarms) {
 									vm.alarms = [];
@@ -14533,11 +15301,17 @@ angular.module('app')
 
 								vm.widget.displaySettings.commLossTag = vm.commLossTag;
 								console.log("PBB vm.alarms = %O", vm.alarms);
-								console.log("PBB vm.warnings = %O", vm.warnings);
-								console.log("PBB vm.pbb.Tags = %O", vm.pbb.Tags);
-								console.log("PBB CommLossTag = %O", vm.commLossTag);
+								//console.log("PBB vm.warnings = %O", vm.warnings);
+								//console.log("PBB vm.pbb.Tags = %O", vm.pbb.Tags);
+								//console.log("PBB CommLossTag = %O", vm.commLossTag);
 
+								vm.widget.searchText = vm.widget.WidgetResource.DefaultSearchText || '';
+								
 								SetHeadingBackground();
+
+								$timeout(function() {
+									vm.showWidget = true;
+								}, 100);
 
 							});
 						});
@@ -14594,11 +15368,15 @@ angular.module('app')
 						//}
 
 
-						if (AtLeastOneGraphicIsVisible()) {
+						if (AtLeastOneGraphicIsVisible() && (!vm.commLossTag || vm.commLossTag.Value != "1")) {
 							vm.widget.displaySettings.headingBackground = 'linear-gradient(to bottom,#3eff3e, #eefeee)';
 						} else {
 							vm.widget.displaySettings.headingBackground = 'linear-gradient(to bottom,#dedede, #fefefe)';
 						}
+
+
+						
+
 					}
 
 					function AtLeastOneGraphicIsVisible() {
@@ -14720,7 +15498,7 @@ angular.module('app')
 
 					$scope.$on("Widget.AddTagsToGraph", function (event, graphWidget) {
 
-						console.log("Widget.AddTagsToGraph event at PCA Summary");
+						//console.log("Widget.AddTagsToGraph event at PCA Summary");
 
 						//Clear the add tag checkbox buttons
 						vm.tagsToGraphObjects = [];
@@ -14741,12 +15519,14 @@ angular.module('app')
 
 						//console.log("tag update updatedTag = %O", updatedTag);
 						UpdateGraphicsVisibilityForSingleTag(updatedTag);
+						SetHeadingBackground();
+						return;
 
 						if (updatedTag.AssetId == vm.widget.WidgetResource.AssetId &&
 							(updatedTag.IsAlarm || updatedTag.IsCritical) &&
 							updatedTag.TagName.indexOf('|') >= 3
 						) {
-							console.log("Alarm Tag Update = " + updatedTag.TagName + "  " + updatedTag.Value);
+							//console.log("Alarm Tag Update = " + updatedTag.TagName + "  " + updatedTag.Value);
 							if (+updatedTag.Value == 1) {
 								if (vm.alarms) {
 									vm.alarms.push(updatedTag);
@@ -14860,7 +15640,7 @@ angular.module('app')
 
 
 					$scope.$on("Dashboard", function (event, modifiedExpandedDashboard) {
-						console.log("pcaSummary Dashboard event. Modified Dashboard = %O", modifiedExpandedDashboard);
+						//console.log("pcaSummary Dashboard event. Modified Dashboard = %O", modifiedExpandedDashboard);
 						if (modifiedExpandedDashboard.Id == vm.dashboard.Id) {
 							vm.dashboard = modifiedExpandedDashboard;
 							var oneDay = 24 * 60 * 60 * 1000; // hours*minutes*seconds*milliseconds
@@ -14888,7 +15668,7 @@ angular.module('app')
 
 				return {
 					restrict: 'E', //Default for 1.3+
-					templateUrl: "app/widgetDirectives/pbbSummary.html?" + Date.now(),
+					templateUrl: "app/widgetDirectives/pbbSummary.html",
 
 					scope: {
 
@@ -15018,21 +15798,387 @@ angular.module('app')
 })();
 (function () {
 
+    var app = angular.module('app');
+
+    app.directive('pcaDischargePerformance',
+		[
+			"dataService", "utilityService", "$state", "hotkeys", "displaySetupService", "$timeout", "$window", "$interval", "signalR", "$odata",
+
+			function (dataService, utilityService, $state, hotkeys, displaySetupService, $timeout, $window, $interval, signalR, $odata) {
+
+			    var controller = function ($scope) {
+			        var vm = this;
+
+			        
+
+			        console.log("pcaDischargePerformance controller invoked. vm = %O", vm);
+			        function GetHeadingExtraTitle() {
+			            vm.widgetSite = vm.userSites.first(function (s) {
+			                return s.Id == vm.widget.WidgetResource.SiteId
+
+			            });
+
+			            if (vm.widgetSite) {
+			                return ' - ' + vm.widgetSite.Name;
+			            }
+			        }
+			       
+			        vm.widget.headingBackground = 'linear-gradient(to bottom,#dedede, #fefefe)';
+
+
+			        vm.widget.displaySettings = {
+			            headingBackground: 'linear-gradient(to bottom,#dedede, #fefefe)',
+			            headingExtraTitle: '',
+			            obscureGraphics: true
+			        }
+			        
+			        $scope.$on("WidgetResize", function (event, resizedWidgetId) {
+
+			            if (vm.widget.Id == resizedWidgetId || resizedWidgetId == 0) {
+			                displaySetupService.SetLoneChartSize(vm.widget.Id, vm.chart);
+			            }
+			        });
+
+
+			        $scope.$on("WidgetResize.Stop", function (event, resizedWidgetId) {
+			            if (vm.widget.Id == resizedWidgetId || resizedWidgetId == 0) {
+			                $interval(function () {
+			                    displaySetupService.SetLoneChartSize(vm.widget.Id, vm.chart);
+
+			                }, 50, 20);
+			            }
+			        });
+
+
+			        $scope.$on("Dashboard", function (event, modifiedExpandedDashboard) {
+			            console.log("pcaDischargePerformance Dashboard event. Modified Dashboard = %O", modifiedExpandedDashboard);
+			            if (modifiedExpandedDashboard.Id == vm.dashboard.Id) {
+			                vm.dashboard = modifiedExpandedDashboard;
+			                GetChartData(false); //
+			            }
+			        });
+
+			        vm.state = $state;
+
+			        Highcharts.setOptions({
+			            global: {
+			                useUTC: false
+			            }
+			        });
+
+
+
+			        //Get the site entities for which the user has access.
+			        dataService.GetJBTData().then(function (JBTData) {
+			            vm.JBTData = JBTData;
+			            var userSiteCodes = Global.User.ReaderOf.where(function (s) {
+			                return s.split('.')[0] == 'Site'
+
+			            })
+							.select(function (s) { return s.split('.')[1] });
+
+			            console.log("user site codes = %O", userSiteCodes);
+
+			            vm.userSites = vm.JBTData.Sites.where(function (site) {
+			                return userSiteCodes.any(function (sc) { return sc == site.Name })
+			            });
+
+			            console.log("vm.userSites = %O", vm.userSites);
+
+			            if (vm.userSites.length == 1) {
+			                console.log("User only has a single Site");
+			                vm.widget.WidgetResource.SiteId = vm.userSites[0].Id;
+			                vm.widgetSite = vm.userSites[0];
+			                GetChartData();
+			            } else {
+
+			                if (vm.widget.WidgetResource.SiteId) {
+			                    GetChartData();
+			                }
+			            }
+			            vm.widget.displaySettings.headingExtraTitle = GetHeadingExtraTitle();
+			        });
+
+
+			        //Start watching for site id changes	
+			        $scope.$watch("vm.widget.WidgetResource.SiteId",
+					function (newValue, oldValue) {
+					    if (vm.widget.WidgetResource.SiteId && vm.userSites) {
+
+					        vm.widgetSite = vm.userSites.first(function (s) { return s.Id == vm.widget.WidgetResource.SiteId });
+					        console.log("vm.widget.WidgetResource.SiteId changed. Now = %O", vm.widget);
+					        if (oldValue != newValue) {
+					            vm.widget.WidgetResource.$save();
+					            vm.Heat = ""; vm.HeatTime = ""; vm.Cool = ""; vm.CoolTime = "";
+					            changeSetPointValue = false;
+					            GetChartData();
+					        }
+					    }
+					});
+
+
+			        function GetChartData(updateOnly) {
+			            dataService.GetIOPSResource("Tags")
+                                                     .orderBy("GateName", "asc")
+                                                     .filter("SiteId", vm.widget.WidgetResource.SiteId)
+                                                     .filter($odata.Predicate.or([new $odata.Predicate("JBTStandardObservationId", 2736), new $odata.Predicate("JBTStandardObservationId", 12374)]))
+                                                     .filter("AssetName", "PCA")
+			                                         .filter("LastReportedDate", ">=", vm.dashboard.webApiParameterStartDate)
+                              
+                            .query().$promise.then(function (data) {
+                                console.log("PCA dataaa = %O",data);
+                                vm.chartData = data;
+							    if (updateOnly) {
+							        //console.log("vm.chart = %O",vm.chart);
+							        data.forEach(function (d) {
+							            //Find the data point that matches the area and gs name and update THAT ONE to the right data value
+							            vm.chart.series[0].data.first(function (dataPoint) {
+
+							                return dataPoint.category == d.GateName
+							            })
+							        });
+							        vm.chart.redraw();
+
+							    } else {
+
+							        $(function () {
+							            displaySetupService.SetWidgetPanelBodyDimensions(vm.widget.Id);
+							            //Render the chart
+							            $timeout(function () {
+							                CreateChart(data);
+							                displaySetupService.SetLoneChartSize(vm.widget.Id, vm.chart);
+							            }, 100);
+							        });
+							    }
+							    vm.data = data;
+							    vm.showWidget = true;
+							    vm.widget.displaySettings.headingExtraTitle = GetHeadingExtraTitle();
+
+							});
+
+			        }
+
+
+
+			        //Refresh data 
+			        vm.updateInterval = $interval(function () {
+			            GetChartData();
+			        }, 120000);
+
+			        $scope.$on("$destroy", function () {
+			            $interval.cancel(vm.updateInterval);
+
+			        });
+			        var changeSetPointValue = false;
+			        var setColor = '#ff0000';
+			        function GetPCAStatus() {
+			           
+			            var a = new Array(); var b = new Array(); var c = new Array(); var d = new Array();
+
+			            a = vm.chartData.where(function (t2) { return t2.JBTStandardObservationId == 12374 }).select(function (item) { return parseFloat(item.LastObservationTextValue) });
+			            c = vm.chartData.where(function (t2) { return t2.JBTStandardObservationId == 12374 }).select(function (item) { return item.GateName });
+			            d = vm.chartData.where(function (t2) { return t2.JBTStandardObservationId == 2736 }).select(function (item) { return item.GateName });
+			            e = vm.chartData.where(function (t2) { return t2.JBTStandardObservationId == 2736 }).select(function (item) { return parseFloat(item.LastObservationTextValue) });
+			           
+			            console.log("changeSetPointValue", changeSetPointValue);
+			            if (changeSetPointValue == false) {
+			                for (i = 0; i < d.length + 1 ; i++) {
+			                    indexVal = c.indexOf(d[i]);
+			                    if (indexVal != null && a[indexVal] == 1) b[i] = '#00ff00';
+			                    else b[i] = '#dedede';
+			                }
+			            }
+			            else {
+			                var setPointtemp = 0;
+			                if (vm.Heat != "" && vm.HeatTime != "") {
+			                    setPointtemp = parseFloat(vm.Heat);
+			                    for (i = 0; i < d.length ; i++) {
+			                        indexVal = c.indexOf(d[i]);
+			                        if (indexVal != null && a[indexVal] == 1 && e[i] <= setPointtemp) b[i] = '#ff0000';
+			                        else if (indexVal != null && a[indexVal] == 1 && e[i] > setPointtemp) b[i] = '#00ff00';
+			                        else b[i] = '#dedede';
+			                    }
+			                }
+			                else if (vm.Cool != "" && vm.CoolTime != "") {
+			                    setPointtemp = parseFloat(vm.Cool);
+			                    for (i = 0; i < d.length ; i++) {
+			                        indexVal = c.indexOf(d[i]);
+			                        if (indexVal != null && a[indexVal] == 1 && e[i] > setPointtemp) b[i] = 'lightblue';
+			                        else if (indexVal != null && a[indexVal] == 1 && e[i] <= setPointtemp) b[i] = '#00ff00';
+			                        else b[i] = '#dedede';
+			                    }
+			                }
+			            
+			            }
+			            return b
+			        }
+			        
+			        //function GetColor() {
+			        //    $interval(function () { setColorVal(); }, 1000);
+			        //    return setColor;
+			        //}
+			        //function setColorVal(){
+			        //    if (color == '#ff0000') ? '#000000' : '#ff0000'
+			        //}
+
+			        function GetPCAStatusSetPoint() {
+			            if ((vm.Heat != "" && vm.Cool != "") || ((vm.HeatTime != "" && vm.CoolTime != "")))
+			                toastr.info("Please enter appropriate fields");
+			            else if ((vm.Heat != "" && vm.HeatTime != "") || (vm.Cool != "" && vm.CoolTime != "")) {
+			                changeSetPointValue = true;
+			                GetChartData();
+			            }
+                        else
+			                toastr.info("Please enter appropriate fields");
+			            
+			        }
+
+			        vm.Heat = ""; vm.HeatTime = ""; vm.Cool = ""; vm.CoolTime = "";
+
+			        vm.AddDischargeSetpoint = function () {
+			            changeSetPointValue = false;
+			            GetChartData();
+			            var timeOutMilliSecs = 0;
+			            if (vm.HeatTime != "" && vm.Heat != "" && vm.CoolTime == "" && vm.Cool == "")
+			                timeOutMilliSecs = parseFloat(vm.HeatTime) * 60000;
+			            else if (vm.CoolTime != "" && vm.Cool != "" && vm.HeatTime == "" && vm.Heat == "")
+			                timeOutMilliSecs = parseFloat(vm.CoolTime) * 60000;
+			            $timeout(function () { GetPCAStatusSetPoint();}, timeOutMilliSecs);
+			           
+			            return true
+			        }
+			        function GetTempValue() {
+			            if (vm.HeatTime != "" && vm.Heat != "" && vm.CoolTime == "" && vm.Cool == "")
+			                return parseFloat(vm.Heat);
+			            else if (vm.CoolTime != "" && vm.Cool != "" && vm.HeatTime == "" && vm.Heat == "")
+			                return parseFloat(vm.Cool);
+			        }
+			        function GetTempColor() {
+			            if (vm.HeatTime != "" && vm.Heat != "" && vm.CoolTime == "" && vm.Cool == "")
+			                return 'red';
+			            else if (vm.CoolTime != "" && vm.Cool != "" && vm.HeatTime == "" && vm.Heat == "")
+			                return 'lightblue';
+			        }
+			        function CreateChart(data) {
+
+
+			            var chartOptions = {
+			                chart: {
+			                    type: 'column',
+			                    marginRight: 130,
+			                    marginBottom: 25,
+			                    renderTo: "pcaDischargePerformance" + vm.widget.Id
+			                },
+			                animation: false,
+			                credits: { enabled: false },
+			                title: {
+			                    text: '' 
+			                },
+			                xAxis: {
+			                    type: 'category',
+			                    categories: data.where(function (t2) { return t2.JBTStandardObservationId == 2736 }).select(function (item) { return item.GateName }),
+			                    labels: {
+			                        autoRotation: [-10, -20, -30, -40, -50, -60, -70, -80, -90],
+			                        style: {
+			                            fontSize: '10px',
+			                            wordWrap: 'break word',
+			                            fontFamily: 'Verdana, sans-serif'
+			                        }
+			                    }
+			                },
+			                yAxis: {
+			                    plotLines: [{
+			                        value: GetTempValue(),
+			                        color: GetTempColor(),
+			                        dashStyle: 'solid',
+			                        width: 3
+			                    }],
+			                    min: 0,
+			                    title: {
+			                        text: '',
+			                        style: {
+			                            fontSize: '10px'
+			                        }
+			                    },
+			                    stackLabels: {
+			                        enabled: true,
+			                        style: {
+			                            fontWeight: 'bold'
+			                        }
+			                    }, 
+			                },
+			                legend: {
+			                    enabled: false
+			                },
+			                tooltip: {
+			                    headerFormat: '<b>{point.x}</b><br/>'
+			                    
+			                },
+			                colors: GetPCAStatus(),
+			                plotOptions: {
+			                    column: {
+                                    colorByPoint: true, 
+			                        dataLabels: {
+			                            enabled: true,
+			                            formatter: function () {
+			                                return Highcharts.numberFormat(this.y, 1);
+			                            }
+			                        }
+			                    }
+			                 },
+
+			                series: [{ name: 'Disch Temp', data: data.where(function (t2) { return t2.JBTStandardObservationId == 2736 }).select(function (item) { return parseFloat(item.LastObservationTextValue) }) }]  
+			            };
+			            console.log("chartOptions = %O", chartOptions);
+			         
+			            vm.chart = Highcharts.chart('pcaDischargePerformance' + vm.widget.Id, chartOptions);
+			            
+			        }
+			    };
+
+			    controller.$inject = ["$scope"];
+
+			    return {
+			        restrict: 'E', //Default for 1.3+
+			        templateUrl: "app/widgetDirectives/pcaDischargePerformance.html?" + Date.now(),
+
+			        scope: {
+
+			            dashboard: "=",
+			            widget: "=",
+			            signalUpdateFunction: "&",
+			            setPanelHeadingColorFunction: "&",
+			            mode: "@"
+			        },
+
+			        controllerAs: 'vm',
+			        controller: controller,
+			        bindToController: true //required in 1.3+ with controllerAs
+			    };
+			}
+		]);
+
+}());
+
+(function () {
+
 	var app = angular.module('app');
 
 	app.directive('pcaSummary',
 		[
-			"dataService", "utilityService", "$state", "hotkeys", "displaySetupService", "$timeout", "$window", "$interval", "signalR", "uibButtonConfig", "$location",
+			"$rootScope", "dataService", "utilityService", "$state", "hotkeys", "displaySetupService", "$timeout", "$window", "$interval", "signalR", "uibButtonConfig", "$location",
 
-			function (dataService, utilityService, $state, hotkeys, displaySetupService, $timeout, $window, $interval, signalR, uibButtonConfig, $location) {
+			function ($rootScope, dataService, utilityService, $state, hotkeys, displaySetupService, $timeout, $window, $interval, signalR, uibButtonConfig, $location) {
 
 				var controller = function ($scope) {
 					var vm = this;
-					console.log("PCA Summary Controller invoked");
+					//console.log("PCA Summary Controller invoked");
 
 					function GetHeadingExtraTitle() {
 						//console.log("Getting site heading");
-						return ' - ' + vm.Asset.Site.Name + ' Gate ' + vm.Asset.ParentSystem.Name + (vm.Asset.ModelGenericName ? ' - ' + vm.Asset.ModelGenericName : '');
+						if (vm.Asset && vm.Asset.Site && vm.Asset.ParentSystem) {						
+							return ' - ' + vm.Asset.Site.Name + ' Gate ' + vm.Asset.ParentSystem.Name + (vm.Asset.ModelGenericName ? ' - ' + vm.Asset.ModelGenericName : '');
+						}
 					}
 
 					vm.widget.displaySettings = {
@@ -15042,12 +16188,46 @@ angular.module('app')
 						warningsDataSortField: '-PLCLocalDate',
 						headingExtraTitle: '',
 						obscureGraphics: true,
-						commLossTag: vm.commLossTag
+						commLossTag: vm.commLossTag,
+						headingSearchField: true
+
 					}
 					vm.scrolledToEnd = function () {
 						//console.log("pca Data Scrolled to end");
 					}
 
+
+					vm.tagFilterFunction = function (element) {
+						if ((vm.widget.searchText || '') != '') {
+							return element.JBTStandardObservation.Name.toLowerCase().indexOf((vm.widget.searchText || '').toLowerCase()) > -1;
+						} else {
+							return true;
+						}
+					};
+
+					vm.alarmFilterFunction = function (element) {
+						return element.ValueWhenActive == element.Value;
+					};
+
+
+
+					vm.tagClicked = function(tag) {
+						console.log("tag clicked = %O", tag);
+					}
+
+
+					$scope.$watch("vm.widget.searchText",
+						function (newValue, oldValue) {
+
+							//If any of the entities have an Id attribute, then this is editing an existing value.
+							//send the changes to all other browsers as they press the keys.
+							if ((oldValue || '') != (newValue || '')) {
+								console.log("searchText change = Old = " + oldValue + " New = " + newValue);
+								vm.widget.WidgetResource.DefaultSearchText = newValue;
+								SaveWidgetResourceObjectIfChanged();
+								signalR.SignalAllClientsInGroup("Admin", vm.widget.Id + " SearchText Modification", vm.widget.searchText);
+							}
+						});
 
 
 					vm.originalWidgetResource = angular.copy(vm.widget.WidgetResource);
@@ -15058,9 +16238,9 @@ angular.module('app')
 						//console.log("Original widget resource = %O", vm.originalWidgetResource);
 						if (!angular.equals(vm.originalWidgetResource, possiblyChangedResource)) {
 
-							console.log("Saving widget resource........");
-							console.log("Original WidgetResource = %O", vm.originalWidgetResource);
-							console.log("Changed WidgetResource = %O", possiblyChangedResource);
+							//console.log("Saving widget resource........");
+							//console.log("Original WidgetResource = %O", vm.originalWidgetResource);
+							//console.log("Changed WidgetResource = %O", possiblyChangedResource);
 							vm.widget.WidgetResource.$save();
 							vm.originalWidgetResource = possiblyChangedResource;
 						}
@@ -15074,7 +16254,7 @@ angular.module('app')
 
 					//Get a copy of the user record to determine privs
 					vm.user = Global.User;
-					console.log("Initial vm.widget = %O", vm.widget);
+					//console.log("Initial vm.widget = %O", vm.widget);
 
 
 					//console.log("vm.user = %O", vm.user);
@@ -15158,9 +16338,18 @@ angular.module('app')
 						});
 
 						//Call the function that the dashboard provided with the collection of tags to add to the possible new widget
-						vm.addTagsToGraphFunction()(vm.tagsToGraphObjects);
+						console.log("vm in vm.ProcessTagsToGraph = %O", vm);
+
+						vm.dashboard.tagsToGraph = vm.tagsToGraphObjects.concat(vm.dashboard.tagsToGraph).distinct(function (a, b) { return a.TagId == b.TagId }).where(function (t) { return t.Enabled });
+						console.log("Dashboard vm.dashboard.tagsToGraph = %O", vm.dashboard.tagsToGraph);
+						if (vm.dashboard.tagsToGraph.length > 0) {
+							$rootScope.$broadcast("Dashboard.TagsToGraph", vm.dashboard.tagsToGraph);
+						} else {
+							$rootScope.$broadcast("Dashboard.TagsToGraph", null);
+						}
 
 						return;
+
 					}
 
 
@@ -15257,7 +16446,7 @@ angular.module('app')
 					//---G
 					function GetPCAAssetForGate() {
 
-						console.log("Entry into GetPCAAssetForGate()");
+						//console.log("Entry into GetPCAAssetForGate()");
 						vm.pca = vm.JBTData
 							.Assets
 							.first(function (a) { return a.ParentSystemId == vm.widget.WidgetResource.GateSystemId && a.Name == 'PCA' });
@@ -15271,10 +16460,10 @@ angular.module('app')
 						SaveWidgetResourceObjectIfChanged();
 						vm.widget.displaySettings.headingExtraTitle = GetHeadingExtraTitle();
 
-						console.log("Getting tags into inventory");
+						//console.log("Getting tags into inventory");
 						dataService.GetAllSignalRObservationFormattedTagsForAssetIdIntoInventory(vm.pca.Id).then(function () {
 
-							console.log("tags into inventory done");
+							//console.log("tags into inventory done");
 							vm.AssetGraphics = dataService.cache.assetGraphics.where(function (ag) { return ag.AssetId == vm.pca.Id });
 
 
@@ -15287,7 +16476,7 @@ angular.module('app')
 								SetTabBodyHeight(5);
 							}, 50);
 
-							console.log("Asset Graphics = %O", vm.AssetGraphics);
+							//console.log("Asset Graphics = %O", vm.AssetGraphics);
 							vm.pca.Tags.forEach(function (tag) {
 								UpdateGraphicsVisibilityForSingleTag(tag);
 							});
@@ -15298,10 +16487,6 @@ angular.module('app')
 							vm.widget.displaySettings.headingExtraTitle = GetHeadingExtraTitle();
 							vm.GenerateTemperatureCharts();
 							vm.GeneratePressureCharts();
-							$timeout(function () {
-
-								vm.showWidget = true;
-							}, 100);
 
 							if (!vm.alarms) {
 								vm.alarms = [];
@@ -15317,22 +16502,27 @@ angular.module('app')
 							vm.warnings = vm.pca.Tags.where(function (dsTag) { return dsTag.AssetId == vm.widget.WidgetResource.AssetId && dsTag.IsWarning });
 							vm.commLossTag = vm.pca.Tags.first(function(t){return commLossStandardObservationIds.any(function(clso){ return clso == t.JBTStandardObservationId})});
 
-							console.log("PCA vm.alarms = %O", vm.alarms);
-							console.log("PCA vm.warnings = %O", vm.warnings);
-							console.log("PCA Tags for Asset = %O", vm.pca.Tags);
-							console.log("PCA Comm Loss Tag for Asset = %O", vm.commLossTag);
+							//console.log("PCA vm.alarms = %O", vm.alarms);
+							//console.log("PCA vm.warnings = %O", vm.warnings);
+							//console.log("PCA Tags for Asset = %O", vm.pca.Tags);
+							//console.log("PCA Comm Loss Tag for Asset = %O", vm.commLossTag);
 
 							vm.widget.displaySettings.commLossTag = vm.commLossTag;
 
-							console.log("PCA Tag Alarms = %O", vm.pca.Tags.select(function(t) {
-								return {
-									SName: t.JBTStandardObservation.Name,
-									IsAlarm: t.IsAlarm
-								}
-							}));
+							//console.log("PCA Tag Alarms = %O", vm.pca.Tags.select(function(t) {
+							//	return {
+							//		SName: t.JBTStandardObservation.Name,
+							//		IsAlarm: t.IsAlarm
+							//	}
+							//}));
 
 							SetHeadingBackground();
-							
+
+							$timeout(function () {
+								vm.showWidget = true;
+							}, 100);
+
+							vm.widget.searchText = vm.widget.WidgetResource.DefaultSearchText || '';
 
 							$timeout(function() {
 								$(function () {
@@ -15381,7 +16571,7 @@ angular.module('app')
 
 					function SetHeadingBackground() {
 
-						if (vm.alarms && vm.alarms.length > 0 && vm.alarms.any(function(a){return a.ValueWhenActive == a.Value})) {
+						if (vm.alarms && vm.alarms.length > 0 && vm.alarms.any(function (a) { return a.ValueWhenActive == a.Value })) {
 
 							vm.widget.displaySettings.headingBackground = 'linear-gradient(to bottom,#FF0000, #FFDDDD)';
 							//vm.widget.displaySettings.headingBackground = 'linear-gradient(to bottom,#FF0000, #FFFF00)';
@@ -15399,7 +16589,7 @@ angular.module('app')
 						//}
 
 
-						if (AtLeastOneGraphicIsVisible()) {
+						if (AtLeastOneGraphicIsVisible() && (!vm.commLossTag || vm.commLossTag.Value != "1")) {
 							vm.widget.displaySettings.headingBackground = 'linear-gradient(to bottom,#3eff3e, #eefeee)';
 						} else {
 							vm.widget.displaySettings.headingBackground = 'linear-gradient(to bottom,#dedede, #fefefe)';
@@ -15531,7 +16721,8 @@ angular.module('app')
 						UpdateSecondary1CompressorSuctionChart(updatedTag);
 						UpdateSecondary2CompressorChart(updatedTag);
 						UpdateSecondary2CompressorSuctionChart(updatedTag);
-
+						SetHeadingBackground();
+						return;
 
 
 						if (updatedTag.AssetId == vm.widget.WidgetResource.AssetId &&
@@ -15971,7 +17162,7 @@ angular.module('app')
 
 				return {
 					restrict: 'E', //Default for 1.3+
-					templateUrl: "app/widgetDirectives/pcaSummary.html?" + Date.now(),
+					templateUrl: "app/widgetDirectives/pcaSummary.html",
 
 					scope: {
 
@@ -16944,7 +18135,7 @@ angular.module('app')
 							updatedTag.TagName.indexOf('|') >= 3 && 
 							!vm.exclusionList.any(function(ex){ return updatedTag.JBTStandardObservationId == ex.jbtStandardObservationId})
 						) {
-							console.log("Alarm Tag Update = " + updatedTag.TagName + "  " + updatedTag.Value);
+							//console.log("Alarm Tag Update = " + updatedTag.TagName + "  " + updatedTag.Value);
 							if (+updatedTag.Value == 1) {
 								if (vm.activeAlarms) {
 									vm.activeAlarms.push(updatedTag);
@@ -17494,7 +18685,7 @@ angular.module('app')
 							(updatedTag.IsWarning) &&
 							updatedTag.TagName.indexOf('|') >= 3
 						) {
-							console.log("Warning Tag Update = " + updatedTag.TagName + "  " + updatedTag.Value);
+							//console.log("Warning Tag Update = " + updatedTag.TagName + "  " + updatedTag.Value);
 							//GetWarningTagsForSite();
 							if (+updatedTag.Value == 1) {
 								if (vm.activeWarnings) {
@@ -17951,17 +19142,15 @@ angular.module('app')
 					vm.showWidget = false;
 
 					//++A double click on the asset indicator will add a summary widget to the dashboard
-					vm.AddToDashboard = function (tag, $event) {
+					vm.AddToDashboard = function (asset, $event) {
 
-						console.log("Double Click tag = %O", tag);
-
-						var widgetTypeId = tag.AssetName == 'PCA' ? 42 : tag.AssetName == 'PBB' ? 49 : tag.AssetName == 'GPU' ? 50 : 0;
+						var widgetTypeId = asset.Name == 'PCA' ? 42 : asset.Name == 'PBB' ? 49 : asset.Name == 'GPU' ? 50 : 0;
 
 
 						return dataService.GetEntityById("WidgetTypes", widgetTypeId).then(function (wt) {
 
 
-							var gateSystem = vm.JBTData.Systems.first(function (s) { return s.Id == tag.Asset.ParentSystemId });
+							var gateSystem = vm.JBTData.Systems.first(function (s) { return s.Id == asset.ParentSystemId });
 							var zoneSystem = vm.JBTData.Systems.first(function (s) { return s.Id == gateSystem.ParentSystemId });
 							var terminalSystem = vm.JBTData.Systems.first(function (s) { return s.Id == zoneSystem.ParentSystemId });
 							var newPosition = GetNextWidgetRowColumn();
@@ -17974,15 +19163,15 @@ angular.module('app')
 									ParentDashboardId: vm.dashboard.Id,
 									Width: wt.InitialWidth,
 									Height: wt.InitialHeight,
-									Row: newPosition.row + 100,
+									Row: newPosition.row - wt.InitialHeight+10,
 									Col: newPosition.col,
-									AssetId: tag.AssetId,
-									DefaultNavPill: tag.AssetName == 'PCA' ? "Press" : tag.AssetName == 'GPU' ? "Amps" : "Data",
-									SiteId: tag.SiteId,
+									AssetId: asset.Id,
+									DefaultNavPill: asset.Name == 'PCA' ? "Press" : asset.Name == 'GPU' ? "Amps" : "Data",
+									SiteId: asset.SiteId,
 									SplitLeftPercentage: 50,
 									SplitRightPercentage: 50,
-									SystemId: tag.Asset.ParentSystemId,
-									GateSystemId: tag.Asset.ParentSystemId,
+									SystemId: asset.ParentSystemId,
+									GateSystemId: asset.ParentSystemId,
 									ZoneSystemId: zoneSystem.Id,
 									TerminalSystemId: terminalSystem.Id
 								}).then(function (widget) {
@@ -17993,12 +19182,33 @@ angular.module('app')
 
 					}
 
+					//***G
+					//++Adding a widget group
+					//***G
 					vm.AddWidgetGroupToDashboard = function (group) {
-						vm.AddToDashboard(group.PBBUnitOnTag).then(function () {
-							vm.AddToDashboard(group.PCAUnitOnTag).then(function () {
-								vm.AddToDashboard(group.GPUUnitOnTag);
+						console.log("Summary Group to add = %O", group);
+
+						//Collect the asset ids in a list and pre-load the tags into the cache first.
+						var assetIdList = group.PBBAsset ? group.PBBAsset.Id.toString() + ',' : "";
+
+						if (group.PCAAsset) {
+							assetIdList += group.PCAAsset ? group.PCAAsset.Id.toString() + ',' : "";
+						}
+						if (group.GPUAsset) {
+							assetIdList += group.GPUAsset ? group.GPUAsset.Id.toString() + ',' : "";
+						}
+
+						console.log("AssetIdList = " + assetIdList);
+
+						dataService.GetAllSignalRObservationFormattedTagsForAssetIdIntoInventoryByListOfAssetIds(assetIdList, false).then(
+							function() {
+								vm.AddToDashboard(group.PBBAsset).then(function () {
+									vm.AddToDashboard(group.PCAAsset).then(function () {
+										vm.AddToDashboard(group.GPUAsset);
+									});
+								});
 							});
-						});
+
 					}
 
 
@@ -18037,16 +19247,30 @@ angular.module('app')
 					//***G
 					//++Opening a summary widget popup.
 					//---G
-					vm.OpenSummaryWidget = function (tag, $event) {
-						console.log("Opening summary widget for tag  %O", tag);
+					vm.OpenSummaryWidget = function (asset, $event) {
+						console.log("Opening summary widget for asset  %O", asset);
 
-
+						console.log("subWidgets = %O", vm.subWidgets);
 						//+Add the child widget if not already in the database.
+						var subWidget = vm.subWidgets.first(function (sw) { return sw.AssetId == asset.Id });
+						if (subWidget) {
+
+							console.log("Subwidget in cache = %O", subWidget);
+
+							CreateChildWidgetFromDataAndOpenPopup(subWidget, asset);
+
+							return;
+						}
 
 
+
+
+
+
+						console.log("sub widget was not in cache - getting from oData");
 						dataService.GetIOPSResource("Widgets")
 							.filter("ParentWidgetId", vm.widget.Id)
-							.filter("AssetId", tag.AssetId)
+							.filter("AssetId", asset.Id)
 							.query()
 							.$promise
 							.then(function (data) {
@@ -18056,58 +19280,29 @@ angular.module('app')
 
 									var w = data[0];
 
-									vm.childWidget = {
-										sizeX: w.Width,
-										sizeY: w.Height,
-										row: w.Row,
-										col: w.Col,
-										prevRow: w.Row,
-										prevCol: w.Col,
-										Id: w.Id,
-										Name: w.Name,
-										WidgetResource: w,
-										HasChanged: false
-									}
-
-									switch (tag.AssetName) {
-										case "PCA":
-											console.log("Activating state .pcaSummaryModal");
-											$state.go(".pcaSummaryModal", { widget: vm.childWidget, assetId: tag.AssetId, dashboard: vm.dashboard });
-											break;
-
-										case "GPU":
-											$state.go(".gpuSummaryModal", { widget: vm.childWidget, assetId: tag.AssetId, dashboard: vm.dashboard });
-											break;
-
-										case "PBB":
-											$state.go(".pbbSummaryModal", { widget: vm.childWidget, assetId: tag.AssetId, dashboard: vm.dashboard });
-											break;
-
-									}
+									CreateChildWidgetFromDataAndOpenPopup(w, asset);
 
 								} else {
 									//The child widget does not yet exist. Create one and add it to the database,
 									dataService.GetIOPSResource("SystemGroups")
-										.filter("Id", tag.Asset.ParentSystemId)
+										.filter("Id", asset.ParentSystemId)
 										.expandPredicate("Parent")
-											.expand("Parent")
+										.expand("Parent")
 										.finish()
 										.query()
 										.$promise
-										.then(function (systemChainData) {
+										.then(function(systemChainData) {
 
 											var gateSystem = systemChainData[0];
 											console.log("Gate System Chain = %O", gateSystem);
 
 											var newChildWidget = {
-												Name: tag.GateName + ' - ' + tag.AssetName + ' Summary',
-												WidgetTypeId: tag.AssetName == 'PCA' ? 42 :
-																tag.AssetName == 'GPU' ? 50 :
-																tag.AssetName == 'PBB' ? 49 : 0,
+												Name: asset.ParentSystem.Name + ' - ' + asset.Name + ' Summary',
+												WidgetTypeId: asset.Name == 'PCA' ? 42 : asset.Name == 'GPU' ? 50 : asset.Name == 'PBB' ? 49 : 0,
 												ParentDashboardId: vm.dashboard.Id,
-												AssetId: tag.Asset.Id,
-												SystemId: tag.Asset.ParentSystemId,
-												SiteId: tag.SiteId,
+												AssetId: asset.Id,
+												SystemId: asset.ParentSystemId,
+												SiteId: asset.SiteId,
 												Width: 0,
 												Height: 0,
 												Row: 0,
@@ -18122,46 +19317,14 @@ angular.module('app')
 											}
 
 
-											dataService.AddEntity("Widgets", newChildWidget).then(function (w) {
+											dataService.AddEntity("Widgets", newChildWidget).then(function(w) {
 
-												vm.childWidget = {
-													sizeX: w.Width,
-													sizeY: w.Height,
-													row: w.Row,
-													col: w.Col,
-													prevRow: w.Row,
-													prevCol: w.Col,
-													Id: w.Id,
-													Name: w.Name,
-													WidgetResource: w,
-													HasChanged: false
-												}
-
-
-												switch (tag.AssetName) {
-													case "PCA":
-														$state.go(".pcaSummaryModal", { widget: vm.childWidget, assetId: tag.AssetId, dashboard: vm.dashboard });
-														break;
-
-													case "GPU":
-														$state.go(".gpuSummaryModal", { widget: vm.childWidget, assetId: tag.AssetId, dashboard: vm.dashboard });
-														break;
-
-													case "PBB":
-														$state.go(".pbbSummaryModal", { widget: vm.childWidget, assetId: tag.AssetId, dashboard: vm.dashboard });
-														break;
-
-													default:
-
-												}
-
+												CreateChildWidgetFromDataAndOpenPopup(w, asset);
 
 											});
 
 
-
-										})
-
+										});
 
 
 								}
@@ -18172,6 +19335,43 @@ angular.module('app')
 
 
 					};
+
+
+					function CreateChildWidgetFromDataAndOpenPopup(w, asset) {
+						vm.childWidget = {
+							sizeX: w.Width,
+							sizeY: w.Height,
+							row: w.Row,
+							col: w.Col,
+							prevRow: w.Row,
+							prevCol: w.Col,
+							Id: w.Id,
+							Name: w.Name,
+							WidgetResource: w,
+							HasChanged: false
+						}
+
+
+						console.log("State transition commanded");
+						switch (asset.Name) {
+							case "PCA":
+								$state.go(".pcaSummaryModal", { widget: vm.childWidget, assetId: asset.Id, dashboard: vm.dashboard });
+								break;
+
+							case "GPU":
+								$state.go(".gpuSummaryModal", { widget: vm.childWidget, assetId: asset.Id, dashboard: vm.dashboard });
+								break;
+
+							case "PBB":
+								$state.go(".pbbSummaryModal", { widget: vm.childWidget, assetId: asset.Id, dashboard: vm.dashboard });
+								break;
+
+							default:
+
+						}
+					}
+
+
 					//---G
 
 
@@ -18197,16 +19397,16 @@ angular.module('app')
 						var userSiteCodes = vm.user.ReaderOf.where(function (s) { return s.split('.')[0] == 'Site' })
 							.select(function (s) { return s.split('.')[1] });
 
-						console.log("user site codes = %O", userSiteCodes);
+						//console.log("user site codes = %O", userSiteCodes);
 
 						vm.userSites = vm.JBTData.Sites.where(function (site) {
 							return userSiteCodes.any(function (sc) { return sc == site.Name })
 						});
 
-						console.log("vm.userSites = %O", vm.userSites);
+						//console.log("vm.userSites = %O", vm.userSites);
 
 						if (vm.userSites.length == 1) {
-							console.log("User only has a single Site");
+							//console.log("User only has a single Site");
 							vm.widget.WidgetResource.SiteId = vm.userSites[0].Id;
 							vm.widgetSite = vm.userSites[0];
 							GetData();
@@ -18227,6 +19427,10 @@ angular.module('app')
 						vm.showWidget = true;
 
 						var standardIdsToLoad = [12374, 2736, 1942, 12484, 4331, 4445, 4765, 12255];
+
+
+
+
 						dataService.GetIOPSResource("Tags")
 							.filter("SiteId", vm.widget.WidgetResource.SiteId) //that belong to the widget site
 							.filter($odata.Predicate.or(standardIdsToLoad.select(function (sid) { return new $odata.Predicate("JBTStandardObservationId", sid) })))
@@ -18240,28 +19444,28 @@ angular.module('app')
 								dataService.PlaceTagsIntoInventory(data);
 
 
-								console.log("siteGateTags data = %O", data.orderBy(function (t) { return t.GateName }));
+								console.log("siteGateTags for [12374, 2736, 1942, 12484, 4331, 4445, 4765, 12255] std ids data = %O", data.orderBy(function (t) { return t.GateName }));
 
 
-								var assetIds = data.select(function (d) {
+								vm.assetIds = data.select(function (d) {
 									return d.AssetId.toString();
 								}).distinct()
 								.join(',');
 
 								//+Get all Alarm Tags into the dataservice inventory. The last true parameter will cause the dataService method to only look for alarm tags.
-								dataService.GetAllSignalRObservationFormattedTagsForAssetIdIntoInventoryByListOfAssetIds(assetIds, true).then(function () {
-									console.log("Alarm Tags loaded into inventory");
+								dataService.GetAllSignalRObservationFormattedTagsForAssetIdIntoInventoryByListOfAssetIds(vm.assetIds, true).then(function () {
+									//console.log("Alarm Tags loaded into inventory");
 
 									//console.log("assetIds = %O", assetIds);
-									vm.widget.assetIds = assetIds;
+									vm.widget.assetIds = vm.assetIds;
 									var dataGroupedByGate = data.groupBy(function (t) { return t.GateName });
-									console.log("Grouped by Gate = %O", dataGroupedByGate);
+									//console.log("Grouped by Gate = %O", dataGroupedByGate);
 
 									vm.gateTagGroups = dataGroupedByGate
 										.select(function (g) {
 
 											var pcaAsset = vm.JBTData.Assets.first(function (a) { return a.Id == (g.first(function (t2) { return t2.AssetName == 'PCA' }) ? g.first(function (t2) { return t2.AssetName == 'PCA' }).AssetId : 0) });
-											var pbbAsset = vm.JBTData.Assets.first(function (a) { return a.Id == (g.first(function (t2) { return t2.AssetName == 'PBB' }) ? g.first(function (t2) { return t2.AssetName == 'PBB' }).AssetId : 0)});
+											var pbbAsset = vm.JBTData.Assets.first(function (a) { return a.Id == (g.first(function (t2) { return t2.AssetName == 'PBB' }) ? g.first(function (t2) { return t2.AssetName == 'PBB' }).AssetId : 0) });
 											var gpuAsset = vm.JBTData.Assets.first(function (a) { return a.Id == (g.first(function (t2) { return t2.AssetName == 'GPU' }) ? g.first(function (t2) { return t2.AssetName == 'GPU' }).AssetId : 0) });
 
 
@@ -18270,12 +19474,13 @@ angular.module('app')
 												PBBAsset: pbbAsset,
 												GPUAsset: gpuAsset,
 												GateName: g.key,
+												SortField: (!isFinite(g.key.substring(0, 1)) && isFinite(g.key.substring(1, 50))) ? g.key.substring(0, 1) + g.key.substring(1, 50).padStart(4, '0') : g.key,
 												GateSystem: vm.JBTData.Systems.first(function (s) { return s.SiteId == vm.widget.WidgetResource.SiteId && s.TypeId == 3 && s.Name == g.key }),
-												PCAUnitOnTag: pcaAsset.Tags.where(function (t) { return t.JBTStandardObservationId == 12374 }).orderByDescending(function (t2) { return t2.ObservationUTCDateMS }).first(),
-												GPUUnitOnTag: gpuAsset.Tags.where(function (t) { return t.JBTStandardObservationId == 12374 }).orderByDescending(function (t2) { return t2.ObservationUTCDateMS }).first(),
-												PBBUnitOnTag: pbbAsset ? pbbAsset.Tags.where(function (t2) { return t2.AssetName == 'PBB' && t2.JBTStandardObservationId == 12374 }).orderByDescending(function (t2) { return t2.ObservationUTCDateMS }).first() : null,
-												DischargeTemperatureTag: pcaAsset.Tags.where(function (t) { return t.JBTStandardObservationId == 2736 }).orderByDescending(function (t2) { return t2.ObservationUTCDateMS }).first(),
-												AverageAmpsOutTag: gpuAsset.Tags.where(function (t) { return t.JBTStandardObservationId == 1942 }).orderByDescending(function (t2) { return t2.ObservationUTCDateMS }).first()
+												PCAUnitOnTag: pcaAsset ? pcaAsset.Tags.where(function (t) { return t.JBTStandardObservationId == 12374 }).orderByDescending(function (t2) { return t2.ObservationUTCDateMS }).first() : null,
+												GPUUnitOnTag: gpuAsset ? gpuAsset.Tags.where(function (t) { return t.JBTStandardObservationId == 12374 }).orderByDescending(function (t2) { return t2.ObservationUTCDateMS }).first() : null,
+												PBBUnitOnTag: pbbAsset ? pbbAsset.Tags.where(function (t) { return t.JBTStandardObservationId == 12374 }).orderByDescending(function (t2) { return t2.ObservationUTCDateMS }).first() : null,
+												DischargeTemperatureTag: pcaAsset ? pcaAsset.Tags.where(function (t) { return t.JBTStandardObservationId == 2736 }).orderByDescending(function (t2) { return t2.ObservationUTCDateMS }).first() : null,
+												AverageAmpsOutTag: gpuAsset ? gpuAsset.Tags.where(function (t) { return t.JBTStandardObservationId == 1942 }).orderByDescending(function (t2) { return t2.ObservationUTCDateMS }).first() : null
 											}
 
 											FormatZeroBlankDisplayValueForTag(outputObject.DischargeTemperatureTag);
@@ -18286,37 +19491,44 @@ angular.module('app')
 
 											return outputObject;
 										})
-										.orderBy(function (group) { return group.GateName });
-
+										.orderBy(function (group) { return group.SortField });
 
 									//+Attach the alarms and comm loss tags to the assets on the gate.
 									//Once this is done, then the controller for this directive will no longer have to track them. The data service will be maintaining them.
 									var commLossStandardObservationIds = [4331, 4445, 4765, 12255];
 
+									//Need to get the alarms tags into the dataService tags cache for every asset.
+
 									vm.gateTagGroups.forEach(function (gtg) {
 
 										if (gtg.PBBAsset) {
+											gtg.PBBAsset.AlarmTags = gtg.PBBAsset.Tags.where(function (dsTag) { return dsTag.IsAlarm });
+											SetAlarmActiveForAssetBasedUponAlarmTagConditions(gtg.PBBAsset);
 											gtg.PBBAsset.AlarmActiveTag = dataService.cache.tags.first(function (t) { return +t.AssetId == +gtg.PBBAsset.Id && t.JBTStandardObservationId == 12323 });
 											if (gtg.PBBAsset.AlarmActiveTag) {
-												gtg.PBBAsset.AlarmActiveTag.ValueWhenActive = gtg.PBBAsset.AlarmActiveTag.ValueWhenActive || "1";
+												gtg.PBBAsset.AlarmActiveTag.ValueWhenActive = (gtg.PBBAsset.AlarmActiveTag.ValueWhenActive || "1");
 											} else {
 												//console.log("asset %O, has no alarm active tag", gtg.PBBAsset);
 											}
 											gtg.PBBAsset.CommLossTag = dataService.cache.tags.first(function (t) { return +t.AssetId == +gtg.PBBAsset.Id && commLossStandardObservationIds.any(function (clso) { return clso == t.JBTStandardObservationId }) });
 										}
 										if (gtg.PCAAsset) {
+											gtg.PCAAsset.AlarmTags = gtg.PCAAsset.Tags.where(function (dsTag) { return dsTag.IsAlarm });
+											SetAlarmActiveForAssetBasedUponAlarmTagConditions(gtg.PCAAsset);
 											gtg.PCAAsset.AlarmActiveTag = dataService.cache.tags.first(function (t) { return +t.AssetId == +gtg.PCAAsset.Id && t.JBTStandardObservationId == 12324 });
 											if (gtg.PCAAsset.AlarmActiveTag) {
-												gtg.PCAAsset.AlarmActiveTag.ValueWhenActive = gtg.PCAAsset.AlarmActiveTag.ValueWhenActive || "1";
+												gtg.PCAAsset.AlarmActiveTag.ValueWhenActive = (gtg.PCAAsset.AlarmActiveTag.ValueWhenActive || "1");
 											} else {
 												//console.log("asset %O, has no alarm active tag", gtg.PCAAsset);
 											}
 											gtg.PCAAsset.CommLossTag = dataService.cache.tags.first(function (t) { return +t.AssetId == +gtg.PCAAsset.Id && commLossStandardObservationIds.any(function (clso) { return clso == t.JBTStandardObservationId }) });
 										}
 										if (gtg.GPUAsset) {
+											gtg.GPUAsset.AlarmTags = gtg.GPUAsset.Tags.where(function (dsTag) { return dsTag.IsAlarm });
+											SetAlarmActiveForAssetBasedUponAlarmTagConditions(gtg.GPUAsset);
 											gtg.GPUAsset.AlarmActiveTag = dataService.cache.tags.first(function (t) { return +t.AssetId == +gtg.GPUAsset.Id && t.JBTStandardObservationId == 12325 });
 											if (gtg.GPUAsset && gtg.GPUAsset.AlarmActiveTag) {
-												gtg.GPUAsset.AlarmActiveTag.ValueWhenActive = gtg.GPUAsset && gtg.GPUAsset.AlarmActiveTag && gtg.GPUAsset.AlarmActiveTag.ValueWhenActive || "1";
+												gtg.GPUAsset.AlarmActiveTag.ValueWhenActive = (gtg.GPUAsset.AlarmActiveTag.ValueWhenActive || "1");
 											} else {
 												//console.log("asset %O, has no alarm active tag", gtg.GPUAsset);
 											}
@@ -18330,13 +19542,36 @@ angular.module('app')
 								});
 
 
+
 								vm.widget.displaySettings.headingExtraTitle = GetHeadingExtraTitle();
+
+							});
+
+						GetSubWidgets();
+
+					}
+					//***G
+
+					function GetSubWidgets() {
+
+						dataService.GetIOPSResource("Widgets")
+							.filter("ParentWidgetId", vm.widget.WidgetResource.Id)
+							.filter("SiteId", vm.widget.WidgetResource.SiteId)
+							.query()
+							.$promise.then(function (data) {
+								vm.subWidgets = data;
+								console.log("vm.subWidgets = %O", vm.subWidgets);
 							});
 
 
 
+
+
 					}
-					//***G
+
+
+
+					//---B
 
 					function FormatDurationValue(tag) {
 						if (tag) {
@@ -18350,6 +19585,7 @@ angular.module('app')
 
 					}
 
+					//---B
 					function FormatZeroBlankDisplayValueForTag(tag) {
 						if (tag) {
 							if (+tag.Value > 0) {
@@ -18363,6 +19599,7 @@ angular.module('app')
 
 
 
+					//---B
 
 					//Start watching for site id changes	
 					$scope.$watch("vm.widget.WidgetResource.SiteId",
@@ -18379,6 +19616,7 @@ angular.module('app')
 					});
 
 
+					//---B
 					$scope.$on("WidgetResize", function (event, resizedWidgetId) {
 
 						if (vm.widget.Id == resizedWidgetId || resizedWidgetId == 0) {
@@ -18386,6 +19624,7 @@ angular.module('app')
 						}
 					});
 
+					//---B
 					$scope.$on("WidgetResize.Stop", function (event, resizedWidgetId) {
 						if (vm.widget.Id == resizedWidgetId || resizedWidgetId == 0) {
 							$interval(function () {
@@ -18407,10 +19646,40 @@ angular.module('app')
 
 					$scope.$on("dataService.TagUpdate", function (event, updatedTag) {
 
-						//console.log("tag update updatedTag = %O", updatedTag);
 						UpdateGraphicsVisibilityForSingleTag(updatedTag);
+						if (vm.gateTagGroups) {
+
+							//Set the alarmIsActive attribute to the assets so that the display can place the correct red box around it's indicator.
+							if (updatedTag.IsAlarm) {
+								vm.gateTagGroups.forEach(function (tg) {
+
+								
+									//console.log("Alarm tag update. updatedTag = %O", updatedTag);
+									if (tg.PBBAsset && tg.PBBAsset.Id == updatedTag.AssetId) {
+										SetAlarmActiveForAssetBasedUponAlarmTagConditions(tg.PBBAsset);
+									}
+
+									if (tg.PCAAsset && tg.PCAAsset.Id == updatedTag.AssetId) {
+										SetAlarmActiveForAssetBasedUponAlarmTagConditions(tg.PCAAsset);
+									}
+
+									if (tg.GPUAsset && tg.GPUAsset.Id == updatedTag.AssetId) {
+										SetAlarmActiveForAssetBasedUponAlarmTagConditions(tg.GPUAsset);
+									}
+
+
+								});
+							}
+						}
+
+
 					});
 
+					//set the alarmActive for the asset if any of the alarm tag ValueWhenActive=Value
+					function SetAlarmActiveForAssetBasedUponAlarmTagConditions(asset) {
+						asset.alarmActive = false;
+						asset.alarmActive = asset.AlarmTags.any(function (aTag) { return (aTag.ValueWhenActive + "") == (aTag.Value + "") });
+					}
 
 
 					function UpdateGraphicsVisibilityForSingleTag(updatedTag) {
@@ -18419,6 +19688,11 @@ angular.module('app')
 							//console.log("Updated Tag For widget - %O", updatedTag);
 
 
+
+							if (updatedTag.SiteId == 81473 && updatedTag.TagName.indexOf("Counter") == -1) {
+
+								console.log("Test Tag " + updatedTag.Asset.Name + " - " + updatedTag.JBTStandardObservation.Name + " - " + updatedTag.Value + " = %O", updatedTag);
+							}
 
 							vm.gateTagGroups.forEach(function (tg) {
 
@@ -18431,9 +19705,13 @@ angular.module('app')
 
 								if (tgUpdateTag) {
 
-									FormatZeroBlankDisplayValueForTag(tgUpdateTag);
-									FormatZeroBlankDisplayValueForTag(tgUpdateTag);
+									
 
+
+
+
+									FormatZeroBlankDisplayValueForTag(tgUpdateTag);
+									FormatZeroBlankDisplayValueForTag(tgUpdateTag);
 									//if (tg.HookupDurationSecondsTag && tg.HookupDurationSecondsTag.TagId == updatedTag.TagId) {
 									//	FormatDurationValue(tg.HookupDurationSecondsTag);
 									//}
@@ -18450,7 +19728,7 @@ angular.module('app')
 
 
 
-					//Update the duration counters each second until the next hard update from signalR
+					//+Update the duration counters each second until the next hard update from signalR
 					vm.durationInterval = $interval(function () {
 						if (vm.gateTagGroups) {
 
@@ -18543,18 +19821,9 @@ angular.module('app')
 
 					vm.widget.displaySettings = {
 						headingBackground: 'linear-gradient(to bottom,#dedede, #fefefe)',
-						tagDataSortField: '-PLCLocalDate',
-						alarmDataSortField: '-PLCLocalDate',
-						warningsDataSortField: '-PLCLocalDate',
 						headingExtraTitle: '',
 						obscureGraphics: true
 					}
-
-
-
-
-
-
 
 
 					//***G
@@ -18571,7 +19840,7 @@ angular.module('app')
 							vm.resizeEventCounter = 0;
 
 						}
-					}, 300);
+					}, 500);
 
 					$scope.$on("WidgetResize", function (event, resizedWidgetId) {
 						//console.log("Widget resize event");
@@ -20109,7 +21378,7 @@ angular.module('app')
 		case 'gsEquipmentUsage':
 		case 'gsEquipmentHoursOfUsage':
 		case 'gsEquipmentUtilizationSummary':
-
+		case 'pcaDischargePerformance':
 			vm.selectSite = true;
 			vm.selectTerminal = vm.selectZone = vm.selectGate = vm.selectAsset = vm.selectBHS = false;
 			break;
@@ -20468,28 +21737,400 @@ angular.module('app')
 
 	var app = angular.module('app');
 
-	app.directive('modules',
+	app.directive('companies',
 		[
-			"dataService", "utilityService", "$state", "hotkeys", "displaySetupService", "$timeout", "$window", "$interval", "signalR", "uibButtonConfig", "$location",
+			"$rootScope", "dataService", "utilityService", "$state", "hotkeys", "displaySetupService", "$timeout", "$window", "$interval", "signalR", "uibButtonConfig", "$location", "$q",
 
-			function (dataService, utilityService, $state, hotkeys, displaySetupService, $timeout, $window, $interval, signalR, uibButtonConfig, $location) {
+			function ($rootScope, dataService, utilityService, $state, hotkeys, displaySetupService, $timeout, $window, $interval, signalR, uibButtonConfig, $location, $q) {
 
 				var controller = function ($scope) {
 					var vm = this;
-					console.log("Modules Controller invoked");
+
+
+					//Entity Specific Code
+					console.log("Global object = %O", Global);
+
+					vm.entityName = "Company";
+					vm.entityCollectionName = "Companies";
+					vm.focusFieldName = 'Name';
+					console.log(vm.entityCollectionName + " Controller invoked");
+
+
+					function getNewEntity() {
+						return {
+							Name: '',
+							Description: ''
+						}
+					}
+
+					function mapEditModelToEntity() {
+						if (vm.editModel.Id > 0) {
+							vm.entity.Id = vm.editModel.Id;
+						}
+						vm.entity.Name = vm.editModel.Name;
+						vm.entity.ShortName = vm.editModel.ShortName;
+						vm.entity.Description = vm.editModel.Description;
+						vm.entity.Address = vm.editModel.Address;
+					}
+
+					/////////////////////////////////////////////
+					//Generic Code Below
+					////////////////////////////////////////////
+
+
+					console.log(vm.entityCollectionName + " 1");
+
+					hotkeys.bindTo($scope)
+						.add({
+							combo: 'ctrl+s',
+							description: 'Save and Close any form data input form',
+							allowIn: ['INPUT', 'SELECT', 'TEXTAREA'],
+							callback: function () {
+								event.preventDefault();
+								vm.saveEntity();
+							}
+						})
+						.add({
+							combo: 'esc',
+							description: 'Cancel and close any input form',
+							allowIn: ['INPUT', 'SELECT', 'TEXTAREA'],
+							callback: function () {
+								vm.entity = null;
+								vm.showEditPane = false;
+							}
+						});
+
+					function setFocusToTheSpecifiedField() {
+						$timeout(function () {
+							$("#" + vm.widget.Id + '-' + vm.entityName + '-' + vm.focusFieldName).focus();
+						}, 50);
+					}
 
 					vm.widget.displaySettings = {
 						headingBackground: 'linear-gradient(to bottom,#dedede, #fefefe)',
-						tagDataSortField: '-PLCLocalDate',
-						alarmDataSortField: '-PLCLocalDate',
-						warningsDataSortField: '-PLCLocalDate',
 						headingExtraTitle: '',
-						obscureGraphics: true,
-						commLossTag: vm.commLossTag
+						headingPlusButton: true,
+						headingPlusButtonTitle: 'Add New ' + vm.entityName,
+						addEntityFunction: function () {
+							vm.add();
+						},
+						headingSearchField: true
 					}
-					vm.scrolledToEnd = function () {
-						//console.log("modules Data Scrolled to end");
+
+
+					//$interval(function() {
+					//	console.log("search text = %O", vm.widget.searchText);
+					//}, 1000);
+					dataService.GetJBTData().then(function (data) {
+						vm.JBTData = data;
+					});
+
+
+					vm.delete = function (entity) {
+
+
+						var cacheCompany = vm.JBTData.Companies.first(function (c) { return c.Id == entity.Id });
+						console.log("cacheCompany = %O", cacheCompany);
+
+						if (
+								vm.JBTData.Assets.any(function (a) { return a.CompanyId == entity.Id }) ||
+								vm.JBTData.Systems.any(function (s) { return s.CompanyId == entity.Id }) ||
+								cacheCompany.Sites.length > 0
+
+							) {
+
+							var alertifyMessage = "<strong>Company cannot be deleted!</strong><br><br>";
+
+							if (vm.JBTData.Assets.any(function (a) { return a.CompanyId == entity.Id })) {
+								alertifyMessage += "It still has Assets associated with it!<br>";
+							}
+
+							if (vm.JBTData.Systems.any(function (s) { return s.CompanyId == entity.Id })) {
+								alertifyMessage += "It still has Systems associated with it!<br>";
+							}
+
+							if (cacheCompany.Sites.length > 0) {
+								alertifyMessage += "It still has Sites associated with it!";
+							}
+
+							alertify.set({
+								labels: {
+									ok: "Ok",
+									cancel: "Cancel, I don't want to do this"
+								},
+								buttonFocus: "cancel"
+							});
+
+							alertify.alert(alertifyMessage, function (e) {
+								toastr.success(location.Name, "Company was NOT deleted!");
+								return;
+							}
+							);
+
+							return;
+
+						}
+
+						alertify.set({
+							labels: {
+								ok: "Yes, Delete the " + vm.entityName,
+								cancel: "Cancel, I don't want to do this"
+							},
+							buttonFocus: "cancel"
+						});
+						var message = 'Are you SURE you want to delete this ' + vm.entityName + '? ';
+
+						alertify.confirm(message, function (e) {
+							if (e) {
+								// user clicked "ok"
+								signalR.SignalAllClientsInGroup("Admin", vm.entityName + " Delete", entity);
+								dataService.DeleteEntity(vm.entityCollectionName, entity);
+								toastr.success(location.Name, vm.entityName + " was deleted!");
+
+							} else {
+								// user clicked "no"
+								toastr.info(location.Name, vm.entityName + " was NOT deleted!");
+							}
+						});
 					}
+
+
+
+					vm.add = function () {
+
+						vm.editModel = getNewEntity();
+						vm.entity = angular.copy(vm.editModel);
+						vm.editPanelTitle = 'New ' + vm.entityName;
+						vm.showEditPane = true;
+						setFocusToTheSpecifiedField();
+
+					}
+
+					vm.cancelSaveEntity = function () {
+						vm.entity = null;
+						vm.editModel = null;
+						vm.widget.WidgetResource.DefaultIdSelectedForEdit = 0;
+						SaveWidgetResourceObjectIfChanged();
+						vm.showEditPane = false;
+					}
+
+					vm.selectEntity = function (entity) {
+						if (entity) {
+							if (!vm.editModel || (vm.editModel && vm.editModel.Id != entity.Id)) {
+
+								console.log("Selected entity to edit = %O", entity);
+								vm.editModel = angular.copy(entity);
+
+								vm.editModel.associatedSiteIds = [];
+
+								entity.SiteCompanies.forEach(function (sc) {
+									vm.editModel.associatedSiteIds[sc.Site.Id] = true;
+								});
+
+
+								console.log("vm.editModel = %O", vm.editModel);
+
+								vm.entity = entity;
+								vm.widget.WidgetResource.DefaultIdSelectedForEdit = entity.Id;
+								SaveWidgetResourceObjectIfChanged();
+								vm.editPanelTitle = 'Editing ' + vm.entityName;
+								vm.showEditPane = true;
+								setFocusToTheSpecifiedField();
+								console.log("vm.entity = %O", vm.entity);
+							}
+						}
+
+					}
+
+					vm.saveEntity = function () {
+
+						var associatedSiteIdObjects = [];
+
+
+						vm.editModel.associatedSiteIds.forEach(function (enabled, siteId) {
+							associatedSiteIdObjects.push({ SiteId: siteId, Enabled: enabled });
+						});
+
+
+						mapEditModelToEntity();
+
+
+						//If this is an existing entity, go and get a fresh copy without the SiteCompanies attached.
+						if (vm.entity.Id) {
+
+
+
+						}
+
+						console.log("Company to save = %O", vm.editModel);
+
+						(vm.editModel.Id ? dataService.GetEntityById(vm.entityCollectionName, vm.entity.Id).then(function (existingEntity) {
+							existingEntity.Name = vm.editModel.Name;
+							existingEntity.ShortName = vm.editModel.ShortName;
+							existingEntity.Description = vm.editModel.Description;
+							existingEntity.Address = vm.editModel.Address;
+							return existingEntity.$save();
+
+						}) : dataService.AddEntity(vm.entityCollectionName, vm.editModel)).then(
+							function (entityFromSave) {
+
+								vm.entityFromSave = entityFromSave;
+								console.log("entity returned from the save operation = %O", entityFromSave);
+								$q.all(
+									//All Sites that are present in the company already associated set, that are not present in the enabled sites list in the company, as delete promise set.
+										vm.entity
+										.SiteCompanies
+										.where(function (sc) { return !vm.editModel.associatedSiteIds[sc.SiteId] })
+										.select(function (scToRemoveFromCompany) {
+
+											console.log("Site Company to remove from Company entity = %O", scToRemoveFromCompany);
+											return dataService.GetIOPSResource("SiteCompanies")
+												.filter("CompanyId", vm.entity.Id)
+												.filter("SiteId", scToRemoveFromCompany.SiteId)
+												.query().$promise.then(function (data) {
+
+													var scToDelete = data.first();
+													scToDelete.Id = -scToDelete.Id;
+
+													return scToDelete.$save();
+												});
+
+
+										})
+									.concat(
+											associatedSiteIdObjects
+											.where(function (en) {
+												return en.Enabled && !vm.entity.SiteCompanies.any(function (sc) { return sc.SiteId == en.SiteId });
+											})
+											.select(function (scToInsert) {
+
+												console.log("Site Company to add to Company entity = %O", scToInsert);
+												return dataService.AddEntity("SiteCompanies",
+													{
+														SiteId: scToInsert.SiteId,
+														CompanyId: vm.entity.Id
+													});
+											})
+										)
+								).then(function () {
+
+
+									signalR.SignalAllClientsInGroup("Admin", vm.entityName + (vm.editModel.Id ? " Update" : " Add"), entityFromSave);
+									vm.showEditPane = false;
+									vm.entity = null;
+									vm.editModel = null;
+
+								});
+
+
+							});
+					}
+
+
+					$scope.$on(vm.entityName + " Add", function (event, newEntity) {
+						console.log(vm.entityName + ' Add Event. New Entity = %O', newEntity);
+						vm.entities.push(newEntity);
+						vm.entities = vm.entities.orderBy(function (e) { return e.Name });
+					});
+
+					$scope.$on(vm.entityName + " Update", function (event, updatedEntity) {
+						console.log(vm.entityName + ' Update Event. Updated Entity = %O', updatedEntity);
+
+
+						//Get the company with all of the attached SiteCompany entities for another edit.
+						dataService.GetIOPSResource(vm.entityCollectionName)
+							.expandPredicate("SiteCompanies")
+								.expand("Site")
+							.finish()
+							.filter("Id", updatedEntity.Id)
+							.query()
+							.$promise
+							.then(function (data) {
+								var updatedEntityFromDB = data.first();
+
+								console.log("Updated entity retrieved from DB = %O", updatedEntityFromDB);
+
+								vm.entities = [updatedEntityFromDB].concat(vm.entities).distinct(function (a, b) { return a.Id == b.Id }).orderBy(function (e) { return e.Name });
+
+								console.log("New entities collection = %O", vm.entities);
+
+								if (updatedEntityFromDB.Id == (vm.editModel ? vm.editModel.Id : 0)) {
+
+									vm.editModel = angular.copy(updatedEntityFromDB);
+									vm.editModel.associatedSiteIds = [];
+
+									updatedEntityFromDB.SiteCompanies.forEach(function (sc) {
+										vm.editModel.associatedSiteIds[sc.Site.Id] = true;
+									});
+								}
+
+							});
+
+					});
+
+					$scope.$on(vm.entityName + " Delete", function (event, deletedEntity) {
+						console.log(vm.entityName + ' Delete Event. Deleted Entity = %O', deletedEntity);
+						console.log("vm.entities = %O", vm.entities);
+						vm.entities = vm.entities.where(function (e) { return e.Id != deletedEntity.Id });
+					});
+
+					$scope.$watch("vm.editModel",
+						function (newValue, oldValue) {
+							if ((oldValue || '') != (newValue || '')) {
+								console.log("$scope.$watch vm.editModel change triggered");
+								console.log("Old Value = %O", oldValue);
+								console.log("New Value = %O", oldValue);
+								//If any of the entities have an Id attribute, then this is editing an existing value.
+								//send the changes to all other browsers as they press the keys.
+								if (newValue && newValue.Id) {
+									console.log("vm.editModelChanged. newValue = %O", newValue);
+
+									signalR.SignalAllClientsInGroup("Admin", vm.entityName + " EditModel Modification", { editModel: vm.editModel, widgetId: vm.widget.Id });
+								}
+							}
+						});
+
+					$scope.$watch("vm.widget.WidgetResource",
+						function (newValue, oldValue) {
+
+							//If any of the entities have an Id attribute, then this is editing an existing value.
+							//send the changes to all other browsers as they press the keys.
+							if (newValue && newValue.Id) {
+								signalR.SignalAllClientsInGroup("Admin", vm.entityName + " EditModel Modification", vm.editModel);
+							}
+						});
+
+					$scope.$watch("vm.widget.searchText",
+						function (newValue, oldValue) {
+
+							//If any of the entities have an Id attribute, then this is editing an existing value.
+							//send the changes to all other browsers as they press the keys.
+							if ((oldValue || '') != (newValue || '')) {
+								console.log("searchText change = Old = " + oldValue + " New = " + newValue);
+								vm.widget.WidgetResource.DefaultSearchText = newValue;
+								SaveWidgetResourceObjectIfChanged();
+								signalR.SignalAllClientsInGroup("Admin", vm.widget.Id + " SearchText Modification", vm.widget.searchText);
+							}
+						});
+
+					$scope.$on(vm.entityName + " EditModel Modification", function (event, modifiedEntityObject) {
+						if (modifiedEntityObject) {
+
+							console.log(vm.entityName + ' Edit Model Modification. Modified Entity = %O', modifiedEntityObject);
+
+							//Only if it is the same entity that we are editing and it came from another widget somewhere in the system.
+							if (modifiedEntityObject.editModel.Id == (vm.editModel ? vm.editModel.Id : 0) && modifiedEntityObject.widgetId != vm.widget.Id) {
+								vm.editModel = modifiedEntityObject.editModel;
+								console.log("vm.editModel reassigned from event. editModel now = %O", vm.editModel);
+							}
+						}
+					});
+
+					$scope.$on(vm.widget.Id + " SearchText Modification", function (event, newSearchText) {
+						vm.widget.searchText = newSearchText;
+					});
+
+
 
 					vm.showWidget = true;
 
@@ -20512,8 +22153,8 @@ angular.module('app')
 					vm.widget.WidgetResource.SplitLeftPercentage = vm.widget.WidgetResource.SplitLeftPercentage || 50;
 					SaveWidgetResourceObjectIfChanged();
 
-					vm.bootstrapLabelColumns = 2;
-					vm.bootstrapInputColumns = 10;
+					vm.bootstrapLabelColumns = 3;
+					vm.bootstrapInputColumns = 9;
 					uibButtonConfig.activeClass = 'radio-active';
 
 					//Get a copy of the user record to determine privs
@@ -20522,7 +22163,6 @@ angular.module('app')
 
 
 					displaySetupService.SetWidgetPanelBodyDimensions(vm.widget.Id);
-
 
 					vm.SetSortField = function (fieldName) {
 						var t0 = performance.now();
@@ -20546,17 +22186,44 @@ angular.module('app')
 					//---G
 					function GetData() {
 
-						console.log("Entry into modules GetData()");
+						console.log("Entry into " + vm.entityCollectionName + " GetData()");
 
-						dataService.GetIOPSCollection("Modules").then(function(data) {
-							$timeout(function() {
-									SetupSplitter();
+
+						dataService.GetIOPSResource("Companies")
+							.expandPredicate("SiteCompanies")
+								.expand("Site")
+							.finish()
+							.query()
+							.$promise
+							.then(function (data) {
+
+								console.log("Companies Data = %O", data);
+
+
+								vm.entities = data.orderBy(function (e) { return e.Name });
+
+								$timeout(function () {
 									SetTabBodyHeight(5);
-								},
-								50);
-						});
+									SetupSplitter();
+									vm.showEntities = true;
+									vm.widget.searchText = vm.widget.WidgetResource.DefaultSearchText || '';
+									if ((vm.widget.WidgetResource.DefaultIdSelectedForEdit || 0) > 0) {
+										vm.selectEntity(vm.entities.first(function (e) {
+											return e.Id == vm.widget.WidgetResource.DefaultIdSelectedForEdit;
+										}));
+									}
+								}, 50);
+
+
+							});
+
+
 					}
 					//***G
+
+					console.log(vm.entityCollectionName + " 3");
+
+					GetData();
 
 					function SetTabBodyHeight(repeatCount) {
 						$interval(function () {
@@ -20571,7 +22238,9 @@ angular.module('app')
 								//console.log("Height to set = " + heightToSet);
 								$("#containerdata" + vm.widget.Id).css('height', heightToSet);
 								$("#repeater-container-data" + vm.widget.Id).css('height', heightToSet);
-								$("#repeater-container-edit" + vm.widget.Id).css('height', heightToSet);
+								$("#container-edit" + vm.widget.Id).css('height', heightToSet - 20);
+								$("#widget-edit-pane-panel-body" + vm.widget.Id).css('height', heightToSet - 20);
+								$("#edit-pane-backdrop" + vm.widget.Id).css('height', heightToSet - 20);
 							}
 
 						}, 50, repeatCount || 1);
@@ -20608,7 +22277,7 @@ angular.module('app')
 													'cursor': 'col-resize'
 												}
 											},
-											sizes: [vm.widget.WidgetResource.SplitLeftPercentage, vm.widget.WidgetResource.SplitRightPercentage],
+											sizes: [vm.widget.WidgetResource.SplitLeftPercentage || 50, vm.widget.WidgetResource.SplitRightPercentage || 50],
 											minSize: 0,
 											onDragEnd: function () {
 
@@ -20680,7 +22349,1209 @@ angular.module('app')
 
 				return {
 					restrict: 'E', //Default for 1.3+
+					templateUrl: "app/widgetDirectives/adminMaintenance/companies.html?" + Date.now(),
+
+					scope: {
+
+						dashboard: "=",
+						widget: "=",
+						mode: "@"
+					},
+
+					controllerAs: 'vm',
+					controller: controller,
+					bindToController: true //required in 1.3+ with controllerAs
+				};
+			}
+		]);
+
+}());
+(function () {
+
+	var app = angular.module('app');
+
+	app.directive('modules',
+		[
+			"$rootScope", "dataService", "utilityService", "$state", "hotkeys", "displaySetupService", "$timeout", "$window", "$interval", "signalR", "uibButtonConfig", "$location",
+
+			function ($rootScope, dataService, utilityService, $state, hotkeys, displaySetupService, $timeout, $window, $interval, signalR, uibButtonConfig, $location) {
+
+				var controller = function ($scope) {
+					var vm = this;
+
+
+					//Entity Specific Code
+
+					vm.entityName = "Module";
+					vm.entityCollectionName = "Modules";
+					vm.focusFieldName = 'Mnemonic';
+					console.log(vm.entityCollectionName + " Controller invoked");
+
+					vm.widgetDimensions = displaySetupService.GetWidgetPanelBodyDimensions(vm.widget.Id);
+					vm.listPaneWidth = vm.widgetDimensions.width * (vm.widget.WidgetResource.SplitLeftPercentage / 100);
+					vm.columnHideWidth1 = 600;
+					vm.columnHideWidth2 = 600;
+
+					/////////////////////////////////////////////
+					//Generic Code Below
+					////////////////////////////////////////////
+
+
+					console.log(vm.entityCollectionName + " 1");
+
+					hotkeys.bindTo($scope)
+						.add({
+							combo: 'ctrl+s',
+							description: 'Save and Close any form data input form',
+							allowIn: ['INPUT', 'SELECT', 'TEXTAREA'],
+							callback: function () {
+								event.preventDefault();
+								vm.saveEntity();
+							}
+						})
+						.add({
+							combo: 'esc',
+							description: 'Cancel and close any input form',
+							allowIn: ['INPUT', 'SELECT', 'TEXTAREA'],
+							callback: function () {
+								vm.entity = null;
+								vm.showEditPane = false;
+							}
+						});
+
+					vm.widget.displaySettings = {
+						headingBackground: 'linear-gradient(to bottom,#dedede, #fefefe)',
+						headingExtraTitle: '',
+						headingPlusButton: true,
+						headingPlusButtonTitle: 'Add New ' + vm.entityName,
+						addEntityFunction: function () {
+							vm.add();
+						},
+						headingSearchField: true
+					}
+
+					vm.add = function () {
+
+						vm.entity = vm.editModel = getNewEntity();
+						vm.editPanelTitle = 'New ' + vm.entityName;
+						vm.showEditPane = true;
+						setFocusToTheSpecifiedField();
+
+					}
+
+					//$interval(function() {
+					//	console.log("search text = %O", vm.widget.searchText);
+					//}, 1000);
+
+					//***G
+					//++Data Input/Output
+					//***G
+
+					//---B
+					function GetData() {
+
+						console.log("Entry into " + vm.entityCollectionName + " GetData()");
+
+						dataService.GetIOPSResource(vm.entityCollectionName)
+							.expandPredicate("CreatorUser")
+								.expand("Person")
+							.finish()
+							.expandPredicate("LastModifiedUser")
+								.expand("Person")
+							.finish()
+							.orderBy("Name")
+							.query()
+							.$promise
+							.then(function (data) {
+
+								vm.entities = data;
+								console.log(data);
+								$timeout(function () {
+									SetTabBodyHeight(5);
+									SetupSplitter();
+									vm.showEntities = true;
+									vm.widget.searchText = vm.widget.WidgetResource.DefaultSearchText || '';
+									if ((vm.widget.WidgetResource.DefaultIdSelectedForEdit || 0) > 0) {
+										vm.selectEntity(vm.entities.first(function (e) {
+											return e.Id == vm.widget.WidgetResource.DefaultIdSelectedForEdit;
+										}));
+									}
+								}, 50);
+							});
+					}
+
+					//---B
+					vm.saveEntity = function () {
+
+						console.log("saveEntity() - vm.editModel = %O", vm.editModel);
+
+						mapEditModelToEntity();
+
+						(vm.editModel.Id ? dataService.GetEntityById(vm.entityCollectionName, vm.entity.Id).then(function (existingEntity) {
+
+							existingEntity.Name = vm.editModel.Name;
+							existingEntity.Mnemonic = vm.editModel.Mnemonic;
+							existingEntity.Description = vm.editModel.Description;
+							existingEntity.LastModifiedUserId = Global.User.Id;
+							existingEntity.LastModifiedDate = utilityService.GetOdataUpdateableCurrentDateTime();
+
+							return existingEntity.$save();
+
+						}) : dataService.AddEntity(vm.entityCollectionName, vm.editModel))
+							.then(
+								function (entityFromSave) {
+
+									vm.entity = null;
+									signalR.SignalAllClientsInGroup("Admin", vm.entityName + (vm.editModel.Id ? " Update" : " Add"), entityFromSave);
+									vm.showEditPane = false;
+
+								});
+					}
+
+					//---B
+					function getNewEntity() {
+						return {
+							Name: '',
+							Description: '',
+							Mnemonic: '',
+							CreationDate: utilityService.GetOdataUpdateableCurrentDateTime(),
+							CreatorUserId: Global.User.Id
+						}
+					}
+
+					//---B
+					function mapEditModelToEntity() {
+						vm.entity.Mnemonic = vm.editModel.Mnemonic;
+						vm.entity.Name = vm.editModel.Name;
+						vm.entity.Description = vm.editModel.Description;
+						if (vm.entity.Id) {
+							vm.entity.LastModifiedUserId = Global.User.Id;
+							vm.entity.LastModifiedDate = utilityService.GetOdataUpdateableCurrentDateTime();
+						} else {
+							vm.entity.CreatorUserId = Global.User.Id;
+							vm.entity.CreationDate = utilityService.GetOdataUpdateableCurrentDateTime();
+							
+						}
+					}
+
+
+					//---B
+					function getEntityByIdFromDBAndMergeToEntities(id) {
+						//Go and get the expanded entity from the database
+						dataService.GetIOPSResource(vm.entityCollectionName)
+							.filter("Id", id)
+							.expandPredicate("CreatorUser")
+							.expand("Person")
+							.finish()
+							.expandPredicate("LastModifiedUser")
+							.expand("Person")
+							.finish()
+							.query()
+							.$promise
+							.then(function (data) {
+
+
+								console.log("Data from odata expansion = %O", data);
+
+								var updatedEntityFromDB = data.first();
+
+								console.log("Updated entity from db = %O", updatedEntityFromDB);
+
+								vm.entities = [updatedEntityFromDB].concat(vm.entities).distinct(function (a, b) { return a.Id == b.Id }).orderBy(function(e){ return e.Name});
+								if (updatedEntityFromDB.Id == (vm.editModel ? vm.editModel.Id : 0)) {
+									vm.editModel = angular.copy(updatedEntityFromDB);
+								}
+
+							});
+						
+					}
+
+					//---B
+					vm.delete = function (entity) {
+
+
+
+						alertify.set({
+							labels: {
+								ok: "Yes, Delete the " + vm.entityName,
+								cancel: "Cancel, I don't want to do this"
+							},
+							buttonFocus: "cancel"
+						});
+
+						var message = 'Are you SURE you want to delete this ' + vm.entityName + '? ';
+
+						alertify.confirm(message, function (e) {
+							if (e) {
+
+								//+User clicked "ok"
+
+								//If the entity to be deleted is the same as the one selected for edit, then clear the edit screen.
+								if (entity.Id == vm.entity.Id) {
+									vm.entity = null;
+									vm.editModel = null;
+									vm.showEditPane = false;
+								}
+								signalR.SignalAllClientsInGroup("Admin", vm.entityName + " Delete", entity);
+								dataService.DeleteEntity(vm.entityCollectionName, entity);
+								toastr.success(location.Name, vm.entityName + " was deleted!");
+
+							} else {
+								// user clicked "no"
+								toastr.info(location.Name, vm.entityName + " was NOT deleted!");
+							}
+						});
+					}
+
+
+
+
+					//***G
+
+
+
+
+
+
+
+					//***G
+					//++Events
+					//---G
+
+
+					//---B
+					$scope.$on(vm.entityName + " Add", function (event, updatedEntity) {
+
+						console.log(vm.entityName + ' Add Event. New Entity = %O', updatedEntity);
+						getEntityByIdFromDBAndMergeToEntities(updatedEntity.Id);
+
+					});
+
+					//---B
+					//---B
+					$scope.$on(vm.entityName + " Update", function (event, updatedEntity) {
+
+						console.log(vm.entityName + ' Update Event. Updated Entity = %O', updatedEntity);
+						getEntityByIdFromDBAndMergeToEntities(updatedEntity.Id);
+
+					});
+
+					//---B
+					$scope.$on(vm.entityName + " Delete", function (event, deletedEntity) {
+						console.log(vm.entityName + ' Delete Event. Deleted Entity = %O', deletedEntity);
+						console.log("vm.entities = %O", vm.entities);
+						vm.entities = vm.entities.where(function (e) { return e.Id != deletedEntity.Id });
+					});
+
+
+					//---B
+					$scope.$watch("vm.editModel",
+						function (newValue, oldValue) {
+
+							//If any of the entities have an Id attribute, then this is editing an existing value.
+							//send the changes to all other browsers as they press the keys.
+							if (newValue && newValue.Id) {
+								signalR.SignalAllClientsInGroup("Admin", vm.entityName + " EditModel Modification", vm.editModel);
+							}
+						});
+
+					//---B
+					$scope.$watch("vm.widget.WidgetResource",
+						function (newValue, oldValue) {
+
+							//If any of the entities have an Id attribute, then this is editing an existing value.
+							//send the changes to all other browsers as they press the keys.
+							if (newValue && newValue.Id) {
+								signalR.SignalAllClientsInGroup("Admin", vm.entityName + " EditModel Modification", vm.editModel);
+							}
+						});
+
+					//---B
+					//---B
+					$scope.$watch("vm.widget.searchText",
+						function (newValue, oldValue) {
+
+							//If any of the entities have an Id attribute, then this is editing an existing value.
+							//send the changes to all other browsers as they press the keys.
+							if ((oldValue || '') != (newValue || '')) {
+								console.log("searchText change = Old = " + oldValue + " New = " + newValue);
+								vm.widget.WidgetResource.DefaultSearchText = newValue;
+								SaveWidgetResourceObjectIfChanged();
+								signalR.SignalAllClientsInGroup("Admin", vm.widget.Id + " SearchText Modification", vm.widget.searchText);
+							}
+						});
+
+					//---B
+					$scope.$on(vm.entityName + " EditModel Modification", function (event, modifiedEntity) {
+						if (modifiedEntity) {
+
+							console.log(vm.entityName + ' Edit Model Modification. Modified Entity = %O', modifiedEntity);
+							if (modifiedEntity.Id == (vm.editModel ? vm.editModel.Id : 0)) {
+								vm.editModel = modifiedEntity;
+							}
+						}
+					});
+
+					//---B
+					$scope.$on(vm.widget.Id + " SearchText Modification", function (event, newSearchText) {
+						vm.widget.searchText = newSearchText;
+					});
+
+					$scope.$on("WidgetResize", function (event, resizedWidgetId) {
+
+						if (vm.widget.Id == resizedWidgetId || resizedWidgetId == 0) {
+							vm.widgetDimensions = displaySetupService.GetWidgetPanelBodyDimensions(vm.widget.Id);
+							vm.listPaneWidth = vm.widgetDimensions.width * (vm.widget.WidgetResource.SplitLeftPercentage / 100);
+							displaySetupService.SetPanelBodyWithIdHeight(vm.widget.Id);
+							SetTabBodyHeight(1);
+						}
+					});
+
+					//---B
+					$scope.$on("WidgetResize.Stop", function (event, resizedWidgetId) {
+						if (vm.widget.Id == resizedWidgetId || resizedWidgetId == 0) {
+							$timeout(function () {
+								vm.widgetDimensions = displaySetupService.GetWidgetPanelBodyDimensions(vm.widget.Id);
+								vm.listPaneWidth = vm.widgetDimensions.width * (vm.widget.WidgetResource.SplitLeftPercentage / 100);
+								console.log("vm.listPaneWidth = " + vm.listPaneWidth);
+								displaySetupService.SetPanelBodyWithIdHeight(vm.widget.Id);
+								SetTabBodyHeight(1);
+
+							}, 200);
+						}
+					});
+
+					//---B
+					$scope.$on("ResizeVirtualScrollContainers", function () {
+						//console.log("ResizeVirtualScrollContainers received");
+						displaySetupService.SetPanelBodyWithIdHeight(vm.widget.Id);
+						SetTabBodyHeight(1);
+					});
+
+
+
+					//***G
+
+
+
+					vm.cancelSaveEntity = function () {
+						vm.entity = null;
+						vm.widget.WidgetResource.DefaultIdSelectedForEdit = 0;
+						SaveWidgetResourceObjectIfChanged();
+						vm.showEditPane = false;
+					}
+
+					vm.selectEntity = function (entity) {
+						if (entity) {
+							vm.editModel = angular.copy(entity);
+							vm.entity = entity;
+							vm.widget.WidgetResource.DefaultIdSelectedForEdit = entity.Id;
+							SaveWidgetResourceObjectIfChanged();
+							vm.editPanelTitle = 'Editing ' + vm.entityName;
+							vm.showEditPane = true;
+							setFocusToTheSpecifiedField();
+							console.log("Selected Entity = %O", vm.editModel);
+						}
+
+					}
+
+					function setFocusToTheSpecifiedField() {
+						$timeout(function () {
+							$("#" + vm.widget.Id + '-' + vm.entityName + '-' + vm.focusFieldName).focus();
+						}, 50);
+					}
+
+					vm.showWidget = true;
+
+					vm.originalWidgetResource = angular.copy(vm.widget.WidgetResource);
+
+					function SaveWidgetResourceObjectIfChanged() {
+						var possiblyChangedResource = angular.copy(vm.widget.WidgetResource);
+						//console.log("Changed Widget Resource = %O", possiblyChangedResource);
+						//console.log("Original widget resource = %O", vm.originalWidgetResource);
+						if (!angular.equals(vm.originalWidgetResource, possiblyChangedResource)) {
+
+							console.log("Saving widget resource........");
+							console.log("Original WidgetResource = %O", vm.originalWidgetResource);
+							console.log("Changed WidgetResource = %O", possiblyChangedResource);
+							vm.widget.WidgetResource.$save();
+							vm.originalWidgetResource = possiblyChangedResource;
+						}
+					}
+
+					vm.widget.WidgetResource.SplitLeftPercentage = vm.widget.WidgetResource.SplitLeftPercentage || 50;
+					SaveWidgetResourceObjectIfChanged();
+
+					vm.bootstrapLabelColumns = 3;
+					vm.bootstrapInputColumns = 9;
+					uibButtonConfig.activeClass = 'radio-active';
+
+					//Get a copy of the user record to determine privs
+					vm.user = Global.User;
+					console.log("Initial vm.widget = %O", vm.widget);
+
+
+					displaySetupService.SetWidgetPanelBodyDimensions(vm.widget.Id);
+
+
+					//---B
+					vm.SetSortField = function (fieldName) {
+						var t0 = performance.now();
+
+						if (vm.widget.displaySettings.tagDataSortField.substr(1, 50) == fieldName || vm.widget.displaySettings.tagDataSortField == fieldName) {
+							if (vm.widget.displaySettings.tagDataSortField.substr(0, 1) == "-") {
+								vm.widget.displaySettings.tagDataSortField = fieldName;
+
+
+							} else {
+								vm.widget.displaySettings.tagDataSortField = "-" + fieldName;
+
+							}
+						} else {
+							vm.widget.displaySettings.tagDataSortField = fieldName;
+						}
+					}
+
+					GetData();
+
+					//---B
+					function SetTabBodyHeight(repeatCount) {
+						$interval(function () {
+
+							displaySetupService.SetWidgetPanelBodyDimensions(vm.widget.Id);
+							var widgetDimensions = displaySetupService.GetWidgetPanelBodyDimensions(vm.widget.Id);
+							var heightToSet = 0;
+							if (widgetDimensions) {
+
+								heightToSet = widgetDimensions.height - 3;
+
+								//console.log("Height to set = " + heightToSet);
+								$("#containerdata" + vm.widget.Id).css('height', heightToSet);
+								$("#repeater-container-data" + vm.widget.Id).css('height', heightToSet);
+								$("#container-edit" + vm.widget.Id).css('height', heightToSet - 20);
+								$("#widget-edit-pane-panel-body" + vm.widget.Id).css('height', heightToSet - 20);
+								$("#edit-pane-backdrop" + vm.widget.Id).css('height', heightToSet - 20);
+							}
+
+						}, 50, repeatCount || 1);
+					}
+
+
+
+
+					//---B
+					vm.splitterIsSetup = false;
+					function SetupSplitter() {
+						if (!vm.splitterIsSetup) {
+							$scope.$$postDigest(function () {
+								displaySetupService.SetPanelBodyWithIdHeight(vm.widget.Id);
+								$scope.$$postDigest(function () {
+
+									vm.widget.WidgetResource.SplitLeftPercentage = vm.widget.WidgetResource.SplitLeftPercentage || 50;
+									vm.widget.WidgetResource.SplitRightPercentage = vm.widget.WidgetResource.SplitRightPercentage || 50;
+
+									vm.splitter = Split(['#containerData' + vm.widget.Id, '#containerEdit' + vm.widget.Id],
+										{
+											elementStyle: function (dimension, size, gutterSize) {
+												return {
+													'flex-basis': 'calc(' + size + '% - ' + gutterSize + 'px)'
+												}
+											},
+											gutterStyle: function (dimension, gutterSize) {
+												return {
+													'flex-basis': gutterSize + 'px',
+													'background-image': "url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAUAAAAeCAYAAADkftS9AAAAIklEQVQoU2M4c+bMfxAGAgYYmwGrIIiDjrELjpo5aiZeMwF+yNnOs5KSvgAAAABJRU5ErkJggg==')",
+													'background-repeat': 'no-repeat',
+													'background-position': '50%',
+													'background-color': 'transparent',
+													'cursor': 'col-resize'
+												}
+											},
+											sizes: [vm.widget.WidgetResource.SplitLeftPercentage || 50, vm.widget.WidgetResource.SplitRightPercentage || 50],
+											minSize: 0,
+											onDrag: function() {
+												var sizes = vm.splitter.getSizes();
+												if (vm.widgetDimensions.width == 0) {
+													vm.widgetDimensions = displaySetupService.GetWidgetPanelBodyDimensions(vm.widget.Id)
+												}
+												vm.listPaneWidth = vm.widgetDimensions.width * (sizes[0] / 100);
+												//console.log("vm.listPaneWidth = " + vm.listPaneWidth);
+
+											},
+											onDragEnd: function () {
+
+												var sizes = vm.splitter.getSizes();
+												vm.widget.WidgetResource.SplitLeftPercentage = sizes[0];
+												vm.widget.WidgetResource.SplitRightPercentage = sizes[1];
+												if (vm.widgetDimensions.width == 0) {
+													vm.widgetDimensions = displaySetupService.GetWidgetPanelBodyDimensions(vm.widget.Id)
+												}
+												vm.listPaneWidth = vm.widgetDimensions.width * (vm.widget.WidgetResource.SplitLeftPercentage / 100);
+												//console.log("vm.listPaneWidth = " + vm.listPaneWidth);
+
+												SaveWidgetResourceObjectIfChanged();
+											}
+										});
+									vm.splitterIsSetup = true;
+								});
+							});
+						}
+					}
+
+
+					vm.state = $state;
+
+					$scope.$$postDigest(function () {
+						displaySetupService.SetPanelBodyWithIdHeight(vm.widget.Id);
+
+					});
+
+
+				};
+
+
+
+
+
+				controller.$inject = ["$scope"];
+
+
+
+				return {
+					restrict: 'E', //Default for 1.3+
 					templateUrl: "app/widgetDirectives/adminMaintenance/modules.html?" + Date.now(),
+
+					scope: {
+
+						dashboard: "=",
+						widget: "=",
+						mode: "@"
+					},
+
+					controllerAs: 'vm',
+					controller: controller,
+					bindToController: true //required in 1.3+ with controllerAs
+				};
+			}
+		]);
+
+}());
+(function () {
+
+	var app = angular.module('app');
+
+	app.directive('people',
+		[
+			"$rootScope", "dataService", "utilityService", "$state", "hotkeys", "displaySetupService", "$timeout", "$window", "$interval", "signalR", "uibButtonConfig", "$location", "$q",
+
+			function ($rootScope, dataService, utilityService, $state, hotkeys, displaySetupService, $timeout, $window, $interval, signalR, uibButtonConfig, $location, $q) {
+
+				var controller = function ($scope) {
+					var vm = this;
+
+
+					//Entity Specific Code
+
+					vm.entityName = "Company";
+					vm.entityCollectionName = "Companies";
+					vm.focusFieldName = 'Name';
+					console.log(vm.entityCollectionName + " Controller invoked");
+
+
+					function getNewEntity() {
+						return {
+							Name: '',
+							Description: ''
+						}
+					}
+
+					function mapEditModelToEntity() {
+						if (vm.editModel.Id > 0) {
+							vm.entity.Id = vm.editModel.Id;
+						}
+						vm.entity.Name = vm.editModel.Name;
+						vm.entity.ShortName = vm.editModel.ShortName;
+						vm.entity.Description = vm.editModel.Description;
+						vm.entity.Address = vm.editModel.Address;
+					}
+
+					/////////////////////////////////////////////
+					//Generic Code Below
+					////////////////////////////////////////////
+
+
+					console.log(vm.entityCollectionName + " 1");
+
+					hotkeys.bindTo($scope)
+						.add({
+							combo: 'ctrl+s',
+							description: 'Save and Close any form data input form',
+							allowIn: ['INPUT', 'SELECT', 'TEXTAREA'],
+							callback: function () {
+								event.preventDefault();
+								vm.saveEntity();
+							}
+						})
+						.add({
+							combo: 'esc',
+							description: 'Cancel and close any input form',
+							allowIn: ['INPUT', 'SELECT', 'TEXTAREA'],
+							callback: function () {
+								vm.entity = null;
+								vm.showEditPane = false;
+							}
+						});
+
+					function setFocusToTheSpecifiedField() {
+						$timeout(function () {
+							$("#" + vm.widget.Id + '-' + vm.entityName + '-' + vm.focusFieldName).focus();
+						}, 50);
+					}
+
+					vm.widget.displaySettings = {
+						headingBackground: 'linear-gradient(to bottom,#dedede, #fefefe)',
+						headingExtraTitle: '',
+						headingPlusButton: true,
+						headingPlusButtonTitle: 'Add New ' + vm.entityName,
+						addEntityFunction: function () {
+							vm.add();
+						},
+						headingSearchField: true
+					}
+
+
+					//$interval(function() {
+					//	console.log("search text = %O", vm.widget.searchText);
+					//}, 1000);
+					dataService.GetJBTData().then(function (data) {
+						vm.JBTData = data;
+					});
+
+
+					vm.delete = function (entity) {
+
+
+						var cacheCompany = vm.JBTData.Companies.first(function (c) { return c.Id == entity.Id });
+						console.log("cacheCompany = %O", cacheCompany);
+
+						if (
+								vm.JBTData.Assets.any(function (a) { return a.CompanyId == entity.Id }) ||
+								vm.JBTData.Systems.any(function (s) { return s.CompanyId == entity.Id }) ||
+								cacheCompany.Sites.length > 0
+
+							) {
+
+							var alertifyMessage = "<strong>Company cannot be deleted!</strong><br><br>";
+
+							if (vm.JBTData.Assets.any(function (a) { return a.CompanyId == entity.Id })) {
+								alertifyMessage += "It still has Assets associated with it!<br>";
+							}
+
+							if (vm.JBTData.Systems.any(function (s) { return s.CompanyId == entity.Id })) {
+								alertifyMessage += "It still has Systems associated with it!<br>";
+							}
+
+							if (cacheCompany.Sites.length > 0) {
+								alertifyMessage += "It still has Sites associated with it!";
+							}
+
+							alertify.set({
+								labels: {
+									ok: "Ok",
+									cancel: "Cancel, I don't want to do this"
+								},
+								buttonFocus: "cancel"
+							});
+
+							alertify.alert(alertifyMessage, function (e) {
+								toastr.success(location.Name, "Company was NOT deleted!");
+								return;
+							}
+							);
+
+							return;
+
+						}
+
+						alertify.set({
+							labels: {
+								ok: "Yes, Delete the " + vm.entityName,
+								cancel: "Cancel, I don't want to do this"
+							},
+							buttonFocus: "cancel"
+						});
+						var message = 'Are you SURE you want to delete this ' + vm.entityName + '? ';
+
+						alertify.confirm(message, function (e) {
+							if (e) {
+								// user clicked "ok"
+								signalR.SignalAllClientsInGroup("Admin", vm.entityName + " Delete", entity);
+								dataService.DeleteEntity(vm.entityCollectionName, entity);
+								toastr.success(location.Name, vm.entityName + " was deleted!");
+
+							} else {
+								// user clicked "no"
+								toastr.info(location.Name, vm.entityName + " was NOT deleted!");
+							}
+						});
+					}
+
+
+
+					vm.add = function () {
+
+						vm.editModel = getNewEntity();
+						vm.entity = angular.copy(vm.editModel);
+						vm.editPanelTitle = 'New ' + vm.entityName;
+						vm.showEditPane = true;
+						setFocusToTheSpecifiedField();
+
+					}
+
+					vm.cancelSaveEntity = function () {
+						vm.entity = null;
+						vm.editModel = null;
+						vm.widget.WidgetResource.DefaultIdSelectedForEdit = 0;
+						SaveWidgetResourceObjectIfChanged();
+						vm.showEditPane = false;
+					}
+
+					vm.selectEntity = function (entity) {
+						if (entity) {
+							if (!vm.editModel || (vm.editModel && vm.editModel.Id != entity.Id)) {
+
+								console.log("Selected entity to edit = %O", entity);
+								vm.editModel = angular.copy(entity);
+
+								vm.editModel.associatedSiteIds = [];
+
+								entity.SiteCompanies.forEach(function (sc) {
+									vm.editModel.associatedSiteIds[sc.Site.Id] = true;
+								});
+
+
+								console.log("vm.editModel = %O", vm.editModel);
+
+								vm.entity = entity;
+								vm.widget.WidgetResource.DefaultIdSelectedForEdit = entity.Id;
+								SaveWidgetResourceObjectIfChanged();
+								vm.editPanelTitle = 'Editing ' + vm.entityName;
+								vm.showEditPane = true;
+								setFocusToTheSpecifiedField();
+								console.log("vm.entity = %O", vm.entity);
+							}
+						}
+
+					}
+
+					vm.saveEntity = function () {
+
+						var associatedSiteIdObjects = [];
+
+
+						vm.editModel.associatedSiteIds.forEach(function (enabled, siteId) {
+							associatedSiteIdObjects.push({ SiteId: siteId, Enabled: enabled });
+						});
+
+
+						mapEditModelToEntity();
+
+
+						//If this is an existing entity, go and get a fresh copy without the SiteCompanies attached.
+						if (vm.entity.Id) {
+
+
+
+						}
+
+						console.log("Company to save = %O", vm.editModel);
+
+						(vm.editModel.Id ? dataService.GetEntityById(vm.entityCollectionName, vm.entity.Id).then(function (existingEntity) {
+							existingEntity.Name = vm.editModel.Name;
+							existingEntity.ShortName = vm.editModel.ShortName;
+							existingEntity.Description = vm.editModel.Description;
+							existingEntity.Address = vm.editModel.Address;
+							return existingEntity.$save();
+
+						}) : dataService.AddEntity(vm.entityCollectionName, vm.editModel)).then(
+							function (entityFromSave) {
+
+								vm.entityFromSave = entityFromSave;
+								console.log("entity returned from the save operation = %O", entityFromSave);
+								$q.all(
+									//All Sites that are present in the company already associated set, that are not present in the enabled sites list in the company, as delete promise set.
+										vm.entity
+										.SiteCompanies
+										.where(function (sc) { return !vm.editModel.associatedSiteIds[sc.SiteId] })
+										.select(function (scToRemoveFromCompany) {
+
+											console.log("Site Company to remove from Company entity = %O", scToRemoveFromCompany);
+											return dataService.GetIOPSResource("SiteCompanies")
+												.filter("CompanyId", vm.entity.Id)
+												.filter("SiteId", scToRemoveFromCompany.SiteId)
+												.query().$promise.then(function (data) {
+
+													var scToDelete = data.first();
+													scToDelete.Id = -scToDelete.Id;
+
+													return scToDelete.$save();
+												});
+
+
+										})
+									.concat(
+											associatedSiteIdObjects
+											.where(function (en) {
+												return en.Enabled && !vm.entity.SiteCompanies.any(function (sc) { return sc.SiteId == en.SiteId });
+											})
+											.select(function (scToInsert) {
+
+												console.log("Site Company to add to Company entity = %O", scToInsert);
+												return dataService.AddEntity("SiteCompanies",
+													{
+														SiteId: scToInsert.SiteId,
+														CompanyId: vm.entity.Id
+													});
+											})
+										)
+								).then(function () {
+
+
+									signalR.SignalAllClientsInGroup("Admin", vm.entityName + (vm.editModel.Id ? " Update" : " Add"), entityFromSave);
+									vm.showEditPane = false;
+									vm.entity = null;
+									vm.editModel = null;
+
+								});
+
+
+							});
+					}
+
+
+					$scope.$on(vm.entityName + " Add", function (event, newEntity) {
+						console.log(vm.entityName + ' Add Event. New Entity = %O', newEntity);
+						vm.entities.push(newEntity);
+						vm.entities = vm.entities.orderBy(function (e) { return e.Name });
+					});
+
+					$scope.$on(vm.entityName + " Update", function (event, updatedEntity) {
+						console.log(vm.entityName + ' Update Event. Updated Entity = %O', updatedEntity);
+
+
+						//Get the company with all of the attached SiteCompany entities for another edit.
+						dataService.GetIOPSResource(vm.entityCollectionName)
+							.expandPredicate("SiteCompanies")
+								.expand("Site")
+							.finish()
+							.filter("Id", updatedEntity.Id)
+							.query()
+							.$promise
+							.then(function (data) {
+								var updatedEntityFromDB = data.first();
+
+								console.log("Updated entity retrieved from DB = %O", updatedEntityFromDB);
+
+								vm.entities = [updatedEntityFromDB].concat(vm.entities).distinct(function (a, b) { return a.Id == b.Id }).orderBy(function (e) { return e.Name });
+
+								console.log("New entities collection = %O", vm.entities);
+
+								if (updatedEntityFromDB.Id == (vm.editModel ? vm.editModel.Id : 0)) {
+
+									vm.editModel = angular.copy(updatedEntityFromDB);
+									vm.editModel.associatedSiteIds = [];
+
+									updatedEntityFromDB.SiteCompanies.forEach(function (sc) {
+										vm.editModel.associatedSiteIds[sc.Site.Id] = true;
+									});
+								}
+
+							});
+
+					});
+
+					$scope.$on(vm.entityName + " Delete", function (event, deletedEntity) {
+						console.log(vm.entityName + ' Delete Event. Deleted Entity = %O', deletedEntity);
+						console.log("vm.entities = %O", vm.entities);
+						vm.entities = vm.entities.where(function (e) { return e.Id != deletedEntity.Id });
+					});
+
+					$scope.$watch("vm.editModel",
+						function (newValue, oldValue) {
+							if ((oldValue || '') != (newValue || '')) {
+								console.log("$scope.$watch vm.editModel change triggered");
+								console.log("Old Value = %O", oldValue);
+								console.log("New Value = %O", oldValue);
+								//If any of the entities have an Id attribute, then this is editing an existing value.
+								//send the changes to all other browsers as they press the keys.
+								if (newValue && newValue.Id) {
+									console.log("vm.editModelChanged. newValue = %O", newValue);
+
+									signalR.SignalAllClientsInGroup("Admin", vm.entityName + " EditModel Modification", { editModel: vm.editModel, widgetId: vm.widget.Id });
+								}
+							}
+						});
+
+					$scope.$watch("vm.widget.WidgetResource",
+						function (newValue, oldValue) {
+
+							//If any of the entities have an Id attribute, then this is editing an existing value.
+							//send the changes to all other browsers as they press the keys.
+							if (newValue && newValue.Id) {
+								signalR.SignalAllClientsInGroup("Admin", vm.entityName + " EditModel Modification", vm.editModel);
+							}
+						});
+
+					$scope.$watch("vm.widget.searchText",
+						function (newValue, oldValue) {
+
+							//If any of the entities have an Id attribute, then this is editing an existing value.
+							//send the changes to all other browsers as they press the keys.
+							if ((oldValue || '') != (newValue || '')) {
+								console.log("searchText change = Old = " + oldValue + " New = " + newValue);
+								vm.widget.WidgetResource.DefaultSearchText = newValue;
+								SaveWidgetResourceObjectIfChanged();
+								signalR.SignalAllClientsInGroup("Admin", vm.widget.Id + " SearchText Modification", vm.widget.searchText);
+							}
+						});
+
+					$scope.$on(vm.entityName + " EditModel Modification", function (event, modifiedEntityObject) {
+						if (modifiedEntityObject) {
+
+							console.log(vm.entityName + ' Edit Model Modification. Modified Entity = %O', modifiedEntityObject);
+
+							//Only if it is the same entity that we are editing and it came from another widget somewhere in the system.
+							if (modifiedEntityObject.editModel.Id == (vm.editModel ? vm.editModel.Id : 0) && modifiedEntityObject.widgetId != vm.widget.Id) {
+								vm.editModel = modifiedEntityObject.editModel;
+								console.log("vm.editModel reassigned from event. editModel now = %O", vm.editModel);
+							}
+						}
+					});
+
+					$scope.$on(vm.widget.Id + " SearchText Modification", function (event, newSearchText) {
+						vm.widget.searchText = newSearchText;
+					});
+
+
+
+					vm.showWidget = true;
+
+					vm.originalWidgetResource = angular.copy(vm.widget.WidgetResource);
+
+					function SaveWidgetResourceObjectIfChanged() {
+						var possiblyChangedResource = angular.copy(vm.widget.WidgetResource);
+						//console.log("Changed Widget Resource = %O", possiblyChangedResource);
+						//console.log("Original widget resource = %O", vm.originalWidgetResource);
+						if (!angular.equals(vm.originalWidgetResource, possiblyChangedResource)) {
+
+							console.log("Saving widget resource........");
+							console.log("Original WidgetResource = %O", vm.originalWidgetResource);
+							console.log("Changed WidgetResource = %O", possiblyChangedResource);
+							vm.widget.WidgetResource.$save();
+							vm.originalWidgetResource = possiblyChangedResource;
+						}
+					}
+
+					vm.widget.WidgetResource.SplitLeftPercentage = vm.widget.WidgetResource.SplitLeftPercentage || 50;
+					SaveWidgetResourceObjectIfChanged();
+
+					vm.bootstrapLabelColumns = 3;
+					vm.bootstrapInputColumns = 9;
+					uibButtonConfig.activeClass = 'radio-active';
+
+					//Get a copy of the user record to determine privs
+					vm.user = Global.User;
+					console.log("Initial vm.widget = %O", vm.widget);
+
+
+					displaySetupService.SetWidgetPanelBodyDimensions(vm.widget.Id);
+
+					vm.SetSortField = function (fieldName) {
+						var t0 = performance.now();
+
+						if (vm.widget.displaySettings.tagDataSortField.substr(1, 50) == fieldName || vm.widget.displaySettings.tagDataSortField == fieldName) {
+							if (vm.widget.displaySettings.tagDataSortField.substr(0, 1) == "-") {
+								vm.widget.displaySettings.tagDataSortField = fieldName;
+
+
+							} else {
+								vm.widget.displaySettings.tagDataSortField = "-" + fieldName;
+
+							}
+						} else {
+							vm.widget.displaySettings.tagDataSortField = fieldName;
+						}
+					}
+
+					//***G
+					//++Get the Data
+					//---G
+					function GetData() {
+
+						console.log("Entry into " + vm.entityCollectionName + " GetData()");
+
+
+						dataService.GetIOPSResource("Companies")
+							.expandPredicate("SiteCompanies")
+								.expand("Site")
+							.finish()
+							.query()
+							.$promise
+							.then(function (data) {
+
+								console.log("Companies Data = %O", data);
+
+
+								vm.entities = data.orderBy(function (e) { return e.Name });
+
+								$timeout(function () {
+									SetTabBodyHeight(5);
+									SetupSplitter();
+									vm.showEntities = true;
+									vm.widget.searchText = vm.widget.WidgetResource.DefaultSearchText || '';
+									if ((vm.widget.WidgetResource.DefaultIdSelectedForEdit || 0) > 0) {
+										vm.selectEntity(vm.entities.first(function (e) {
+											return e.Id == vm.widget.WidgetResource.DefaultIdSelectedForEdit;
+										}));
+									}
+								}, 50);
+
+
+							});
+
+
+					}
+					//***G
+
+					console.log(vm.entityCollectionName + " 3");
+
+					GetData();
+
+					function SetTabBodyHeight(repeatCount) {
+						$interval(function () {
+
+							displaySetupService.SetWidgetPanelBodyDimensions(vm.widget.Id);
+							var widgetDimensions = displaySetupService.GetWidgetPanelBodyDimensions(vm.widget.Id);
+							var heightToSet = 0;
+							if (widgetDimensions) {
+
+								heightToSet = widgetDimensions.height - 3;
+
+								//console.log("Height to set = " + heightToSet);
+								$("#containerdata" + vm.widget.Id).css('height', heightToSet);
+								$("#repeater-container-data" + vm.widget.Id).css('height', heightToSet);
+								$("#container-edit" + vm.widget.Id).css('height', heightToSet - 20);
+								$("#widget-edit-pane-panel-body" + vm.widget.Id).css('height', heightToSet - 20);
+								$("#edit-pane-backdrop" + vm.widget.Id).css('height', heightToSet - 20);
+							}
+
+						}, 50, repeatCount || 1);
+					}
+
+
+
+
+
+					vm.splitterIsSetup = false;
+					function SetupSplitter() {
+						if (!vm.splitterIsSetup) {
+							$scope.$$postDigest(function () {
+								displaySetupService.SetPanelBodyWithIdHeight(vm.widget.Id);
+								$scope.$$postDigest(function () {
+
+									vm.widget.WidgetResource.SplitLeftPercentage = vm.widget.WidgetResource.SplitLeftPercentage || 50;
+									vm.widget.WidgetResource.SplitRightPercentage = vm.widget.WidgetResource.SplitRightPercentage || 50;
+
+									vm.splitter = Split(['#containerData' + vm.widget.Id, '#containerEdit' + vm.widget.Id],
+										{
+											elementStyle: function (dimension, size, gutterSize) {
+												return {
+													'flex-basis': 'calc(' + size + '% - ' + gutterSize + 'px)'
+												}
+											},
+											gutterStyle: function (dimension, gutterSize) {
+												return {
+													'flex-basis': gutterSize + 'px',
+													'background-image': "url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAUAAAAeCAYAAADkftS9AAAAIklEQVQoU2M4c+bMfxAGAgYYmwGrIIiDjrELjpo5aiZeMwF+yNnOs5KSvgAAAABJRU5ErkJggg==')",
+													'background-repeat': 'no-repeat',
+													'background-position': '50%',
+													'background-color': 'transparent',
+													'cursor': 'col-resize'
+												}
+											},
+											sizes: [vm.widget.WidgetResource.SplitLeftPercentage || 50, vm.widget.WidgetResource.SplitRightPercentage || 50],
+											minSize: 0,
+											onDragEnd: function () {
+
+												var sizes = vm.splitter.getSizes();
+												vm.widget.WidgetResource.SplitLeftPercentage = sizes[0];
+												vm.widget.WidgetResource.SplitRightPercentage = sizes[1];
+
+												SaveWidgetResourceObjectIfChanged();
+											},
+
+										});
+									vm.splitterIsSetup = true;
+								});
+
+
+							});
+
+						}
+
+
+					}
+
+					$scope.$on("WidgetResize", function (event, resizedWidgetId) {
+
+						if (vm.widget.Id == resizedWidgetId || resizedWidgetId == 0) {
+							displaySetupService.SetPanelBodyWithIdHeight(vm.widget.Id);
+							SetTabBodyHeight(1);
+						}
+					});
+
+					$scope.$on("WidgetResize.Stop", function (event, resizedWidgetId) {
+						if (vm.widget.Id == resizedWidgetId || resizedWidgetId == 0) {
+							$timeout(function () {
+								displaySetupService.SetPanelBodyWithIdHeight(vm.widget.Id);
+								SetTabBodyHeight(1);
+
+							}, 200);
+						}
+					});
+
+					$scope.$on("ResizeVirtualScrollContainers", function () {
+						//console.log("ResizeVirtualScrollContainers received");
+						displaySetupService.SetPanelBodyWithIdHeight(vm.widget.Id);
+						SetTabBodyHeight(1);
+					});
+
+
+
+
+					vm.state = $state;
+
+					$scope.$$postDigest(function () {
+						displaySetupService.SetPanelBodyWithIdHeight(vm.widget.Id);
+
+					});
+
+
+
+
+				};
+
+
+
+
+
+				controller.$inject = ["$scope"];
+
+
+
+				return {
+					restrict: 'E', //Default for 1.3+
+					templateUrl: "app/widgetDirectives/adminMaintenance/people.html?" + Date.now(),
 
 					scope: {
 
@@ -20879,6 +23750,8 @@ angular.module('app')
 						EmbeddedDashboardId: newDashboard ? newDashboard.Id : null,
 						Width: wt.InitialWidth,
 						Height: wt.InitialHeight,
+						SplitLeftPercentage: 50,
+						SplitRightPercentage: 50,
 						Row: 100,
 						Col: 0
 					}).then(function (widget) {
@@ -21264,7 +24137,7 @@ angular.module('app').controller('AppCtrl',
 			//console.log("appCtrl created");
 
 			$scope.$on("securityService:authenticated", function (event, user) {
-				//console.log("AppCtrl authenticated event received. User = %O", user);
+				console.log("AppCtrl authenticated event received. User = %O", user);
 				vm.showMenu = securityService.showMenu;
 			});
 
@@ -21389,7 +24262,7 @@ angular.module('app').controller('AppCtrl',
 
 		vm.showMenu = false;
 
-		$scope.$on("securityService:authenticated",
+		$rootScope.$on("securityService:authenticated",
 			function (event, user) {
 				console.log("MenuCtrl authenticated event received. User = %O", user);
 
@@ -21482,7 +24355,7 @@ angular.module('app').controller('AppCtrl',
 		}
 
 
-		$scope.$on("Dashboard", function (event, dashboard) {
+		$rootScope.$on("Dashboard", function (event, dashboard) {
 			//console.log("Event Dashboard = %O", dashboard);
 
 			if (dashboard.CreatorUserId == Global.User.Id && !dashboard.ParentDashboardId) {
@@ -21492,7 +24365,7 @@ angular.module('app').controller('AppCtrl',
 		});
 
 
-		$scope.$on("Dashboard.Deleted", function (event, dashboard) {
+		$rootScope.$on("Dashboard.Deleted", function (event, dashboard) {
 			console.log("Event Dashboard.Deleted = %O", dashboard);
 
 			vm.dashboards = vm.dashboards.where(function (db) { return db.Id != dashboard.Id });
@@ -21677,6 +24550,7 @@ angular.module('app').controller('AppCtrl',
 				}
 				vm.dashboards = dashboardsForUser.where(function (d) { return !d.ParentDashboardId }).orderBy(function (db) { return db.Ordinal });;
 				vm.showMenu = true;
+				console.log("Setting the menu as visible");
 
 				//If there are dashboards defined for the user, transition to the first one.
 				if (vm.dashboards && vm.dashboards.length > 0) {
@@ -22006,9 +24880,9 @@ angular.module('app').controller('AppCtrl',
 		}
 
 
-		$scope.$on("dataService.ready",
+		$rootScope.$on("dataService.ready",
 			function (event, data) {
-				//console.log("Setting up menu...");
+				console.log("Setting up menu...");
 
 				SetupMenu();
 			});
@@ -22142,7 +25016,7 @@ angular.module('app').controller('AppCtrl',
 		}
 
 
-		$rootScope.$on("securityService:accessTokenInvalid", function (event, user) {
+		$scope.$on("securityService:accessTokenInvalid", function (event, user) {
 			console.log("LoginCtrl accessToken Invalid event received. User = %O", user);
 			vm.currentUser = user;
 			vm.ShowLoginPanel = true;
@@ -22150,7 +25024,7 @@ angular.module('app').controller('AppCtrl',
 
 		});
 
-		$rootScope.$on("securityService:authenticated", function (event, user) {
+		$scope.$on("securityService:authenticated", function (event, user) {
 			//console.log("LoginCtrl authenticated event received. User = %O", user);
 			vm.currentUser = securityService.GetCurrentUser();
 			vm.ShowLoginPanel = false;
@@ -22182,7 +25056,7 @@ angular.module('app').controller('AppCtrl',
 
 		});
 
-		$rootScope.$on("logout", function (event, user) {
+		$scope.$on("logout", function (event, user) {
 			console.log("LoginCtrl logout event received");
 			vm.username = "";
 			vm.password = "";
@@ -22193,7 +25067,7 @@ angular.module('app').controller('AppCtrl',
 			vm.isPanelVisible = true;
 		});
 
-		$rootScope.$on("securityService.invalidAccount", function (event, user) {
+		$scope.$on("securityService.invalidAccount", function (event, user) {
 			alertify.alert("Username or Password is not valid!");
 
 			if (utilityService.GetQuerystringParameterByName("pwt") == "") {
@@ -22883,180 +25757,6 @@ angular.module('app').controller('AppCtrl',
 
 
 })();
-//++Companies Controller
-(function () {
-	"use strict";
-
-
-	function CompaniesCtrl($scope, $state, displaySetupService, dataService, signalR, $interval) {
-		console.log("CompaniesCtrl conroller invoked.");
-		var vm = this;
-
-
-		vm.columnWidths = {
-
-			name: 10,
-			shortName: 10,
-			description: 30,
-			sitesList: 25,
-			address: 25
-		};
-
-		vm.buttonPanelWidth = 170;
-
-		vm.state = $state;
-		displaySetupService.SetPanelDimensions();
-
-		function AttachSiteListsToData(data) {
-			data.forEach(function (c) {
-				c.sitesList = c.SiteCompanies.select(function (sc) {
-					return sc.Site.Name;
-				}).join(", ");
-			});
-		}
-
-
-		function GetData() {
-			dataService.GetIOPSResource("Companies")
-				.expandPredicate("SiteCompanies")
-				.expand("Site")
-				.finish()
-				.query()
-				.$promise
-				.then(function (data) {
-					AttachSiteListsToData(data);
-					console.log("Companies = %O", data);
-					vm.companies = data;
-
-					dataService.GetJBTData().then(function (JBTData) {
-
-						//Some of the sites are test ones. This will filter those out.
-						vm.sites = JBTData.Sites.where(function (site) { return site.Name.length < 10 }).orderBy(function (s) { return s.Name });
-						vm.JBTData = JBTData;
-					});
-
-				});
-
-		}
-
-		GetData();
-
-
-
-
-
-
-		vm.delete = function (company) {
-
-
-			console.log("Company to Delete = %O", company);
-
-
-			if (
-				vm.JBTData.Assets.any(function (a) { return a.CompanyId == company.Id }) ||
-					vm.JBTData.Systems.any(function (s) { return s.CompanyId == company.Id }) ||
-					company.SiteCompanies.length > 0) {
-
-				var alertifyMessage = "Company cannot be deleted! ";
-
-				if (vm.JBTData.Assets.any(function (a) { return a.CompanyId == company.Id })) {
-					alertifyMessage += "It still has Assets associated with it!";
-				}
-
-				if (vm.JBTData.Systems.any(function (s) { return s.CompanyId == company.Id })) {
-					alertifyMessage += "It still has Systems associated with it!";
-				}
-
-				if (company.SiteCompanies.length > 0) {
-					alertifyMessage += "It still has Companies associated with it!";
-				}
-
-				alertify.alert(alertifyMessage, function (e) {
-						toastr.success(location.Name, "Company was NOT deleted!");
-						return;
-					}
-				);
-
-				return;
-
-			}
-
-			alertify.set({
-				labels: {
-					ok: "Yes, Delete the Company",
-					cancel: "Cancel, I don't want to do this"
-				},
-				buttonFocus: "cancel"
-			});
-
-			var message = 'Are you SURE you want to delete this company? ';
-
-			alertify.confirm(message, function (e) {
-				if (e) {
-					// user clicked "ok"
-					company.Id = -company.Id;
-					company.$save().then(function () {
-						company.Id = -company.Id;
-						signalR.SignalAllClients("Company.Deleted", company);
-					});
-					toastr.success(location.Name, "Company was deleted!");
-
-				} else {
-					// user clicked "no"
-					toastr.info(location.Name, "Company was NOT deleted!");
-				}
-			});
-
-		}
-
-		$scope.$on("Company", function (event, company) {
-			console.log("Event Company");
-
-			dataService.GetIOPSResource("Companies")
-				.expandPredicate("SiteCompanies")
-				.expand("Site")
-				.finish()
-				.get(company.Id)
-				.$promise
-				.then(function (data) {
-
-					data.sitesList = data.SiteCompanies.select(function (sc) {
-						return sc.Site.Name;
-					}).join(", ");
-
-
-					vm.companies = [data].concat(vm.companies).distinct(function (a, b) { return a.Id == b.Id });
-
-				});
-
-		});
-
-
-		vm.scrolledToEnd = function () {
-			console.log("scrolled to end");
-		}
-
-
-
-	}
-
-	angular
-		.module("app")
-		.controller("CompaniesCtrl", [
-			"$scope",
-			"$state",
-			"displaySetupService",
-			"dataService",
-			"signalR",
-			"$interval",
-			CompaniesCtrl
-		]);
-
-
-
-})();
-
-
 //++CompanyEdit Controller
 (function () {
 	"use strict";

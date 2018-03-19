@@ -85,7 +85,7 @@
 		}
 
 
-		$rootScope.$on("securityService:accessTokenInvalid", function (event, user) {
+		$scope.$on("securityService:accessTokenInvalid", function (event, user) {
 			console.log("LoginCtrl accessToken Invalid event received. User = %O", user);
 			vm.currentUser = user;
 			vm.ShowLoginPanel = true;
@@ -93,7 +93,7 @@
 
 		});
 
-		$rootScope.$on("securityService:authenticated", function (event, user) {
+		$scope.$on("securityService:authenticated", function (event, user) {
 			//console.log("LoginCtrl authenticated event received. User = %O", user);
 			vm.currentUser = securityService.GetCurrentUser();
 			vm.ShowLoginPanel = false;
@@ -125,7 +125,7 @@
 
 		});
 
-		$rootScope.$on("logout", function (event, user) {
+		$scope.$on("logout", function (event, user) {
 			console.log("LoginCtrl logout event received");
 			vm.username = "";
 			vm.password = "";
@@ -136,7 +136,7 @@
 			vm.isPanelVisible = true;
 		});
 
-		$rootScope.$on("securityService.invalidAccount", function (event, user) {
+		$scope.$on("securityService.invalidAccount", function (event, user) {
 			alertify.alert("Username or Password is not valid!");
 
 			if (utilityService.GetQuerystringParameterByName("pwt") == "") {

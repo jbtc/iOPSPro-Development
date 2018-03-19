@@ -27,11 +27,17 @@ namespace iOPS_ODataV4.Models
         public Nullable<long> ContactPersonId { get; set; }
         public Nullable<System.DateTime> TerminationDate { get; set; }
         public string Terms { get; set; }
+        public Nullable<System.DateTime> LastModifiedDate { get; set; }
+        public Nullable<long> LastModifiedUserId { get; set; }
+        public Nullable<System.DateTime> CreationDate { get; set; }
+        public Nullable<long> CreatorUserId { get; set; }
     
         public virtual Company Company { get; set; }
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<SubscriptionModule> SubscriptionModules { get; set; }
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<SubscriptionUser> SubscriptionUsers { get; set; }
+        public virtual iOPSUser LastModifiedUser { get; set; }
+        public virtual iOPSUser CreatorUser { get; set; }
     }
 }

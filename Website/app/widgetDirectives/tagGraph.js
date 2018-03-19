@@ -17,18 +17,9 @@
 
 					vm.widget.displaySettings = {
 						headingBackground: 'linear-gradient(to bottom,#dedede, #fefefe)',
-						tagDataSortField: '-PLCLocalDate',
-						alarmDataSortField: '-PLCLocalDate',
-						warningsDataSortField: '-PLCLocalDate',
 						headingExtraTitle: '',
 						obscureGraphics: true
 					}
-
-
-
-
-
-
 
 
 					//***G
@@ -45,7 +36,7 @@
 							vm.resizeEventCounter = 0;
 
 						}
-					}, 300);
+					}, 500);
 
 					$scope.$on("WidgetResize", function (event, resizedWidgetId) {
 						//console.log("Widget resize event");

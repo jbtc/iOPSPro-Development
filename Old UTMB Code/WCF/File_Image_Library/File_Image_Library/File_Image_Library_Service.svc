@@ -1,0 +1,1 @@
+﻿<%@ ServiceHost Language="C#" Debug="true" Service="File_Image_Library.File_Image_Library_Service" CodeBehind="File_Image_Library_Service.svc.cs" %>

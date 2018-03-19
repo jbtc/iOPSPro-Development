@@ -208,7 +208,7 @@
 									//dataService.GetAllSignalRObservationFormattedTagsForAssetIdIntoInventoryByListOfAssetIds(assetIdList).then(
 									//	function () {
 
-									vm.widgets = widgets.select(function (w) {
+									var dashboardWidgets = widgets.select(function (w) {
 										return {
 											sizeX: w.Width,
 											sizeY: w.Height,
@@ -224,7 +224,27 @@
 									});
 
 
-									vm.dashboard.widgets = vm.widgets;
+
+
+
+									//+Collect all of the asset Ids in any widget in the dashboard and collect all of the Tags for thos assets all at once.
+									var assetIdList = dashboardWidgets.where(function(w) { return w.WidgetResource.AssetId }).select(function (w) { return w.WidgetResource.AssetId + "" }).join(',');
+
+
+									console.log("Dashboard assetId list = " + assetIdList);
+
+
+
+									dataService.GetAllSignalRObservationFormattedTagsForAssetIdIntoInventoryByListOfAssetIds(assetIdList, false).then(function() {
+										vm.widgets = dashboardWidgets;
+
+
+
+										vm.dashboard.widgets = vm.widgets;
+										//console.log("Dashboard widgets = %O", vm.widgets);
+										
+									});
+
 									//console.log("Dashboard widgets = %O", vm.widgets);
 
 									ReportStep(7);
@@ -454,18 +474,19 @@
 												return graphTag.$save();
 											})
 										);
-									}),
+									})
+									//,
 
 									//Delete any child widgets tied to this one. (Pop-up type widgets)
-									dataService.GetIOPSCollection("Widgets", "ParentWidgetId", widget.Id).then(function (childWidgets) {
-										console.log("Child Widgets to delete = %O", childWidgets);
-										return $q.all(
-											childWidgets.select(function (childWidget) {
-												childWidget.Id = -childWidget.Id;
-												return childWidget.$save();
-											})
-										);
-									})
+									//dataService.GetIOPSCollection("Widgets", "ParentWidgetId", widget.Id).then(function (childWidgets) {
+									//	console.log("Child Widgets to delete = %O", childWidgets);
+									//	return $q.all(
+									//		childWidgets.select(function (childWidget) {
+									//			childWidget.Id = -childWidget.Id;
+									//			return childWidget.$save();
+									//		})
+									//	);
+									//})
 
 								]
 

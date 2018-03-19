@@ -258,6 +258,7 @@
     <Compile Include="Controllers\OdataV4\iOPSUsersController.cs" />
     <Compile Include="Controllers\OdataV4\BHSJamAlarmsController.cs" />
     <Compile Include="Controllers\OdataV4\JBTStandardObservationsController.cs" />
+    <Compile Include="Controllers\OdataV4\ModulesController.cs" />
     <Compile Include="Controllers\OdataV4\ObservationAggregatedHighChartValuesController.cs" />
     <Compile Include="Controllers\OdataV4\ObservationExceptionCommentsController.cs" />
     <Compile Include="Controllers\OdataV4\ObservationExceptionsController.cs" />
@@ -307,13 +308,16 @@
     <Compile Include="Controllers\WebAPI\BHSTop5JamDeviceswithCountController.cs" />
     <Compile Include="Controllers\WebAPI\BHSTop5JamDeviceswithLongestDurationController.cs" />
     <Compile Include="Controllers\WebAPI\BHSTotalSystemThroughputController.cs" />
+    <Compile Include="Controllers\WebAPI\GSAlarmTagsByListOfAssetIdsCondensedController.cs" />
     <Compile Include="Controllers\WebAPI\GSOPERATION_PerformanceByGate_Report_TVF_QueryController.cs" />
+    <Compile Include="Controllers\WebAPI\GSTagsByListOfAssetIdsCondensedController.cs" />
     <Compile Include="Controllers\WebAPI\GSTagsByListOfAssetIdsController.cs" />
     <Compile Include="Controllers\WebAPI\GSAlertCountByDayController.cs" />
     <Compile Include="Controllers\WebAPI\GSAlertCountByHourController.cs" />
     <Compile Include="Controllers\WebAPI\GSEquipmentUsageByGate_TVF_QueryController.cs" />
     <Compile Include="Controllers\WebAPI\GSEquipmentUsage_TVF_QueryController.cs" />
     <Compile Include="Controllers\WebAPI\GSAlarmTagsByListOfAssetIdsController.cs" />
+    <Compile Include="Controllers\WebAPI\GSTagsUpdatedInLastSecondsByListOfAssetIdsCondensedController.cs" />
     <Compile Include="Controllers\WebAPI\GSTagsUpdatedInLastFiveMinutesByListOfAssetIdsController.cs" />
     <Compile Include="Controllers\WebAPI\TerminalOverviewGraphicsAndTagsController.cs" />
     <Compile Include="Controllers\WebAPI\Top5EquipmentWithMostAlarmsController.cs" />

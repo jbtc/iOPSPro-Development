@@ -18,8 +18,14 @@ namespace iOPS_ODataV4.Models
         public Nullable<long> PersonId { get; set; }
         public string Role { get; set; }
         public Nullable<long> CompanyId { get; set; }
+        public Nullable<System.DateTime> LastModifiedDate { get; set; }
+        public Nullable<long> LastModifiedUserId { get; set; }
+        public Nullable<System.DateTime> CreationDate { get; set; }
+        public Nullable<long> CreatorUserId { get; set; }
     
         public virtual Company Company { get; set; }
         public virtual Person Person { get; set; }
+        public virtual iOPSUser LastModifiedUser { get; set; }
+        public virtual iOPSUser CreatorUser { get; set; }
     }
 }

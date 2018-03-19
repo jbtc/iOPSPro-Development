@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<edmx:Edmx Version="3.0" xmlns:edmx="http://schemas.microsoft.com/ado/2009/11/edmx">
+ <!-- EF Designer content (DO NOT EDIT MANUALLY BELOW HERE) -->
+  <edmx:Designer xmlns="http://schemas.microsoft.com/ado/2009/11/edmx">
+    <!-- Diagram content (shape and connector positions) -->
+    <edmx:Diagrams>
+      <Diagram DiagramId="9ef2e07575c44bcbb3a0e9837513a392" Name="Diagram1">
+        <EntityTypeShape EntityType="Model.BuildingLocation" Width="1.5" PointX="8.75" PointY="3.25" />
+        <EntityTypeShape EntityType="Model.PhoneNumber" Width="1.5" PointX="0.5" PointY="2.25" />
+        <EntityTypeShape EntityType="Model.Status" Width="2.25" PointX="2.625" PointY="3.75" />
+        <EntityTypeShape EntityType="Model.Student" Width="1.5" PointX="8.75" PointY="1" />
+        <EntityTypeShape EntityType="Model.UsernameHistory" Width="1.5" PointX="3" PointY="1" />
+        <EntityTypeShape EntityType="Model.ADGroup" Width="1.5" PointX="10.875" PointY="5.5" />
+        <EntityTypeShape EntityType="Model.Appointment" Width="1.5" PointX="11.125" PointY="0.5" />
+        <EntityTypeShape EntityType="Model.Department" Width="1.5" PointX="13.375" PointY="1" />
+        <AssociationConnector Association="Model.FK_Appointment_Department" />
+        <EntityTypeShape EntityType="Model.Person" Width="2.25" PointX="5.75" PointY="1" />
+        <AssociationConnector Association="Model.FK_Appointment_Person" />
+        <AssociationConnector Association="Model.FK_BuildingLocation_Person" />
+        <AssociationConnector Association="Model.FK_Person_Person" />
+        <AssociationConnector Association="Model.FK_PhoneNumber_Person" />
+        <AssociationConnector Association="Model.FK_Status_Person" />
+        <AssociationConnector Association="Model.FK_Student_Person" />
+        <AssociationConnector Association="Model.FK_UsernameHistory_Person" />
+        <AssociationConnector Association="Model.PeopleADGroups" />
+        <EntityTypeShape EntityType="Model.TimekeeperDepartment" Width="1.5" PointX="15.625" PointY="4" />
+        <AssociationConnector Association="Model.FK_TimekeeperDepartment_Department" />
+        <AssociationConnector Association="Model.FK_TimekeeperDepartment_Person" />
+        <EntityTypeShape EntityType="Model.Provider" Width="2.25" PointX="2.5" PointY="7.625" />
+        <AssociationConnector Association="Model.FK_Provider_Person" />
+      </Diagram>
+    </edmx:Diagrams>
+  </edmx:Designer>
+</edmx:Edmx>

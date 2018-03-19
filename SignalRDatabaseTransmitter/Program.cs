@@ -22,25 +22,23 @@ namespace SignalRDatabaseTransmitter
         static void Main(string[] args)
         {
             DbInterception.Add(new NoLockInterceptor());
-
+            SignalR.StartVar = 1;
             for (;;)
             {
                 try
                 {
                     using (var db = new iOPS_NormalizedEntities())
                     {
-                        //Console.WriteLine("Opening data set");
+                        Console.WriteLine("Opening data set");
                         var messages = db.HarvestSignalRMessageQueue().ToList();
-                        //Console.WriteLine("Dataset Size = " + messages.Count.ToString());
+                        Console.WriteLine("Dataset Size = " + messages.Count.ToString());
                         foreach (var signalRMessageQueue in messages)
                         {
                             var queueLength = SignalR.EnqueueMessage(signalRMessageQueue.GroupCode, signalRMessageQueue.Code, signalRMessageQueue.Message);
                             //Console.WriteLine(queueLength);
                         }
-
                     }
-                    Task.Delay(100).Wait();
-
+                    Task.Delay(10).Wait();
                 }
                 catch (Exception e)
                 {
@@ -58,7 +56,7 @@ namespace SignalRDatabaseTransmitter
     public static class SignalR
     {
         private static readonly string HubUrl = "https://www.iopspro.com/DataServices/SignalR";
-        private const int CONNECTIONCOUNT = 500;
+        private const int CONNECTIONCOUNT = 150;
         private static readonly SignalRClient[] Clients = new SignalRClient[CONNECTIONCOUNT];
 
         private static int DistributionCounter = 0;
@@ -66,6 +64,7 @@ namespace SignalRDatabaseTransmitter
         private static int CreatedClientCount = 0;
         private static readonly ConcurrentQueue<Message> MessageQueue = new ConcurrentQueue<Message>();
         private static readonly ConcurrentBag<ActivityLogEntry> ActivityLog = new ConcurrentBag<ActivityLogEntry>();
+        public static int StartVar = 1;
 
         static SignalR()
         {
@@ -89,6 +88,7 @@ namespace SignalRDatabaseTransmitter
             //This will block until at least one connection is available
             InitializeClients();
 
+
             //Start four threads that processes messages off of the queue and tries to send them.
             Task.Factory.StartNew(() =>
             {
@@ -99,48 +99,25 @@ namespace SignalRDatabaseTransmitter
                     {
                         SendSignalRMessage(message);
                     }
-                    Thread.Sleep(1);
+                    Thread.Sleep(50);
                 }
             });
 
-            Task.Factory.StartNew(() =>
-            {
-                Message message;
-                for (;;)
-                {
-                    while (MessageQueue.TryDequeue(out message))
-                    {
-                        SendSignalRMessage(message);
-                    }
-                    Thread.Sleep(1);
-                }
-            });
+         
 
-            Task.Factory.StartNew(() =>
-            {
-                Message message;
-                for (;;)
-                {
-                    while (MessageQueue.TryDequeue(out message))
-                    {
-                        SendSignalRMessage(message);
-                    }
-                    Thread.Sleep(1);
-                }
-            });
+            //Task.Factory.StartNew(() =>
+            //{
+            //    Message message;
+            //    for (;;)
+            //    {
+            //        while (MessageQueue.TryDequeue(out message))
+            //        {
+            //            SendSignalRMessage(message);
+            //        }
+            //        Thread.Sleep(10);
+            //    }
+            //});
 
-            Task.Factory.StartNew(() =>
-            {
-                Message message;
-                for (;;)
-                {
-                    while (MessageQueue.TryDequeue(out message))
-                    {
-                        SendSignalRMessage(message);
-                    }
-                    Thread.Sleep(1);
-                }
-            });
 
         }
 

@@ -46,6 +46,8 @@ namespace iOPS_ODataV4.Models
         public string DefaultNavPill { get; set; }
         public Nullable<long> ParentWidgetId { get; set; }
         public Nullable<bool> IsModalPopUp { get; set; }
+        public string DefaultSearchText { get; set; }
+        public Nullable<long> DefaultIdSelectedForEdit { get; set; }
     
         public virtual WidgetType WidgetType { get; set; }
         public virtual Dashboard Dashboard { get; set; }

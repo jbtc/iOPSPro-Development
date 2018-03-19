@@ -1,0 +1,199 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<edmx:Edmx Version="3.0" xmlns:edmx="http://schemas.microsoft.com/ado/2009/11/edmx">
+  <!-- EF Runtime content -->
+  <edmx:Runtime>
+    <!-- SSDL content -->
+    <edmx:StorageModels>
+      <Schema Namespace="ProviderClinrepModel.Store" Provider="System.Data.SqlClient" ProviderManifestToken="2008" Alias="Self" xmlns:store="http://schemas.microsoft.com/ado/2007/12/edm/EntityStoreSchemaGenerator" xmlns:customannotation="http://schemas.microsoft.com/ado/2013/11/edm/customannotation" xmlns="http://schemas.microsoft.com/ado/2009/11/edm/ssdl">
+        <EntityType Name="tblPRV_Providers">
+          <Key>
+            <PropertyRef Name="numProvider_ID" />
+          </Key>
+          <Property Name="strProvider_Number" Type="varchar" MaxLength="10" Nullable="false" />
+          <Property Name="strLast_Name" Type="varchar" MaxLength="75" />
+          <Property Name="strFirst_Name" Type="varchar" MaxLength="75" />
+          <Property Name="strMiddle_Name" Type="varchar" MaxLength="75" />
+          <Property Name="strDivision" Type="varchar" MaxLength="50" />
+          <Property Name="strDepartment" Type="varchar" MaxLength="100" />
+          <Property Name="strSpecialty_Code" Type="varchar" MaxLength="25" />
+          <Property Name="strProvider_Type" Type="varchar" MaxLength="10" />
+          <Property Name="numProvider_ID" Type="decimal" Precision="18" Scale="0" Nullable="false" />
+          <Property Name="numDepartment_ID" Type="decimal" Precision="18" Scale="0" />
+          <Property Name="strDepartment_IDs" Type="varchar" MaxLength="300" />
+          <Property Name="strInvision_Name" Type="varchar" MaxLength="150" />
+          <Property Name="strSSN" Type="varchar" MaxLength="9" />
+          <Property Name="strAccounting_Period" Type="varchar" MaxLength="2" />
+          <Property Name="strBlue_Cross_Number" Type="varchar" MaxLength="30" />
+          <Property Name="strMedicaid_Number" Type="varchar" MaxLength="30" />
+          <Property Name="strAffiliation" Type="varchar" MaxLength="2" />
+          <Property Name="strLocation_Code" Type="varchar" MaxLength="13" />
+          <Property Name="strDunning_Exception" Type="char" MaxLength="1" />
+          <Property Name="strDEA_Number" Type="varchar" MaxLength="25" />
+          <Property Name="strUPIN" Type="varchar" MaxLength="15" />
+          <Property Name="bitDepartment_Head" Type="bit" Nullable="false" />
+          <Property Name="strTelephone" Type="varchar" MaxLength="50" />
+          <Property Name="strLicense_Number" Type="varchar" MaxLength="10" />
+          <Property Name="strAdmitting_Privileges" Type="char" MaxLength="1" />
+          <Property Name="dtmActive" Type="datetime" />
+          <Property Name="dtmInactive" Type="datetime" />
+          <Property Name="strPager_Number" Type="varchar" MaxLength="25" />
+          <Property Name="dtmBirth" Type="datetime" />
+          <Property Name="dtmMCare_Start" Type="datetime" />
+          <Property Name="strCity" Type="varchar" MaxLength="75" />
+          <Property Name="strState" Type="char" MaxLength="3" />
+          <Property Name="strZip" Type="varchar" MaxLength="75" />
+          <Property Name="strAddress_Line_1" Type="varchar" MaxLength="100" />
+          <Property Name="strFax_Number" Type="varchar" MaxLength="25" />
+          <Property Name="bitExternal" Type="bit" Nullable="false" />
+          <Property Name="bitTemporary_Entry" Type="bit" Nullable="false" />
+          <Property Name="strEmail" Type="varchar" MaxLength="35" />
+          <Property Name="numUpdated_User_ID" Type="decimal" Precision="18" Scale="0" />
+          <Property Name="dtmLast_Updated" Type="datetime" />
+          <Property Name="bitGeneric" Type="bit" Nullable="false" />
+          <Property Name="numUser_ID" Type="decimal" Precision="18" Scale="0" />
+          <Property Name="strResident_DEA_Number" Type="varchar" MaxLength="25" />
+          <Property Name="strPhysician_DPS_Number" Type="varchar" MaxLength="25" />
+          <Property Name="strNPI_Number" Type="varchar" MaxLength="30" />
+        </EntityType>
+        <EntityContainer Name="ProviderClinrepModelStoreContainer">
+          <EntitySet Name="tblPRV_Providers" EntityType="Self.tblPRV_Providers" Schema="dbo" store:Type="Tables" />
+        </EntityContainer>
+      </Schema>
+    </edmx:StorageModels>
+    <!-- CSDL content -->
+    <edmx:ConceptualModels>
+      <Schema Namespace="ProviderClinrepModel" Alias="Self" annotation:UseStrongSpatialTypes="false" xmlns:annotation="http://schemas.microsoft.com/ado/2009/02/edm/annotation" xmlns:customannotation="http://schemas.microsoft.com/ado/2013/11/edm/customannotation" xmlns="http://schemas.microsoft.com/ado/2009/11/edm">
+        <EntityType Name="tblPRV_Provider">
+          <Key>
+            <PropertyRef Name="numProvider_ID" />
+          </Key>
+          <Property Name="strProvider_Number" Type="String" MaxLength="10" FixedLength="false" Unicode="false" Nullable="false" />
+          <Property Name="strLast_Name" Type="String" MaxLength="75" FixedLength="false" Unicode="false" />
+          <Property Name="strFirst_Name" Type="String" MaxLength="75" FixedLength="false" Unicode="false" />
+          <Property Name="strMiddle_Name" Type="String" MaxLength="75" FixedLength="false" Unicode="false" />
+          <Property Name="strDivision" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
+          <Property Name="strDepartment" Type="String" MaxLength="100" FixedLength="false" Unicode="false" />
+          <Property Name="strSpecialty_Code" Type="String" MaxLength="25" FixedLength="false" Unicode="false" />
+          <Property Name="strProvider_Type" Type="String" MaxLength="10" FixedLength="false" Unicode="false" />
+          <Property Name="numProvider_ID" Type="Decimal" Precision="18" Scale="0" Nullable="false" />
+          <Property Name="numDepartment_ID" Type="Decimal" Precision="18" Scale="0" />
+          <Property Name="strDepartment_IDs" Type="String" MaxLength="300" FixedLength="false" Unicode="false" />
+          <Property Name="strInvision_Name" Type="String" MaxLength="150" FixedLength="false" Unicode="false" />
+          <Property Name="strSSN" Type="String" MaxLength="9" FixedLength="false" Unicode="false" />
+          <Property Name="strAccounting_Period" Type="String" MaxLength="2" FixedLength="false" Unicode="false" />
+          <Property Name="strBlue_Cross_Number" Type="String" MaxLength="30" FixedLength="false" Unicode="false" />
+          <Property Name="strMedicaid_Number" Type="String" MaxLength="30" FixedLength="false" Unicode="false" />
+          <Property Name="strAffiliation" Type="String" MaxLength="2" FixedLength="false" Unicode="false" />
+          <Property Name="strLocation_Code" Type="String" MaxLength="13" FixedLength="false" Unicode="false" />
+          <Property Name="strDunning_Exception" Type="String" MaxLength="1" FixedLength="true" Unicode="false" />
+          <Property Name="strDEA_Number" Type="String" MaxLength="25" FixedLength="false" Unicode="false" />
+          <Property Name="strUPIN" Type="String" MaxLength="15" FixedLength="false" Unicode="false" />
+          <Property Name="bitDepartment_Head" Type="Boolean" Nullable="false" />
+          <Property Name="strTelephone" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
+          <Property Name="strLicense_Number" Type="String" MaxLength="10" FixedLength="false" Unicode="false" />
+          <Property Name="strAdmitting_Privileges" Type="String" MaxLength="1" FixedLength="true" Unicode="false" />
+          <Property Name="dtmActive" Type="DateTime" Precision="3" />
+          <Property Name="dtmInactive" Type="DateTime" Precision="3" />
+          <Property Name="strPager_Number" Type="String" MaxLength="25" FixedLength="false" Unicode="false" />
+          <Property Name="dtmBirth" Type="DateTime" Precision="3" />
+          <Property Name="dtmMCare_Start" Type="DateTime" Precision="3" />
+          <Property Name="strCity" Type="String" MaxLength="75" FixedLength="false" Unicode="false" />
+          <Property Name="strState" Type="String" MaxLength="3" FixedLength="true" Unicode="false" />
+          <Property Name="strZip" Type="String" MaxLength="75" FixedLength="false" Unicode="false" />
+          <Property Name="strAddress_Line_1" Type="String" MaxLength="100" FixedLength="false" Unicode="false" />
+          <Property Name="strFax_Number" Type="String" MaxLength="25" FixedLength="false" Unicode="false" />
+          <Property Name="bitExternal" Type="Boolean" Nullable="false" />
+          <Property Name="bitTemporary_Entry" Type="Boolean" Nullable="false" />
+          <Property Name="strEmail" Type="String" MaxLength="35" FixedLength="false" Unicode="false" />
+          <Property Name="numUpdated_User_ID" Type="Decimal" Precision="18" Scale="0" />
+          <Property Name="dtmLast_Updated" Type="DateTime" Precision="3" />
+          <Property Name="bitGeneric" Type="Boolean" Nullable="false" />
+          <Property Name="numUser_ID" Type="Decimal" Precision="18" Scale="0" />
+          <Property Name="strResident_DEA_Number" Type="String" MaxLength="25" FixedLength="false" Unicode="false" />
+          <Property Name="strPhysician_DPS_Number" Type="String" MaxLength="25" FixedLength="false" Unicode="false" />
+          <Property Name="strNPI_Number" Type="String" MaxLength="30" FixedLength="false" Unicode="false" />
+        </EntityType>
+        <EntityContainer Name="ProviderClinrepEntities" annotation:LazyLoadingEnabled="true">
+          <EntitySet Name="tblPRV_Providers" EntityType="ProviderClinrepModel.tblPRV_Provider" />
+        </EntityContainer>
+      </Schema>
+    </edmx:ConceptualModels>
+    <!-- C-S mapping content -->
+    <edmx:Mappings>
+      <Mapping Space="C-S" xmlns="http://schemas.microsoft.com/ado/2009/11/mapping/cs">
+        <EntityContainerMapping StorageEntityContainer="ProviderClinrepModelStoreContainer" CdmEntityContainer="ProviderClinrepEntities">
+          <EntitySetMapping Name="tblPRV_Providers">
+            <EntityTypeMapping TypeName="ProviderClinrepModel.tblPRV_Provider">
+              <MappingFragment StoreEntitySet="tblPRV_Providers">
+                <ScalarProperty Name="strProvider_Number" ColumnName="strProvider_Number" />
+                <ScalarProperty Name="strLast_Name" ColumnName="strLast_Name" />
+                <ScalarProperty Name="strFirst_Name" ColumnName="strFirst_Name" />
+                <ScalarProperty Name="strMiddle_Name" ColumnName="strMiddle_Name" />
+                <ScalarProperty Name="strDivision" ColumnName="strDivision" />
+                <ScalarProperty Name="strDepartment" ColumnName="strDepartment" />
+                <ScalarProperty Name="strSpecialty_Code" ColumnName="strSpecialty_Code" />
+                <ScalarProperty Name="strProvider_Type" ColumnName="strProvider_Type" />
+                <ScalarProperty Name="numProvider_ID" ColumnName="numProvider_ID" />
+                <ScalarProperty Name="numDepartment_ID" ColumnName="numDepartment_ID" />
+                <ScalarProperty Name="strDepartment_IDs" ColumnName="strDepartment_IDs" />
+                <ScalarProperty Name="strInvision_Name" ColumnName="strInvision_Name" />
+                <ScalarProperty Name="strSSN" ColumnName="strSSN" />
+                <ScalarProperty Name="strAccounting_Period" ColumnName="strAccounting_Period" />
+                <ScalarProperty Name="strBlue_Cross_Number" ColumnName="strBlue_Cross_Number" />
+                <ScalarProperty Name="strMedicaid_Number" ColumnName="strMedicaid_Number" />
+                <ScalarProperty Name="strAffiliation" ColumnName="strAffiliation" />
+                <ScalarProperty Name="strLocation_Code" ColumnName="strLocation_Code" />
+                <ScalarProperty Name="strDunning_Exception" ColumnName="strDunning_Exception" />
+                <ScalarProperty Name="strDEA_Number" ColumnName="strDEA_Number" />
+                <ScalarProperty Name="strUPIN" ColumnName="strUPIN" />
+                <ScalarProperty Name="bitDepartment_Head" ColumnName="bitDepartment_Head" />
+                <ScalarProperty Name="strTelephone" ColumnName="strTelephone" />
+                <ScalarProperty Name="strLicense_Number" ColumnName="strLicense_Number" />
+                <ScalarProperty Name="strAdmitting_Privileges" ColumnName="strAdmitting_Privileges" />
+                <ScalarProperty Name="dtmActive" ColumnName="dtmActive" />
+                <ScalarProperty Name="dtmInactive" ColumnName="dtmInactive" />
+                <ScalarProperty Name="strPager_Number" ColumnName="strPager_Number" />
+                <ScalarProperty Name="dtmBirth" ColumnName="dtmBirth" />
+                <ScalarProperty Name="dtmMCare_Start" ColumnName="dtmMCare_Start" />
+                <ScalarProperty Name="strCity" ColumnName="strCity" />
+                <ScalarProperty Name="strState" ColumnName="strState" />
+                <ScalarProperty Name="strZip" ColumnName="strZip" />
+                <ScalarProperty Name="strAddress_Line_1" ColumnName="strAddress_Line_1" />
+                <ScalarProperty Name="strFax_Number" ColumnName="strFax_Number" />
+                <ScalarProperty Name="bitExternal" ColumnName="bitExternal" />
+                <ScalarProperty Name="bitTemporary_Entry" ColumnName="bitTemporary_Entry" />
+                <ScalarProperty Name="strEmail" ColumnName="strEmail" />
+                <ScalarProperty Name="numUpdated_User_ID" ColumnName="numUpdated_User_ID" />
+                <ScalarProperty Name="dtmLast_Updated" ColumnName="dtmLast_Updated" />
+                <ScalarProperty Name="bitGeneric" ColumnName="bitGeneric" />
+                <ScalarProperty Name="numUser_ID" ColumnName="numUser_ID" />
+                <ScalarProperty Name="strResident_DEA_Number" ColumnName="strResident_DEA_Number" />
+                <ScalarProperty Name="strPhysician_DPS_Number" ColumnName="strPhysician_DPS_Number" />
+                <ScalarProperty Name="strNPI_Number" ColumnName="strNPI_Number" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+        </EntityContainerMapping>
+      </Mapping>
+    </edmx:Mappings>
+  </edmx:Runtime>
+  <!-- EF Designer content (DO NOT EDIT MANUALLY BELOW HERE) -->
+  <Designer xmlns="http://schemas.microsoft.com/ado/2009/11/edmx">
+    <Connection>
+      <DesignerInfoPropertySet>
+        <DesignerProperty Name="MetadataArtifactProcessing" Value="EmbedInOutputAssembly" />
+      </DesignerInfoPropertySet>
+    </Connection>
+    <Options>
+      <DesignerInfoPropertySet>
+        <DesignerProperty Name="ValidateOnBuild" Value="true" />
+        <DesignerProperty Name="EnablePluralization" Value="true" />
+        <DesignerProperty Name="IncludeForeignKeysInModel" Value="true" />
+        <DesignerProperty Name="UseLegacyProvider" Value="false" />
+        <DesignerProperty Name="CodeGenerationStrategy" Value="None" />
+      </DesignerInfoPropertySet>
+    </Options>
+    <!-- Diagram content (shape and connector positions) -->
+    <Diagrams></Diagrams>
+  </Designer>
+</edmx:Edmx>

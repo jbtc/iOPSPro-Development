@@ -4,9 +4,9 @@
 
 	app.directive('pbbSummary',
 		[
-			"dataService", "utilityService", "$state", "hotkeys", "displaySetupService", "$timeout", "$window", "$interval", "signalR", "uibButtonConfig",
+			"$rootScope", "dataService", "utilityService", "$state", "hotkeys", "displaySetupService", "$timeout", "$window", "$interval", "signalR", "uibButtonConfig",
 
-			function (dataService, utilityService, $state, hotkeys, displaySetupService, $timeout, $window, $interval, signalR, uibButtonConfig) {
+			function ($rootScope, dataService, utilityService, $state, hotkeys, displaySetupService, $timeout, $window, $interval, signalR, uibButtonConfig) {
 
 				var controller = function ($scope) {
 					var vm = this;
@@ -23,7 +23,9 @@
 						alarmDataSortField: '-PLCLocalDate',
 						warningsDataSortField: '-PLCLocalDate',
 						headingExtraTitle: '',
-						obscureGraphics: true
+						obscureGraphics: true,
+						headingSearchField: true
+
 					}
 
 					vm.originalWidgetResource = angular.copy(vm.widget.WidgetResource);
@@ -32,13 +34,26 @@
 						var possiblyChangedResource = angular.copy(vm.widget.WidgetResource);
 						if (!angular.equals(vm.originalWidgetResource, possiblyChangedResource)) {
 
-							console.log("Saving widget resource........");
-							console.log("Original WidgetResource = %O", vm.originalWidgetResource);
-							console.log("Changed WidgetResource = %O", possiblyChangedResource);
+							//console.log("Saving widget resource........");
+							//console.log("Original WidgetResource = %O", vm.originalWidgetResource);
+							//console.log("Changed WidgetResource = %O", possiblyChangedResource);
 							vm.widget.WidgetResource.$save();
 							vm.originalWidgetResource = possiblyChangedResource;
 						}
 					}
+
+					$scope.$watch("vm.widget.searchText",
+						function (newValue, oldValue) {
+
+							//If any of the entities have an Id attribute, then this is editing an existing value.
+							//send the changes to all other browsers as they press the keys.
+							if ((oldValue || '') != (newValue || '')) {
+								console.log("searchText change = Old = " + oldValue + " New = " + newValue);
+								vm.widget.WidgetResource.DefaultSearchText = newValue;
+								SaveWidgetResourceObjectIfChanged();
+								signalR.SignalAllClientsInGroup("Admin", vm.widget.Id + " SearchText Modification", vm.widget.searchText);
+							}
+						});
 
 					vm.SetDefaultNavPillAlarms = function () {
 						$timeout(function () {
@@ -66,6 +81,23 @@
 					vm.alarmFilterFunction = function (element) {
 						return element.ValueWhenActive == element.Value;
 					};
+
+
+
+				
+					vm.tagFilterFunction = function (element) {
+						if ((vm.widget.searchText || '') != '' && element.JBTStandardObservation && element.JBTStandardObservation.Name) {
+
+							return element.JBTStandardObservation.Name.toLowerCase().indexOf((vm.widget.searchText || '').toLowerCase()) > -1;
+						} else {
+							if (element.JBTStandardObservation) {
+								return true;
+							} else {
+								return false;
+							}
+						}
+					};
+
 
 
 
@@ -146,7 +178,7 @@
 
 					vm.OpenSettingsIfNoAssetAndCloseIfAssetIsPresent = function () {
 
-						console.log("Opening settings vm.Asset = %O", vm.Asset);
+						//console.log("Opening settings vm.Asset = %O", vm.Asset);
 						if (!vm.pbb) {
 							$state.go(".widgetSettings", { widget: vm.widget });
 						}
@@ -164,11 +196,20 @@
 						});
 
 						//Call the function that the dashboard provided with the collection of tags to add to the possible new widget
-						vm.addTagsToGraphFunction()(vm.tagsToGraphObjects);
+						console.log("vm in vm.ProcessTagsToGraph = %O", vm);
+
+						vm.dashboard.tagsToGraph = vm.tagsToGraphObjects.concat(vm.dashboard.tagsToGraph).distinct(function (a, b) { return a.TagId == b.TagId }).where(function (t) { return t.Enabled });
+						console.log("Dashboard vm.dashboard.tagsToGraph = %O", vm.dashboard.tagsToGraph);
+						if (vm.dashboard.tagsToGraph.length > 0) {
+							$rootScope.$broadcast("Dashboard.TagsToGraph", vm.dashboard.tagsToGraph);
+						} else {
+							$rootScope.$broadcast("Dashboard.TagsToGraph", null);
+						}
 
 						return;
 
 					}
+
 
 
 
@@ -194,7 +235,7 @@
 					function (newValue, oldValue) {
 						if (vm.widget.WidgetResource.GateSystemId) {
 
-							console.log("vm.widget.WidgetResource.GateSystemId changed. Now = %O", vm.widget);
+							//console.log("vm.widget.WidgetResource.GateSystemId changed. Now = %O", vm.widget);
 
 							if (newValue != oldValue) {
 								vm.pbb = null;
@@ -265,11 +306,12 @@
 									UpdateGraphicsVisibilityForSingleTag(tag);
 								});
 
+								vm.pbb.Tags = vm.pbb.Tags.distinct(function(a, b) { return a.TagId == b.TagId });
+
 								vm.atLeastOneGraphicIsVisible = AtLeastOneGraphicIsVisible();
 								vm.widget.displaySettings.obscureGraphics = !AtLeastOneGraphicIsVisible();
 
 								vm.widget.displaySettings.headingExtraTitle = GetHeadingExtraTitle();
-								vm.showWidget = true;
 
 								if (!vm.alarms) {
 									vm.alarms = [];
@@ -289,11 +331,17 @@
 
 								vm.widget.displaySettings.commLossTag = vm.commLossTag;
 								console.log("PBB vm.alarms = %O", vm.alarms);
-								console.log("PBB vm.warnings = %O", vm.warnings);
-								console.log("PBB vm.pbb.Tags = %O", vm.pbb.Tags);
-								console.log("PBB CommLossTag = %O", vm.commLossTag);
+								//console.log("PBB vm.warnings = %O", vm.warnings);
+								//console.log("PBB vm.pbb.Tags = %O", vm.pbb.Tags);
+								//console.log("PBB CommLossTag = %O", vm.commLossTag);
 
+								vm.widget.searchText = vm.widget.WidgetResource.DefaultSearchText || '';
+								
 								SetHeadingBackground();
+
+								$timeout(function() {
+									vm.showWidget = true;
+								}, 100);
 
 							});
 						});
@@ -350,11 +398,15 @@
 						//}
 
 
-						if (AtLeastOneGraphicIsVisible()) {
+						if (AtLeastOneGraphicIsVisible() && (!vm.commLossTag || vm.commLossTag.Value != "1")) {
 							vm.widget.displaySettings.headingBackground = 'linear-gradient(to bottom,#3eff3e, #eefeee)';
 						} else {
 							vm.widget.displaySettings.headingBackground = 'linear-gradient(to bottom,#dedede, #fefefe)';
 						}
+
+
+						
+
 					}
 
 					function AtLeastOneGraphicIsVisible() {
@@ -476,7 +528,7 @@
 
 					$scope.$on("Widget.AddTagsToGraph", function (event, graphWidget) {
 
-						console.log("Widget.AddTagsToGraph event at PCA Summary");
+						//console.log("Widget.AddTagsToGraph event at PCA Summary");
 
 						//Clear the add tag checkbox buttons
 						vm.tagsToGraphObjects = [];
@@ -497,12 +549,14 @@
 
 						//console.log("tag update updatedTag = %O", updatedTag);
 						UpdateGraphicsVisibilityForSingleTag(updatedTag);
+						SetHeadingBackground();
+						return;
 
 						if (updatedTag.AssetId == vm.widget.WidgetResource.AssetId &&
 							(updatedTag.IsAlarm || updatedTag.IsCritical) &&
 							updatedTag.TagName.indexOf('|') >= 3
 						) {
-							console.log("Alarm Tag Update = " + updatedTag.TagName + "  " + updatedTag.Value);
+							//console.log("Alarm Tag Update = " + updatedTag.TagName + "  " + updatedTag.Value);
 							if (+updatedTag.Value == 1) {
 								if (vm.alarms) {
 									vm.alarms.push(updatedTag);
@@ -616,7 +670,7 @@
 
 
 					$scope.$on("Dashboard", function (event, modifiedExpandedDashboard) {
-						console.log("pcaSummary Dashboard event. Modified Dashboard = %O", modifiedExpandedDashboard);
+						//console.log("pcaSummary Dashboard event. Modified Dashboard = %O", modifiedExpandedDashboard);
 						if (modifiedExpandedDashboard.Id == vm.dashboard.Id) {
 							vm.dashboard = modifiedExpandedDashboard;
 							var oneDay = 24 * 60 * 60 * 1000; // hours*minutes*seconds*milliseconds
@@ -644,7 +698,7 @@
 
 				return {
 					restrict: 'E', //Default for 1.3+
-					templateUrl: "app/widgetDirectives/pbbSummary.html?" + Date.now(),
+					templateUrl: "app/widgetDirectives/pbbSummary.html",
 
 					scope: {
 

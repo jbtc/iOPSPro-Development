@@ -35,6 +35,10 @@ namespace iOPS_ODataV4.Models
         public string GoogleMapLatLon { get; set; }
         public long CompanyTypeId { get; set; }
         public string ODataAccessToken { get; set; }
+        public Nullable<System.DateTime> LastModifiedDate { get; set; }
+        public Nullable<long> LastModifiedUserId { get; set; }
+        public Nullable<System.DateTime> CreationDate { get; set; }
+        public Nullable<long> CreatorUserId { get; set; }
     
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<CompanyContact> CompanyContacts { get; set; }

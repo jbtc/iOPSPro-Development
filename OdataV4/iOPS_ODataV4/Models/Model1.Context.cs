@@ -809,5 +809,36 @@ namespace iOPS_ODataV4.Models
     
             return ((IObjectContextAdapter)this).ObjectContext.CreateQuery<GSOPERATION_PerformanceByGate_Report_TVF_Query_Result>("[iOPS_NormalizedEntities].[GSOPERATION_PerformanceByGate_Report_TVF_Query](@gate, @toDate, @fromDate, @SiteId)", gateParameter, toDateParameter, fromDateParameter, siteIdParameter);
         }
+    
+        public virtual ObjectResult<string> GSTagsByListOfAssetIdsCondensed(string assetIds)
+        {
+            var assetIdsParameter = assetIds != null ?
+                new ObjectParameter("assetIds", assetIds) :
+                new ObjectParameter("assetIds", typeof(string));
+    
+            return ((IObjectContextAdapter)this).ObjectContext.ExecuteFunction<string>("GSTagsByListOfAssetIdsCondensed", assetIdsParameter);
+        }
+    
+        public virtual ObjectResult<string> GSAlarmTagsByListOfAssetIdsCondensed(string assetIds)
+        {
+            var assetIdsParameter = assetIds != null ?
+                new ObjectParameter("assetIds", assetIds) :
+                new ObjectParameter("assetIds", typeof(string));
+    
+            return ((IObjectContextAdapter)this).ObjectContext.ExecuteFunction<string>("GSAlarmTagsByListOfAssetIdsCondensed", assetIdsParameter);
+        }
+    
+        public virtual ObjectResult<string> GSTagsUpdatedInLastSecondsByListOfAssetIdsCondensed(string assetIds, Nullable<int> seconds)
+        {
+            var assetIdsParameter = assetIds != null ?
+                new ObjectParameter("assetIds", assetIds) :
+                new ObjectParameter("assetIds", typeof(string));
+    
+            var secondsParameter = seconds.HasValue ?
+                new ObjectParameter("seconds", seconds) :
+                new ObjectParameter("seconds", typeof(int));
+    
+            return ((IObjectContextAdapter)this).ObjectContext.ExecuteFunction<string>("GSTagsUpdatedInLastSecondsByListOfAssetIdsCondensed", assetIdsParameter, secondsParameter);
+        }
     }
 }

@@ -51,6 +51,9 @@ namespace iOPS_ODataV4.Models
         public string Program { get; set; }
         public string ModelGenericName { get; set; }
         public string Revision { get; set; }
+        public Nullable<System.DateTime> LastReportedDate { get; set; }
+        public Nullable<long> LastReportedDateTagId { get; set; }
+        public string UnitDesignator { get; set; }
     
         public virtual Company Company { get; set; }
         public virtual AssetType AssetType { get; set; }

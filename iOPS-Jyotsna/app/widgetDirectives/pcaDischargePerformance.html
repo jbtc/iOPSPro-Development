@@ -1,0 +1,42 @@
+﻿
+
+
+    
+    <div id="container2" style="float:left">
+    <table id="table{{vm.widget.Id}}">
+        <tbody style="font-size: .9em; overflow-y: scroll;">
+            <tr ng-show="vm.showWidget">
+                <td>
+                    <table id="table{{vm.widget.Id}}" class="table  table-condensed">
+                        <tr class="no-select">
+                            <td nowrap style="color:red;border:none;">&nbsp;Heat:&nbsp;<input ng-model="vm.Heat" size="2" type="text"/>&nbsp;&deg;</td>
+                        </tr>
+
+                        <tr class="no-select">
+                            <td nowrap style="color:red;border:none;">&nbsp;Time:&nbsp;<input ng-model="vm.HeatTime" size="2" type="text" />&nbsp;min.</td>
+                        </tr>
+                        <tr class="no-select">
+                            <td nowrap style="color:lightblue;border:none;">&nbsp;&nbsp;Cool:&nbsp;<input ng-model="vm.Cool" size="2" type="text" />&nbsp;&deg;</td>
+                        </tr>
+                        <tr class="no-select">
+                            <td nowrap style="color:mediumslateblue;border:none;">&nbsp;&nbsp;Time:&nbsp;<input ng-model="vm.CoolTime" size="2" type="text" />&nbsp;min.</td>
+                        </tr>
+                        <tr class="no-select" >
+                            <td nowrap style="border:none;">&nbsp;&nbsp;<button ng-click="vm.AddDischargeSetpoint()" class="btn btn-default tiny-button responsive-button">&nbsp;&nbsp;Update</button></td>
+                            {{countDown}}
+                        </tr>
+                    </table>
+                </td>
+                <td><div id="pcaDischargePerformance{{vm.widget.Id}}" style="float:left"> Loading.....</div></td>
+               
+            </tr>
+        </tbody>
+</table></div>
+
+   
+
+
+
+
+
+
