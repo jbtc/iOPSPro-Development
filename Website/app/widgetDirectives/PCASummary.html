@@ -11,7 +11,7 @@
                     <li class="{{vm.widget.WidgetResource.DefaultNavPill == 'Warnings' ? 'active' : 'xxx'}}"><a data-toggle="pill" ng-click="vm.SetDefaultNavPillWarnings()" href="#warnings{{vm.widget.Id}}">Warnings</a></li>
                 </ul>
 
-                <div class="tab-content" id="tab-content{{vm.widget.Id}}" style="overflow-y: auto; height: 100px;">
+                <div class="tab-content" id="tab-content{{vm.widget.Id}}" style="overflow-y: hidden; height: 100px;">
                     <div id="temp{{vm.widget.Id}}" class="tab-pane fade{{(!vm.widget.WidgetResource.DefaultNavPill || vm.widget.WidgetResource.DefaultNavPill == 'Temp') ? ' in active' : ''}}" style="height: 100%; padding-bottom: 5px; overflow: hidden;">
                         <div class="flex-container" id="temperature-flex-container{{vm.widget.Id}}">
                             <div id="temperature-meters{{vm.widget.Id}}" style="flex-basis: 100%; height: 100%; border: 3px solid white; overflow-x: hidden; overflow-y: auto;">
@@ -181,14 +181,14 @@
 
                         </div>
                     </div>
-                    <div id="data{{vm.widget.Id}}" class="tab-pane fade{{vm.widget.WidgetResource.DefaultNavPill == 'Data' ? ' in active' : ''}}" style="overflow: auto;">
+                    <div id="data{{vm.widget.Id}}" class="tab-pane fade{{vm.widget.WidgetResource.DefaultNavPill == 'Data' ? ' in active' : ''}}" style="overflow: hidden;">
                         <div id="repeater-container-data{{vm.widget.Id}}" ng-show="vm.showTags" class="repeater-container" style="overflow-x: hidden; overflow-y: auto; width: 100%; height: {{vm.widgetDimensions.height - 10}}px;">
-                            <table class="table table-condensed table-striped widget-tag-data-table">
-                                <thead>
+                            <table class="table table-condensed table-striped widget-tag-data-table" style="table-layout: fixed;">
+                            <thead>
                                     <tr>
                                         <th nowrap
                                             ng-click="vm.SetSortField('JBTStandardObservation.Name')"
-                                            style="width: 100%; cursor: pointer;">
+                                            style="width: 70%; cursor: pointer;">
                                             <div>
                                                 Name
                                                 <span ng-show="vm.widget.displaySettings.tagDataSortField=='-JBTStandardObservation.Name'">
@@ -200,7 +200,9 @@
                                             </div>
                                         </th>
                                         <th nowrap
-                                            ng-click="vm.SetSortField('PLCLocalDate')">
+                                            ng-click="vm.SetSortField('PLCLocalDate')"
+                                            style="cursor: pointer; width: 20%;">
+                                            
                                             <div>
                                                 Date
                                                 <span ng-show="vm.widget.displaySettings.tagDataSortField=='-PLCLocalDate'">
@@ -211,14 +213,14 @@
                                                 </span>
                                             </div>
                                         </th>
-                                        <th>
+                                        <th style="width: 10%;">
                                             Value
                                         </th>
 
                                     </tr>
                                 </thead>
                                 <tbody vs-repeat vs-autoresize vs-scroll-parent=".repeater-container" vs-scrolled-to-end="vm.scrolledToEnd()" style="overflow-y: scroll; height: 100px;">
-                                    <tr ng-repeat="tag in vm.pca.Tags | orderBy: vm.widget.displaySettings.tagDataSortField" style="background-color: {{tag.Metadata.Status.LastValueWasHistorical ? 'rgba(173, 173, 173,' : 'rgba(0, 255, 0,'}} .{{tag.Metadata.UpdateCountDowns.OneSecond}});">
+                                    <tr ng-repeat="tag in vm.pca.Tags | filter: vm.tagFilterFunction  | orderBy: vm.widget.displaySettings.tagDataSortField"  ng-click="vm.tagClicked(tag)" style="background-color: {{tag.Metadata.Status.LastValueWasHistorical ? 'rgba(173, 173, 173,' : 'rgba(0, 255, 0,'}} .{{tag.Metadata.UpdateCountDowns.OneSecond}});">
                                         <td data-toggle="tooltip" title="{{tag.JBTStandardObservation.Id}}">
                                             <label ng-click="vm.ProcessTagsToGraph()" class="btn btn-default graph-select-icon" ng-model="vm.tagsToGraph[tag.TagId]" uib-btn-checkbox="{{tag.TagId}}">
                                                 <i class="fa fa-line-chart" aria-hidden="true" title="Add to graph widget" style="cursor: pointer;"></i>
@@ -237,7 +239,7 @@
                             </table>
                         </div>
                     </div>
-                    <div id="alarms{{vm.widget.Id}}" class="tab-pane fade{{(!vm.widget.WidgetResource.DefaultNavPill || vm.widget.WidgetResource.DefaultNavPill == 'Alarms') ? ' in active' : ''}}" style="overflow: auto;">
+                    <div id="alarms{{vm.widget.Id}}" class="tab-pane fade{{(!vm.widget.WidgetResource.DefaultNavPill || vm.widget.WidgetResource.DefaultNavPill == 'Alarms') ? ' in active' : ''}}" style="overflow: hidden;">
                         <div id="repeater-container-alarms{{vm.widget.Id}}" ng-show="vm.showTags" class="repeater-container" style="overflow-x: hidden; overflow-y: auto; width: 100%; height: {{vm.widgetDimensions.height - 10}}px;">
                             <table class="table table-condensed table-striped widget-tag-data-table">
                                 <thead>
@@ -294,7 +296,7 @@
                                 </thead>
                                 <tbody vs-repeat vs-autoresize vs-scroll-parent=".repeater-container" vs-scrolled-to-end="vm.scrolledToEnd()" style="overflow-y: scroll; height: 100px;">
                                     <tr ng-repeat="alarm in vm.alarms | orderBy: vm.widget.displaySettings.alarmDataSortField | filter: vm.alarmFilterFunction" style="background-color: {{tag.Metadata.Status.LastValueWasHistorical ? 'rgba(173, 173, 173,' : 'rgba(0, 255, 0,'}} .{{tag.Metadata.UpdateCountDowns.OneSecond}});">
-                                        <td nowrap>{{alarm.PLCLocalDate | date:'MM/dd HH:mm:ss'}}</td>
+                                        <td nowrap>{{alarm.PLCLocalDate | date:'MM/dd HH:mm:ss' : UTC}}</td>
                                         <td nowrap><div ng-class="{ 'pulsing': alarm.Severity == 'Critical'}" style="width: 1%;">{{alarm.Severity}}</div></td>
                                         <td nowrap>{{alarm.JBTStandardObservation.Name}}</td>
                                         <td ng-if="vm.canCloseAlarm">
@@ -306,7 +308,7 @@
                             </table>
                         </div>
                     </div>
-                    <div id="warnings{{vm.widget.Id}}" class="tab-pane fade{{(!vm.widget.WidgetResource.DefaultNavPill || vm.widget.WidgetResource.DefaultNavPill == 'Warnings') ? ' in active' : ''}}" style="overflow: auto;">
+                    <div id="warnings{{vm.widget.Id}}" class="tab-pane fade{{(!vm.widget.WidgetResource.DefaultNavPill || vm.widget.WidgetResource.DefaultNavPill == 'Warnings') ? ' in active' : ''}}" style="overflow: hidden;">
                         <div id="repeater-container-warnings{{vm.widget.Id}}" ng-show="vm.showTags" class="repeater-container" style="overflow-x: hidden; overflow-y: auto; width: 100%; height: {{vm.widgetDimensions.height - 10}}px;">
                             <table class="table table-condensed table-striped widget-tag-data-table">
                                 <thead>
@@ -362,8 +364,8 @@
                                     </tr>
                                 </thead>
                                 <tbody vs-repeat vs-autoresize vs-scroll-parent=".repeater-container" vs-scrolled-to-end="vm.scrolledToEnd()" style="overflow-y: scroll; height: 100px;">
-                                    <tr ng-repeat="warning in vm.warnings | orderBy: vm.widget.displaySettings.warningDataSortField" style="background-color: {{tag.Metadata.Status.LastValueWasHistorical ? 'rgba(173, 173, 173,' : 'rgba(0, 255, 0,'}} .{{tag.Metadata.UpdateCountDowns.OneSecond}});">
-                                        <td nowrap>{{warning.PLCLocalDate | date:'MM/dd HH:mm:ss'}}</td>
+                                    <tr ng-repeat="warning in vm.warnings | orderBy: vm.widget.displaySettings.warningDataSortField | filter:vm.alarmFilterFunction" style="background-color: {{tag.Metadata.Status.LastValueWasHistorical ? 'rgba(173, 173, 173,' : 'rgba(0, 255, 0,'}} .{{tag.Metadata.UpdateCountDowns.OneSecond}});">
+                                        <td nowrap>{{warning.PLCLocalDate | date:'MM/dd HH:mm:ss' : UTC}}</td>
                                         <td nowrap><div ng-class="{ 'pulsing': warning.Severity == 'Critical'}" style="width: 1%;">{{warning.Severity}}</div></td>
                                         <td nowrap>{{warning.JBTStandardObservation.Name}}</td>
                                         <td ng-if="vm.canCloseAlarm">

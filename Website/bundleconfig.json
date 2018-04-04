@@ -5,6 +5,7 @@
     "inputFiles": [
       "app/app.js",
       "app/services/*.js",
+      "app/directives/*.js",
       "app/directives/formFields/*.js",
       "app/directives/panels/*.js",
       "app/systemPanelViews/systemIframeCtrl.js",

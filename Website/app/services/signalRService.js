@@ -50,7 +50,7 @@
 				service.connected = false;
 				HubStart();
 			}
-		}, 1000);
+		}, 10000);
 
 
 		function GetUserByClientId(clientId) {
@@ -79,10 +79,16 @@
 		var messageCount = 0;
 		var lastGroupName = "";
 
-		//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-		//Angular SignalR central station. This is the only point of connection with SignalR in this entire Angular application.
-		//Angular will simply broadcast the SignalR messages and data to anybody who is listening.
-		//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+
+
+		//***G
+		//++Angular SignalR central station. This is the only point of connection with SignalR in this entire Angular application.
+		//+Angular will simply broadcast the SignalR messages and data to anybody who is listening.
+		//---G
+
+		//---B
+
 		signalRHub.client.SignalRNotification = function (code, dataObject, callerConnectionId, groupName) {
 
 			//if (messageCount++ % 1 == 0) {
@@ -124,6 +130,7 @@
 
 				}
 
+			//---B
 			case "System.AlertMessage":
 				fromUser = GetUserByClientId(callerConnectionId);
 				console.log("Alert Message from user = %O", fromUser);
@@ -148,9 +155,10 @@
 				}
 				break;
 
+			//---B
 			case "System.ClientConnectionEstablished":
 
-				console.log("ngEvent: System.ClientConnectionEstablished Data:%O", dataObject);
+				//console.log("ngEvent: System.ClientConnectionEstablished Data:%O", dataObject);
 				SaveUserByClientId(callerConnectionId, dataObject);
 
 				//Tell the new user about us in response.
@@ -160,10 +168,11 @@
 				$rootScope.$broadcast(code, dataObject);
 				break;
 
+			//---B
 			case "System.ClientLogout":
 
-				console.log("ngEvent: System.ClientLogout Data:%O", dataObject);
-				console.log("Our ClientId = " + $.connection.hub.id);
+				//console.log("ngEvent: System.ClientLogout Data:%O", dataObject);
+				//console.log("Our ClientId = " + $.connection.hub.id);
 				if (dataObject) {
 
 					RemoveUserByClientId(dataObject.ClientId);
@@ -176,9 +185,10 @@
 				}
 				break;
 
+			//---B
 			case "System.SignalR.ClientDisconnected":
 
-				console.log("ngEvent: System.ClientDisconnected Data:%O", dataObject);
+				//console.log("ngEvent: System.ClientDisconnected Data:%O", dataObject);
 				//The dataObject IS the clientID in this case.
 				RemoveUserByClientId(dataObject.ClientId);
 				ConsoleLogAllConnectedClients();
@@ -186,6 +196,9 @@
 				//Tell the rest of the system about it, in case some application wants to listen in on client disconnection events.
 				$rootScope.$broadcast(code, dataObject);
 				break;
+
+			//---B
+			
 
 			case "System.OnLineReportResponse":
 
@@ -203,10 +216,12 @@
 				break;
 
 
+			//---B
 			case "System.ReportLockedEntities":
 				service.SignalSpecificClient(callerConnectionId, "System.LockedEntitiesReport", service.OdataLockedEntities);
 				break;
 
+			//---B
 			case "System.LockedEntitiesReport":
 				dataObject.forEach(function (lockEntry) {
 					AddEntityLockEntryToLocalList(lockEntry);
@@ -214,6 +229,7 @@
 				console.log("Current Locked Entities = %O", service.OdataLockedEntities);
 				break;
 
+			//---B
 			case "System.EntityLocked":
 
 				AddEntityLockEntryToLocalList(dataObject);
@@ -221,7 +237,7 @@
 				$rootScope.$broadcast("System.EntityLocked", dataObject);
 				break;
 
-
+			//---B
 			case "System.EntityUnlocked":
 				//Remove it from our locked list
 				RemoveEntityLockEntryFromLocalList(dataObject);
@@ -234,6 +250,7 @@
 
 
 
+			//---B
 			default:
 				//console.log("Broadcasting..");
 				$rootScope.$broadcast(code, dataObject);
@@ -248,7 +265,7 @@
 		/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 
-
+		
 		function GetEntityLockingDataObject(odataSource, collection, Id) {
 			return { odataSource: odataSource, collection: collection, Id: parseInt(Id), lockingClientId: service.Me.ClientId };
 		}
@@ -260,6 +277,9 @@
 			AddEntityLockEntryToLocalList(entityLockData);
 			service.SignalAllClients("System.EntityLocked", entityLockData);
 		}
+
+
+		
 
 		function AddEntityLockEntryToLocalList(lockEntry) {
 
@@ -370,12 +390,14 @@
 					DateLoggedInFormatted: moment(u.DateLoggedIn).format("YYYY-MM-DD HH:mm:ss")
 
 				};
-
 			}
 			return null;
 		}
 
-
+		//***G
+		//++Public Methods for Controllers and Directives to Use
+		//***G
+		//---B
 		service.SignalAllClients = function (code, item) {
 			//Signal down the chain locally. 
 			//console.log("Broadcasting " + code);
@@ -383,6 +405,7 @@
 			return service.SignalOnlyOtherClients(code, item);
 		}
 
+		//---B
 		service.SignalAllClientsInGroup = function (groupName, code, item) {
 			//Signal down the chain locally. 
 			console.log("Broadcasting " + code);
@@ -390,108 +413,39 @@
 			return service.SignalOnlyOtherClientsInGroup(groupName, code, item);
 		}
 
+		//---B
 		service.SignalOnlyOtherClients = function (code, item) {
 			//console.log("Sending SignalR to all clients. Code = " + code + " object = %O", item);
-			var deferred = $q.defer();
-			$.connection.hub.start({ transport: ["webSockets", "serverSentEvents", "longPolling"] })
-				.done(function () {
-					var connId = $.connection.hub.id;
-
-
-					//Signal everybody else.
-					LocalLogOut(code, item);
-					return signalRHub.server.notifyOtherClients(code, item);
-
-				})
-				.fail(function (error) {
-					console.log("SignalR Error " + error);
-					deferred.reject("SignalR Error " + error);
-				});
-
-			return deferred.promise;
+			return signalRHub.server.notifyOtherClients(code, item);
 		}
 
+		//---B
 		service.SignalOnlyOtherClientsInGroup = function (groupName, code, item) {
 			//console.log("Sending SignalR to all clients. Code = " + code + " object = %O", item);
-			var deferred = $q.defer();
-
-			$.connection.hub.start({ transport: ["webSockets", "serverSentEvents", "longPolling"] })
-				.done(function () {
-					var connId = $.connection.hub.id;
-
-					//Signal everybody else.
-					LocalLogOut(code, item);
-					return signalRHub.server.notifyOtherClientsInGroup(groupName, code, item);
-
-				})
-				.fail(function (error) {
-					console.log("SignalR Error " + error);
-					deferred.reject("SignalR Error");
-				});
-			return deferred.promise;
+			return signalRHub.server.notifyOtherClientsInGroup(groupName, code, item);
 		}
 
-
+		//---B
 		service.JoinGroup = function (groupName) {
-
-			var deferred = $q.defer();
-
-			$.connection.hub.start({ transport: ["webSockets", "serverSentEvents", "longPolling"] })
-				.done(function () {
-					var connId = $.connection.hub.id;
-
-
-					signalRHub.server.joinGroup(groupName).then(function () {
-						deferred.resolve();
-					});
-					//console.log("Joined signalR Group " + groupName);
-
-				})
-				.fail(function (error) {
-					console.log("SignalR Error " + error);
-					deferred.reject("Could not start signalR Hub");
-				});
-
-			return deferred.promise;
+			return signalRHub.server.joinGroup(groupName).then(function () {
+				console.log("Joined signalR Group " + groupName);
+			});
 		}
+
+		//---B
 		service.LeaveGroup = function (groupName) {
-
-			var deferred = $q.defer();
-
-			$.connection.hub.start({ transport: ["webSockets", "serverSentEvents", "longPolling"] })
-				.done(function () {
-					var connId = $.connection.hub.id;
-
-
-					//Signal everybody else.
-					return signalRHub.server.leaveGroup(groupName);
-
-				})
-				.fail(function (error) {
-					console.log("SignalR Error " + error);
-					deferred.reject("SignalR Error " + error);
-				});
-
-			return deferred.promise;
+			return signalRHub.server.leaveGroup(groupName).then(function () {
+				//console.log("Left signalR Group " + groupName);
+			});
 		}
 
+		//---B
 		service.SignalSpecificClient = function (clientId, code, item) {
 			//console.log("Local->Client " + clientId +  " Code:" + code + " Data:%O", item);
-			var deferred = $q.defer();
-
-			$.connection.hub.start({ transport: ["webSockets", "serverSentEvents", "longPolling"] })
-				.done(function () {
-					var connId = $.connection.hub.id;
-					LocalLogOut(code, item);
-					return signalRHub.server.notifySpecificClient(clientId, code, item);
-				})
-				.fail(function (error) {
-					console.log("SignalR Error " + error);
-					deferred.reject("SignalR Error " + error);
-				});
-			return deferred.promise;
+			return signalRHub.server.notifySpecificClient(clientId, code, item);
 		}
 
+		//---B
 		service.SendEmail = function (emailData) {
 			console.log("Sending Email.....");
 			$.connection.hub.start({ transport: ["webSockets", "serverSentEvents", "longPolling"] })
@@ -508,21 +462,38 @@
 			//console.log("hub = %O", $.connection.hub);
 		}
 
+		//---B
 		service.SignalClientsForLogout = function () {
 			service.SignalAllClients("System.ClientLogout", GetClientDataObject());
 		}
+		//***G
+		//++End Of Public Methods for Controllers and Directives to Use
+		//***G
+
 
 		$window.onbeforeunload = service.SignalClientsForLogout;
 
 		$.connection.hub.stateChanged(function (state) {
 			var stateConversion = { 0: 'connecting', 1: 'connected', 2: 'reconnecting', 4: 'disconnected' };
-			//console.log('SignalR state changed from: ' + stateConversion[state.oldState] + ' to: ' + stateConversion[state.newState]);
+			console.log('SignalR state changed from: ' + stateConversion[state.oldState] + ' to: ' + stateConversion[state.newState]);
 			service.connectionState = stateConversion[state.newState];
 			if (service.connectionState == "connected") {
 				$rootScope.$broadcast("System.signalR Connected");
+				if (Global.SignalR) {
+					Global.SignalR.Status = "Connected";
+				}
+
+			}
+			if (service.connectionState == "disconnected") {
+				$rootScope.$broadcast("System.signalR Disconnected");
+				if (Global.SignalR) {					
+					Global.SignalR.Status = "Disconnected";
+				}
 			}
 
 		});
+
+		service.connectionState = "";
 
 		//Conduct a signalR round trip timing test
 		function SignalRPerformanceTest() {
@@ -538,9 +509,9 @@
 			console.log("SignalR Trip Time = " + (performance.now() - startTime) / 2);
 		});
 
-		//IMPORTANT!!!! - This has to be defined AFTER THE HUB IS DEFINED - PLACE THE START FUNCTION NEAR THE END OF THE SERVICE DEFINITION - WHERE IT IS NOW -     DO NOT MOVE IT TO THE TOP.
+		//++IMPORTANT!!!! - This has to be defined AFTER THE HUB IS DEFINED - PLACE THE START FUNCTION NEAR THE END OF THE SERVICE DEFINITION - WHERE IT IS NOW -     DO NOT MOVE IT TO THE TOP.
 		function HubStart() {
-			$.connection.hub.start({ withCredentials: false, transport: ["webSockets", "serverSentEvents", "longPolling"] })
+			$.connection.hub.start({ withCredentials: false, transport: [ "serverSentEvents", "webSockets", "longPolling"] })
 
 				.done(function () {
 					//console.log("SignalR start is done.");
@@ -551,10 +522,19 @@
 						if (dataObject) {
 							service.Me = dataObject;
 							SaveUserByClientId(dataObject.ClientId, dataObject);
+							var u = store.get('currentUser');
+							Global.SignalR = {
+								ClientId: $.connection.hub.id,
+								DateLoggedIn: u.DateLoggedIn,
+								DateLoggedInFormatted: moment(u.DateLoggedIn).format("YYYY-MM-DD HH:mm:ss")
+							}
 
 							service.SignalAllClients("System.ClientConnectionEstablished", GetClientDataObject());
 						}
 						//$interval(SignalRPerformanceTest,500);
+						service.connectionState = "connected";
+						Global.SignalR.Status = "Connected";
+						$rootScope.$broadcast("System.signalR Connected");
 						SignalRPerformanceTest();
 					}
 

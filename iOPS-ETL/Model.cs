@@ -7,3 +7,29 @@
 // </auto-generated>
 //------------------------------------------------------------------------------
 
+using System;
+using System.Collections.Generic;
+
+public partial class ChronologicalRawTagValueLogKepwareReceiver
+{
+    public long Id { get; set; }
+    public Nullable<System.DateTime> ObservationDateTime { get; set; }
+    public Nullable<System.DateTime> CreationDate { get; set; }
+    public string TagName { get; set; }
+    public string Value { get; set; }
+    public Nullable<System.DateTime> ETLDate { get; set; }
+    public Nullable<int> Quality { get; set; }
+    public Nullable<int> NotificationLevel { get; set; }
+}
+
+public partial class ChronologicalRawTagValueLogKepwareReceiverNewProcessor
+{
+    public long Id { get; set; }
+    public Nullable<System.DateTime> ObservationDateTime { get; set; }
+    public Nullable<System.DateTime> CreationDate { get; set; }
+    public string TagName { get; set; }
+    public string Value { get; set; }
+    public Nullable<System.DateTime> ETLDate { get; set; }
+    public Nullable<int> Quality { get; set; }
+    public Nullable<int> NotificationLevel { get; set; }
+}

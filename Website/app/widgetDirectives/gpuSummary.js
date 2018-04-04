@@ -4,18 +4,14 @@
 
 	app.directive('gpuSummary',
 		[
-			"dataService", "utilityService", "$state", "hotkeys", "displaySetupService", "$timeout", "$window", "$interval", "signalR", "uibButtonConfig",
+			"$rootScope", "dataService", "utilityService", "$state", "hotkeys", "displaySetupService", "$timeout", "$window", "$interval", "signalR", "uibButtonConfig",
 
-			function (dataService, utilityService, $state, hotkeys, displaySetupService, $timeout, $window, $interval, signalR, uibButtonConfig) {
+			function ($rootScope, dataService, utilityService, $state, hotkeys, displaySetupService, $timeout, $window, $interval, signalR, uibButtonConfig) {
 
 				var controller = function ($scope) {
 					var vm = this;
-
+					//console.log("gpuSummary controller = %O", vm);
 					function GetHeadingExtraTitle() {
-
-						var assetSiteName = vm.Asset.Site.Name;
-
-						var assetParentSystemName = vm.Asset.ParentSystem.Name;
 
 						return ' - ' + vm.Asset.Site.Name + ' Gate ' + vm.Asset.ParentSystem.Name + (vm.Asset.ModelGenericName ? ' - ' + vm.Asset.ModelGenericName : '');
 					}
@@ -29,11 +25,12 @@
 						warningsDataSortField: '-PLCLocalDate',
 						headingExtraTitle: '',
 						obscureGraphics: true,
-						commLossTag: false
-				}
+						commLossTag: false,
+						headingSearchField: true
+					}
 
 					vm.scrolledToEnd = function () {
-						console.log("gpu Data Scrolled to end");
+						//console.log("gpu Data Scrolled to end");
 					}
 
 					vm.originalWidgetResource = angular.copy(vm.widget.WidgetResource);
@@ -42,9 +39,9 @@
 						var possiblyChangedResource = angular.copy(vm.widget.WidgetResource);
 						if (!angular.equals(vm.originalWidgetResource, possiblyChangedResource)) {
 
-							console.log("Saving widget resource........");
-							console.log("Original WidgetResource = %O", vm.originalWidgetResource);
-							console.log("Changed WidgetResource = %O", possiblyChangedResource);
+							//console.log("Saving widget resource........");
+							//console.log("Original WidgetResource = %O", vm.originalWidgetResource);
+							//console.log("Changed WidgetResource = %O", possiblyChangedResource);
 							vm.widget.WidgetResource.$save();
 							vm.originalWidgetResource = possiblyChangedResource;
 						}
@@ -52,7 +49,7 @@
 
 					vm.tagsToGraph = [];
 
-					vm.alarmFilterFunction = function(element) {
+					vm.alarmFilterFunction = function (element) {
 						return element.ValueWhenActive == element.Value;
 					};
 
@@ -97,7 +94,7 @@
 
 					vm.OpenSettingsIfNoAssetAndCloseIfAssetIsPresent = function () {
 
-						console.log("Opening settings vm.Asset = %O", vm.Asset);
+						//console.log("Opening settings vm.Asset = %O", vm.Asset);
 
 
 						if (!vm.gpu) {
@@ -116,14 +113,40 @@
 						});
 
 						//Call the function that the dashboard provided with the collection of tags to add to the possible new widget
-						vm.addTagsToGraphFunction()(vm.tagsToGraphObjects);
+						//console.log("vm in vm.ProcessTagsToGraph = %O", vm);
+
+						vm.dashboard.tagsToGraph = vm.tagsToGraphObjects.concat(vm.dashboard.tagsToGraph).distinct(function (a, b) { return a.TagId == b.TagId }).where(function (t) { return t.Enabled });
+						//console.log("Dashboard vm.dashboard.tagsToGraph = %O", vm.dashboard.tagsToGraph);
+						if (vm.dashboard.tagsToGraph.length > 0) {
+							$rootScope.$broadcast("Dashboard.TagsToGraph", vm.dashboard.tagsToGraph);
+						} else {
+							$rootScope.$broadcast("Dashboard.TagsToGraph", null);
+						}
 
 						return;
-
 					}
 
 
+					vm.tagFilterFunction = function (element) {
+						if ((vm.widget.searchText || '') != '') {
+							return element.JBTStandardObservation.Name.toLowerCase().indexOf((vm.widget.searchText || '').toLowerCase()) > -1;
+						} else {
+							return true;
+						}
+					};
 
+					$scope.$watch("vm.widget.searchText",
+						function (newValue, oldValue) {
+
+							//If any of the entities have an Id attribute, then this is editing an existing value.
+							//send the changes to all other browsers as they press the keys.
+							if ((oldValue || '') != (newValue || '')) {
+								//console.log("searchText change = Old = " + oldValue + " New = " + newValue);
+								vm.widget.WidgetResource.DefaultSearchText = newValue;
+								SaveWidgetResourceObjectIfChanged();
+								signalR.SignalAllClientsInGroup("Admin", vm.widget.Id + " SearchText Modification", vm.widget.searchText);
+							}
+						});
 
 
 					//Get the site entities for which the user has access.
@@ -174,6 +197,7 @@
 						GenerateAmpsOutAverageLinearMeter();
 					}
 
+
 					vm.GenerateVoltsCharts = function () {
 						//console.log("Generating...");
 						GeneratePhaseAVoltsOutLinearMeter();
@@ -182,6 +206,9 @@
 						GenerateVoltsInAverageLinearMeter();
 						GenerateVoltsOutAverageLinearMeter();
 					}
+
+					
+
 
 					function GetGPUAssetForGate() {
 
@@ -232,16 +259,15 @@
 								vm.widget.displaySettings.headingExtraTitle = GetHeadingExtraTitle();
 								vm.GenerateVoltsCharts();
 								vm.GenerateAmpsCharts();
-								vm.showWidget = true;
 
 								var commLossStandardObservationIds = [4331, 4445, 4765, 12255];
 
-								vm.alarms = vm.gpu.Tags.where(function (dsTag) { return dsTag.AssetId == vm.widget.WidgetResource.AssetId && dsTag.IsAlarm && !commLossStandardObservationIds.any(function(a){ return a == dsTag.JBTStandardObservationId })});
-								vm.warnings = vm.gpu.Tags.where(function (dsTag) { return dsTag.AssetId == vm.widget.WidgetResource.AssetId && dsTag.IsWarning});
-								vm.commLossTag = vm.gpu.Tags.first(function(t){return commLossStandardObservationIds.any(function(clso){ return clso == t.JBTStandardObservationId})});
+								vm.alarms = vm.gpu.Tags.where(function (dsTag) { return dsTag.AssetId == vm.widget.WidgetResource.AssetId && dsTag.IsAlarm && !commLossStandardObservationIds.any(function (a) { return a == dsTag.JBTStandardObservationId }) });
+								vm.warnings = vm.gpu.Tags.where(function (dsTag) { return dsTag.AssetId == vm.widget.WidgetResource.AssetId && dsTag.IsWarning });
+								vm.commLossTag = vm.gpu.Tags.first(function (t) { return commLossStandardObservationIds.any(function (clso) { return clso == t.JBTStandardObservationId }) });
 
 								vm.widget.displaySettings.commLossTag = vm.commLossTag;
-								console.log("CommLossTag = %O", vm.commLossTag);
+								//console.log("CommLossTag = %O", vm.commLossTag);
 
 								//dataService.GetIOPSResource("ObservationExceptions")
 								//	.filter("AssetId", vm.widget.WidgetResource.AssetId)
@@ -257,6 +283,14 @@
 
 								//	});
 
+								vm.widget.searchText = vm.widget.WidgetResource.DefaultSearchText || '';
+
+
+								$timeout(function () {
+									vm.showWidget = true;
+								}, 200);
+
+
 							});
 						});
 					}
@@ -264,41 +298,34 @@
 
 
 					function SetTabBodyHeight(repeatCount) {
+						displaySetupService.SetTabBodyHeightForWidget(vm.widget);
+
 						$interval(function () {
 
-							displaySetupService.SetWidgetPanelBodyDimensions(vm.widget.Id);
-							var widgetDimensions = displaySetupService.GetWidgetPanelBodyDimensions(vm.widget.Id);
-							var tabDimensions = displaySetupService.GetDivDimensionsById("nav-pills" + vm.widget.Id);
-							var heightToSet = 0;
-							if (widgetDimensions) {
-								
-								if (vm.widget.WidgetResource.IsModalPopUp) {
-									heightToSet = widgetDimensions.height - tabDimensions.height - 20;
-								} else {
-									heightToSet = widgetDimensions.height - tabDimensions.height-3;	
-								}
-							
-								//console.log("Height to set = " + heightToSet);
-								$("#tab-content" + vm.widget.Id).css('height', heightToSet);
-								$("#repeater-container-data" + vm.widget.Id).css('height', heightToSet);
-								$("#repeater-container-alarms" + vm.widget.Id).css('height', heightToSet);
-								$("#repeater-container-warnings" + vm.widget.Id).css('height', heightToSet);
-								vm.showTags = true;
-							}
+							displaySetupService.SetTabBodyHeightForWidget(vm.widget);
 
-						}, 50, repeatCount);
+						}, 50, repeatCount || 1);
+						vm.showTags = true;
+					}
+
+
+					vm.tagClicked = function (tag) {
+						console.log("tag clicked = %O", tag);
 					}
 
 
 
+
 					function SetHeadingBackground() {
-						if (vm.alarms && vm.alarms.length > 0 && vm.alarms.any(function(a){return a.ValueWhenActive == a.Value})) {
+						if (vm.alarms && vm.alarms.length > 0 && vm.alarms.any(function (a) { return a.ValueWhenActive == a.Value })) {
 
 							vm.widget.displaySettings.headingBackground = 'linear-gradient(to bottom,#FF0000, #FFDDDD)';
 
 
 							return;
 						}
+
+
 
 						//+Commented out the yellow header on warnings present - Can put back in if needed.
 						//if(vm.warnings && vm.warnings.length > 0) {
@@ -309,7 +336,7 @@
 						//	return;
 						//}
 
-						if (AtLeastOneGraphicIsVisible()) {
+						if (AtLeastOneGraphicIsVisible() && (!vm.commLossTag || vm.commLossTag.Value != "1")) {
 							vm.widget.displaySettings.headingBackground = 'linear-gradient(to bottom,#3eff3e, #eefeee)';
 						} else {
 							vm.widget.displaySettings.headingBackground = 'linear-gradient(to bottom,#dedede, #fefefe)';
@@ -422,7 +449,7 @@
 
 					$scope.$on("Widget.AddTagsToGraph", function (event, graphWidget) {
 
-						console.log("Widget.AddTagsToGraph event at GPU Summary");
+						//console.log("Widget.AddTagsToGraph event at GPU Summary");
 
 						//Clear the add tag checkbox buttons
 						vm.tagsToGraphObjects = [];
@@ -454,6 +481,7 @@
 						UpdatePhaseCVoltsOutLinearMeter(updatedTag);
 						UpdateVoltsInAverageLinearMeter(updatedTag);
 						UpdateVoltsOutAverageLinearMeter(updatedTag);
+						SetHeadingBackground();
 					});
 
 
@@ -498,7 +526,6 @@
 						//console.log("vm.widget = %O", vm.widget);
 
 						vm.widget.displaySettings.obscureGraphics = !AtLeastOneGraphicIsVisible();
-						SetHeadingBackground();
 
 
 					}
@@ -512,7 +539,7 @@
 
 
 					$scope.$on("Dashboard", function (event, modifiedExpandedDashboard) {
-						console.log("gpuSummary Dashboard event. Modified Dashboard = %O", modifiedExpandedDashboard);
+						//console.log("gpuSummary Dashboard event. Modified Dashboard = %O", modifiedExpandedDashboard);
 						if (modifiedExpandedDashboard.Id == vm.dashboard.Id) {
 							vm.dashboard = modifiedExpandedDashboard;
 							var oneDay = 24 * 60 * 60 * 1000; // hours*minutes*seconds*milliseconds
@@ -813,7 +840,7 @@
 
 				return {
 					restrict: 'E', //Default for 1.3+
-					templateUrl: "app/widgetDirectives/gpuSummary.html?" + Date.now(),
+					templateUrl: "app/widgetDirectives/gpuSummary.html",
 
 					scope: {
 

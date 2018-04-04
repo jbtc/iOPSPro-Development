@@ -311,7 +311,7 @@
 							updatedTag.TagName.indexOf('|') >= 3 && 
 							!vm.exclusionList.any(function(ex){ return updatedTag.JBTStandardObservationId == ex.jbtStandardObservationId})
 						) {
-							console.log("Alarm Tag Update = " + updatedTag.TagName + "  " + updatedTag.Value);
+							//console.log("Alarm Tag Update = " + updatedTag.TagName + "  " + updatedTag.Value);
 							if (+updatedTag.Value == 1) {
 								if (vm.activeAlarms) {
 									vm.activeAlarms.push(updatedTag);

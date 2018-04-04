@@ -7,3 +7,21 @@
 // </auto-generated>
 //------------------------------------------------------------------------------
 
+using System;
+using System.Collections.Generic;
+
+public partial class SignalRMessageQueue
+{
+    public long Id { get; set; }
+    public string GroupCode { get; set; }
+    public string Code { get; set; }
+    public string Message { get; set; }
+}
+
+public partial class HarvestSignalRMessageQueue_Result
+{
+    public long Id { get; set; }
+    public string GroupCode { get; set; }
+    public string Code { get; set; }
+    public string Message { get; set; }
+}

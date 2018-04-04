@@ -1,5 +1,5 @@
 ﻿"use strict";
-var odataServerUrl = (document.URL.indexOf("localhost/iops/") > 0 || document.URL.indexOf("localhost/iOPSPro-Development/") > 0) ? "http://localhost/DataServices/ODataV4" : "https://www.iopspro.com/DataServices/ODataV4";
+var odataServerUrl = (document.URL.indexOf("localhost/iops/") > 0 || document.URL.indexOf("xxxlocalhost/iOPSPro-Development/") > 0) ? "http://localhost/DataServices/ODataV4" : "https://www.iopspro.com/DataServices/ODataV4";
 
 //var odataServerUrl = "https:/7.207.78.73/DataServices/ODataV4";
 //var odataServerUrl = "http://localhost:48773";
@@ -7,62 +7,78 @@ var webRoot = document.URL.indexOf("localhost/iops/") > 0 ? "/iops/"
 				: document.URL.indexOf("localhost/iOPSPro-Development") > 0 ? "/iOPSPro-Development/Website/" :
 				"/";
 
-if (!(document.URL.indexOf("localhost/iops/") > 0)) {
-	window.console.log = function() {
-		
-	}
-}
+//if (!(document.URL.indexOf("localhost/iops/") > 0)) {
+//	window.console.log = function() {
+
+//	}
+//}
 
 
 var signalRServerUrl = "https://www.iopspro.com/DataServices/SignalR/signalr";
 var Global = {
 	User: {},
-	webRoot: "/"
+	webRoot: "/",
+	SignalR: {}
 }
 
 
-angular.module("app", ["ngResource", "ngStorage", "ngRoute", "ui.router","angular-storage", "ODataResources", "indexedDB", "vs-repeat", "cfp.hotkeys", "sf.virtualScroll","ui.bootstrap","ui.mask","gridster"]);
+angular.module("app", ["ngResource", "ngStorage", "ngRoute", "ui.router", "angular-storage", "ODataResources", "indexedDB", "vs-repeat", "cfp.hotkeys", "sf.virtualScroll", "ui.bootstrap", "ui.mask", "gridster"]);
 
-angular.module('app').config(['$httpProvider','$compileProvider','$provide', function ($httpProvider, $compileProvider, $provide) {
+angular.module('app').config(['$httpProvider', '$compileProvider', '$provide', function ($httpProvider, $compileProvider, $provide) {
 
 
-    //The following will alert the user with an alert box for any and all errors.
-    //$provide.decorator("$exceptionHandler", ["$delegate", function ($delegate) {
-    //    return function (exception, cause) {
-    //        $delegate(exception, cause);
-    //        alert(exception.message);
-    //    };
+	//The following will alert the user with an alert box for any and all errors.
+	//$provide.decorator("$exceptionHandler", ["$delegate", function ($delegate) {
+	//    return function (exception, cause) {
+	//        $delegate(exception, cause);
+	//        alert(exception.message);
+	//    };
 	//}]);
 
 
-    $compileProvider.debugInfoEnabled(false);
-    $httpProvider.useApplyAsync(true);
+	$compileProvider.debugInfoEnabled(false);
+	$httpProvider.useApplyAsync(true);
 
-    $provide.constant("indexedDB", window.indexedDB);
+	$provide.constant("indexedDB", window.indexedDB);
 	$provide.constant("_", window._);
 	$provide.constant("Offline", window.Offline);
+
+
+	//Could not get this to work;
+	//$provide.decorator('$rootScope', ['$delegate', function ($delegate) {
+	//	$delegate.constructor.prototype.$onRootScope = function (name, listener) {
+	//		var unsubscribe = $delegate.$on(name, listener);
+	//		this.$on('$destroy', unsubscribe);
+	//		console.log("rootScope on eliminated");
+	//	};
+	//	console.log("rootScope delegate built");
+	//	return $delegate;
+	//}]);
+
 
 	$httpProvider.interceptors.push('APIInterceptor');
 
 	$.ajaxSetup({ cache: false });
 
-    toastr.options = {
-					"closeButton": false,
-					"debug": false,
-					"newestOnTop": false,
-					"progressBar": false,
-					"positionClass": "toast-top-right",
-					"preventDuplicates": false,
-					"onclick": null,
-					"showDuration": "200",
-					"hideDuration": "1000",
-					"timeOut": "3000",
-					"extendedTimeOut": "1000",
-					"showEasing": "swing",
-					"hideEasing": "linear",
-					"showMethod": "fadeIn",
-					"hideMethod": "fadeOut"
-    };
+	toastr.options = {
+		"closeButton": false,
+		"debug": false,
+		"newestOnTop": false,
+		"progressBar": false,
+		"positionClass": "toast-top-right",
+		"preventDuplicates": false,
+		"onclick": null,
+		"showDuration": "200",
+		"hideDuration": "1000",
+		"timeOut": "3000",
+		"extendedTimeOut": "1000",
+		"showEasing": "swing",
+		"hideEasing": "linear",
+		"showMethod": "fadeIn",
+		"hideMethod": "fadeOut"
+	};
+
+
 
 	Highcharts.setOptions({
 		global: {
@@ -114,7 +130,7 @@ angular.module('app').config(['$routeProvider', '$urlRouterProvider', '$statePro
 				}
 			}
 		})
-				
+
 		//***
 		.state('home.app.blank',
 		{
@@ -565,4 +581,3 @@ angular.module('app').config(['$routeProvider', '$urlRouterProvider', '$statePro
 
 }]);
 
-  

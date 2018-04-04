@@ -120,30 +120,39 @@
 		};
 
 
-
-		$rootScope.$on("signalR.Reconnect", function (event, obj) {
+		$rootScope.$on("System.signalR Connected", function (event, obj) {
 			//For some reason (like putting your system to sleep) the signalR service disconnected.
 			//On reconnection, join the appropriate groups.
-			JoinUserSignalRGroups();
+
+			$timeout(function () {
+
+				JoinUserSignalRGroups();
+			}, 50);
 		});
 
-		$interval(function () {
-			JoinUserSignalRGroups();
-		}, 3000);
+		//$interval(function () {
+		//	JoinUserSignalRGroups();
+		//}, 3000);
 
 		function JoinUserSignalRGroups() {
-			if (Global.User && Global.User.AuthorizedActivities) {
-				if (Global.User.AuthorizedActivities.contains("AuthorizedActivity.AdministerSystem")) {
-					signalR.JoinGroup("Admin");
-				}
+			if (Global.SignalR && Global.SignalR.Status == "Connected") {
+				
+				if (Global.User && Global.User.AuthorizedActivities) {
+					if (Global.User.AuthorizedActivities.contains("AuthorizedActivity.AdministerSystem")) {
+						signalR.JoinGroup("Admin");
+					}
 
-				Global.User.ReaderOf.forEach(function (ro) {
-					var site = ro.replace('Site.', '')
-					//console.log("User ReaderOf Sites site = to join = %O", site);
-					signalR.JoinGroup(site);
-				});
+					Global.User.ReaderOf.forEach(function (ro) {
+						var site = ro.replace('Site.', '')
+						//console.log("User ReaderOf Sites site = to join = %O", site);
+						signalR.JoinGroup(site);
+					});
+				}
 			}
 		}
+
+
+
 
 
 		service.LoginUserWithAccessToken = function (accessToken) {
@@ -182,6 +191,7 @@
 						store.set('currentUser', data);
 						Global.User = data;
 					}
+
 
 					JoinUserSignalRGroups();
 					$rootScope.$broadcast('securityService:authenticated', service.currentUser);

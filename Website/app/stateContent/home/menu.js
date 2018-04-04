@@ -16,7 +16,7 @@
 
 		vm.showMenu = false;
 
-		$scope.$on("securityService:authenticated",
+		$rootScope.$on("securityService:authenticated",
 			function (event, user) {
 				console.log("MenuCtrl authenticated event received. User = %O", user);
 
@@ -109,7 +109,7 @@
 		}
 
 
-		$scope.$on("Dashboard", function (event, dashboard) {
+		$rootScope.$on("Dashboard", function (event, dashboard) {
 			//console.log("Event Dashboard = %O", dashboard);
 
 			if (dashboard.CreatorUserId == Global.User.Id && !dashboard.ParentDashboardId) {
@@ -119,7 +119,7 @@
 		});
 
 
-		$scope.$on("Dashboard.Deleted", function (event, dashboard) {
+		$rootScope.$on("Dashboard.Deleted", function (event, dashboard) {
 			console.log("Event Dashboard.Deleted = %O", dashboard);
 
 			vm.dashboards = vm.dashboards.where(function (db) { return db.Id != dashboard.Id });
@@ -297,13 +297,17 @@
 			//====================================================================================================
 
 
-			dataService.GetIOPSCollection("Dashboards", "CreatorUserId", Global.User.Id).then(function (dashboardsForUser) {
+
+			dataService.GetDashboardsForUser()
+				.then(function (dashboardsForUser) {
 
 				if (!dashboardsForUser) {
 					vm.noDashboardsMessage = "You do not yet have any dashboards created. To create a dashboard, please click on the New button above.";
 				}
-				vm.dashboards = dashboardsForUser.where(function (d) { return !d.ParentDashboardId }).orderBy(function (db) { return db.Ordinal });;
+				vm.dashboards = dashboardsForUser;
+
 				vm.showMenu = true;
+				console.log("Setting the menu as visible");
 
 				//If there are dashboards defined for the user, transition to the first one.
 				if (vm.dashboards && vm.dashboards.length > 0) {
@@ -633,9 +637,9 @@
 		}
 
 
-		$scope.$on("dataService.ready",
+		$rootScope.$on("dataService.ready",
 			function (event, data) {
-				//console.log("Setting up menu...");
+				console.log("Setting up menu...");
 
 				SetupMenu();
 			});

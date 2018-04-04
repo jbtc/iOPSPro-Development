@@ -180,6 +180,8 @@
 						EmbeddedDashboardId: newDashboard ? newDashboard.Id : null,
 						Width: wt.InitialWidth,
 						Height: wt.InitialHeight,
+						SplitLeftPercentage: 50,
+						SplitRightPercentage: 50,
 						Row: 100,
 						Col: 0
 					}).then(function (widget) {

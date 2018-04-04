@@ -31,6 +31,24 @@
 
 }
 
+.mnemonic {
+    cursor: pointer; 
+    font-weight: bold; 
+    font-size: x-large; 
+    width: 79px; 
+    max-width: 79px; 
+    min-width: 79px;
+}
+
+.mnemonic-active {
+    font-size: x-large; 
+    color: black;
+}
+.mnemonic-inactive {
+    font-size: x-large; 
+    color: #ff0000;
+}
+
 .false-td-value {
     font-size: 1.2em;
     font-weight: bold;

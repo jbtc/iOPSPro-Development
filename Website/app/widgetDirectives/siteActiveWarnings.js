@@ -292,7 +292,7 @@
 							(updatedTag.IsWarning) &&
 							updatedTag.TagName.indexOf('|') >= 3
 						) {
-							console.log("Warning Tag Update = " + updatedTag.TagName + "  " + updatedTag.Value);
+							//console.log("Warning Tag Update = " + updatedTag.TagName + "  " + updatedTag.Value);
 							//GetWarningTagsForSite();
 							if (+updatedTag.Value == 1) {
 								if (vm.activeWarnings) {

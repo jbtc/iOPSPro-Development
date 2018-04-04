@@ -7,31 +7,28 @@
 // </auto-generated>
 //------------------------------------------------------------------------------
 
-namespace SignalRDatabaseTransmitter
+using System;
+using System.Data.Entity;
+using System.Data.Entity.Infrastructure;
+using System.Data.Entity.Core.Objects;
+using System.Linq;
+
+public partial class iOPS_NormalizedEntities : DbContext
 {
-    using System;
-    using System.Data.Entity;
-    using System.Data.Entity.Infrastructure;
-    using System.Data.Entity.Core.Objects;
-    using System.Linq;
-    
-    public partial class iOPS_NormalizedEntities : DbContext
+    public iOPS_NormalizedEntities()
+        : base("name=iOPS_NormalizedEntities")
     {
-        public iOPS_NormalizedEntities()
-            : base("name=iOPS_NormalizedEntities")
-        {
-        }
-    
-        protected override void OnModelCreating(DbModelBuilder modelBuilder)
-        {
-            throw new UnintentionalCodeFirstException();
-        }
-    
-        public virtual DbSet<SignalRMessageQueue> SignalRMessageQueues { get; set; }
-    
-        public virtual ObjectResult<HarvestSignalRMessageQueue_Result> HarvestSignalRMessageQueue()
-        {
-            return ((IObjectContextAdapter)this).ObjectContext.ExecuteFunction<HarvestSignalRMessageQueue_Result>("HarvestSignalRMessageQueue");
-        }
+    }
+
+    protected override void OnModelCreating(DbModelBuilder modelBuilder)
+    {
+        throw new UnintentionalCodeFirstException();
+    }
+
+    public virtual DbSet<SignalRMessageQueue> SignalRMessageQueues { get; set; }
+
+    public virtual ObjectResult<HarvestSignalRMessageQueue_Result> HarvestSignalRMessageQueue()
+    {
+        return ((IObjectContextAdapter)this).ObjectContext.ExecuteFunction<HarvestSignalRMessageQueue_Result>("HarvestSignalRMessageQueue");
     }
 }

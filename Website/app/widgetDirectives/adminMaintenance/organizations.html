@@ -1,0 +1,242 @@
+﻿<div class="chart-wrapper" style="width:100%; height: 100%">
+    <div class="chart-inner" style="width:100%; height: 100%">
+        <div ng-show="vm.showWidget" style="display: flex; width: 100%; height: 100%;">
+            <div class="container" id="containerData{{vm.widget.Id}}" style="height 100%; width:100%; padding-left: 0; padding-right: 0;">
+
+                <div id="repeater-container-data{{vm.widget.Id}}" ng-show="vm.showEntities" class="repeater-container" style="overflow-x: hidden; overflow-y: auto; width: 100%; height: {{vm.widgetDimensions.height - 10}}px;">
+                    <table class="table table-condensed table-striped widget-tag-data-table">
+                        <thead>
+                            <tr>
+                                <th style="cursor: default;">
+                                    Key
+                                </th>
+                                <th style="cursor: default;">
+                                    Name
+                                </th>
+                                <th style="cursor: default;" ng-hide="vm.listPaneWidth < vm.columnHideWidth2">
+                                    Primary Contact
+                                </th>
+                                <th style="cursor: default;" ng-hide="vm.listPaneWidth < vm.columnHideWidth2">
+                                    Email Address
+                                </th>
+                                <th style="cursor: default;" ng-hide="vm.listPaneWidth < vm.columnHideWidth2">
+                                    Expiration Date
+                                </th>
+                                <th style="cursor: default;" ng-hide="vm.listPaneWidth < vm.columnHideWidth2">
+                                    Renewal Notice Date
+                                </th>
+                                <th style="cursor: default;" ng-hide="vm.listPaneWidth < vm.columnHideWidth2">
+                                    Renewal Notice Sent Date
+                                </th>
+                                <th style="cursor: default;" ng-hide="vm.listPaneWidth < vm.columnHideWidth1">
+                                    Created By
+                                </th>
+                                <th style="cursor: default;" ng-hide="vm.listPaneWidth < vm.columnHideWidth1">
+                                    Last Modified By
+                                </th>
+                                <th style="width: 55px; text-align: right;">
+                                    &nbsp;
+                                </th>
+                            </tr>
+                        </thead>
+                        <tbody vs-repeatxxx vs-autoresize vs-scroll-parent=".repeater-container" vs-scrolled-to-end="vm.scrolledToEnd()" style="overflow-y: scroll; height: 100px;">
+                            <tr ng-repeat="entity in vm.entities | filter: vm.widget.searchText track by $index "
+                                style="font-size: 1.2em; background: {{vm.entity && vm.entity.Id == entity.Id ? 'whitesmoke' : 'white'}}; height: 43px;">
+                                <td class="mnemonic" ng-click="vm.selectEntity(entity)">
+                                    <div class="{{entity.Active ? 'mnemonic-active' : 'mnemonic-inactive'}}">{{entity.Mnemonic}}</div>
+                                </td>
+                                <td nowrap style="cursor: pointer; font-weight: bold; vertical-align: middle; color:mediumblue" ng-click="vm.selectEntity(entity)">
+                                    {{entity.Name}}
+                                </td>
+                                <td style="cursor: pointer;" ng-hide="vm.listPaneWidth < vm.columnHideWidth2" ng-click="vm.selectEntity(entity)">
+                                    {{entity.PrimaryContactPerson.GivenName}} {{entity.PrimaryContactPerson.FamilyName}}
+                                </td>
+                                <td style="cursor: pointer;" ng-hide="vm.listPaneWidth < vm.columnHideWidth2" ng-click="vm.selectEntity(entity)">
+                                    {{entity.EmailAddress}}
+                                </td>
+                                <td style="cursor: pointer;" ng-hide="vm.listPaneWidth < vm.columnHideWidth2" ng-click="vm.selectEntity(entity)">
+                                    {{entity.ExpirationDate | date: 'MM/dd/yyyy'}}
+                                </td>
+
+                                <td style="cursor: pointer;" ng-hide="vm.listPaneWidth < vm.columnHideWidth2" ng-click="vm.selectEntity(entity)">
+                                    {{entity.RenewalNoticeDueDate | date: 'MM/dd/yyyy'}}
+                                </td>
+
+                                <td style="cursor: pointer;" ng-hide="vm.listPaneWidth < vm.columnHideWidth2" ng-click="vm.selectEntity(entity)">
+                                    {{entity.RenewalNoticeSentDate | date: 'MM/dd/yyyy'}}
+                                </td>
+
+                                <td nowrap style="cursor: pointer;" ng-click="vm.selectEntity(entity)" ng-hide="vm.listPaneWidth < vm.columnHideWidth1">
+                                    {{entity.CreatorUser.Person.GivenName}} {{entity.CreatorUser.Person.FamilyName}}
+                                    <div style="color: gainsboro;">{{entity.CreationDate | date:'MM/dd HH:mm:ss.ss'}}</div>
+                                </td>
+                                <td nowrap style="cursor: pointer;" ng-click="vm.selectEntity(entity)" ng-hide="vm.listPaneWidth < vm.columnHideWidth1">
+                                    {{entity.LastModifiedUser.Person.GivenName}} {{entity.LastModifiedUser.Person.FamilyName}}
+                                    <div style="color: gainsboro;">{{entity.LastModifiedDate | date:'MM/dd HH:mm:ss.ss'}}</div>
+                                </td>
+                                <td style="width: 55px; text-align: right;">
+                                    <a class="btn btn-default"
+                                       ng-click="vm.delete(entity)"
+                                       style="width: 25px; padding-left: 3px; padding-right: 3px; padding-top: 0; padding-bottom: 0;">
+                                        <i class="fa fa-times" aria-hidden="true" title="Delete {{vm.entityName}}" style="color: red"></i>
+                                    </a>
+                                </td>
+                            </tr>
+                        </tbody>
+
+                    </table>
+                </div>
+
+            </div>
+
+
+            <div id="containerEdit{{vm.widget.Id}}" style="border-left: 1px solid lightgray; height: 100%; width:0;">
+                <div style="position: relative; height: 100%; width: 100%;">
+
+                    <div ng-show="vm.showEditPane" class="panel panel-primary static-panel widget-edit-panel">
+
+
+                        <div class="panel-heading-widget-edit-pane"
+                             id="panel-heading-edit-{{vm.widget.Id}}">
+
+
+                            <div class='btn-toolbar pull-right' style="display: inline-block;">
+
+
+                                <button ng-click="vm.saveEntity()" class="btn btn-default responsive-button tiny-button" style="margin-top: -3px;" title="Save">
+                                    <i class="fa fa-save" aria-hidden="true" style="cursor: pointer;"></i>
+                                </button>
+
+                                <button ng-click="vm.cancelSaveEntity()" class="btn btn-default responsive-button tiny-button" style="margin-top: -3px;" title="Cancel">
+                                    <i class="fa fa-times" aria-hidden="true" style="cursor: pointer;"></i>
+                                </button>
+
+                            </div>
+                            {{vm.editPanelTitle}}
+                        </div>
+
+
+                        <div class="panel-body" id="widget-edit-pane-panel-body{{vm.widget.Id}}">
+
+                            <form class="form-horizontal" role="form" name="{{vm.widget.Id}}-{{vm.entityName}}EditForm" id="{{vm.widget.Id}}-{{vm.entityName}}Form" novalidate>
+                                <div class="row">
+
+
+                                    <!-- Is Active? -->
+                                    <div class="form-group">
+                                        <label class="col-sm-{{vm.bootstrapLabelColumns}} control-label innovation-right-aligned" style="font-size: .7em;">
+                                            Is Active?
+                                        </label>
+                                        <div class="col-sm-{{vm.bootstrapInputColumns}}">
+                                            <label class="btn btn-default" style="width: 55px; margin: 1px;" ng-model="vm.editModel.activeState" uib-btn-radio=1>Yes</label>
+                                            <label class="btn btn-default" style="width: 55px; margin: 1px;" ng-model="vm.editModel.activeState" uib-btn-radio=0>No</label>
+                                        </div>
+                                    </div>
+
+                                    <!-- Mnemonic -->
+                                    <widget-text-input-field model="vm.editModel.Mnemonic"
+                                                             label-text="Key"
+                                                             id-text="{{vm.widget.Id}}-{{vm.entityName}}-{{vm.focusFieldName}}"
+                                                             bootstrap-label-columns="{{vm.bootstrapLabelColumns}}"
+                                                             bootstrap-input-columns="{{vm.bootstrapInputColumns}}">
+                                    </widget-text-input-field>
+
+                                    <!-- Name -->
+                                    <widget-text-input-field model="vm.editModel.Name"
+                                                             label-text="Name"
+                                                             id-text="{{vm.widget.Id}}-{{vm.entityName}}-Name"
+                                                             bootstrap-label-columns="{{vm.bootstrapLabelColumns}}"
+                                                             bootstrap-input-columns="{{vm.bootstrapInputColumns}}">
+                                    </widget-text-input-field>
+
+                                    <!-- Email Address -->
+                                    <widget-text-input-field model="vm.editModel.EmailAddress"
+                                                             label-text="Email Address"
+                                                             id-text="{{vm.widget.Id}}-{{vm.entityName}}-EmailAddress"
+                                                             bootstrap-label-columns="{{vm.bootstrapLabelColumns}}"
+                                                             bootstrap-input-columns="{{vm.bootstrapInputColumns}}">
+                                    </widget-text-input-field>
+
+
+                                    <!-- Expiration Date -->
+                                    <widget-text-input-field model="vm.editModel.ExpirationDate"
+                                                             input-type="date"
+                                                             label-text="Expiration Date"
+                                                             id-text="{{vm.widget.Id}}-{{vm.entityName}}-ExpirationDate"
+                                                             bootstrap-label-columns="{{vm.bootstrapLabelColumns}}"
+                                                             bootstrap-input-columns="{{vm.bootstrapInputColumns}}">
+                                    </widget-text-input-field>
+
+                                    <!-- Renewal Notice Due Date -->
+                                    <widget-text-input-field model="vm.editModel.RenewalNoticeDueDate"
+                                                             input-type="date"
+                                                             label-text="Renewal Notice Due"
+                                                             id-text="{{vm.widget.Id}}-{{vm.entityName}}-RenewalNoticeDueDate"
+                                                             bootstrap-label-columns="{{vm.bootstrapLabelColumns}}"
+                                                             bootstrap-input-columns="{{vm.bootstrapInputColumns}}">
+                                    </widget-text-input-field>
+
+                                    <!-- Renewal Notice Sent Date -->
+                                    <widget-text-input-field model="vm.editModel.RenewalNoticeSentDate"
+                                                             input-type="date"
+                                                             label-text="Renewal Notice Sent"
+                                                             id-text="{{vm.widget.Id}}-{{vm.entityName}}-RenewalNoticeSentDate"
+                                                             bootstrap-label-columns="{{vm.bootstrapLabelColumns}}"
+                                                             bootstrap-input-columns="{{vm.bootstrapInputColumns}}">
+                                    </widget-text-input-field>
+
+                                    <!-- Organization Sites -->
+                                    <div class="form-group">
+                                        <label class="col-sm-{{vm.bootstrapLabelColumns}} control-label innovation-right-aligned">
+                                            Sites
+                                        </label>
+                                        <div class="col-sm-{{vm.bootstrapInputColumns}}">
+                                            <table class="table table-condensed">
+                                                <thead>
+                                                    <tr>
+                                                        <th>
+                                                            Site
+                                                        </th>
+                                                        <th>
+                                                            Suites
+                                                        </th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    <tr ng-repeat="site in vm.JBTData.Sites">
+                                                        <td>
+                                                            <label style="margin: 1px; width: 60px;" class="btn btn-default" ng-model="vm.editModel.associatedSiteIds[site.Id]" uib-btn-checkbox="{{site.Id}}">{{site.Mnemonic}}</label>
+
+                                                        </td>
+
+                                                        <td>
+                                                            Suite
+                                                        </td>
+                                                    </tr>
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                    </div>
+
+
+
+                                </div>
+                            </form>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+
+
+
+
+
+
+

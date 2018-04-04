@@ -4,17 +4,19 @@
 
 	app.directive('pcaSummary',
 		[
-			"dataService", "utilityService", "$state", "hotkeys", "displaySetupService", "$timeout", "$window", "$interval", "signalR", "uibButtonConfig", "$location",
+			"$rootScope", "dataService", "utilityService", "$state", "hotkeys", "displaySetupService", "$timeout", "$window", "$interval", "signalR", "uibButtonConfig", "$location",
 
-			function (dataService, utilityService, $state, hotkeys, displaySetupService, $timeout, $window, $interval, signalR, uibButtonConfig, $location) {
+			function ($rootScope, dataService, utilityService, $state, hotkeys, displaySetupService, $timeout, $window, $interval, signalR, uibButtonConfig, $location) {
 
 				var controller = function ($scope) {
 					var vm = this;
-					console.log("PCA Summary Controller invoked");
+					//console.log("PCA Summary Controller invoked");
 
 					function GetHeadingExtraTitle() {
 						//console.log("Getting site heading");
-						return ' - ' + vm.Asset.Site.Name + ' Gate ' + vm.Asset.ParentSystem.Name + (vm.Asset.ModelGenericName ? ' - ' + vm.Asset.ModelGenericName : '');
+						if (vm.Asset && vm.Asset.Site && vm.Asset.ParentSystem) {						
+							return ' - ' + vm.Asset.Site.Name + ' Gate ' + vm.Asset.ParentSystem.Name + (vm.Asset.ModelGenericName ? ' - ' + vm.Asset.ModelGenericName : '');
+						}
 					}
 
 					vm.widget.displaySettings = {
@@ -24,12 +26,46 @@
 						warningsDataSortField: '-PLCLocalDate',
 						headingExtraTitle: '',
 						obscureGraphics: true,
-						commLossTag: vm.commLossTag
+						commLossTag: vm.commLossTag,
+						headingSearchField: true
+
 					}
 					vm.scrolledToEnd = function () {
 						//console.log("pca Data Scrolled to end");
 					}
 
+
+					vm.tagFilterFunction = function (element) {
+						if ((vm.widget.searchText || '') != '') {
+							return element.JBTStandardObservation.Name.toLowerCase().indexOf((vm.widget.searchText || '').toLowerCase()) > -1;
+						} else {
+							return true;
+						}
+					};
+
+					vm.alarmFilterFunction = function (element) {
+						return element.ValueWhenActive == element.Value;
+					};
+
+
+
+					vm.tagClicked = function(tag) {
+						console.log("tag clicked = %O", tag);
+					}
+
+
+					$scope.$watch("vm.widget.searchText",
+						function (newValue, oldValue) {
+
+							//If any of the entities have an Id attribute, then this is editing an existing value.
+							//send the changes to all other browsers as they press the keys.
+							if ((oldValue || '') != (newValue || '')) {
+								//console.log("searchText change = Old = " + oldValue + " New = " + newValue);
+								vm.widget.WidgetResource.DefaultSearchText = newValue;
+								SaveWidgetResourceObjectIfChanged();
+								signalR.SignalAllClientsInGroup("Admin", vm.widget.Id + " SearchText Modification", vm.widget.searchText);
+							}
+						});
 
 
 					vm.originalWidgetResource = angular.copy(vm.widget.WidgetResource);
@@ -40,9 +76,9 @@
 						//console.log("Original widget resource = %O", vm.originalWidgetResource);
 						if (!angular.equals(vm.originalWidgetResource, possiblyChangedResource)) {
 
-							console.log("Saving widget resource........");
-							console.log("Original WidgetResource = %O", vm.originalWidgetResource);
-							console.log("Changed WidgetResource = %O", possiblyChangedResource);
+							//console.log("Saving widget resource........");
+							//console.log("Original WidgetResource = %O", vm.originalWidgetResource);
+							//console.log("Changed WidgetResource = %O", possiblyChangedResource);
 							vm.widget.WidgetResource.$save();
 							vm.originalWidgetResource = possiblyChangedResource;
 						}
@@ -56,7 +92,7 @@
 
 					//Get a copy of the user record to determine privs
 					vm.user = Global.User;
-					console.log("Initial vm.widget = %O", vm.widget);
+					//console.log("Initial vm.widget = %O", vm.widget);
 
 
 					//console.log("vm.user = %O", vm.user);
@@ -122,7 +158,7 @@
 
 					vm.OpenSettingsIfNoAssetAndCloseIfAssetIsPresent = function () {
 
-						console.log("Opening settings vm.Asset = %O", vm.Asset);
+						//console.log("Opening settings vm.Asset = %O", vm.Asset);
 
 						if (!vm.pca) {
 
@@ -140,9 +176,18 @@
 						});
 
 						//Call the function that the dashboard provided with the collection of tags to add to the possible new widget
-						vm.addTagsToGraphFunction()(vm.tagsToGraphObjects);
+						//console.log("vm in vm.ProcessTagsToGraph = %O", vm);
+
+						vm.dashboard.tagsToGraph = vm.tagsToGraphObjects.concat(vm.dashboard.tagsToGraph).distinct(function (a, b) { return a.TagId == b.TagId }).where(function (t) { return t.Enabled });
+						//console.log("Dashboard vm.dashboard.tagsToGraph = %O", vm.dashboard.tagsToGraph);
+						if (vm.dashboard.tagsToGraph.length > 0) {
+							$rootScope.$broadcast("Dashboard.TagsToGraph", vm.dashboard.tagsToGraph);
+						} else {
+							$rootScope.$broadcast("Dashboard.TagsToGraph", null);
+						}
 
 						return;
+
 					}
 
 
@@ -239,7 +284,7 @@
 					//---G
 					function GetPCAAssetForGate() {
 
-						console.log("Entry into GetPCAAssetForGate()");
+						//console.log("Entry into GetPCAAssetForGate()");
 						vm.pca = vm.JBTData
 							.Assets
 							.first(function (a) { return a.ParentSystemId == vm.widget.WidgetResource.GateSystemId && a.Name == 'PCA' });
@@ -253,10 +298,10 @@
 						SaveWidgetResourceObjectIfChanged();
 						vm.widget.displaySettings.headingExtraTitle = GetHeadingExtraTitle();
 
-						console.log("Getting tags into inventory");
+						//console.log("Getting tags into inventory");
 						dataService.GetAllSignalRObservationFormattedTagsForAssetIdIntoInventory(vm.pca.Id).then(function () {
 
-							console.log("tags into inventory done");
+							//console.log("tags into inventory done");
 							vm.AssetGraphics = dataService.cache.assetGraphics.where(function (ag) { return ag.AssetId == vm.pca.Id });
 
 
@@ -269,7 +314,7 @@
 								SetTabBodyHeight(5);
 							}, 50);
 
-							console.log("Asset Graphics = %O", vm.AssetGraphics);
+							//console.log("Asset Graphics = %O", vm.AssetGraphics);
 							vm.pca.Tags.forEach(function (tag) {
 								UpdateGraphicsVisibilityForSingleTag(tag);
 							});
@@ -280,10 +325,6 @@
 							vm.widget.displaySettings.headingExtraTitle = GetHeadingExtraTitle();
 							vm.GenerateTemperatureCharts();
 							vm.GeneratePressureCharts();
-							$timeout(function () {
-
-								vm.showWidget = true;
-							}, 100);
 
 							if (!vm.alarms) {
 								vm.alarms = [];
@@ -299,22 +340,27 @@
 							vm.warnings = vm.pca.Tags.where(function (dsTag) { return dsTag.AssetId == vm.widget.WidgetResource.AssetId && dsTag.IsWarning });
 							vm.commLossTag = vm.pca.Tags.first(function(t){return commLossStandardObservationIds.any(function(clso){ return clso == t.JBTStandardObservationId})});
 
-							console.log("PCA vm.alarms = %O", vm.alarms);
-							console.log("PCA vm.warnings = %O", vm.warnings);
-							console.log("PCA Tags for Asset = %O", vm.pca.Tags);
-							console.log("PCA Comm Loss Tag for Asset = %O", vm.commLossTag);
+							//console.log("PCA vm.alarms = %O", vm.alarms);
+							//console.log("PCA vm.warnings = %O", vm.warnings);
+							//console.log("PCA Tags for Asset = %O", vm.pca.Tags);
+							//console.log("PCA Comm Loss Tag for Asset = %O", vm.commLossTag);
 
 							vm.widget.displaySettings.commLossTag = vm.commLossTag;
 
-							console.log("PCA Tag Alarms = %O", vm.pca.Tags.select(function(t) {
-								return {
-									SName: t.JBTStandardObservation.Name,
-									IsAlarm: t.IsAlarm
-								}
-							}));
+							//console.log("PCA Tag Alarms = %O", vm.pca.Tags.select(function(t) {
+							//	return {
+							//		SName: t.JBTStandardObservation.Name,
+							//		IsAlarm: t.IsAlarm
+							//	}
+							//}));
 
 							SetHeadingBackground();
-							
+
+							$timeout(function () {
+								vm.showWidget = true;
+							}, 100);
+
+							vm.widget.searchText = vm.widget.WidgetResource.DefaultSearchText || '';
 
 							$timeout(function() {
 								$(function () {
@@ -332,38 +378,21 @@
 					};
 
 					function SetTabBodyHeight(repeatCount) {
+						displaySetupService.SetTabBodyHeightForWidget(vm.widget);
+
 						$interval(function () {
 
-							displaySetupService.SetWidgetPanelBodyDimensions(vm.widget.Id);
-							var widgetDimensions = displaySetupService.GetWidgetPanelBodyDimensions(vm.widget.Id);
-							var tabDimensions = displaySetupService.GetDivDimensionsById("nav-pills" + vm.widget.Id);
-							var heightToSet = 0;
-							if (widgetDimensions) {
-
-								if (vm.widget.WidgetResource.IsModalPopUp) {
-									heightToSet = widgetDimensions.height - tabDimensions.height - 20;
-								} else {
-									heightToSet = widgetDimensions.height - tabDimensions.height - 3;
-								}
-
-								//console.log("Height to set = " + heightToSet);
-								$("#tab-content" + vm.widget.Id).css('height', heightToSet);
-								$("#repeater-container-data" + vm.widget.Id).css('height', heightToSet);
-								$("#repeater-container-alarms" + vm.widget.Id).css('height', heightToSet);
-								$("#repeater-container-warnings" + vm.widget.Id).css('height', heightToSet);
-								vm.showTags = true;
-							}
+							displaySetupService.SetTabBodyHeightForWidget(vm.widget);
 
 						}, 50, repeatCount || 1);
+						vm.showTags = true;
 					}
-
-
 
 
 
 					function SetHeadingBackground() {
 
-						if (vm.alarms && vm.alarms.length > 0 && vm.alarms.any(function(a){return a.ValueWhenActive == a.Value})) {
+						if (vm.alarms && vm.alarms.length > 0 && vm.alarms.any(function (a) { return a.ValueWhenActive == a.Value })) {
 
 							vm.widget.displaySettings.headingBackground = 'linear-gradient(to bottom,#FF0000, #FFDDDD)';
 							//vm.widget.displaySettings.headingBackground = 'linear-gradient(to bottom,#FF0000, #FFFF00)';
@@ -381,7 +410,7 @@
 						//}
 
 
-						if (AtLeastOneGraphicIsVisible()) {
+						if (AtLeastOneGraphicIsVisible() && (!vm.commLossTag || vm.commLossTag.Value != "1")) {
 							vm.widget.displaySettings.headingBackground = 'linear-gradient(to bottom,#3eff3e, #eefeee)';
 						} else {
 							vm.widget.displaySettings.headingBackground = 'linear-gradient(to bottom,#dedede, #fefefe)';
@@ -465,7 +494,7 @@
 
 					$scope.$on("ResizeVirtualScrollContainers", function () {
 						//console.log("ResizeVirtualScrollContainers received");
-						displaySetupService.SetPanelBodyWithIdHeight(vm.widget.Id);
+						//displaySetupService.SetPanelBodyWithIdHeight(vm.widget.Id);
 						SetTabBodyHeight(1);
 					});
 
@@ -481,7 +510,7 @@
 
 					$scope.$on("Widget.AddTagsToGraph", function (event, graphWidget) {
 
-						console.log("Widget.AddTagsToGraph event at PCA Summary");
+						//console.log("Widget.AddTagsToGraph event at PCA Summary");
 
 						//Clear the add tag checkbox buttons
 						vm.tagsToGraphObjects = [];
@@ -513,7 +542,8 @@
 						UpdateSecondary1CompressorSuctionChart(updatedTag);
 						UpdateSecondary2CompressorChart(updatedTag);
 						UpdateSecondary2CompressorSuctionChart(updatedTag);
-
+						SetHeadingBackground();
+						return;
 
 
 						if (updatedTag.AssetId == vm.widget.WidgetResource.AssetId &&
@@ -726,7 +756,7 @@
 					}
 
 					$scope.$on("Dashboard", function (event, modifiedExpandedDashboard) {
-						console.log("pcaSummary Dashboard event. Modified Dashboard = %O", modifiedExpandedDashboard);
+						//console.log("pcaSummary Dashboard event. Modified Dashboard = %O", modifiedExpandedDashboard);
 						if (modifiedExpandedDashboard.Id == vm.dashboard.Id) {
 							vm.dashboard = modifiedExpandedDashboard;
 							var oneDay = 24 * 60 * 60 * 1000; // hours*minutes*seconds*milliseconds
@@ -953,7 +983,7 @@
 
 				return {
 					restrict: 'E', //Default for 1.3+
-					templateUrl: "app/widgetDirectives/pcaSummary.html?" + Date.now(),
+					templateUrl: "app/widgetDirectives/pcaSummary.html",
 
 					scope: {
 

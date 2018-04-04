@@ -62,12 +62,12 @@
         </div>
 
     </div>
-    <div ng-if="vm.dashboard" class="panel-body" style="overflow-x: auto; width: 100%; padding: 0; overflow-y: auto;">
+    <div id="dashboard-content-{{vm.dashboard.Id}}" ng-if="vm.dashboard" class="panel-body" style="overflow: hidden; width: 100%; padding: 0; overflow-y: auto;">
 
         <div gridster="vm.gridsterOpts">
             <ul ng-if="vm.widgets">
                 <li ng-repeat="widget in vm.widgets track by widget.Id" gridster-item="widget" style="border: none;" id="gridster{{widget.Id}}">
-                    <div class="panel panel-default" style="height: 100%; overflow-y: hidden;" id="widget-panel-heading{{widget.Id}}" ng-click="vm.LogWidget(widget)">
+                    <div class="panel panel-default" style="height: 100%; overflow-y: auto;" id="widget-panel-heading{{widget.Id}}" ng-click="vm.LogWidget(widget)">
                         <div class="panel-heading" id="panel-heading-{{widget.Id}}" style="cursor: move; font-size:.9em; padding-top:5px; height:30px; background: {{widget.displaySettings.headingBackground ? widget.displaySettings.headingBackground : 'linear-gradient(to bottom,#dedede, #fefefe)'}};">
 
 
@@ -78,13 +78,34 @@
                                     + <i class="fa fa-line-chart" aria-hidden="true" style="cursor: pointer;"></i>
                                 </button>
 
+
+                                <input ng-if="widget.displaySettings.headingSearchField"
+                                       type="text"
+                                       id="searchInput{{widget.Id}}"
+                                       name="searchInput"
+                                       ng-model="widget.searchText"
+                                       ng-model-options="{ debounce: 100 }"
+                                       placeholder="Search....."
+                                       class="form-control responsive-button"
+                                       style="height:20px; width: 200px; display: inline-block; font-size: 1em; margin-bottom: 0;">
+
+
+                                <button ng-if="widget.displaySettings.headingPlusButton"
+                                        ng-click="widget.displaySettings.addEntityFunction()"
+                                        class="btn btn-default responsive-button tiny-button" style="margin-top: -3px;"
+                                        title="{{widget.displaySettings.headingPlusButtonTitle}}">
+                                    <i class="fa fa-plus" aria-hidden="true" style="cursor: pointer;"></i>
+                                </button>
+
+
+
                                 <i ng-if="widget.WidgetResource.WidgetType.HasSettings" ng-click="vm.openSettingsDash($event, widget)" class="fa fa-cog" aria-hidden="true" style="cursor: pointer; padding: 4px;"></i>
 
 
                                 <i ui-sref=".editWidget({ WidgetId: widget.Id})" class="fa fa-pencil-square-o" aria-hidden="true" title="Edit widget {{widget.Name}}" style="cursor: pointer; padding: 4px;"></i>
                                 <i title="Click = Delete widget from dashboard with confirmation&#13;DblClick = Delete widget from dashboard without confirmation" sglclick="vm.deleteWidget(widget, true)" ng-dblclick="vm.deleteWidget(widget, false)" class="fa fa-times" aria-hidden="true" title='Delete "{{widget.Name}}" widget' style="color: red; margin-left: 0; cursor: pointer; padding: 4px;"></i>
                             </div>
-                            {{widget.Name}} {{widget.displaySettings.headingExtraTitle}}
+                            {{::widget.Name}} {{widget.displaySettings.headingExtraTitle}}
                         </div>
                         <div class="panel-body" id="{{widget.Id}}" style="overflow-y: hidden; padding: 0; height: 100%;">
                             <bhs-current-alarms-table ng-if="widget.WidgetResource.WidgetType.AngularDirectiveName == 'bhsCurrentAlarmsTable'" widget="widget" dashboard="vm.dashboard"></bhs-current-alarms-table>
@@ -122,6 +143,12 @@
                             <bhs-percent-bags-to-cbra ng-if="widget.WidgetResource.WidgetType.AngularDirectiveName == 'bhsPercentBagsToCbra'" widget="widget" dashboard="vm.dashboard"></bhs-percent-bags-to-cbra>
                             <gs-service-counters ng-if="widget.WidgetResource.WidgetType.AngularDirectiveName == 'gsServiceCounters'" widget="widget" dashboard="vm.dashboard"></gs-service-counters>
                             <modules ng-if="widget.WidgetResource.WidgetType.AngularDirectiveName == 'modules'" widget="widget" dashboard="vm.dashboard"></modules>
+                            <organizations ng-if="widget.WidgetResource.WidgetType.AngularDirectiveName == 'organizations'" widget="widget" dashboard="vm.dashboard"></organizations>
+                            <suites ng-if="widget.WidgetResource.WidgetType.AngularDirectiveName == 'suites'" widget="widget" dashboard="vm.dashboard"></suites>
+                            <companies ng-if="widget.WidgetResource.WidgetType.AngularDirectiveName == 'companies'" widget="widget" dashboard="vm.dashboard"></companies>
+                            <gs-equipment-utilization-summary ng-if="widget.WidgetResource.WidgetType.AngularDirectiveName == 'gsEquipmentUtilizationSummary'" widget="widget" dashboard="vm.dashboard"></gs-equipment-utilization-summary>
+                            <pca-discharge-performance ng-if="widget.WidgetResource.WidgetType.AngularDirectiveName == 'pcaDischargePerformance'" widget="widget" dashboard="vm.dashboard"></pca-discharge-performance>
+
 
                             <!--<dashboard ng-if="widget.WidgetResource.WidgetType.AngularDirectiveName == 'dashboard'" widget="widget" dashboard="widget.WidgetResource.EmbeddedDashboard" dashboard-id="widget.WidgetResource.EmbeddedDashboard.Id"></dashboard>-->
                         </div>
@@ -133,6 +160,48 @@
 
     </div>
     <div ui-view="contentPane"></div>
+    <div ng-show="vm.dashboard.summaryPopup" id="dashboard-{{vm.dashboard.Id}}-summaryPopup">
+        <div class="modal-backdrop"></div>
+        <div class="modal-holder" autoscroll="false">
+            <div>
+                <div class="panel panel-primary panel-centered-modal-floating" style="width: 1000px; height: 550px; overflow: hidden; ">
 
+
+                    <div class="panel-heading" style="font-size:.9em; padding-top:3px; padding-left: 5px; height:40px; min-height: 40px; max-height: 40px; background: {{vm.dashboard.summaryPopup.widget.displaySettings.headingBackground ? vm.dashboard.summaryPopup.widget.displaySettings.headingBackground : 'linear-gradient(to bottom,#dedede, #fefefe)'}};">
+                        <div class='btn-toolbar pull-right' style="display: inline-block;">
+
+                            <input 
+                                   type="text"
+                                   id="searchInput{{vm.dashboard.summaryPopup.widget.Id}}"
+                                   name="searchInput"
+                                   ng-model="vm.dashboard.summaryPopup.widget.searchText"
+                                   ng-model-options="{ debounce: 100 }"
+                                   placeholder="Search....."
+                                   class="form-control responsive-button"
+                                   style="height:20px; width: 200px; display: inline-block; font-size: 1em; margin-bottom: 0;">
+
+                            <button ng-click="vm.dashboard.summaryPopup = null" class="btn btn-default tiny-button responsive-button">Close</button>
+                            <button ng-click="vm.AddSummaryToDashboard()" class="btn btn-default tiny-button responsive-button">Add to Dashboard</button>
+                        </div>
+                        <div class="panel-heading-small-title" style="color: black;">
+                            {{vm.dashboard.summaryPopup.site.Name}} Gate {{vm.dashboard.summaryPopup.asset.ParentSystem.Name}}
+                        </div>
+                        <div class="panel-heading-small-subtitle" style="color: rgb(108, 108, 108);">
+                            {{vm.dashboard.summaryPopup.asset.Name}} Summary
+                        </div>
+
+                    </div>
+
+
+                    <div class="panel-body" id="{{vm.dashboard.summaryPopup.widget.Id}}">
+                        <pca-summary ng-if="vm.dashboard.summaryPopup.asset.Name == 'PCA'" widget="vm.dashboard.summaryPopup.widget" dashboard="vm.dashboard"></pca-summary>
+                        <pbb-summary ng-if="vm.dashboard.summaryPopup.asset.Name == 'PBB'" widget="vm.dashboard.summaryPopup.widget" dashboard="vm.dashboard"></pbb-summary>
+                        <gpu-summary ng-if="vm.dashboard.summaryPopup.asset.Name == 'GPU'" widget="vm.dashboard.summaryPopup.widget" dashboard="vm.dashboard"></gpu-summary>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
 </div>
 

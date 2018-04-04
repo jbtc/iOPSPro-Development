@@ -7,24 +7,21 @@
 // </auto-generated>
 //------------------------------------------------------------------------------
 
-namespace SignalRService
+using System;
+using System.Data.Entity;
+using System.Data.Entity.Infrastructure;
+
+public partial class iOPS_NormalizedEntities : DbContext
 {
-    using System;
-    using System.Data.Entity;
-    using System.Data.Entity.Infrastructure;
-    
-    public partial class iOPS_NormalizedEntities : DbContext
+    public iOPS_NormalizedEntities()
+        : base("name=iOPS_NormalizedEntities")
     {
-        public iOPS_NormalizedEntities()
-            : base("name=iOPS_NormalizedEntities")
-        {
-        }
-    
-        protected override void OnModelCreating(DbModelBuilder modelBuilder)
-        {
-            throw new UnintentionalCodeFirstException();
-        }
-    
-        public virtual DbSet<SignalRMessageQueue> SignalRMessageQueues { get; set; }
     }
+
+    protected override void OnModelCreating(DbModelBuilder modelBuilder)
+    {
+        throw new UnintentionalCodeFirstException();
+    }
+
+    public virtual DbSet<SignalRMessageQueue> SignalRMessageQueues { get; set; }
 }

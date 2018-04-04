@@ -51,21 +51,19 @@
 					vm.showWidget = false;
 
 					//++A double click on the asset indicator will add a summary widget to the dashboard
-					vm.AddToDashboard = function (tag, $event) {
+					vm.AddToDashboard = function (asset, $event) {
 
-						console.log("Double Click tag = %O", tag);
-
-						var widgetTypeId = tag.AssetName == 'PCA' ? 42 : tag.AssetName == 'PBB' ? 49 : tag.AssetName == 'GPU' ? 50 : 0;
+						var widgetTypeId = asset.Name == 'PCA' ? 42 : asset.Name == 'PBB' ? 49 : asset.Name == 'GPU' ? 50 : 0;
 
 
 						return dataService.GetEntityById("WidgetTypes", widgetTypeId).then(function (wt) {
 
 
-							var gateSystem = vm.JBTData.Systems.first(function (s) { return s.Id == tag.Asset.ParentSystemId });
+							var gateSystem = vm.JBTData.Systems.first(function (s) { return s.Id == asset.ParentSystemId });
 							var zoneSystem = vm.JBTData.Systems.first(function (s) { return s.Id == gateSystem.ParentSystemId });
 							var terminalSystem = vm.JBTData.Systems.first(function (s) { return s.Id == zoneSystem.ParentSystemId });
 							var newPosition = GetNextWidgetRowColumn();
-							console.log("New Position calculation = %O", newPosition);
+							//console.log("New Position calculation = %O", newPosition);
 
 							return dataService.AddEntity("Widgets",
 								{
@@ -74,15 +72,15 @@
 									ParentDashboardId: vm.dashboard.Id,
 									Width: wt.InitialWidth,
 									Height: wt.InitialHeight,
-									Row: newPosition.row + 100,
+									Row: newPosition.row - wt.InitialHeight+10,
 									Col: newPosition.col,
-									AssetId: tag.AssetId,
-									DefaultNavPill: tag.AssetName == 'PCA' ? "Press" : tag.AssetName == 'GPU' ? "Amps" : "Data",
-									SiteId: tag.SiteId,
+									AssetId: asset.Id,
+									DefaultNavPill: asset.Name == 'PCA' ? "Press" : asset.Name == 'GPU' ? "Amps" : "Data",
+									SiteId: asset.SiteId,
 									SplitLeftPercentage: 50,
 									SplitRightPercentage: 50,
-									SystemId: tag.Asset.ParentSystemId,
-									GateSystemId: tag.Asset.ParentSystemId,
+									SystemId: asset.ParentSystemId,
+									GateSystemId: asset.ParentSystemId,
 									ZoneSystemId: zoneSystem.Id,
 									TerminalSystemId: terminalSystem.Id
 								}).then(function (widget) {
@@ -93,12 +91,33 @@
 
 					}
 
+					//***G
+					//++Adding a widget group
+					//***G
 					vm.AddWidgetGroupToDashboard = function (group) {
-						vm.AddToDashboard(group.PBBUnitOnTag).then(function () {
-							vm.AddToDashboard(group.PCAUnitOnTag).then(function () {
-								vm.AddToDashboard(group.GPUUnitOnTag);
+						//console.log("Summary Group to add = %O", group);
+
+						//Collect the asset ids in a list and pre-load the tags into the cache first.
+						var assetIdList = group.PBBAsset ? group.PBBAsset.Id.toString() + ',' : "";
+
+						if (group.PCAAsset) {
+							assetIdList += group.PCAAsset ? group.PCAAsset.Id.toString() + ',' : "";
+						}
+						if (group.GPUAsset) {
+							assetIdList += group.GPUAsset ? group.GPUAsset.Id.toString() + ',' : "";
+						}
+
+						//console.log("AssetIdList = " + assetIdList);
+
+						dataService.GetAllSignalRObservationFormattedTagsForAssetIdIntoInventoryByListOfAssetIds(assetIdList, false).then(
+							function() {
+								vm.AddToDashboard(group.PBBAsset).then(function () {
+									vm.AddToDashboard(group.PCAAsset).then(function () {
+										vm.AddToDashboard(group.GPUAsset);
+									});
+								});
 							});
-						});
+
 					}
 
 
@@ -106,16 +125,16 @@
 
 
 						var nonPopUpWidgets = vm.dashboard.widgets.where(function (w) { return !w.IsModalPopUp });
-						console.log("nonPopUpWidgets = %O", vm.dashboard.widgets);
+						//console.log("nonPopUpWidgets = %O", vm.dashboard.widgets);
 
 						var lowestPoint = nonPopUpWidgets.max(function (w) { return w.row + w.sizeY });
-						console.log("Lowest point = %O", lowestPoint);
+						//console.log("Lowest point = %O", lowestPoint);
 
 						var lowestPointWidgets = nonPopUpWidgets.where(function (w) { return (w.row + w.sizeY) == lowestPoint });
-						console.log("lowestPointWidgets = %O", lowestPointWidgets);
+						//console.log("lowestPointWidgets = %O", lowestPointWidgets);
 
 						var furthestRightPoint = lowestPointWidgets.max(function (w) { return (w.col + w.sizeX) });
-						console.log("furthestRightPoint = %O", furthestRightPoint);
+						//console.log("furthestRightPoint = %O", furthestRightPoint);
 
 
 
@@ -137,77 +156,65 @@
 					//***G
 					//++Opening a summary widget popup.
 					//---G
-					vm.OpenSummaryWidget = function (tag, $event) {
-						console.log("Opening summary widget for tag  %O", tag);
+					vm.OpenSummaryWidget = function (asset, $event) {
+						//console.log("Opening summary widget for asset  %O", asset);
+
+						//console.log("vm.dashboard = %O", vm.dashboard);
+
 
 
 						//+Add the child widget if not already in the database.
+						var subWidget = vm.gateTagGroups.subWidgets.first(function (sw) { return sw.AssetId == asset.Id });
+						if (subWidget) {
+
+							//console.log("Subwidget in cache = %O", subWidget);
+
+							CreateChildWidgetFromDataAndOpenPopup(subWidget, asset);
+
+							return;
+						}
 
 
+
+
+
+
+						//console.log("sub widget was not in cache - getting from oData");
 						dataService.GetIOPSResource("Widgets")
 							.filter("ParentWidgetId", vm.widget.Id)
-							.filter("AssetId", tag.AssetId)
+							.filter("AssetId", asset.Id)
 							.query()
 							.$promise
 							.then(function (data) {
 								if (data.length == 1) {
 
-									console.log("Existing child widget = %O", data);
+									//console.log("Existing child widget = %O", data);
 
 									var w = data[0];
 
-									vm.childWidget = {
-										sizeX: w.Width,
-										sizeY: w.Height,
-										row: w.Row,
-										col: w.Col,
-										prevRow: w.Row,
-										prevCol: w.Col,
-										Id: w.Id,
-										Name: w.Name,
-										WidgetResource: w,
-										HasChanged: false
-									}
-
-									switch (tag.AssetName) {
-										case "PCA":
-											console.log("Activating state .pcaSummaryModal");
-											$state.go(".pcaSummaryModal", { widget: vm.childWidget, assetId: tag.AssetId, dashboard: vm.dashboard });
-											break;
-
-										case "GPU":
-											$state.go(".gpuSummaryModal", { widget: vm.childWidget, assetId: tag.AssetId, dashboard: vm.dashboard });
-											break;
-
-										case "PBB":
-											$state.go(".pbbSummaryModal", { widget: vm.childWidget, assetId: tag.AssetId, dashboard: vm.dashboard });
-											break;
-
-									}
+									CreateChildWidgetFromDataAndOpenPopup(w, asset);
 
 								} else {
 									//The child widget does not yet exist. Create one and add it to the database,
 									dataService.GetIOPSResource("SystemGroups")
-										.filter("Id", tag.Asset.ParentSystemId)
+										.filter("Id", asset.ParentSystemId)
 										.expandPredicate("Parent")
-											.expand("Parent")
+										.expand("Parent")
 										.finish()
 										.query()
 										.$promise
-										.then(function (systemChainData) {
+										.then(function(systemChainData) {
 
 											var gateSystem = systemChainData[0];
-											console.log("Gate System Chain = %O", gateSystem);
+											//console.log("Gate System Chain = %O", gateSystem);
 
 											var newChildWidget = {
-												Name: tag.GateName + ' - ' + tag.AssetName + ' Summary',
-												WidgetTypeId: tag.AssetName == 'PCA' ? 42 :
-																tag.AssetName == 'GPU' ? 50 :
-																tag.AssetName == 'PBB' ? 49 : 0,
+												Name: asset.ParentSystem.Name + ' - ' + asset.Name + ' Summary',
+												WidgetTypeId: asset.Name == 'PCA' ? 42 : asset.Name == 'GPU' ? 50 : asset.Name == 'PBB' ? 49 : 0,
 												ParentDashboardId: vm.dashboard.Id,
-												AssetId: tag.Asset.Id,
-												SystemId: tag.Asset.ParentSystemId,
-												SiteId: tag.SiteId,
+												AssetId: asset.Id,
+												SystemId: asset.ParentSystemId,
+												SiteId: asset.SiteId,
 												Width: 0,
 												Height: 0,
 												Row: 0,
@@ -222,46 +229,14 @@
 											}
 
 
-											dataService.AddEntity("Widgets", newChildWidget).then(function (w) {
+											dataService.AddEntity("Widgets", newChildWidget).then(function(w) {
 
-												vm.childWidget = {
-													sizeX: w.Width,
-													sizeY: w.Height,
-													row: w.Row,
-													col: w.Col,
-													prevRow: w.Row,
-													prevCol: w.Col,
-													Id: w.Id,
-													Name: w.Name,
-													WidgetResource: w,
-													HasChanged: false
-												}
-
-
-												switch (tag.AssetName) {
-													case "PCA":
-														$state.go(".pcaSummaryModal", { widget: vm.childWidget, assetId: tag.AssetId, dashboard: vm.dashboard });
-														break;
-
-													case "GPU":
-														$state.go(".gpuSummaryModal", { widget: vm.childWidget, assetId: tag.AssetId, dashboard: vm.dashboard });
-														break;
-
-													case "PBB":
-														$state.go(".pbbSummaryModal", { widget: vm.childWidget, assetId: tag.AssetId, dashboard: vm.dashboard });
-														break;
-
-													default:
-
-												}
-
+												CreateChildWidgetFromDataAndOpenPopup(w, asset);
 
 											});
 
 
-
-										})
-
+										});
 
 
 								}
@@ -272,6 +247,40 @@
 
 
 					};
+
+
+					function CreateChildWidgetFromDataAndOpenPopup(w, asset) {
+						vm.childWidget = {
+							sizeX: w.Width,
+							sizeY: w.Height,
+							row: w.Row,
+							col: w.Col,
+							prevRow: w.Row,
+							prevCol: w.Col,
+							Id: w.Id,
+							Name: w.Name,
+							WidgetResource: w,
+							HasChanged: false
+						}
+
+
+						vm.dashboard.summaryPopup = {
+							widget: vm.childWidget,
+							asset: asset,
+							site: asset.Site
+							
+						};
+
+
+
+						//console.log("vm.dashboard.summaryPopup = %O",vm.dashboard.summaryPopup);
+
+						return;
+
+
+					}
+
+
 					//---G
 
 
@@ -297,16 +306,16 @@
 						var userSiteCodes = vm.user.ReaderOf.where(function (s) { return s.split('.')[0] == 'Site' })
 							.select(function (s) { return s.split('.')[1] });
 
-						console.log("user site codes = %O", userSiteCodes);
+						//console.log("user site codes = %O", userSiteCodes);
 
 						vm.userSites = vm.JBTData.Sites.where(function (site) {
 							return userSiteCodes.any(function (sc) { return sc == site.Name })
 						});
 
-						console.log("vm.userSites = %O", vm.userSites);
+						//console.log("vm.userSites = %O", vm.userSites);
 
 						if (vm.userSites.length == 1) {
-							console.log("User only has a single Site");
+							//console.log("User only has a single Site");
 							vm.widget.WidgetResource.SiteId = vm.userSites[0].Id;
 							vm.widgetSite = vm.userSites[0];
 							GetData();
@@ -326,117 +335,46 @@
 					function GetData() {
 						vm.showWidget = true;
 
-						var standardIdsToLoad = [12374, 2736, 1942, 12484, 4331, 4445, 4765, 12255];
-						dataService.GetIOPSResource("Tags")
-							.filter("SiteId", vm.widget.WidgetResource.SiteId) //that belong to the widget site
-							.filter($odata.Predicate.or(standardIdsToLoad.select(function (sid) { return new $odata.Predicate("JBTStandardObservationId", sid) })))
-							.select(["SiteId", "Id", "LastObservationDate", "AssetId", "LastObservationId", "JBTStandardObservationId", "Name", "LastObservationTextValue", "IsCritical", "IsWarning", "IsAlarm", "ValueWhenActive", "AssetName", "GateName"])
-							.orderBy("Name")
-							.query()
-							.$promise
-							.then(function (data) {
+						var standardIdsToLoad = [12374, 2736, 1942, 12484, 4331, 4445, 4765, 12255, 12245];
 
 
-								dataService.PlaceTagsIntoInventory(data);
+						console.log("SiteId" + vm.widget.WidgetResource.SiteId + " Requesting Tags for standard Ids  12374, 2736, 1942, 12484, 4331, 4445, 4765, 12255, 12245.");
 
 
-								console.log("siteGateTags data = %O", data.orderBy(function (t) { return t.GateName }));
+						//+Subwidgets will be populated as well. This is cached at the dataService to provide quick dashboard changes.
+						dataService.GetSiteAllGateSummaryDataStructure(vm.widget.WidgetResource.SiteId, vm.widget.Id).then(function(data) {
 
+							vm.gateTagGroups = data;
 
-								var assetIds = data.select(function (d) {
-									return d.AssetId.toString();
-								}).distinct()
-								.join(',');
-
-								//+Get all Alarm Tags into the dataservice inventory. The last true parameter will cause the dataService method to only look for alarm tags.
-								dataService.GetAllSignalRObservationFormattedTagsForAssetIdIntoInventoryByListOfAssetIds(assetIds, true).then(function () {
-									console.log("Alarm Tags loaded into inventory");
-
-									//console.log("assetIds = %O", assetIds);
-									vm.widget.assetIds = assetIds;
-									var dataGroupedByGate = data.groupBy(function (t) { return t.GateName });
-									console.log("Grouped by Gate = %O", dataGroupedByGate);
-
-									vm.gateTagGroups = dataGroupedByGate
-										.select(function (g) {
-
-											var pcaAsset = vm.JBTData.Assets.first(function (a) { return a.Id == (g.first(function (t2) { return t2.AssetName == 'PCA' }) ? g.first(function (t2) { return t2.AssetName == 'PCA' }).AssetId : 0) });
-											var pbbAsset = vm.JBTData.Assets.first(function (a) { return a.Id == (g.first(function (t2) { return t2.AssetName == 'PBB' }) ? g.first(function (t2) { return t2.AssetName == 'PBB' }).AssetId : 0)});
-											var gpuAsset = vm.JBTData.Assets.first(function (a) { return a.Id == (g.first(function (t2) { return t2.AssetName == 'GPU' }) ? g.first(function (t2) { return t2.AssetName == 'GPU' }).AssetId : 0) });
-
-
-											var outputObject = {
-												PCAAsset: pcaAsset,
-												PBBAsset: pbbAsset,
-												GPUAsset: gpuAsset,
-												GateName: g.key,
-												GateSystem: vm.JBTData.Systems.first(function (s) { return s.SiteId == vm.widget.WidgetResource.SiteId && s.TypeId == 3 && s.Name == g.key }),
-												PCAUnitOnTag: pcaAsset.Tags.where(function (t) { return t.JBTStandardObservationId == 12374 }).orderByDescending(function (t2) { return t2.ObservationUTCDateMS }).first(),
-												GPUUnitOnTag: gpuAsset.Tags.where(function (t) { return t.JBTStandardObservationId == 12374 }).orderByDescending(function (t2) { return t2.ObservationUTCDateMS }).first(),
-												PBBUnitOnTag: pbbAsset ? pbbAsset.Tags.where(function (t2) { return t2.AssetName == 'PBB' && t2.JBTStandardObservationId == 12374 }).orderByDescending(function (t2) { return t2.ObservationUTCDateMS }).first() : null,
-												DischargeTemperatureTag: pcaAsset.Tags.where(function (t) { return t.JBTStandardObservationId == 2736 }).orderByDescending(function (t2) { return t2.ObservationUTCDateMS }).first(),
-												AverageAmpsOutTag: gpuAsset.Tags.where(function (t) { return t.JBTStandardObservationId == 1942 }).orderByDescending(function (t2) { return t2.ObservationUTCDateMS }).first()
-											}
-
-											FormatZeroBlankDisplayValueForTag(outputObject.DischargeTemperatureTag);
-											FormatZeroBlankDisplayValueForTag(outputObject.AverageAmpsOutTag);
-
-											//	FormatDurationValue(outputObject.HookupDurationSecondsTag);
-
-
-											return outputObject;
-										})
-										.orderBy(function (group) { return group.GateName });
-
-
-									//+Attach the alarms and comm loss tags to the assets on the gate.
-									//Once this is done, then the controller for this directive will no longer have to track them. The data service will be maintaining them.
-									var commLossStandardObservationIds = [4331, 4445, 4765, 12255];
-
-									vm.gateTagGroups.forEach(function (gtg) {
-
-										if (gtg.PBBAsset) {
-											gtg.PBBAsset.AlarmActiveTag = dataService.cache.tags.first(function (t) { return +t.AssetId == +gtg.PBBAsset.Id && t.JBTStandardObservationId == 12323 });
-											if (gtg.PBBAsset.AlarmActiveTag) {
-												gtg.PBBAsset.AlarmActiveTag.ValueWhenActive = gtg.PBBAsset.AlarmActiveTag.ValueWhenActive || "1";
-											} else {
-												//console.log("asset %O, has no alarm active tag", gtg.PBBAsset);
-											}
-											gtg.PBBAsset.CommLossTag = dataService.cache.tags.first(function (t) { return +t.AssetId == +gtg.PBBAsset.Id && commLossStandardObservationIds.any(function (clso) { return clso == t.JBTStandardObservationId }) });
-										}
-										if (gtg.PCAAsset) {
-											gtg.PCAAsset.AlarmActiveTag = dataService.cache.tags.first(function (t) { return +t.AssetId == +gtg.PCAAsset.Id && t.JBTStandardObservationId == 12324 });
-											if (gtg.PCAAsset.AlarmActiveTag) {
-												gtg.PCAAsset.AlarmActiveTag.ValueWhenActive = gtg.PCAAsset.AlarmActiveTag.ValueWhenActive || "1";
-											} else {
-												//console.log("asset %O, has no alarm active tag", gtg.PCAAsset);
-											}
-											gtg.PCAAsset.CommLossTag = dataService.cache.tags.first(function (t) { return +t.AssetId == +gtg.PCAAsset.Id && commLossStandardObservationIds.any(function (clso) { return clso == t.JBTStandardObservationId }) });
-										}
-										if (gtg.GPUAsset) {
-											gtg.GPUAsset.AlarmActiveTag = dataService.cache.tags.first(function (t) { return +t.AssetId == +gtg.GPUAsset.Id && t.JBTStandardObservationId == 12325 });
-											if (gtg.GPUAsset && gtg.GPUAsset.AlarmActiveTag) {
-												gtg.GPUAsset.AlarmActiveTag.ValueWhenActive = gtg.GPUAsset && gtg.GPUAsset.AlarmActiveTag && gtg.GPUAsset.AlarmActiveTag.ValueWhenActive || "1";
-											} else {
-												//console.log("asset %O, has no alarm active tag", gtg.GPUAsset);
-											}
-											gtg.GPUAsset.CommLossTag = dataService.cache.tags.first(function (t) { return +t.AssetId == +gtg.GPUAsset.Id && commLossStandardObservationIds.any(function (clso) { return clso == t.JBTStandardObservationId }) });
-										}
-									});
-
-									console.log("vm.gateTagGroups = %O", vm.gateTagGroups);
-									displaySetupService.SetPanelBodyWithIdHeight(vm.widget.Id);
-									vm.showWidget = true;
-								});
-
-
-								vm.widget.displaySettings.headingExtraTitle = GetHeadingExtraTitle();
+							vm.gateTagGroups.forEach(function (gtg) {
+								SetAlarmActiveForAssetBasedUponAlarmTagConditions(gtg.PBBAsset);
+								SetAlarmActiveForAssetBasedUponAlarmTagConditions(gtg.PCAAsset);
+								SetAlarmActiveForAssetBasedUponAlarmTagConditions(gtg.GPUAsset);
+								FormatZeroBlankDisplayValueForTag(gtg.DischargeTemperatureTag);
+								FormatZeroBlankDisplayValueForTag(gtg.AverageAmpsOutTag);
 							});
 
 
+							//+Delay this until after the next digest cycle. The data might already be loaded in cache and be instantly available.
+							//+When this happens, the display is not been rendered before the sizing function will run.
+							$interval(function() {								
+								displaySetupService.SetPanelBodyWithIdHeight(vm.widget.Id);
+								vm.showWidget = true;
+								vm.widget.displaySettings.headingExtraTitle = GetHeadingExtraTitle();
+							},25,4);
+
+						});
+
+
+						
 
 					}
 					//***G
+
+					
+
+
+					//---B
 
 					function FormatDurationValue(tag) {
 						if (tag) {
@@ -450,6 +388,7 @@
 
 					}
 
+					//---B
 					function FormatZeroBlankDisplayValueForTag(tag) {
 						if (tag) {
 							if (+tag.Value > 0) {
@@ -463,6 +402,7 @@
 
 
 
+					//---B
 
 					//Start watching for site id changes	
 					$scope.$watch("vm.widget.WidgetResource.SiteId",
@@ -479,6 +419,7 @@
 					});
 
 
+					//---B
 					$scope.$on("WidgetResize", function (event, resizedWidgetId) {
 
 						if (vm.widget.Id == resizedWidgetId || resizedWidgetId == 0) {
@@ -486,6 +427,7 @@
 						}
 					});
 
+					//---B
 					$scope.$on("WidgetResize.Stop", function (event, resizedWidgetId) {
 						if (vm.widget.Id == resizedWidgetId || resizedWidgetId == 0) {
 							$interval(function () {
@@ -507,10 +449,40 @@
 
 					$scope.$on("dataService.TagUpdate", function (event, updatedTag) {
 
-						//console.log("tag update updatedTag = %O", updatedTag);
 						UpdateGraphicsVisibilityForSingleTag(updatedTag);
+						if (vm.gateTagGroups) {
+
+							//Set the alarmIsActive attribute to the assets so that the display can place the correct red box around it's indicator.
+							if (updatedTag.IsAlarm) {
+								vm.gateTagGroups.forEach(function (tg) {
+
+								
+									//console.log("Alarm tag update. updatedTag = %O", updatedTag);
+									if (tg.PBBAsset && tg.PBBAsset.Id == updatedTag.AssetId) {
+										SetAlarmActiveForAssetBasedUponAlarmTagConditions(tg.PBBAsset);
+									}
+
+									if (tg.PCAAsset && tg.PCAAsset.Id == updatedTag.AssetId) {
+										SetAlarmActiveForAssetBasedUponAlarmTagConditions(tg.PCAAsset);
+									}
+
+									if (tg.GPUAsset && tg.GPUAsset.Id == updatedTag.AssetId) {
+										SetAlarmActiveForAssetBasedUponAlarmTagConditions(tg.GPUAsset);
+									}
+
+
+								});
+							}
+						}
+
+
 					});
 
+					//set the alarmActive for the asset if any of the alarm tag ValueWhenActive=Value
+					function SetAlarmActiveForAssetBasedUponAlarmTagConditions(asset) {
+						asset.alarmActive = false;
+						asset.alarmActive = asset.AlarmTags.any(function (aTag) { return (aTag.ValueWhenActive + "") == (aTag.Value + "") });
+					}
 
 
 					function UpdateGraphicsVisibilityForSingleTag(updatedTag) {
@@ -520,9 +492,15 @@
 
 
 
+							//if (updatedTag.SiteId == 81473 && updatedTag.TagName.indexOf("Counter") == -1) {
+
+							//	console.log("Test Tag " + updatedTag.Asset.Name + " - " + updatedTag.JBTStandardObservation.Name + " - " + updatedTag.Value + " = %O", updatedTag);
+							//}
+
 							vm.gateTagGroups.forEach(function (tg) {
 
 								var tgUpdateTag = tg.PCAUnitOnTag && tg.PCAUnitOnTag.TagId == updatedTag.TagId ? tg.PCAUnitOnTag :
+													tg.GPUAircraftDockedTag && tg.GPUAircraftDockedTag.TagId == updatedTag.TagId ? tg.GPUAircraftDockedTag :
 													tg.GPUUnitOnTag && tg.GPUUnitOnTag.TagId == updatedTag.TagId ? tg.GPUUnitOnTag :
 													tg.PBBUnitOnTag && tg.PBBUnitOnTag.TagId == updatedTag.TagId ? tg.PBBUnitOnTag :
 													tg.DischargeTemperatureTag && tg.DischargeTemperatureTag.TagId == updatedTag.TagId ? tg.DischargeTemperatureTag :
@@ -531,9 +509,13 @@
 
 								if (tgUpdateTag) {
 
-									FormatZeroBlankDisplayValueForTag(tgUpdateTag);
-									FormatZeroBlankDisplayValueForTag(tgUpdateTag);
+									
 
+
+
+
+									FormatZeroBlankDisplayValueForTag(tgUpdateTag);
+									FormatZeroBlankDisplayValueForTag(tgUpdateTag);
 									//if (tg.HookupDurationSecondsTag && tg.HookupDurationSecondsTag.TagId == updatedTag.TagId) {
 									//	FormatDurationValue(tg.HookupDurationSecondsTag);
 									//}
@@ -550,7 +532,7 @@
 
 
 
-					//Update the duration counters each second until the next hard update from signalR
+					//+Update the duration counters each second until the next hard update from signalR
 					vm.durationInterval = $interval(function () {
 						if (vm.gateTagGroups) {
 

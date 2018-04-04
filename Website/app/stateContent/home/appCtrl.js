@@ -9,7 +9,7 @@ angular.module('app').controller('AppCtrl',
 			//console.log("appCtrl created");
 
 			$scope.$on("securityService:authenticated", function (event, user) {
-				//console.log("AppCtrl authenticated event received. User = %O", user);
+				console.log("AppCtrl authenticated event received. User = %O", user);
 				vm.showMenu = securityService.showMenu;
 			});
 

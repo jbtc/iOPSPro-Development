@@ -16,8 +16,9 @@
 			"$q",
 			"uibButtonConfig",
 			"utilityService",
+			"hotkeys",
 
-			function ($rootScope, $state, displaySetupService, dataService, signalR, $interval, $stateParams, $timeout, $q, uibButtonConfig, utilityService) {
+			function ($rootScope, $state, displaySetupService, dataService, signalR, $interval, $stateParams, $timeout, $q, uibButtonConfig, utilityService, hotkeys) {
 
 				var controller = function ($scope) {
 
@@ -32,6 +33,20 @@
 						//console.log("Step = " + stepNumber);
 
 					}
+
+
+
+					
+					hotkeys.bindTo($scope)
+						.add({
+							combo: 'esc',
+							allowIn: ['INPUT', 'SELECT', 'TEXTAREA'],
+							callback: function () {
+								if (vm.dashboard.summaryPopup) {								
+									vm.dashboard.summaryPopup = null;
+								}
+							}
+						});
 
 					if (!vm.widget) {
 						//console.log("No Widget Present");
@@ -94,7 +109,9 @@
 								})).then(function () {
 
 									//This will cause all graph selecting widgets to clear their local collection of tags to graph, causing all of the buttons depressed to reset.
-									$rootScope.$broadcast("GraphWidgetAdded", newWidget);
+									signalR.SignalAllClients("GraphWidgetAdded", newWidget);
+									
+									signalR.SignalAllClients("Dashboard", vm.dashboard);
 
 									//Clear out the selection of tag to graph
 									vm.dashboard.tagsToGraph = [];
@@ -180,74 +197,88 @@
 
 					function GetDashboardData() {
 						dataService.GetExpandedDashboardById(vm.dashboardId)
-						.then(function (data) {
-							vm.dashboard = data;
-							vm.dashboard.tagsToGraph = [];
+							.then(function(data) {
 
-							SetSubTitleBasedOnDashboardTimeScope();
-							//console.log("vm.dashboard = %O", vm.dashboard);
-						})
-						.then(function () {
-							dataService.GetIOPSResource("Widgets")
-								.filter("ParentDashboardId", vm.dashboardId)
-								.filter("ParentWidgetId", null)
-								.expand("WidgetType")
-								.expand("EmbeddedDashboard")
-								.query()
-								.$promise
-								.then(function (widgets) {
 
-									ReportStep(6);
+								console.log("Dashboard data = %O", data);
+
+								vm.dashboard = data;
+								vm.dashboard.tagsToGraph = [];
+
+								SetSubTitleBasedOnDashboardTimeScope();
 
 
 
 
 
+								var dashboardWidgets = vm.dashboard.Widgets.select(function (w) {
 
 
-									//dataService.GetAllSignalRObservationFormattedTagsForAssetIdIntoInventoryByListOfAssetIds(assetIdList).then(
-									//	function () {
 
-									vm.widgets = widgets.select(function (w) {
-										return {
-											sizeX: w.Width,
-											sizeY: w.Height,
-											row: w.Row,
-											col: w.Col,
-											prevRow: w.Row,
-											prevCol: w.Col,
-											Id: w.Id,
-											Name: w.Name,
-											WidgetResource: w,
-											HasChanged: false
-										}
+									return {
+										sizeX: w.Width,
+										sizeY: w.Height,
+										row: w.Row,
+										col: w.Col,
+										prevRow: w.Row,
+										prevCol: w.Col,
+										Id: w.Id,
+										Name: w.Name,
+										WidgetResource: w,
+										HasChanged: false
+									}
+								});
+
+
+								//+Collect all of the asset Ids in any widget in the dashboard and collect all of the Tags for thos assets all at once.
+								var assetIdList = dashboardWidgets.where(function(w) { return w.WidgetResource.AssetId })
+									.select(function(w) { return w.WidgetResource.AssetId + "" }).join(',');
+
+
+								console.log("Dashboard assetId list = " + assetIdList);
+
+
+								dataService.GetAllSignalRObservationFormattedTagsForAssetIdIntoInventoryByListOfAssetIds(assetIdList, false)
+									.then(function() {
+										vm.widgets = dashboardWidgets;
+
+
+										vm.dashboard.widgets = vm.widgets;
+										//console.log("Dashboard widgets = %O", vm.widgets);
+
 									});
 
+								//console.log("Dashboard widgets = %O", vm.widgets);
 
-									vm.dashboard.widgets = vm.widgets;
-									//console.log("Dashboard widgets = %O", vm.widgets);
-
-									ReportStep(7);
+								ReportStep(7);
 
 
-									if (!vm.widget) {
-										//console.log("No widget this invokation");
-										displaySetupService.SetPanelDimensions();
-									} else {
-										displaySetupService.SetWidgetPanelBodyDimensions(vm.widget.Id);
-									}
-									//console.log("Dashboard Widgets = %O", vm.widgets);
-									//});
+								if (!vm.widget) {
+									$timeout(function () {
+										console.log("custom dashboard panel sizer invoked");
+										var windowHeight = $(window).height();
+										//Find the static panel and set the height of its body to a max height
+										$("#dashboard-content-" + vm.dashboard.Id).each(function (index, element) {
+											var elementTop = $(element).offset().top;
+											var panelBodyHeight = windowHeight - elementTop - 15;
+											//console.log("Element top = " + elementTop);
+											//console.log("Setting panel body height = " + panelBodyHeight);
+											$(element).css('height', panelBodyHeight);
+											$(element).css('overflow', "auto");
+										});									
+									},50);
+								} else {
+									displaySetupService.SetWidgetPanelBodyDimensions(vm.widget.Id);
+								}
 
 
+								//console.log("Dashboard Widgets = %O", vm.widgets);
+								//});
 
 
+								//console.log("vm.dashboard = %O", vm.dashboard);
+							});
 
-
-
-
-								});
-						});
 
 					}
 
@@ -281,11 +312,12 @@
 						} else {
 							vm.screenSwitchClass = "static-panel";
 						}
+						displaySetupService.SetPanelDimensions();
 						$scope.$$postDigest(function () {
 							$interval(function () {
 								$rootScope.$broadcast("WidgetResize", 0);
 								displaySetupService.SetPanelDimensions();
-							}, 25, 10);
+							}, 25, 5);
 						});
 
 					}
@@ -454,18 +486,19 @@
 												return graphTag.$save();
 											})
 										);
-									}),
+									})
+									//,
 
 									//Delete any child widgets tied to this one. (Pop-up type widgets)
-									dataService.GetIOPSCollection("Widgets", "ParentWidgetId", widget.Id).then(function (childWidgets) {
-										console.log("Child Widgets to delete = %O", childWidgets);
-										return $q.all(
-											childWidgets.select(function (childWidget) {
-												childWidget.Id = -childWidget.Id;
-												return childWidget.$save();
-											})
-										);
-									})
+									//dataService.GetIOPSCollection("Widgets", "ParentWidgetId", widget.Id).then(function (childWidgets) {
+									//	console.log("Child Widgets to delete = %O", childWidgets);
+									//	return $q.all(
+									//		childWidgets.select(function (childWidget) {
+									//			childWidget.Id = -childWidget.Id;
+									//			return childWidget.$save();
+									//		})
+									//	);
+									//})
 
 								]
 
@@ -479,6 +512,8 @@
 									console.log("Widget Deleted");
 									widgetToDelete.Id = -widgetToDelete.Id;
 									signalR.SignalAllClients("Widget.Deleted", widgetToDelete);
+									signalR.SignalAllClients("Dashboard", vm.dashboard);
+
 								});
 							});
 						});
@@ -578,6 +613,38 @@
 					}
 
 
+					vm.AddSummaryToDashboard = function() {
+
+						dataService.GetEntityById("WidgetTypes", vm.dashboard.summaryPopup.widget.WidgetResource.WidgetTypeId).then(function(wt) {
+
+
+							return dataService.AddEntity("Widgets",
+								{
+									Name: vm.dashboard.summaryPopup.asset.Name + ' Summary',
+									WidgetTypeId: vm.dashboard.summaryPopup.widget.WidgetResource.WidgetTypeId,
+									ParentDashboardId: vm.dashboard.Id,
+									Width: wt.InitialWidth,
+									Height: wt.InitialHeight,
+									Row: 100,
+									Col: 0,
+									AssetId: vm.dashboard.summaryPopup.widget.WidgetResource.AssetId,
+									DefaultNavPill: "Data",
+									GateSystemId: vm.dashboard.summaryPopup.widget.WidgetResource.GateSystemId,
+									SiteId: vm.dashboard.summaryPopup.widget.WidgetResource.SiteId,
+									SplitLeftPercentage: 50,
+									SplitRightPercentage: 50,
+									SystemId: vm.dashboard.summaryPopup.widget.WidgetResource.SystemId,
+									TerminalSystemId: vm.dashboard.summaryPopup.widget.WidgetResource.TerminalSystemId,
+									ZoneSystemId: vm.dashboard.summaryPopup.widget.WidgetResource.ZoneSystemId
+								}).then(function(widget) {
+									signalR.SignalAllClients("WidgetAdded", widget);
+							});
+
+
+						});
+
+					}
+
 
 
 
@@ -631,13 +698,14 @@
 						SaveAllChangedWidgets();
 					},1000);
 
-					vm.saveChangeInterval = $interval(function () {
+					vm.saveRefreshInterval = $interval(function () {
 						GetAllAssetIdsForDashboard();
 						dataService.RefreshAllSignalRObservationFormattedTagsForAssetIdIntoInventoryByListOfAssetIds(vm.assetIdList);
 					},60000);
 
 					$scope.$on("$destroy", function () {
 						$interval.cancel(vm.saveChangeInterval);
+						$interval.cancel(vm.saveRefreshInterval);
 
 					});
 

@@ -15,19 +15,35 @@
 
 		var cache = {
 			companies: [],
+			organizations: [],
+			organizationsObject: {},
+			organizationSites: [],
+			organizationSitesObject: {},
+			organizationSiteSuites: [],
+			organizationSiteSuitesObject: {},
 			sites: [],
+			sitesObject: {},
 			systems: [],
+			systemsObject: {},
 			systemTypes: [],
 			assets: [],
+			assetsObject: {},
 			assetTypes: [],
 			tags: [],
+			tagsObject: {},
 			assetGraphics: [],
 			assetGraphicVisibleValues: [],
 			widgetTypes: [],
 			jbtStandardObservations: [],
+			jbtStandardObservationsObject: {},
 			bhsJamAlarms: [],
+			dashboardsObject: {},
+			suites: [],
+			suitesObject: {},
+			suiteModules: [],
+			suiteModulesObject: {},
 			ready: false
-		
+
 		}
 
 		var operationMetadata = {
@@ -35,6 +51,8 @@
 
 
 		}
+
+
 
 
 		var JBTData = {};
@@ -51,20 +69,7 @@
 				MessagesPerSecondHistory: []
 			}
 		}
-		//***G
-		//++Intercept all database updates here and integrate into the data structures.
-		$rootScope.$on("AssetModel", function (event, assetModel) {
-
-			console.log("AssetModel change. AssetModel = %O", assetModel);
-			cache.assetModels = [assetModel].concat(cache.assetModels).distinct(function (a, b) { return a.Id == b.Id });
-
-
-			assetModel.Assets = cache.assets.where(function (a) { return a.AssetModelId == assetModel.Id });
-
-
-		});
-		//***G
-
+	
 
 		//Create a central 15 seconds time tick. Send the tick out as a broadcast event to sync all of the widget refreshes
 		$interval(function () {
@@ -109,21 +114,148 @@
 		}
 
 
+		service.GetDashboardsForUser = function () {
 
-
-		service.GetExpandedDashboardById = function (id) {
 			return service.GetIOPSResource("Dashboards")
+				.filter("CreatorUserId", Global.User.Id)
 				.expand("DashboardTimeScope")
-				.get(id).$promise
-				.then(function (data) {
+				.expandPredicate("Widgets")
+					.filter("ParentWidgetId", null)
+					.expand("WidgetType")
+					.expand("EmbeddedDashboard")
+				.finish()
+				.query()
+				.$promise
+				.then(function (dashboardsForUser) {
 
-					service.SetDashboardDerivedDatesFromDayCount(data);
 
-					return data;
+
+
+
+					//+Load the dashboards into the dataService cache.
+					dashboardsForUser.forEach(function (d) {
+
+						//+Attach a new $save function to each widget because it is not a resource object.
+						d.Widgets.forEach(function (w) {
+							w.$save = function () {
+
+
+								if (!w.Id || w.Id == 0) {
+									return service.InsertEntity("Widgets", w).then(function (wi) {
+										cache.dashboardsObject[w.ParentDashboardId.toString()].Widgets = [wi].concat(cache.dashboardsObject[w.ParentDashboardId.toString()].Widgets).distinct(function (a, b) { return a.Id == b.Id });
+									});
+								} else {
+									return service.UpdateEntity("Widgets", w).then(function () {
+										cache.dashboardsObject[w.ParentDashboardId.toString()].Widgets = [w].concat(cache.dashboardsObject[w.ParentDashboardId.toString()].Widgets).distinct(function (a, b) { return a.Id == b.Id });
+									});
+								}
+							}
+						});
+
+
+						service.SetDashboardDerivedDatesFromDayCount(d);
+
+						service.cache.dashboardsObject[d.Id.toString()] = d;
+
+
+
+
+
+					});
+
+					return dashboardsForUser.where(function (d) { return !d.ParentDashboardId }).orderBy(function (db) { return db.Ordinal });
+
 
 				});
 
 		}
+
+
+
+		service.GetTerminalOverviewGraphicsAndTagsForTerminalSystem = function (systemId) {
+
+			var terminalSystem = cache.systemsObject[systemId.toString()];
+			var serviceData;
+
+
+			if (terminalSystem.TerminalOverviewGraphicsAndTags) {
+				return $q.when(terminalSystem.TerminalOverviewGraphicsAndTags);
+			} else {
+
+				return service.GetIOPSWebAPIResource("TerminalOverviewGraphicsAndTags")
+					.query({
+						terminalSystemId: systemId
+					}, function (data) {
+
+						var assetIds = data.select(function (d) {
+							return d.AssetId.toString();
+						}).distinct().join(',');
+
+
+						data.forEach(function (tag) {
+							if (+tag.LastObservationTextValue == +(tag.ValueWhenVisible ? tag.ValueWhenVisible : "99999999")) {
+								tag.showImage = true;
+							} else {
+								tag.showImage = false;
+							}
+							if (tag.showImage) {
+								//console.log("tag graphic set to visible = %O", tag);
+							}
+
+						});
+						service.PlaceTerminalGraphicsTagsIntoInventory(data);
+
+						cache.systemsObject[systemId.toString()].TerminalOverviewGraphicsAndTags = data;
+
+
+						serviceData = data;
+
+					}).$promise.then(function () {
+						return serviceData;
+					});
+			}
+
+
+
+
+
+		}
+
+
+
+
+		service.GetExpandedDashboardById = function (id) {
+
+			var dashboardInCache = cache.dashboardsObject[id.toString()];
+
+			if (dashboardInCache) {
+				return $q.when(dashboardInCache);
+			} else {
+
+				return service.GetIOPSResource("Dashboards")
+					.expand("DashboardTimeScope")
+					.expandPredicate("Widgets")
+						.filter("ParentWidgetId", null)
+						.expand("WidgetType")
+						.expand("EmbeddedDashboard")
+					.finish()
+					.get(id).$promise
+					.then(function (data) {
+
+						service.SetDashboardDerivedDatesFromDayCount(data);
+
+						cache.dashboardsObject[data.Id.toString()] = data;
+
+						return data;
+
+					});
+			}
+
+		}
+		$interval(function () {
+			$rootScope.$broadcast("rootScope message passed", null);
+		}, 3000);
+
 
 		service.SetDashboardDerivedDatesFromDayCount = function (dashboard) {
 			if (dashboard && dashboard.CustomStartDate && dashboard.CustomEndDate) {
@@ -141,26 +273,26 @@
 				switch (dashboard.DashboardTimeScope.Days) {
 
 					//Special entry for "Yesterday"
-				case -1:
-					d.setHours(0, 0, 0, 0);
+					case -1:
+						d.setHours(0, 0, 0, 0);
 
-					dashboard.derivedEndDate = d;
-					dashboard.derivedStartDate = new Date(new Date(new Date().setDate(d.getDate() - 1)).setHours(0, 0, 0, 0));
+						dashboard.derivedEndDate = d;
+						dashboard.derivedStartDate = new Date(new Date(new Date().setDate(d.getDate() - 1)).setHours(0, 0, 0, 0));
 
-					break;
+						break;
 
-				//Special entry for "Today since midnight"
-				case 0:
-					d.setHours(0, 0, 0, 0);
-					dashboard.derivedStartDate = d;
-					dashboard.derivedEndDate = new Date('1/1/2500');
-					break;
+						//Special entry for "Today since midnight"
+					case 0:
+						d.setHours(0, 0, 0, 0);
+						dashboard.derivedStartDate = d;
+						dashboard.derivedEndDate = new Date('1/1/2500');
+						break;
 
-				default:
-					dashboard.derivedStartDate = new Date(new Date().setDate(new Date().getDate() - dashboard.DashboardTimeScope.Days));
-					dashboard.derivedEndDate = new Date('1/1/2500');
+					default:
+						dashboard.derivedStartDate = new Date(new Date().setDate(new Date().getDate() - dashboard.DashboardTimeScope.Days));
+						dashboard.derivedEndDate = new Date('1/1/2500');
 
-					break;
+						break;
 				}
 
 
@@ -273,7 +405,7 @@
 
 			//++LocalDB Configuration
 			//Get an instance of the localDB and proceed from there.
-			indexedDBService.getDBInstance("iOPS", 43, [
+			indexedDBService.getDBInstance("iOPS", 47, [
 				{
 					dataStoreName: "Companies",
 					keyName: "Id"
@@ -288,7 +420,17 @@
 				},
 				{
 					dataStoreName: "Tags",
-					keyName: "Id"
+					keyName: "Id",
+					indices: [
+						{
+							name: 'AssetId',
+							fieldName: 'AssetId'
+						},
+						{
+							name: 'SiteId',
+							fieldName: 'SiteId'
+						}
+					]
 				},
 				{
 					dataStoreName: "TagChartDays",
@@ -335,14 +477,16 @@
 
 
 			]).then(function (db) {
-				console.log("LocalDB retrieved...");
+				//console.log("LocalDB retrieved...");
 				localDB = db;
 
 				//+Asyncronously and simultaneously load data collections
 				$q.all([
 					GetODataSites().then(function (data) {
 						cache.sites = data.select(function (d) {
-							return AttachBlankMetadataObject(d);
+							AttachBlankMetadataObject(d);
+							cache.sitesObject[d.Id.toString()] = d;
+							return d;
 						});
 						console.log("Sites Loaded =" + data.length);
 					}),
@@ -383,7 +527,9 @@
 							//service.ready = true;
 
 							//$rootScope.$broadcast("dataService.ready");
-							return AttachBlankMetadataObject(d);
+							AttachBlankMetadataObject(d);
+							cache.systemsObject[d.Id.toString()] = d;
+							return d;
 						});
 						console.log("Systems Loaded = %O", data);
 
@@ -392,7 +538,9 @@
 
 					GetODataAssets().then(function (data) {
 						cache.assets = data.select(function (d) {
-							return AttachBlankMetadataObject(d);
+							AttachBlankMetadataObject(d);
+							cache.assetsObject[d.Id.toString()] = d;
+							return d;
 						});
 						console.log("Assets Loaded = " + data.length);
 					}),
@@ -411,6 +559,44 @@
 						cache.systemTypes = data;
 
 					}),
+					service.GetIOPSCollection("Suites").then(function (data) {
+						cache.suites = data;
+						data.forEach(function(d) {
+							cache.suitesObject[d.Id.toString()] = d;
+						});
+
+					}),
+					service.GetIOPSCollection("Organizations").then(function (data) {
+						cache.organizations = data;
+						data.forEach(function(d) {
+							cache.organizationsObject[d.Id.toString()] = d;
+						});
+
+					}),
+					service.GetIOPSCollection("OrganizationSites").then(function (data) {
+						cache.organizationSites = data;
+						data.forEach(function(d) {
+							cache.organizationSitesObject[d.Id.toString()] = d;
+						});
+
+					}),
+					service.GetIOPSCollection("OrganizationSiteSuites").then(function (data) {
+						cache.organizationSiteSuites = data;
+						data.forEach(function(d) {
+							cache.organizationSiteSuitesObject[d.Id.toString()] = d;
+						});
+
+					}),
+					service.GetIOPSCollection("SuiteModules").then(function (data) {
+						cache.suiteModules = data;
+						data.forEach(function(d) {
+							cache.suiteModulesObject[d.Id.toString()] = d;
+						});
+
+					}),
+
+
+
 
 					service.GetIOPSCollection("AssetTypes").then(function (data) {
 						cache.assetTypes = data;
@@ -435,7 +621,9 @@
 
 					GetODataJBTStandardObservations().then(function (data) {
 						cache.jbtStandardObservations = data.select(function (d) {
-							return AttachBlankMetadataObject(d);
+							AttachBlankMetadataObject(d);
+							cache.jbtStandardObservationsObject[d.Id.toString()] = d;
+							return d;
 						});
 						console.log("JBTStandardObservations Loaded = " + data.length);
 					})
@@ -605,33 +793,217 @@
 		}
 
 
-		$rootScope.$on("Company", function (event, modifiedCompany) {
-			//Find the global companies array and update it.
-			var cacheCompany = JBTData.Companies.first(function (c) { return c.Id == modifiedCompany.Id });
+		//***B
+		//***B
+		//***B
+		//++Data Update Events
 
-			if (cacheCompany) {
-				cacheCompany.Name = modifiedCompany.Name;
-				cacheCompany.ShortName = modifiedCompany.ShortName;
-				cacheCompany.Description = modifiedCompany.Description;
-				cacheCompany.Address = modifiedCompany.Address;
-			}
+				//---B
+				$rootScope.$on("Company", function (event, modifiedCompany) {
+					//Find the global companies array and update it.
+					var cacheCompany = JBTData.Companies.first(function (c) { return c.Id == modifiedCompany.Id });
 
-
-
-		});
-
-		$rootScope.$on("Company.Deleted", function (event, deletedCompany) {
-			//Find the global companies array and update it.
-			var cacheCompany = JBTData.Companies.first(function (c) { return c.Id == deletedCompany.Id });
-
-			if (cacheCompany) {
-
-				JBTData.Companies = JBTData.Companies.where(function (c) { return c.Id != deletedCompany.Id });
-			}
+					if (cacheCompany) {
+						cacheCompany.Name = modifiedCompany.Name;
+						cacheCompany.ShortName = modifiedCompany.ShortName;
+						cacheCompany.Description = modifiedCompany.Description;
+						cacheCompany.Address = modifiedCompany.Address;
+					}
 
 
 
-		});
+				});
+
+				//---B
+				$rootScope.$on("Company.Deleted", function (event, deletedCompany) {
+					//Find the global companies array and update it.
+					var cacheCompany = JBTData.Companies.first(function (c) { return c.Id == deletedCompany.Id });
+
+					if (cacheCompany) {
+
+						JBTData.Companies = JBTData.Companies.where(function (c) { return c.Id != deletedCompany.Id });
+					}
+
+
+
+				});
+
+				//---B
+				$rootScope.$on("AssetModel", function (event, assetModel) {
+
+					//console.log("AssetModel change. AssetModel = %O", assetModel);
+					cache.assetModels = [assetModel].concat(cache.assetModels).distinct(function (a, b) { return a.Id == b.Id });
+					assetModel.Assets = cache.assets.where(function (a) { return a.AssetModelId == assetModel.Id });
+
+				});
+
+
+				function CachedDataUpdate(type, entity, collectionName) {
+					
+					var cacheCollection = cache[collectionName];
+					var cacheCollectionObject = cache[collectionName + 'Object'];
+					var cacheDataObject = cacheCollectionObject[entity.Id.toString()];
+					console.log("CachedDataUpdate " + type + ' ' + collectionName + ' %O', entity);
+
+					
+					switch(type) {
+					
+						case 'Added':
+							if (!cacheDataObject) {
+								cacheCollection.push(entity);
+								cacheCollectionObject[entity.Id.toString()] = entity;
+							}
+							break;
+
+						case 'Deleted':
+							if (cacheDataObject) {
+								cacheCollection = cacheCollection.where(function(o) { return o.Id != entity.Id });
+								cacheCollectionObject[entity.Id.toString()] = null;
+							}
+							break;
+
+						case 'Modified':
+							if (cacheDataObject) {
+
+								for (var property in cacheDataObject) {
+									if (cacheDataObject.hasOwnProperty(property)) {
+										cacheDataObject[property] = entity[property];
+									}
+								}
+							}
+							break;
+
+
+
+
+					}
+
+					console.log("CachedDataUpdate cache = %O", cache);
+
+
+				}
+
+				//***G
+				//++Cached Data Updates
+				//***G
+
+				$rootScope.$on("Organization Added", function (event, addedEntity) {
+					CachedDataUpdate('Added',addedEntity, 'organizations');
+				});
+
+				$rootScope.$on("Organization Deleted", function (event, deletedEntity) {
+					CachedDataUpdate('Deleted',deletedEntity, 'organizations');
+				});
+
+				$rootScope.$on("Organization Modified", function (event, modifiedEntity) {
+					CachedDataUpdate('Modified',modifiedEntity, 'organizations');
+				});
+
+				$rootScope.$on("OrganizationSite Added", function (event, addedEntity) {
+					CachedDataUpdate('Added',addedEntity, 'organizationSites');
+				});
+
+				$rootScope.$on("OrganizationSite Deleted", function (event, deletedEntity) {
+					CachedDataUpdate('Deleted',deletedEntity, 'organizationSites');
+				});
+
+				$rootScope.$on("OrganizationSite Modified", function (event, modifiedEntity) {
+					CachedDataUpdate('Modified',modifiedEntity, 'organizationSites');
+				});
+
+				$rootScope.$on("OrganizationSiteSuite Added", function (event, addedEntity) {
+					CachedDataUpdate('Added',addedEntity, 'organizationSiteSuites');
+				});
+
+				$rootScope.$on("OrganizationSiteSuite Deleted", function (event, deletedEntity) {
+					CachedDataUpdate('Deleted',deletedEntity, 'organizationSiteSuites');
+				});
+
+				$rootScope.$on("OrganizationSiteSuite Modified", function (event, modifiedEntity) {
+					CachedDataUpdate('Modified',modifiedEntity, 'organizationSiteSuites');
+				});
+
+				$rootScope.$on("Module Added", function (event, addedEntity) {
+					CachedDataUpdate('Added',addedEntity, 'modules');
+				});
+
+				$rootScope.$on("Module Deleted", function (event, deletedEntity) {
+					CachedDataUpdate('Deleted',deletedEntity, 'modules');
+				});
+
+				$rootScope.$on("Module Modified", function (event, modifiedEntity) {
+					CachedDataUpdate('Modified',modifiedEntity, 'modules');
+				});
+
+				$rootScope.$on("ModuleWidgetType Added", function (event, addedEntity) {
+					CachedDataUpdate('Added',addedEntity, 'moduleWidgetTypes');
+				});
+
+				$rootScope.$on("ModuleWidgetType Deleted", function (event, deletedEntity) {
+					CachedDataUpdate('Deleted',deletedEntity, 'moduleWidgetTypes');
+				});
+
+				$rootScope.$on("ModuleWidgetType Modified", function (event, modifiedEntity) {
+					CachedDataUpdate('Modified',modifiedEntity, 'moduleWidgetTypes');
+				});
+
+				$rootScope.$on("SuiteModule Added", function (event, addedEntity) {
+					CachedDataUpdate('Added',addedEntity, 'suiteModules');
+				});
+
+				$rootScope.$on("SuiteModule Deleted", function (event, deletedEntity) {
+					CachedDataUpdate('Deleted',deletedEntity, 'suiteModules');
+				});
+
+				$rootScope.$on("SuiteModule Modified", function (event, modifiedEntity) {
+					CachedDataUpdate('Modified',modifiedEntity, 'suiteModules');
+				});
+
+				//---B
+				$rootScope.$on("Observation", function (event, signalRData) {
+					UpdateObservationFromSignalR(signalRData);
+				});
+
+				//---B
+				$rootScope.$on("Tag", function (event, signalRData) {
+					UpdateTagFromSignalR(signalRData);
+				});
+				//***G
+
+
+				//---B
+				$rootScope.$on("WidgetAdded", function (event, newWidget) {
+					var dashboard = cache.dashboardsObject[newWidget.ParentDashboardId.toString()];
+					if (dashboard) {
+						if (!dashboard.Widgets) {
+							dashboard.Widgets = [];
+						}
+						dashboard.Widgets.push(newWidget);
+					}
+				});
+
+				//---B
+				$rootScope.$on("Widget.Deleted", function (event, deletedWidget) {
+					var dashboard = cache.dashboardsObject[deletedWidget.ParentDashboardId.toString()];
+					if (dashboard) {
+						if (!dashboard.Widgets) {
+							dashboard.Widgets = [];
+						}
+						dashboard.Widgets = dashboard.Widgets.where(function (w) { return w.Id != deletedWidget.Id });
+					}
+				});
+
+				//---B
+				$rootScope.$on("Dashboard", function (event, newOrModifiedDashboard) {
+					cache.dashboardsObject[newOrModifiedDashboard.Id.toString()] = null;
+
+					service.GetExpandedDashboardById(newOrModifiedDashboard.Id);
+				});
+
+		//***B
+		//***B
+		//***B
+
 
 
 
@@ -699,6 +1071,12 @@
 
 		});
 
+		$rootScope.$on("System.signalR Disconnected", function (event, dataObject) {
+			//console.log("System.signalR Disconnected event");
+			service.dataServerConnected = false;
+
+		});
+
 
 
 		//==========================================================================================
@@ -742,7 +1120,7 @@
 			//console.log("Getting localdb systems...");
 			return localDB.getById("Systems", 1).then(function (dbData) {
 				dbSystems = dbData ? dbData.Systems : [];
-				console.log("localdb Systems = " + dbSystems.length);
+				//console.log("localdb Systems = " + dbSystems.length);
 				//Get All of the Systems that have changed since the localDB was collected.
 				if (dbSystems.length > 0) {
 					maxDate = dbSystems.max(function (system) { return system.DateLastModified });
@@ -788,6 +1166,10 @@
 
 
 		}
+
+
+
+
 
 
 		function GetODataAssets() {
@@ -899,25 +1281,11 @@
 
 
 		//+Listen for SignalR updates
-		$rootScope.$on("Observation", function (event, signalRData) {
-			UpdateObservationFromSignalR(signalRData);
-		});
-
-		$rootScope.$on("Tag", function (event, signalRData) {
-			UpdateTagFromSignalR(signalRData);
-		});
-
-
-
-
-
+		
 
 		function UpdateTagFromSignalR(data) {
 
 			var signalRTag = GetJsonFromSignalR(data);
-
-
-
 
 
 		}
@@ -976,7 +1344,7 @@
 
 					SiteName: site ? site.Name : null,
 					TagName: tag.TagName,
-					GateName: tag.GateName && tag.GateName.replace('.',''),
+					GateName: tag.GateName && tag.GateName.replace('.', ''),
 					Value: tag.LastObservationTextValue,
 					JBTStandardObservation: cache.jbtStandardObservations.first(function (s) {
 						return s.Id == tag.JBTStandardObservationId;
@@ -999,21 +1367,33 @@
 		}
 
 		service.PlaceTagsIntoInventory = function (tags) {
+
+			var counter = 0;
+
 			tags
 				.where(function (t) { return !t.MarkedForDelete })
 				.forEach(function (tag) {
 
 					var site = cache.sites.first(function (s) { return s.Id == tag.SiteId });
+					if (tag.LastObservationDate) {
+
+						var lastObservationDateArray = tag.LastObservationDate.split('T');
+						var part2 = lastObservationDateArray[1].split('-');
+						tag.LastObservationDate = (lastObservationDateArray[0] + ' ' + part2[0]).replace('Z', '');
+						tag.LastObservationDateAsADate = new Date(tag.LastObservationDate);
+					}
 
 					if (!cache.tags.any(function (t) { return t.TagId == tag.Id })) {
 						var signalRData = {
 							DataType: 'DB',
-							PLCUTCDate: !service.dataSourceIsLocal
-								? utilityService.GetUTCDateFromLocalDate(new Date(tag.LastObservationDate))
-								: new Date(tag.LastObservationDate),
-							ObservationUTCDate: service.dataSourceIsLocal
-								? new Date(tag.LastObservationDate)
-								: utilityService.GetUTCDateFromLocalDate(new Date(tag.LastObservationDate)),
+							PLCUTCDate: new Date(tag.LastObservationDate),
+							ObservationUTCDate: new Date(tag.LastObservationDate),
+							//PLCUTCDate: !service.dataSourceIsLocal
+							//	? utilityService.GetUTCDateFromLocalDate(new Date(tag.LastObservationDate))
+							//	: new Date(tag.LastObservationDate),
+							//ObservationUTCDate: service.dataSourceIsLocal
+							//	? new Date(tag.LastObservationDate)
+							//	: utilityService.GetUTCDateFromLocalDate(new Date(tag.LastObservationDate)),
 
 							AssetId: +tag.AssetId,
 							TagId: +tag.Id,
@@ -1048,6 +1428,10 @@
 
 
 						//console.log("Pre-Load observation to be added to inventory = %O", signalRData);
+						if (counter++ < 5) {
+							console.log("Tag to place into inventory = %O", tag);
+
+						}
 
 						LoadSignalRObservationToInventory(signalRData);
 
@@ -1059,41 +1443,264 @@
 		}
 
 
-		service.GetAllSignalRObservationFormattedTagsForAssetIdIntoInventoryByListOfAssetIds =
-			function(assetIdList, alarmsOnly) {
+		service.LoadTagDataStringsToInventory = function (dataStrings) {
 
 
-				var notLoadedAssetIds = ("" + assetIdList).split(',').distinct().where(function(assetId) {
+			//console.log("dataStrings = %O", dataStrings);
 
-					var asset = cache.assets.first(function(a) { return a.Id == +assetId });
-					return (!alarmsOnly && asset && !asset.AllTagsLoaded) || (alarmsOnly && asset && !asset.AllAlarmTagsLoaded);
+
+			var data = service.GetBrokenOutFieldsFromStringTagData(dataStrings);
+
+			//console.log("Formatted data = %O", angular.copy(data));
+			//console.log("Loading tags into inventory Data Arrival = " + data.length + ' tags');
+			//console.log("Inventory length before loading = " + cache.tags.length);
+
+			if (data.length > 0) {
+
+				data.select(function (tag) {
+
+					var formattedCacheTagObject = GetStandardCacheTagObjectFromDatabaseFields(tag);
+
+					//Debugging
+					//formattedCacheTagObject.IsTest = true;
+
+					var loadedTag = LoadSignalRObservationToInventory(formattedCacheTagObject);
+
+					if (tag.PreviousObservationId && tag.PreviousObservationId != tag.ObservationId) {
+						//console.log("broadcasting tag update for refresh = %O", tag);
+						$rootScope.$broadcast("dataService.TagUpdate", loadedTag);
+					}
 
 				});
 
-				//console.log("notLoadedAssetIds = %O", notLoadedAssetIds);
+			}
+
+		}
+
+		//var days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+		//var dayNameToLookFor = 'Thursday';
+		//var ordinalToLookFor = 4;
+
+		//var dateArray = _.range(500).select(function(number) {
+		//		var dat = new Date();
+		//		dat.setDate(dat.getDate() + number);
+		//		return dat;
+		//	})
+		//	.where(function(dateItem) {
+		//		return days[dateItem.getDay()] == dayNameToLookFor;
+		//	})
+		//	.groupBy(function (dateItem) { return dateItem.getFullYear() + String("0" + dateItem.getMonth()).slice(-6) })
+		//	.select(function(group) {
+		//		return {
+		//			month: group.key,
+		//			selectedDate: group.length > ordinalToLookFor-1 ? group.skip(ordinalToLookFor-1).first() : null
+		//		}	
+		//	})
+
+		//;
+
+		//console.log("zzzzzzzzzDayGroup = %O", dateArray);
+		
+
+
+
+		service.GetSiteAllGateSummaryDataStructure = function (siteId, widgetId) {
+
+			var standardIdsToLoad = [12374, 2736, 1942, 12484, 4331, 4445, 4765, 12255, 12245];
+
+			if (cache.sitesObject[siteId.toString()].AllGateSummaryData) {
+				return $q.when(cache.sitesObject[siteId.toString()].AllGateSummaryData);
+			} else {
+				return service.GetIOPSResource("Tags")
+					.filter("SiteId", siteId) //that belong to the widget site
+					.filter($odata.Predicate.or(standardIdsToLoad.select(function (sid) { return new $odata.Predicate("JBTStandardObservationId", sid) })))
+					.select(["D"])
+					.query()
+					.$promise
+					.then(function (data) {
+
+
+						console.log("SiteId" + siteId + " data for standard Ids  12374, 2736, 1942, 12484, 4331, 4445, 4765, 12255, 12245 arrived. " + data.length + " Records");
+
+						//The field is just D
+
+						var dataAsListOfStrings = data.select(function (d) { return d.D });
+
+						service.LoadTagDataStringsToInventory(dataAsListOfStrings);
+
+						console.log("SiteId" + siteId + " data for standard Ids  12374, 2736, 1942, 12484, 4331, 4445, 4765, 12255, 12245 loaded to dataService cache");
+
+
+						var brokenOutData = service.GetBrokenOutFieldsFromStringTagData(dataAsListOfStrings);
+
+
+						console.log("siteGateTags for [12374, 2736, 1942, 12484, 4331, 4445, 4765, 12255, 12245] std ids data = %O", data);
+
+
+						var assetIds = brokenOutData
+							.select(function (d) {
+								return d.AssetId;
+							}).distinct()
+						.join(',');
+
+
+						//+Get all Alarm Tags into the dataservice inventory. The last true parameter will cause the dataService method to only look for alarm tags.
+						console.log("SiteId" + siteId + " Alarm Tags Requested from database");
+						return service.GetAllSignalRObservationFormattedTagsForAssetIdIntoInventoryByListOfAssetIds(assetIds, true).then(function () {
+							console.log("SiteId" + siteId + " Alarm Tags loaded into inventory");
+
+							console.log("assetIds = %O", assetIds);
+							var dataGroupedByGate = brokenOutData.groupBy(function (t) { return t.GateName });
+							console.log("Grouped by Gate = %O", dataGroupedByGate);
+
+							var gateTagGroups = dataGroupedByGate
+								.select(function (g) {
+
+									var pcaAsset = cache.assets.first(function (a) { return a.Id == (g.first(function (t2) { return t2.AssetName == 'PCA' }) ? g.first(function (t2) { return t2.AssetName == 'PCA' }).AssetId : 0) });
+									var pbbAsset = cache.assets.first(function (a) { return a.Id == (g.first(function (t2) { return t2.AssetName == 'PBB' }) ? g.first(function (t2) { return t2.AssetName == 'PBB' }).AssetId : 0) });
+									var gpuAsset = cache.assets.first(function (a) { return a.Id == (g.first(function (t2) { return t2.AssetName == 'GPU' }) ? g.first(function (t2) { return t2.AssetName == 'GPU' }).AssetId : 0) });
+
+
+									var outputObject = {
+										PCAAsset: pcaAsset,
+										PBBAsset: pbbAsset,
+										GPUAsset: gpuAsset,
+										GateName: g.key,
+										SortField: (!isFinite(g.key.substring(0, 1)) && isFinite(g.key.substring(1, 50))) ? g.key.substring(0, 1) + g.key.substring(1, 50).padStart(4, '0') : g.key,
+										GateSystem: cache.systems.first(function (s) { return s.SiteId == siteId && s.TypeId == 3 && s.Name == g.key }),
+										PCAUnitOnTag: pcaAsset ? pcaAsset.Tags.where(function (t) { return t.JBTStandardObservationId == 12374 }).orderByDescending(function (t2) { return t2.ObservationUTCDateMS }).first() : null,
+										GPUUnitOnTag: gpuAsset ? gpuAsset.Tags.where(function (t) { return t.JBTStandardObservationId == 12374 }).orderByDescending(function (t2) { return t2.ObservationUTCDateMS }).first() : null,
+										PBBAircraftDockedTag: pbbAsset ? pbbAsset.Tags.where(function (t) { return t.JBTStandardObservationId == 12245 }).orderByDescending(function (t2) { return t2.ObservationUTCDateMS }).first() : null,
+										PBBUnitOnTag: pbbAsset ? pbbAsset.Tags.where(function (t) { return t.JBTStandardObservationId == 12374 }).orderByDescending(function (t2) { return t2.ObservationUTCDateMS }).first() : null,
+										DischargeTemperatureTag: pcaAsset ? pcaAsset.Tags.where(function (t) { return t.JBTStandardObservationId == 2736 }).orderByDescending(function (t2) { return t2.ObservationUTCDateMS }).first() : null,
+										AverageAmpsOutTag: gpuAsset ? gpuAsset.Tags.where(function (t) { return t.JBTStandardObservationId == 1942 }).orderByDescending(function (t2) { return t2.ObservationUTCDateMS }).first() : null
+									}
+
+
+									return outputObject;
+								})
+								.orderBy(function (group) { return group.SortField });
+
+							//+Attach the alarms and comm loss tags to the assets on the gate.
+							//Once this is done, then the controller for this directive will no longer have to track them. The data service will be maintaining them.
+							var commLossStandardObservationIds = [4331, 4445, 4765, 12255];
+
+							//Need to get the alarms tags into the dataService tags cache for every asset.
+
+							gateTagGroups.forEach(function (gtg) {
+
+								if (gtg.PBBAsset) {
+									gtg.PBBAsset.AlarmTags = gtg.PBBAsset.Tags.where(function (dsTag) { return dsTag.IsAlarm });
+									gtg.PBBAsset.AlarmActiveTag = cache.tags.first(function (t) { return +t.AssetId == +gtg.PBBAsset.Id && t.JBTStandardObservationId == 12323 });
+									if (gtg.PBBAsset.AlarmActiveTag) {
+										gtg.PBBAsset.AlarmActiveTag.ValueWhenActive = (gtg.PBBAsset.AlarmActiveTag.ValueWhenActive || "1");
+									} else {
+										//console.log("asset %O, has no alarm active tag", gtg.PBBAsset);
+									}
+									gtg.PBBAsset.CommLossTag = cache.tags.first(function (t) { return +t.AssetId == +gtg.PBBAsset.Id && commLossStandardObservationIds.any(function (clso) { return clso == t.JBTStandardObservationId }) });
+								}
+								if (gtg.PCAAsset) {
+									gtg.PCAAsset.AlarmTags = gtg.PCAAsset.Tags.where(function (dsTag) { return dsTag.IsAlarm });
+									gtg.PCAAsset.AlarmActiveTag = cache.tags.first(function (t) { return +t.AssetId == +gtg.PCAAsset.Id && t.JBTStandardObservationId == 12324 });
+									if (gtg.PCAAsset.AlarmActiveTag) {
+										gtg.PCAAsset.AlarmActiveTag.ValueWhenActive = (gtg.PCAAsset.AlarmActiveTag.ValueWhenActive || "1");
+									} else {
+										//console.log("asset %O, has no alarm active tag", gtg.PCAAsset);
+									}
+									gtg.PCAAsset.CommLossTag = cache.tags.first(function (t) { return +t.AssetId == +gtg.PCAAsset.Id && commLossStandardObservationIds.any(function (clso) { return clso == t.JBTStandardObservationId }) });
+								}
+								if (gtg.GPUAsset) {
+									gtg.GPUAsset.AlarmTags = gtg.GPUAsset.Tags.where(function (dsTag) { return dsTag.IsAlarm });
+									gtg.GPUAsset.AlarmActiveTag = cache.tags.first(function (t) { return +t.AssetId == +gtg.GPUAsset.Id && t.JBTStandardObservationId == 12325 });
+									if (gtg.GPUAsset && gtg.GPUAsset.AlarmActiveTag) {
+										gtg.GPUAsset.AlarmActiveTag.ValueWhenActive = (gtg.GPUAsset.AlarmActiveTag.ValueWhenActive || "1");
+									} else {
+										//console.log("asset %O, has no alarm active tag", gtg.GPUAsset);
+									}
+									gtg.GPUAsset.CommLossTag = cache.tags.first(function (t) { return +t.AssetId == +gtg.GPUAsset.Id && commLossStandardObservationIds.any(function (clso) { return clso == t.JBTStandardObservationId }) });
+								}
+							});
+
+
+							console.log("SiteId" + siteId + " Generated gateTagGroups = %O", gateTagGroups);
+							cache.sitesObject[siteId.toString()].AllGateSummaryData = gateTagGroups;
+
+							//+Get the subwidgets collection associated with this all gate summary and attach it to the data structure. (Asynch - will complete after the call is returned.)
+							service.GetIOPSResource("Widgets")
+								.filter("ParentWidgetId", widgetId)
+								.filter("SiteId", siteId)
+								.query()
+								.$promise.then(function (data) {
+									gateTagGroups.subWidgets = data;
+									//console.log("vm.subWidgets = %O", vm.subWidgets);
+								});
+
+							return gateTagGroups;
+						});
+
+
+
+					});
+
+			}
+
+
+
+
+
+		}
+
+
+
+		service.GetAllSignalRObservationFormattedTagsForAssetIdIntoInventoryByListOfAssetIds =
+			function (assetIdList, alarmsOnly) {
+				//console.log("Loading tags into inventory for list of asset ids = " + assetIdList);
+
+				var notLoadedAssetIds = ("" + assetIdList).split(',').distinct().where(function (assetId) {
+					if (assetId != "") {
+						var asset = cache.assets.first(function (a) { return a.Id == +assetId });
+						return (!alarmsOnly && asset && !asset.AllTagsLoaded) || (alarmsOnly && asset && !asset.AllAlarmTagsLoaded);
+					}
+
+				});
+
+				console.log("notLoadedAssetIds = %O", notLoadedAssetIds);
 				if (notLoadedAssetIds.length == 0) {
+					//console.log("Asset was loaded already");
 					return $q.when(true);
 				}
 
 				//The asset object in the dataService might have already loaded all its tags into the running inventory. If it has, we do nothing.
 				if (notLoadedAssetIds.length > 0) {
 
-					
 
-					return service.GetIOPSWebAPIResource(alarmsOnly ? "GSAlarmTagsByListOfAssetIds" : "GSTagsByListOfAssetIds")
+					console.log("Data Requested from GSTagsByListOfAssetIdsCondensed");
+
+					return service.GetIOPSWebAPIResource(alarmsOnly ? "GSAlarmTagsByListOfAssetIdsCondensed" : "GSTagsByListOfAssetIdsCondensed")
 						.query({
-								assetIds: assetIdList
-							},
-							function(data) {
-								data
-									.where(function(tag) {
-										return tag.Name.indexOf('|') > 0
-									}) //Only the new format tags have pipe symbols in the name.
-									.where(function(t) { return !t.MarkedForDelete })
-									.select(function(tag) {
+							assetIds: assetIdList
+						},
+							function (data) {
+
+								console.log("Data Arrived from GSTagsByListOfAssetIdsCondensed");
+
+								data = service.GetBrokenOutFieldsFromStringTagData(data);
+
+
+								//console.log("Data Is formatted");
+								//console.log("Loading tags into inventory Data Arrival = " + data.length + ' tags');
+								//console.log("Inventory length prior to loading = " + cache.tags.length);
+
+								if (data.length > 0) {
+
+									data.select(function (tag) {
 
 										var formattedCacheTagObject = GetStandardCacheTagObjectFromDatabaseFields(tag);
-										var loadedTag = LoadSignalRObservationToInventory(formattedCacheTagObject);
+
+										//Debugging
+										//formattedCacheTagObject.IsTest = true;
+
+										var loadedTag = LoadSignalRObservationToInventory(formattedCacheTagObject, true);
 
 										if (tag.PreviousObservationId && tag.PreviousObservationId != tag.ObservationId) {
 											//console.log("broadcasting tag update for refresh = %O", tag);
@@ -1102,36 +1709,48 @@
 
 									});
 
-								assetIdList.split(',').forEach(function(assetId) {
-									var asset = cache.assets.first(function(a) { return a.Id == +assetId });
 
-									//Flag the asset as having all of its tags now loaded if it was not just the alarms loaded. 
-									if (asset) {
-										asset.AllTagsLoaded = true;
-									}
-								});
+									//console.log("Inventory length after loading = " + cache.tags.length);
+
+									assetIdList.split(',').forEach(function (assetId) {
+										var asset = cache.assets.first(function (a) { return a.Id == +assetId });
+
+										//Flag the asset as having all of its tags now loaded if it was not just the alarms loaded. 
+										if (asset && !alarmsOnly) {
+											asset.AllTagsLoaded = true;
+										}
+										if (asset && alarmsOnly) {
+											asset.AllAlarmTagsLoaded = true;
+										}
+									});
+								}
 
 
 							}).$promise;
 				}
 			}
 
+
+
+
+
 		service.RefreshAllSignalRObservationFormattedTagsForAssetIdIntoInventoryByListOfAssetIds = function (assetIdList) {
 
 
 			//The asset object in the dataService might have already loaded all its tags into the running inventory. If it has, we do nothing.
 
-			var maxDate = new Date();
-			maxDate = maxDate.setDate(maxDate.getDate() - .05);
-			maxDate = utilityService.GetUTCQueryDate(maxDate);
 
 
-			return service.GetIOPSWebAPIResource("GSTagsUpdatedInLastFiveMinutesByListOfAssetIds")
+
+			return service.GetIOPSWebAPIResource("GSTagsUpdatedInLastSecondsByListOfAssetIdsCondensed")
 				.query({
-						assetIds: assetIdList
-					},
+					assetIds: assetIdList,
+					seconds: 120
+				},
 					function (data) {
-						data
+
+
+						service.GetBrokenOutFieldsFromStringTagData(data)
 							.where(function (tag) {
 								return tag.Name.indexOf('|') > 0
 							}) //Only the new format tags have pipe symbols in the name.
@@ -1152,12 +1771,57 @@
 						assetIdList.split(',').forEach(function (assetId) {
 							var asset = cache.assets.first(function (a) { return a.Id == +assetId });
 
-							//Flag the asset as having all of its tags now loaded if it was not just the alarms loaded. 
-							if (asset) {
-								asset.AllTagsLoaded = true;
-							}
 						});
 					});
+		}
+
+
+		service.GetBrokenOutFieldsFromStringTagData = function (data) {
+			return data.select(function (tstring) {
+
+				var tarray = tstring.split('~');
+
+
+
+				//'d' = 
+				//			convert(varchar(50),Id) + '~' +
+				//			Name + '~' +
+				//			coalesce(convert(varchar(50), SiteId),'') + '~' +  
+				//			coalesce(convert(varchar(25),[dbo].[currentTimeMilliseconds](LastObservationCreationDate)),'') + '~' + 
+				//			coalesce(convert(varchar(25),[dbo].[currentTimeMilliseconds](LastObservationDate)),'') + '~' + 
+				//			coalesce(convert(varchar(50), AssetId),'0') + '~' + 
+				//			coalesce(convert(varchar(50), LastObservationId),'0') + '~' +  
+				//			coalesce(convert(varchar(50), JBTStandardObservationId),'') + '~' +  
+				//			coalesce(LastObservationTextValue,'') + '~' + 
+				//			coalesce(convert(varchar(10),LastObservationQuality),'') + '~' +
+				//			coalesce(convert(varchar(1),IsAlarm),'0') + '~' + 
+				//			coalesce(convert(varchar(1),IsWarning),'0') + '~' + 
+				//			coalesce(ValueWhenActive,'1')
+
+
+
+
+
+				return {
+					Id: +tarray[0],
+					Name: tarray[1],
+					SiteId: +tarray[2],
+					LastObservationCreationDate: utilityService.GetUTCDateFromLocalDate(new Date(+tarray[3])),
+					LastObservationDate: utilityService.GetUTCDateFromLocalDate(new Date(+tarray[4])),
+					AssetId: +tarray[5],
+					LastObservationId: +tarray[6],
+					JBTStandardObservationId: +tarray[7],
+					LastObservationTextValue: tarray[8],
+					LastObservationQuality: +tarray[9],
+					IsAlarm: +tarray[10] == 1,
+					IsWarning: +tarray[11] == 1,
+					ValueWhenActive: tarray[12] == '' ? '1' : tarray[12],
+					GateName: tarray[13],
+					AssetName: tarray[14],
+					DataType: 'DB'
+				}
+
+			});
 		}
 
 
@@ -1179,7 +1843,8 @@
 				DataType: 'DB',
 				PLCUTCDate: plcUTCDate,
 				ObservationUTCDate: obsCreatedDate,
-
+				IsAlarm: entityFromDatabase.IsAlarm,
+				IsWarning: entityFromDatabase.IsWarning,
 				AssetId: +entityFromDatabase.AssetId,
 				TagId: +entityFromDatabase.Id,
 				SiteId: +entityFromDatabase.SiteId,
@@ -1190,9 +1855,7 @@
 				TagName: entityFromDatabase.Name || entityFromDatabase.TagName,
 				Value: entityFromDatabase.LastObservationTextValue,
 				Quality: entityFromDatabase.LastObservationQuality,
-				JBTStandardObservation: cache.jbtStandardObservations.first(function (s) {
-					return s.Id == entityFromDatabase.JBTStandardObservationId
-				}),
+				JBTStandardObservation: cache.jbtStandardObservationsObject[entityFromDatabase.JBTStandardObservationId.toString()],
 				Severity: entityFromDatabase.IsCritical ? 'Critical' : entityFromDatabase.IsAlarm ? 'Alarm' : entityFromDatabase.IsWarning ? 'Warning' : '',
 				ValueWhenActive: entityFromDatabase.ValueWhenActive || "1"
 
@@ -1209,57 +1872,10 @@
 
 		}
 
-		service.GetAllSignalRObservationFormattedTagsForAssetIdIntoInventory = function (assetId) {
 
 
-			var asset = cache.assets.first(function (a) { return a.Id == assetId });
-
-			if (asset.Tags.length < 40) {
-				asset.AllTagsLoaded = false;
-			}
-
-			if (asset.AllTagsLoaded) {
-				return $q.when(true);
-			}
-
-			//The asset object in the dataService might have already loaded all its tags into the running inventory. If it has, we do nothing.
-			if (!asset.AllTagsLoaded) {
-				return service.GetIOPSResource("Tags")
-					//.expand("LastObservation")
-					.filter("AssetId", assetId)
-					.select(["Id", "Name", "SiteId", "LastObservationDate", "LastObservationCreationDate", "AssetId",
-						"LastObservationId", "JBTStandardObservationId",
-						"LastObservationTextValue", "LastObservationQuality", "IsAlarm", "IsWarning", "ValueWhenActive"])
-					.query()
-					.$promise
-					.then(function (data) {
-
-						//console.log("GetAllSignalRObservationFormattedTagsForAssetIdIntoInventory Data = %O", data);
-						data
-							.where(function (tag) { return tag.Name.indexOf('|') > 0 }) //Only the new format tags have pipe symbols in the name.
-							.where(function (t) { return !t.MarkedForDelete })
-							.select(function (tag) {
-
-								var formattedCacheTagObject = GetStandardCacheTagObjectFromDatabaseFields(tag);
-								LoadSignalRObservationToInventory(formattedCacheTagObject);
-
-							});
-					})
-					.then(function () {
-						var asset = cache.assets.first(function (a) { return a.Id == assetId });
-
-						//Flag the asset as having all of its tags now loaded. 
-						if (asset) {
-							asset.AllTagsLoaded = true;
-						}
-					});
-			}
-		}
-
-
-
-
-		service.dataSourceIsLocal = document.URL.indexOf("localhost/iops/") > 0;
+		//service.dataSourceIsLocal = document.URL.indexOf("localhost/iops/") > 0;
+		service.dataSourceIsLocal = true;
 
 
 		//***G
@@ -1267,6 +1883,8 @@
 		//+This function is run whenever each signalR message arrives.
 		//***G
 		var tagLookupAverage = 0;
+		var tagSignalRReportingCounter = 0;
+
 		function UpdateObservationFromSignalR(signalRData) {
 			//Split the change data out into the components
 
@@ -1276,11 +1894,10 @@
 			service.Statistics.SignalR.MessageCount++;
 			signalRData = GetJsonFromSignalR(signalRData);
 
-			//if (signalRData.TagName &&  signalRData.TagName.indexOf('B2|B34|') > 0 && signalRData.TagName.indexOf('AIRCRAFT_DOCKED') > 0) {
-			//	console.log("B34 SignalR data Arrived in dataService Service = %O", signalRData);
-			//}
 
 			signalRData.DataType = 'signalR';
+
+
 			signalRData.PLCUTCDate = new Date(signalRData.PLCUTCDate);
 			signalRData.PLCUTCDateMS = signalRData.PLCUTCDate.getTime();
 			signalRData.PLCLocalDate = utilityService.GetLocalDateFromUTCDate(signalRData.PLCUTCDate);
@@ -1294,7 +1911,7 @@
 			signalRData.SiteId = +signalRData.SiteId;
 			signalRData.ObservationId = +signalRData.ObservationId;
 			signalRData.JBTStandardObservationId = +signalRData.JBTStandardObservationId;
-			signalRData.JBTStandardObservation = cache.jbtStandardObservations.first(function (s) { return s.Id == signalRData.JBTStandardObservationId });
+			signalRData.JBTStandardObservation = cache.jbtStandardObservationsObject[signalRData.JBTStandardObservationId.toString()];
 			signalRData.IsWarning = signalRData.IsWarning == '1';
 			signalRData.IsAlarm = signalRData.IsAlarm == '1';
 			signalRData.IsCritical = signalRData.IsCritical == '1';
@@ -1307,12 +1924,21 @@
 
 			AttachShortTagNameToTagData(signalRData);
 
-			//console.log("Loading signalr tag into inventory tag = ");
+			if (tagSignalRReportingCounter++ < 50) {
+				console.log("SignalR Tag Update = %O", signalRData);
+			}
+
+
 			LoadSignalRObservationToInventory(signalRData);
 
 		}
 
 		//***G
+
+
+		service.GetAllSignalRObservationFormattedTagsForAssetIdIntoInventory = function (assetId) {
+			return service.GetAllSignalRObservationFormattedTagsForAssetIdIntoInventoryByListOfAssetIds(assetId.toString(), false);
+		}
 
 
 
@@ -1349,7 +1975,7 @@
 				//Check for an observation metadata object. It is the only one with the ObservationCreationDate property
 				if (obj.ObservationUTCDate) {
 
-					var siteReference = cache.sites.first(function(site) { return site.Id == obj.SiteId });
+					var siteReference = cache.sites.first(function (site) { return site.Id == obj.SiteId });
 
 					var sqlOffsetForSite = siteReference ? siteReference.KepwareSQLTimeDifferenceMSFromCentral : 0;
 					obj.Metadata.Statistics.KepwareSQLTimeDifferenceMSFromCentral = sqlOffsetForSite;
@@ -1397,110 +2023,144 @@
 		}
 
 
+
+
+
 		function LoadSignalRObservationToInventory(newObservation) {
-			//+Lo ad the tag represented by the observation into the local inventory of tags.
-			//console.log("Tag = %O", obs);
+			//+Load the tag represented by the observation into the local inventory of tags.
+			if (newObservation.IsTest) {
+				//console.log("Tag = %O", newObservation);
+			}
+			var tagThatWasInCache;
+
+
 			if (newObservation.TagId || newObservation.TagName) {
 				//Scan the inventory for it.
 
-
 				if (newObservation.TagId) {
 					//console.log("Checking for tagid");
-					tag = cache.tags.first(function (et) { return et.TagId == newObservation.TagId });
+					//var time0 = performance.now();
+					tagThatWasInCache = cache.tagsObject[newObservation.TagId.toString()];
+					//console.log("Object Lookup = " + (performance.now() - time0) + "ms");
+					//time0 = performance.now();
+					//tagThatWasInCache = cache.tags.first(function (et) { return et.TagId == newObservation.TagId });
+					//console.log("First() Lookup = " + (performance.now() - time0) + "ms");
 				}
 
-				if (!tag && newObservation.TagName) {
-					tag = cache.tags.first(function (et) { return et.TagName == newObservation.TagName });
-				}
+
 				//If we found the tag in the inventory, update it in our cache
-				if (tag) {
+				if (tagThatWasInCache) {
+
+					if (!tagThatWasInCache.UpdateCount) {
+						tagThatWasInCache.UpdateCount = 0;
+					}
+					tagThatWasInCache.UpdateCount++;
 
 					//console.log("Tag found in inventory = %O", tag);
-					if (tag.DataType == 'DB' && newObservation.DataType == 'signalR') {
-						tag.DataType = 'signalR';
+					if (newObservation.DataType == 'signalR') {
+						tagThatWasInCache.DataType = 'signalR';
 					}
 
-					if (!tag.Observations) {
+					if (!tagThatWasInCache.Observations) {
 
-						tag.Observations = [];
+						tagThatWasInCache.Observations = [];
 					}
-					if (!tag.Asset) {
+					if (!tagThatWasInCache.Asset) {
 						//Set the asset object for the tag in the inventory if not yet already set.
-						tag.Asset = cache.assets.first(function (asset) { return asset.Id == tag.AssetId });
-						if (tag.Asset) {
+						tagThatWasInCache.Asset = cache.assetsObject[tagThatWasInCache.AssetId.toString()];
+						if (tagThatWasInCache.Asset) {
 							//If we found a matching asset then add this tag to the tags collection for the asset.
-							if (!tag.Asset.Tags) {
-								tag.Asset.Tags = [];
+							if (!tagThatWasInCache.Asset.Tags) {
+								tagThatWasInCache.Asset.Tags = [];
 							}
-							tag.Asset.Tags.push(tag);
+							tagThatWasInCache.Asset.Tags.push(tagThatWasInCache);
 						}
 					}
 
-					tag.LastObservationTextValue = newObservation.Value;
+					tagThatWasInCache.LastObservationTextValue = newObservation.Value;
 
-					MetadataCounterUpdate(tag);
-					//console.log("Tag found in inventory (updated Metadata) = %O", tag);
-					if (tag.Asset) {
-						MetadataCounterUpdate(tag.Asset);
-						MetadataCounterUpdate(tag.Asset.Company);
-						MetadataCounterUpdate(tag.Asset.System);
-						MetadataCounterUpdate(tag.Asset.Site);
+					MetadataCounterUpdate(tagThatWasInCache);
+					//console.log("Tag found in inventory (updated Metadata) = %O", tagThatWasInCache);
+					if (tagThatWasInCache.Asset) {
+						//MetadataCounterUpdate(tagThatWasInCache.Asset);
+						//MetadataCounterUpdate(tagThatWasInCache.Asset.Company);
+						//MetadataCounterUpdate(tagThatWasInCache.Asset.System);
+						//MetadataCounterUpdate(tagThatWasInCache.Asset.Site);
 					}
 
 
-					if (tag.PLCUTCDateMS <= newObservation.PLCUTCDateMS && tag.ObservationId != newObservation.ObservationId) {
+					if (tagThatWasInCache.PLCUTCDateMS <= newObservation.PLCUTCDateMS && tagThatWasInCache.ObservationId != newObservation.ObservationId) {
 
 
-						tag.PLCUTCDate = newObservation.PLCUTCDate;
-						tag.PLCUTCDateMS = newObservation.PLCUTCDateMS;
-						tag.PLCLocalDate = newObservation.PLCLocalDate;
-						tag.ObservationUTCDate = newObservation.ObservationUTCDate;
-						tag.ObservationUTCDateMS = newObservation.ObservationUTCDateMS;
-						tag.ObservationLocalDate = newObservation.ObservationLocalDate;
-						tag.PreviousObservationId = tag.ObservationId;
-						tag.ObservationId = +newObservation.ObservationId;
-						tag.Metadata.Status.LastValueWasHistorical = false;
-						tag.Value = newObservation.Value;
-						tag.ValueWhenActive = newObservation.ValueWhenActive || "1";
+						tagThatWasInCache.PLCUTCDate = newObservation.PLCUTCDate;
+						tagThatWasInCache.PLCUTCDateMS = newObservation.PLCUTCDateMS;
+						tagThatWasInCache.PLCLocalDate = newObservation.PLCLocalDate;
+						tagThatWasInCache.ObservationUTCDate = newObservation.ObservationUTCDate;
+						tagThatWasInCache.ObservationUTCDateMS = newObservation.ObservationUTCDateMS;
+						tagThatWasInCache.ObservationLocalDate = newObservation.ObservationLocalDate;
+						tagThatWasInCache.PreviousObservationId = tagThatWasInCache.ObservationId;
+						tagThatWasInCache.ObservationId = +newObservation.ObservationId;
+						tagThatWasInCache.Metadata.Status.LastValueWasHistorical = false;
+						tagThatWasInCache.Value = newObservation.Value;
+						tagThatWasInCache.ValueWhenActive = newObservation.ValueWhenActive || "1";
+
 					} else {
-						if (tag.DataType == 'signalR' && tag.ObservationId != newObservation.ObservationId) {
-							//console.log("Tag is from signalR and is historical. Tag in inventory = %O", tag);
+						if (tagThatWasInCache.DataType == 'signalR' && tagThatWasInCache.ObservationId != newObservation.ObservationId) {
+							//console.log("Tag is from signalR and is historical. Tag in inventory = %O", tagThatWasInCache);
 							//console.log("Tag is from signalR and is historical. Tag from signalR = %O", newObservation);
-							tag.Metadata.Status.LastValueWasHistorical = true;
+							tagThatWasInCache.Metadata.Status.LastValueWasHistorical = true;
 						}
 					}
+
+					//Attach the JBTStandardObservation object to the tag.
+					tagThatWasInCache.JBTStandardObservation = cache.jbtStandardObservationsObject[tagThatWasInCache.JBTStandardObservationId.toString()];
+					tag = tagThatWasInCache;
 
 				} else {
-					//We did not find the tag in the inventory.
+					//+We did not find the tag in the inventory.
 					//Add the tag to the cache with an attached metadata object
-					//console.log("Tag NOT found in inventory.....");
+					if (newObservation.IsTest) {
+						//console.log("Tag NOT found in inventory.....");
+					}
+
 					AttachBlankMetadataObject(newObservation);
 					//Attach the asset to the tag, and attach the tags collection to the asset - IF the asset is found
-					var asset = cache.assets.first(function (asset) { return asset.Id == +newObservation.AssetId });
+
+
+					var asset = cache.assetsObject[newObservation.AssetId.toString()];
 
 					//console.log("Asset Found = %O", asset);
 					if (asset) {
 						if (!asset.Tags) {
 							asset.Tags = [];
+							asset.Tags.push(newObservation);
+						} else {
+
+							var assetTag = asset.Tags.first(function (t) { return t.TagId == newObservation.TagId });
+
+							if (!assetTag) {
+								asset.Tags.push(newObservation);
+							}
 						}
-						asset.Tags.unshift(newObservation);
-						asset.Tags = asset.Tags.distinct(function (a, b) { return a.TagId == b.TagId });
+
 						newObservation.Asset = asset;
 					}
 
 					var isTag = true;
+
 					MetadataCounterUpdate(newObservation, isTag);
 
 					if (newObservation.Asset) {
-						MetadataCounterUpdate(newObservation.Asset);
-						MetadataCounterUpdate(newObservation.Asset.Company);
-						MetadataCounterUpdate(newObservation.Asset.System);
-						MetadataCounterUpdate(newObservation.Asset.Site);
+						//MetadataCounterUpdate(newObservation.Asset);
+						//MetadataCounterUpdate(newObservation.Asset.Company);
+						//MetadataCounterUpdate(newObservation.Asset.System);
+						//MetadataCounterUpdate(newObservation.Asset.Site);
 					}
 
+					cache.tagsObject[newObservation.TagId.toString()] = newObservation;
+					newObservation.UpdateCount = 1;
 
 					cache.tags.push(newObservation);
-					MetadataCounterUpdate(newObservation, true);
 
 					tag = newObservation;
 					//console.log("New Tag Entry = %)",newObservation);
@@ -1510,18 +2170,14 @@
 			}
 			if (!isFinite(newObservation.Value) && newObservation.Value.indexOf('oken:') != 1 && newObservation.Value.indexOf('rue') != 1 && newObservation.Value.indexOf('alse') != 1) {
 				if (Global.User.Username == 'jim') {
-					console.log("Text Observation data Arrived. TagName " + tag.TagName + " --- " + tag.Value);
+					//console.log("Text Observation data Arrived. TagName " + tag.TagName + " --- " + tag.Value);
 				}
 			}
 			if (tag.DataType == 'signalR') {
 
-				//if (tag.TagName.indexOf('B2|B34|') > 0 && tag.TagName.indexOf('AIRCRAFT_DOCKED') > 0) {
-				//	console.log("B34 SignalR data Arrived in dataService - before broadcast = %O", tag);
-				//}
-
-
 				$rootScope.$broadcast("dataService.TagUpdate", tag);
 			} else {
+				//$rootScope.$broadcast("dataService.TagUpdate", tag);
 				//console.log("DB version was detected - no broadcast necessary");
 			}
 
@@ -1529,7 +2185,9 @@
 
 		}
 
-
+		//$interval(function() {
+		//	console.log("Top 5 Updated Tags = %O", cache.tags.orderByDescending(function(t){return t.UpdateCount}).take(5));
+		//},5000);
 
 		//===========================================================================================================
 		//+Attach a metadata object to the given input object. 
@@ -1604,7 +2262,7 @@
 
 			cache.tags.where(function (t) { return t.Metadata.UpdateCountDowns.OneSecond > 0 })
 				.select(function (t) {
-					t.Metadata.UpdateCountDowns.OneSecond -= 1000;
+					t.Metadata.UpdateCountDowns.OneSecond -= 2000;
 					if (t.Metadata.UpdateCountDowns.OneSecond < 0) {
 						t.Metadata.UpdateCountDowns.OneSecond = 0;
 					}
@@ -1612,13 +2270,13 @@
 
 
 			operationMetadata.tagsWithOneSecondCountdowns.select(function (t) {
-				t.Metadata.UpdateCountDowns.OneSecond -= 1000;
+				t.Metadata.UpdateCountDowns.OneSecond -= 2000;
 				if (t.Metadata.UpdateCountDowns.OneSecond < 0) {
 					t.Metadata.UpdateCountDowns.OneSecond = 0;
 				}
 			});
 
-			operationMetadata.tagsWithOneSecondCountdowns = operationMetadata.tagsWithOneSecondCountdowns.where(function(t) {
+			operationMetadata.tagsWithOneSecondCountdowns = operationMetadata.tagsWithOneSecondCountdowns.where(function (t) {
 				return t.Metadata.UpdateCountDowns.OneSecond != 0;
 			});
 
@@ -1631,7 +2289,7 @@
 			//cache.systems.select(function (e) { UpdateCountDownsForEntity(e) });
 			//cache.assets.select(function (e) { UpdateCountDownsForEntity(e) });
 
-		}, 100);
+		}, 200);
 
 
 		//***G
@@ -1692,6 +2350,24 @@
 
 
 		}, 300000);
+
+
+		//***G
+		//++Five Second Interval
+		//+Sort the cache.tags collection in order of last received.
+		//+This will make the lookup for frequent items faster.
+		//***G
+		//$interval(function () {
+		//	//This is a small collection.
+		//	//It is just a keepalive for the OData source service.
+		//	return odataService.GetEntityById("iOPS", "Sites", 1);
+
+
+
+
+		//}, 10000);
+
+
 
 
 

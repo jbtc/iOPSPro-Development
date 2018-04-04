@@ -20,17 +20,11 @@
 					}
 
 					
-
 					vm.widget.displaySettings = {
 						headingBackground: 'linear-gradient(to bottom,#dedede, #fefefe)',
 						headingExtraTitle: '',
 						obscureGraphics: true
 					}
-
-
-					
-
-
 
 
 					vm.bootstrapLabelColumns = 2;
@@ -114,7 +108,6 @@
 							vm.terminals = vm.JBTData
 								.Systems
 								.where(function (s) { return s.SiteId == vm.widget.WidgetResource.SiteId && s.Type == 'Terminal' });
-
 						}
 					}
 
@@ -140,10 +133,9 @@
 
 					function GetTerminalSystemWithGraphics() {
 
-						dataService.GetIOPSWebAPIResource("TerminalOverviewGraphicsAndTags")
-							.query({
-								terminalSystemId: vm.widget.WidgetResource.TerminalSystemId
-							}, function (data) {
+
+						dataService.GetTerminalOverviewGraphicsAndTagsForTerminalSystem(vm.widget.WidgetResource.TerminalSystemId).then(
+							function(data) {
 
 								var assetIds = data.select(function(d) {
 									return d.AssetId.toString();
@@ -154,7 +146,7 @@
 
 
 								vm.terminalGraphics = data;
-								data.forEach(function (tag) {
+								data.forEach(function(tag) {
 									if (+tag.LastObservationTextValue == +(tag.ValueWhenVisible ? tag.ValueWhenVisible : "99999999")) {
 										tag.showImage = true;
 									} else {
@@ -166,10 +158,10 @@
 
 								});
 
-								vm.terminalSystem = vm.JBTData.Systems.first(function(s){return s.Id == vm.widget.WidgetResource.TerminalSystemId});
+								vm.terminalSystem = dataService.cache.systemsObject[vm.widget.WidgetResource.TerminalSystemId.toString()];
 								console.log("vm.terminalSystem = %O", vm.terminalSystem);
-								console.log("TerminalOverviewGraphicsAndTags initial data = %O", data.orderBy(function(d){return d.ImageURL}));
-								dataService.PlaceTerminalGraphicsTagsIntoInventory(data);
+								console.log("TerminalOverviewGraphicsAndTags initial data = %O",
+									data.orderBy(function(d) { return d.ImageURL }));
 								vm.widget.displaySettings.headingExtraTitle = GetHeadingExtraTitle();
 
 
@@ -227,29 +219,30 @@
 					function UpdateGraphicsVisibilityForSingleTag(updatedTag) {
 
 						if (updatedTag && vm.terminalGraphics) {
+
 							//See if this is the asset to which the tag belongs
-
 							//console.log("Updated Tag For widget - %O", updatedTag);
-
 
 
 							vm.terminalGraphics.forEach(function (tg) {
 								//Set the "showImage" flag on each appropriately.
-								if (+tg.JBTStandardObservationId == +updatedTag.JBTStandardObservationId && +updatedTag.TagId == +tg.TagId) {
+								if (updatedTag.TagId == tg.TagId) {
 
-									//console.log("===========================================================");
-									//console.log("Tag Update from SignalR = ", updatedTag.TagName + " StdObsId = " + updatedTag.JBTStandardObservationId + " Val=" + updatedTag.Value);
-									//console.log("TG Item identified = %O", tg);
+									console.log("===========================================================");
+									console.log("Tag Update from SignalR = ", updatedTag.TagName + " StdObsId = " + updatedTag.JBTStandardObservationId + " Val=" + updatedTag.Value);
+									console.log("TG Item identified = %O", tg);
 
 								
 									tg.LastObservationTextValue = updatedTag.Value;
 									tg.LastObservationId = updatedTag.LastObservationId;
 									tg.LastObservationDate = updatedTag.LastObservationDate;
 
-									if (+updatedTag.Value == +(tg.ValueWhenVisible ? tg.ValueWhenVisible : 99999999)) {
+									if (updatedTag.Value.toString() == "1") {
 										tg.showImage = true;
+										console.log("Setting Graphic %O visible", tg);
 									} else {
 										tg.showImage = false;
+										console.log("Setting Graphic %O hidden", tg);
 									}
 								}
 							});
@@ -261,7 +254,11 @@
 
 
 					$scope.$$postDigest(function () {
-						displaySetupService.SetPanelBodyWithIdHeight(vm.widget.Id);
+						$timeout(function() {
+							displaySetupService.SetPanelBodyWithIdHeight(vm.widget.Id);
+							vm.showWidget = true;
+							
+						},50);
 
 					});
 

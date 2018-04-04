@@ -240,6 +240,28 @@
 
 		}
 
+		service.SetTabBodyHeightForWidget = function(widget) {
+			service.SetWidgetPanelBodyDimensions(widget.Id);
+			var widgetDimensions = service.GetWidgetPanelBodyDimensions(widget.Id);
+			var tabDimensions = service.GetDivDimensionsById("nav-pills" + widget.Id);
+			var heightToSet;
+			if (widgetDimensions) {
+
+				if (widget.WidgetResource.IsModalPopUp) {
+					heightToSet = widgetDimensions.height - tabDimensions.height - 20;
+				} else {
+					heightToSet = widgetDimensions.height - tabDimensions.height - 3;
+				}
+
+				//console.log("Tab Height to set = " + heightToSet);
+				$("#tab-content" + widget.Id).css('height', heightToSet);
+				$("#data" + widget.Id).css('height', heightToSet);
+				$("#repeater-container-data" + widget.Id).css('height', heightToSet);
+				$("#repeater-container-alarms" + widget.Id).css('height', heightToSet);
+				$("#repeater-container-warnings" + widget.Id).css('height', heightToSet);
+			}
+
+		}
 
 		service.SetPanelDimensions = function (iterations) {
 			//console.log("displaySetupService - SetPanelDimensions ran");
